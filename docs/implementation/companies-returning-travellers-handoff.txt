@@ -1,7 +1,7 @@
 Companies / Clients and returning-traveller feature review handoff
 Date: 2026-10-14 (Asia/Calcutta)
 Client dashboard and automatic reuse: follow-up deployed and verified; Full CI remains paused.
-Current live application: ffef7eb76c6576ddd2ac49b4dca42d3dad0229e4.
+Current live application: 0bb8de2c6cb260c34f4ba966309f938708ae8841.
 Current live schema: 0135_company_removal_history.
 The earlier release passed deployment checks but its initial live history processing
 was not verified with populated client records. The follow-up below corrects that gap.
@@ -64,8 +64,36 @@ was not verified with populated client records. The follow-up below corrects tha
   boundaries and 129 size/complexity budgets pass without relaxing old limits.
   Sanitized receipts: regression-test200-correction.json and
   test200-candidate-readonly.json in companies-reuse-evidence.
-- Deployment and completed-worker evidence will be recorded after activation.
-  The read-only candidate probe above does not itself mean live assignments changed.
+- Deployed application 0bb8de2c6cb260c34f4ba966309f938708ae8841 through Fast on
+  2026-10-14. Same schema, no migrations, previous resources retained and backup
+  archive listing recorded. All 20 services were running; all configured container
+  health checks were healthy. Live backend/frontend image IDs and served frontend
+  bytes matched the release. All 12 public smoke checks passed (10 GET requests).
+  This is Fast evidence, not Full CI qualification or an authenticated UI journey.
+- At 12:42:22 UTC, admitted exactly seven existing source jobs under the reviewed
+  manifest and one integrity audit. The normal matching worker completed at
+  12:42:32 UTC: Test now has 200 valid recipients, 200 distinct matched people and
+  200 materialized submissions, each with core identity fields and a front image.
+  No traveller response was required for assignment. All seven remain explicitly
+  unconfirmed by the traveller and have no public claims/history grants.
+- Read-only verification at 12:43:57 UTC proved all seven source/recipient
+  fingerprints unchanged, all seven source jobs succeeded, correct current-document
+  bindings, matching frozen fields and five available original images per person.
+  Original Bluechip October source population remains 853; Test changed 193->200.
+  A subsequent admission preview recognized the prior audit, admitted zero jobs,
+  and found all seven names now matched exactly through canonical indexing.
+- Eleven live business comparison checks passed, including populated company All
+  data and denied anonymous history/document access. Bluechip directory count was
+  1,396 and TATA 905; historical identity totals remain partial because separate
+  legacy conflicts still require review. This repair did not merge those records.
+- Sanitized release and recovery evidence is in companies-reuse-evidence:
+  fast-release-0bb8de2c.json, live-release-0bb8de2c.json,
+  public-smoke-0bb8de2c.json, test200-recovery-0bb8de2c.json,
+  test200-seven-after-0bb8de2c.json and business-comparison-0bb8de2c.json.
+  The read-only observer used verified READ ONLY at the existing READ COMMITTED
+  isolation with exact row fingerprints and population guards. No new sustained
+  load/capacity benchmark was run for this patch; the small query-plan timings
+  above do not establish performance at millions of records.
 
 2026-10-14 Excel contact import and incremental broadcast matching repair
 - Live diagnosis found 100 valid recipients in the Test broadcast: its original

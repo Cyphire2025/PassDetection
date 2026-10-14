@@ -1,0 +1,73 @@
+{
+  "release": "0bb8de2c6cb260c34f4ba966309f938708ae8841",
+  "admission": {
+    "acceptance_rules": {
+      "client_reviewed_current_ai_v1": 4,
+      "staff_reviewed_current_v1": 3
+    },
+    "admitted_source_jobs": 7,
+    "apply_requested": true,
+    "checked_at": "2026-10-14T18:12:22.761707+05:30",
+    "downstream_roster": "existing_source_completion_fanout",
+    "job_status_counts": {
+      "queued": 7
+    },
+    "manifest_sha256": "7cc5aff014f6a2d5426d958a2854dc4bb83d8e8c351b6dc73301217f2e1ca76a",
+    "matching_reasons": {
+      "corroborated_partial_name_match": 3,
+      "exact_three_type_match": 4
+    },
+    "operation": "test-200-seven-sources-20261014-v1",
+    "origin_source_count": 853,
+    "previously_admitted": false,
+    "ready_for_apply": true,
+    "release": "0bb8de2c6cb260c34f4ba966309f938708ae8841",
+    "source_and_recipient_fingerprints_unchanged": true,
+    "source_count": 7,
+    "target_source_count": 193,
+    "transaction_committed": true,
+    "valid_recipients": 200
+  },
+  "read_only_recheck": {
+    "acceptance_rules": {
+      "client_reviewed_current_ai_v1": 4,
+      "staff_reviewed_current_v1": 3
+    },
+    "admitted_source_jobs": 0,
+    "apply_requested": false,
+    "checked_at": "2026-10-14T18:13:40.233485+05:30",
+    "manifest_sha256": "7cc5aff014f6a2d5426d958a2854dc4bb83d8e8c351b6dc73301217f2e1ca76a",
+    "matching_reasons": {
+      "exact_three_type_match": 7
+    },
+    "operation": "test-200-seven-sources-20261014-v1",
+    "origin_source_count": 853,
+    "previously_admitted": true,
+    "ready_for_apply": true,
+    "release": "0bb8de2c6cb260c34f4ba966309f938708ae8841",
+    "source_and_recipient_fingerprints_unchanged": true,
+    "source_count": 7,
+    "target_source_count": 200,
+    "transaction_committed": false,
+    "valid_recipients": 200
+  },
+  "roster_checked_at": "2026-10-14T18:12:54.203827+05:30",
+  "valid_assignment_outcomes": [
+    {
+      "assigned_valid_recipients": 200,
+      "distinct_matched_people": 200,
+      "distinct_materialized_submissions": 200,
+      "valid_recipients": 200
+    }
+  ],
+  "target_detail_counts": [
+    {
+      "records": 200,
+      "status": "confirmed",
+      "with_core_identity_fields": 200,
+      "with_front_image": 200,
+      "with_phone": 200
+    }
+  ],
+  "note": "Normal application jobs performed all seven assignments. The older 100 rejected email companions remain historical import records, separate from the 200 valid recipients."
+}
