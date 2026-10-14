@@ -343,10 +343,94 @@ class Contracts(unittest.TestCase):
                 if revision == NEXT and (failure == 'app-proof' and not public or failure == 'public-proof' and public):
                     raise ValueError('injected')
             release.proof = proof
-            with self.subTest(failure=failure), patch('release_retained_update.bound_original', side_effect=lambda row: row):
+            with self.subTest(failure=failure), patch('release_retained_update.bound_original', side_effect=lambda row: row), \
+                    patch('release_retained_update.wait_for_idle'):
                 with self.assertRaisesRegex(ValueError, 'injected'): release.transition(candidates)
                 self.assertEqual(set(running), {row['Id'] for row in live.values()})
                 self.assertEqual(events[-1], 'recovered-originals')
+
+    def test_cutover_drains_all_exact_workers_before_stopping_ingress(self):
+        release, live, candidates, running, events = self.transition_fixture()
+        def idle(rows):
+            self.assertIs(rows, live)
+            self.assertEqual(len(WORKERS), 8)
+            self.assertEqual(set(running), {row['Id'] for name, row in live.items() if name != 'email-beat'})
+            events.append('idle')
+            return {'verified': 'all-eight-workers'}
+        with patch('release_retained_update.bound_original', side_effect=lambda row: row), \
+                patch('release_retained_update.wait_for_idle', side_effect=idle):
+            release.transition(candidates)
+        self.assertLess(events.index('stop:email-beat'), events.index('idle'))
+        for name in WORKERS:
+            self.assertLess(events.index('idle'), events.index('stop:' + name))
+            self.assertLess(events.index('stop:' + name), events.index('stop:nginx'))
+        self.assertLess(events.index('stop:nginx'), events.index('stop:backend'))
+        self.assertLess(events.index('stop:frontend'), events.index('start:candidate-backend'))
+        self.assertEqual(set(running), {row['Id'] for row in candidates.values()}
+                         | {live[name]['Id'] for name in INFRASTRUCTURE})
+        self.assertEqual(events[-1], 'complete')
+
+    def test_busy_or_uninspectable_worker_keeps_website_up_and_starts_no_candidate(self):
+        for reason in ('workers_busy_wait_before_build', 'worker_idle_evidence_unavailable'):
+            release, live, candidates, running, events = self.transition_fixture()
+            with self.subTest(reason=reason), patch('release_retained_update.bound_original', side_effect=lambda row: row), \
+                    patch('release_retained_update.wait_for_idle', side_effect=BuildError(reason)):
+                with self.assertRaisesRegex(BuildError, reason):
+                    release.transition(candidates)
+            self.assertEqual(set(running), {row['Id'] for row in live.values()})
+            self.assertEqual(events[-1], 'recovered-originals')
+            self.assertFalse(any('start:candidate-' in event for event in events))
+            self.assertFalse(any('stop:' + name in events for name in ('nginx', 'backend', 'frontend', *WORKERS)))
+
+    def test_worker_warm_shutdown_timeout_after_idle_preserves_ingress_and_recovers_stopped_workers(self):
+        release, live, candidates, running, events = self.transition_fixture()
+        normal_stop = release.stop
+        blocked = list(WORKERS)[1]
+        def stop(row):
+            if row['Id'] == live[blocked]['Id']:
+                events.append('blocked:' + blocked)
+                raise BuildError('container_still_running_after_graceful_stop')
+            normal_stop(row)
+        release.stop = stop
+        with patch('release_retained_update.bound_original', side_effect=lambda row: row), \
+                patch('release_retained_update.wait_for_idle'):
+            with self.assertRaisesRegex(BuildError, 'still_running_after_graceful_stop'):
+                release.transition(candidates)
+        self.assertEqual(set(running), {row['Id'] for row in live.values()})
+        self.assertIn('stop:' + next(iter(WORKERS)), events)
+        self.assertIn('blocked:' + blocked, events)
+        self.assertFalse(any('stop:' + name in events for name in ('nginx', 'backend', 'frontend')))
+        self.assertFalse(any('start:candidate-' in event for event in events))
+        self.assertEqual(events[-1], 'recovered-originals')
+
+    def transition_fixture(self):
+        release = object.__new__(RetainedUpdate)
+        live = select_live(live_rows())
+        candidates = {name: {**copy.deepcopy(live[name]), 'Id': 'candidate-' + name} for name in ACTIVE}
+        release.record = {'live': live, 'candidates': candidates, 'previous_revision': SHA}
+        release.revision = NEXT
+        running = {row['Id']: row for row in live.values()}
+        names = {row['Id']: name for name, row in live.items()}
+        events = []
+        release.event = lambda phase, **kw: events.append(phase)
+        release.current_main = lambda: None
+        release.retention = lambda: events.append('retention')
+        release.rows = lambda: list(running.values())
+        release.schema = lambda: SCHEMA
+        release.proof = lambda *args, **kwargs: events.append('proof')
+        def stop(row):
+            events.append('stop:' + names.get(row['Id'], row['Id']))
+            running.pop(row['Id'], None)
+        def start(row):
+            candidate = row['Id'].startswith('candidate-')
+            other_set = {live[name]['Id'] for name in ACTIVE} if candidate else {item['Id'] for item in candidates.values()}
+            self.assertFalse(other_set & running.keys(), 'application generations must never overlap')
+            events.append('start:' + names.get(row['Id'], row['Id']))
+            running[row['Id']] = row
+        release.stop = stop
+        release.fence_candidate = stop
+        release.start = start
+        return release, live, candidates, running, events
 
     def test_failed_or_oom_candidate_is_fenced_without_requiring_clean_exit(self):
         for state in ({'Running': False, 'ExitCode': 1, 'OOMKilled': False},

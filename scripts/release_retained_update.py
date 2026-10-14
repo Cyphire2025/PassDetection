@@ -457,8 +457,16 @@ walk(root);if(!found)throw Error('revision asset absent');console.log(JSON.strin
         live = self.record['live']
         self.current_main()
         try:
+            # Builds resume the original scheduler/workers. Drain them again
+            # while ingress remains available: a stuck warm shutdown must not
+            # take down the website before a replacement can safely start.
+            self.event('precutover-draining')
+            self.stop(bound_original(live['email-beat']))
+            self.event('precutover-workers-idle', worker_idle=wait_for_idle(live))
+            for name in WORKERS:
+                self.stop(bound_original(live[name]))
             self.event('cutover-starting')
-            for name in ('nginx', 'email-beat', 'backend', 'frontend', *WORKERS):
+            for name in ('nginx', 'backend', 'frontend'):
                 self.stop(bound_original(live[name]))
             require({row['Id'] for row in self.rows()} == {live[name]['Id'] for name in INFRASTRUCTURE},
                     'writers_not_fenced')
