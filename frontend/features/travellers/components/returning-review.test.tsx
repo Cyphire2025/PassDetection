@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { returningApi } from "../api/returning.api";
 import { returningDraftApi, type ReturningDraft } from "../api/returning-draft.api";
@@ -53,6 +53,22 @@ function confirm() { fireEvent.click(screen.getByRole("checkbox", { name: /revie
 function submit() { fireEvent.click(screen.getByRole("button", { name: "Submit trip details" })); }
 
 describe("protected returning draft review", () => {
+  it("keeps every document control hidden until Update Documents opens all enabled sides", async () => {
+    await setup({ group: { ...group, upload_configuration: { ...DEFAULT_UPLOAD_CONFIGURATION, passport_upload_pages: ["front", "back", "cover", "back_cover"] } }, history: { ...history, missing_requirements: ["passport_front", "fresh_photo"] } });
+    expect(screen.getByText("Has your passport changed?")).toBeVisible();
+    expect(screen.getByText("Upload new pages only for a renewed passport, corrected document, or clearer copy.")).toBeVisible();
+    expect(document.querySelectorAll('input[type="file"]')).toHaveLength(0);
+    expect(screen.queryByRole("button", { name: "Use camera" })).not.toBeInTheDocument();
+    const action = screen.getByRole("button", { name: "Update Documents" });
+    expect(action).toHaveAttribute("aria-expanded", "false");
+    fireEvent.click(action);
+    expect(action).toHaveAttribute("aria-expanded", "true");
+    expect(document.querySelectorAll('input[type="file"]')).toHaveLength(5);
+    for (const input of document.querySelectorAll('input[type="file"]')) expect(input).toBeEnabled();
+    expect(screen.getAllByText("Update document")).toHaveLength(2);
+    expect(screen.queryByText("Replace image")).not.toBeInTheDocument();
+    expect(returningDraftApi.upload).not.toHaveBeenCalled();
+  });
   it("resumes an already submitted receipt without reopening edit controls", async () => {
     state = { ...state, status: "submitted", result_status: "accepted", source_submission_id: "saved-source", participation_id: "participation" };
     render(<ReturningReview history={history} groupName="Test trip" groupToken="test-token" onFresh={vi.fn()} onReplace={vi.fn()} />);
@@ -108,7 +124,7 @@ describe("protected returning draft review", () => {
   });
   it("requires the new back page after front replacement but does not create an official source early", async () => {
     await setup();
-    fireEvent.click(screen.getByRole("button", { name: "Upload updated passport" }));
+    fireEvent.click(screen.getByRole("button", { name: "Update Documents" }));
     expect(screen.getByLabelText("Upload address details page")).toBeEnabled();
     fireEvent.change(screen.getByLabelText("Upload personal details page"), { target: { files: [new File(["front"], "front.jpg", { type: "image/jpeg" })] } });
     await screen.findByText(/Add the address page/);
@@ -127,7 +143,7 @@ describe("protected returning draft review", () => {
     const performUpload = vi.mocked(returningDraftApi.upload).getMockImplementation()!;
     vi.mocked(returningDraftApi.upload).mockImplementationOnce(async (...args) => { await transfer; return performUpload(...args); });
     await setup({ group: { ...group, upload_configuration: { ...DEFAULT_UPLOAD_CONFIGURATION, passport_live_scan: false, passport_upload_pages: ["front"] } } });
-    fireEvent.click(screen.getByRole("button", { name: "Upload updated passport" }));
+    fireEvent.click(screen.getByRole("button", { name: "Update Documents" }));
     confirm(); expect(screen.getByRole("button", { name: "Submit trip details" })).toBeEnabled();
     const file = new File(["replacement"], "replacement.jpg", { type: "image/jpeg" });
     fireEvent.change(screen.getByLabelText("Upload personal details page"), { target: { files: [file] } });
@@ -149,6 +165,8 @@ describe("protected returning draft review", () => {
   it("exposes missing required pages and blocks unavailable or failed passport checks", async () => {
     state.extraction_status = "failed";
     await setup({ history: { ...history, missing_requirements: ["passport_back"] } });
+    expect(screen.queryByLabelText("Upload address details page")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Update Documents" }));
     expect(screen.getByLabelText("Upload address details page")).toBeEnabled();
     confirm(); expect(screen.getByRole("button", { name: "Submit trip details" })).toBeDisabled();
     expect(screen.getByRole("alert")).toHaveTextContent("couldn’t read this page");
@@ -158,7 +176,8 @@ describe("protected returning draft review", () => {
     confirm(); expect(screen.getByRole("button", { name: "Submit trip details" })).toBeDisabled();
     expect(screen.queryByLabelText("Upload traveller photo")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Upload personal details page")).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Use camera" }));
+    fireEvent.click(screen.getByRole("button", { name: "Update Documents" }));
+    fireEvent.click(within(document.querySelector('[data-document-side="photo"]') as HTMLElement).getByRole("button", { name: "Use camera" }));
     fireEvent.click(await screen.findByRole("button", { name: "Capture photo" }));
     await screen.findByRole("img", { name: "Traveller photo" });
     await waitFor(() => expect(returningDraftApi.upload).toHaveBeenCalledOnce());
@@ -171,6 +190,7 @@ describe("protected returning draft review", () => {
   });
   it("requires a saved relationship token and configured photo before final submission", async () => {
     await setup({ group, history: { ...history, missing_requirements: ["qualifier_relationship", "visa_photo"] } });
+    fireEvent.click(screen.getByRole("button", { name: "Update Documents" }));
     fireEvent.change(screen.getByLabelText("Upload traveller photo"), { target: { files: [new File(["photo"], "photo.jpg", { type: "image/jpeg" })] } });
     await screen.findByRole("img", { name: "Traveller photo" });
     await waitFor(() => expect(screen.getByRole("combobox", { name: "Passenger's relationship" })).toBeEnabled());
@@ -193,7 +213,7 @@ describe("protected returning draft review", () => {
   });
   it("allows either replacement passport page first on a camera-only trip", async () => {
     await setup({ group: { ...group, require_selfie: false, allow_files_from_device: false } });
-    fireEvent.click(screen.getByRole("button", { name: "Upload updated passport" }));
+    fireEvent.click(screen.getByRole("button", { name: "Update Documents" }));
     expect(document.querySelectorAll('input[type="file"]')).toHaveLength(0);
     const cameras = screen.getAllByRole("button", { name: "Use camera" });
     expect(cameras[1]).toBeEnabled(); fireEvent.click(cameras[0]);
@@ -209,7 +229,7 @@ describe("protected returning draft review", () => {
   });
   it("allows a front-only configured replacement without requesting an unconfigured back page", async () => {
     await setup({ group: { ...group, upload_configuration: { ...DEFAULT_UPLOAD_CONFIGURATION, passport_live_scan: false, passport_upload_pages: ["front"] } } });
-    fireEvent.click(screen.getByRole("button", { name: "Upload updated passport" }));
+    fireEvent.click(screen.getByRole("button", { name: "Update Documents" }));
     fireEvent.change(screen.getByLabelText("Upload personal details page"), { target: { files: [new File(["front"], "front.jpg", { type: "image/jpeg" })] } });
     await waitFor(() => expect(state.documents).toHaveLength(1));
     expect(screen.queryByLabelText("Upload address details page")).not.toBeInTheDocument();

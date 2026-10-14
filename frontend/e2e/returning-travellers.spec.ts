@@ -163,7 +163,7 @@ test("failed passport plus date proof highlights the new-traveller action withou
 test("independent back/front replacement remains a draft and updates visible fields before submit", async ({ page }, info) => {
   await page.setViewportSize({ width: 320, height: 900 });
   const { calls } = await setup(page); await begin(page, "passport");
-  await page.getByRole("button", { name: "Upload updated passport" }).click();
+  await page.getByRole("button", { name: "Update Documents" }).click();
   await expect(page.getByLabel("Upload address details page")).toBeEnabled();
   await page.getByLabel("Upload address details page").setInputFiles({ name: "back.png", mimeType: "image/png", buffer: imageBytes });
   await expect(page.getByRole("img", { name: "Passport address page" })).toBeVisible();
@@ -192,7 +192,7 @@ test("camera-only replacement opens the scanner and never offers a file bypass",
   await setup(page, { cameraOnly: true });
   await page.addInitScript(() => { Object.defineProperty(navigator.mediaDevices, "getUserMedia", { value: () => Promise.reject(new DOMException("Synthetic camera denied", "NotAllowedError")) }); });
   await begin(page, "passport");
-  await page.getByRole("button", { name: "Upload updated passport" }).click();
+  await page.getByRole("button", { name: "Update Documents" }).click();
   await expect(page.locator('input[type="file"]')).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Use camera", exact: true }).nth(1)).toBeEnabled();
   await page.getByRole("button", { name: "Use camera", exact: true }).first().click();
@@ -208,6 +208,7 @@ test("relationship and details resume while the temporary photo must be selected
   await page.getByRole("checkbox", { name: /reviewed my passport/ }).check();
   await expect(page.getByRole("button", { name: "Submit trip details" })).toBeDisabled();
   await expect(page.getByLabel("Upload personal details page")).toHaveCount(0);
+  await page.getByRole("button", { name: "Update Documents" }).click();
   await page.getByLabel("Upload traveller photo").setInputFiles({ name: "photo.png", mimeType: "image/png", buffer: imageBytes });
   await page.getByRole("heading", { name: "Traveller photo" }).scrollIntoViewIfNeeded();
   await expect(page.getByRole("img", { name: "Traveller photo" })).toBeVisible();
@@ -219,6 +220,7 @@ test("relationship and details resume while the temporary photo must be selected
   await page.getByRole("heading", { name: "Traveller photo" }).scrollIntoViewIfNeeded();
   await expect(page.getByRole("img", { name: "Traveller photo" })).toHaveCount(0);
   expect(currentDraft().documents).toEqual([]);
+  await page.getByRole("button", { name: "Update Documents" }).click();
   await page.getByLabel("Upload traveller photo").setInputFiles({ name: "photo-resumed.png", mimeType: "image/png", buffer: imageBytes });
   await expect(page.getByRole("img", { name: "Traveller photo" })).toBeVisible();
   await expect(page.getByLabel("Passport Number", { exact: true })).toHaveValue("A1234567");

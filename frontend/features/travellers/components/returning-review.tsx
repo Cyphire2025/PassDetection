@@ -16,7 +16,6 @@ import { ReturningCurrentDetails } from "./returning-current-details";
 import { ReturningDraftImages } from "./returning-draft-images";
 import { ReturningCollection } from "./returning-collection";
 import { draftReviewReadiness } from "../services/draft-readiness";
-import { requiredUploadSides } from "../services/draft-document-requirements";
 
 type Props = { history: ReturningHistory; groupName: string; group?: UploadLinkResponse; groupToken?: string; onFresh: () => void; onReplace: (request: ReplacementRequest) => void; ownedSource?: ReturningOwnedSource; onCompleted?: (result: CompletionResult) => void };
 
@@ -48,10 +47,9 @@ function ReturningReviewContent({ history, groupName, group, groupToken = "", ow
   const draft = form.draft;
   const payload = form.payload;
   const displayName = [payload?.passport_fields.given_names, payload?.passport_fields.surname].filter(Boolean).join(" ") || history.display_name;
-  const { extracting, frontChanged, contact, needsContact, needsReplacement, needsBack, canSubmit } = draftReviewReadiness(history, draft, form.pending, confirmed, group);
+  const { extracting, contact, needsContact, needsReplacement, needsBack, canSubmit } = draftReviewReadiness(history, draft, form.pending, confirmed, group);
   const photoRequired = (history.missing_requirements ?? []).some((key) => key === "fresh_photo" || key === "visa_photo");
   const qualifierRequired = (history.missing_requirements ?? []).includes("qualifier_relationship");
-  const passportRequired = replacement || frontChanged || needsReplacement || requiredUploadSides(history).some((side) => side !== "photo");
   if (result || draft?.status === "submitted") return <TravellerShell><section className="mt-12 space-y-5 rounded-3xl border border-emerald-100 bg-white p-8 text-center shadow-sm"><CheckCircle2 className="mx-auto h-12 w-12 text-emerald-600" aria-hidden="true" /><h1 className="text-2xl font-semibold tracking-tight text-slate-950">Your trip details are saved</h1><p className="text-sm leading-6 text-slate-500">Thank you. Your information for {groupName} has been submitted.{(result?.status ?? draft?.result_status) === "submitted" ? " Your travel team will review any remaining checks." : ""}</p><Button type="button" variant="secondary" className="h-auto min-h-12 whitespace-normal" onClick={onFresh}>Continue for another traveller</Button></section></TravellerShell>;
   return <TravellerShell wide>
     <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -62,7 +60,7 @@ function ReturningReviewContent({ history, groupName, group, groupToken = "", ow
     {loadError && <p role="alert" className="mb-4 rounded-xl bg-red-50 p-4 text-sm text-red-800">{loadError}</p>}
     <div className="mb-6 flex flex-col gap-4 rounded-2xl border border-blue-100 bg-white/95 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
       <div><p className="font-medium text-slate-900">Has your passport changed?</p><p className="mt-1 text-sm leading-6 text-slate-500">Upload new pages only for a renewed passport, corrected document, or clearer copy.</p></div>
-      <Button type="button" variant="secondary" className="h-auto min-h-12 shrink-0 whitespace-normal" disabled={!draft || form.pending} onClick={() => setReplacement(true)}><Upload className="h-4 w-4" />Upload updated passport</Button>
+      <Button type="button" variant="secondary" className="h-auto min-h-12 shrink-0 whitespace-normal" disabled={!draft || form.pending} aria-expanded={replacement} onClick={() => setReplacement(true)}><Upload className="h-4 w-4" />Update Documents</Button>
     </div>
     {form.error && <div role="alert" className="mb-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm leading-6 text-red-800">{form.error}<button type="button" onClick={form.retry} className="ml-3 min-h-10 font-semibold underline">Retry</button><button type="button" disabled={loading} onClick={() => void reload()} className="ml-3 min-h-10 font-semibold underline">Refresh current trip requirements</button></div>}
     {!draft || !payload ? <div role="status" className="rounded-2xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500">Preparing your secure review…</div> : <form onSubmit={(event) => {
@@ -71,7 +69,7 @@ function ReturningReviewContent({ history, groupName, group, groupToken = "", ow
     }}>
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
         <div className="min-w-0 space-y-5">
-          {group ? <ReturningCollection form={form} group={group} token={groupToken} documents={history.documents} photo={photoRequired || replacement} qualifier={qualifierRequired} passport={passportRequired} onChange={() => setConfirmed(false)} onUploadBusyChange={setUploadBusy} /> : <><p role="alert" className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">The trip’s document settings could not be loaded. Refresh the link before completing these requirements.</p><ReturningDraftImages documents={history.documents} draft={draft} hidePhoto={photoRequired} /></>}
+          {group ? <ReturningCollection form={form} group={group} token={groupToken} documents={history.documents} updatesEnabled={replacement} qualifier={qualifierRequired} onChange={() => setConfirmed(false)} onUploadBusyChange={setUploadBusy} /> : <><p role="alert" className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">The trip’s document settings could not be loaded. Refresh the link before completing these requirements.</p><ReturningDraftImages documents={history.documents} draft={draft} hidePhoto={photoRequired} /></>}
         </div>
         <ReviewDetailsColumn>
           <section className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">

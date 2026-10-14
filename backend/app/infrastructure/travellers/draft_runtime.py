@@ -18,6 +18,7 @@ from app.application.travellers.draft_contracts import DraftPayload
 from app.core.config.traveller_reuse import get_traveller_reuse_settings
 from app.domain.services.traveller_verification import utc
 from app.domain.value_objects.passport_document_classification import (
+    PASSPORT_PROVIDER_FAILURE_STATUSES,
     is_accepted_passport_information_page,
 )
 from app.domain.value_objects.passport_fields import REVIEWABLE_PASSPORT_FIELDS
@@ -107,6 +108,8 @@ async def run_draft_extraction(*, factory: async_sessionmaker[AsyncSession] = As
                 classification = draft_classification(result.extracted_fields)
                 fields = {key: value for key, value in result.extracted_fields.items()
                     if key in REVIEWABLE_PASSPORT_FIELDS and isinstance(value, str) and len(value) <= 160}
+                if classification.get("available") is False and classification.get("status") in PASSPORT_PROVIDER_FAILURE_STATUSES:
+                    fields = None  # Explicit provider failures share the bounded exception retry path.
     except DraftExtractionDeferred:
         deferred = True
     except Exception:

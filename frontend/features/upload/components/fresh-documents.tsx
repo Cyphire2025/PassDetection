@@ -37,7 +37,8 @@ export function FreshDocuments({ state, settings, token, sessionId, savedDocumen
   </section>;
 }
 function documentProcessingStatus(side: DraftSide, state: DraftDocumentInputs, pendingSide: DraftSide | undefined, ecr: boolean) {
-  if (pendingSide === side) return "Preparing your image…";
-  if (side === "front" && ["pending", "running"].includes(state.draft?.extraction_status ?? "")) return "Extracting details…";
-  if (side === "back" && ecr && ["pending", "running"].includes(state.draft?.ecr_status ?? "")) return "Verifying ECR presence…";
+  const uploading = pendingSide === side || state.draft?.documents.some((document) => document.side === side && document.state === "uploading");
+  if (side === "front" && (uploading || ["pending", "running"].includes(state.draft?.extraction_status ?? ""))) return "Extracting details…";
+  if (side === "back" && ecr && (uploading || ["pending", "running"].includes(state.draft?.ecr_status ?? ""))) return "Verifying ECR presence…";
+  if (uploading) return "Uploading document…";
 }

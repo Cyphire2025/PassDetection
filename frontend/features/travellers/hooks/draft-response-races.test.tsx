@@ -1,5 +1,5 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { useFreshDraft } from "@/features/upload/hooks/use-fresh-draft";
 import { useReturningDraft } from "./use-returning-draft";
 import type { FreshDraft, FreshPayload } from "@/features/upload/api/fresh-draft.api";
@@ -17,6 +17,7 @@ let server: FreshDraft;
 const snapshot = () => structuredClone(server);
 const file = (content = "synthetic") => new File([content], "passport.jpg", { type: "image/jpeg", lastModified: 100 });
 const deferred = <T,>() => { let resolve!: (value: T) => void; const promise = new Promise<T>((done) => { resolve = done; }); return { promise, resolve }; };
+afterEach(() => vi.useRealTimers());
 
 beforeEach(() => {
   vi.resetAllMocks(); localStorage.clear();
@@ -36,6 +37,38 @@ for (const kind of ["fresh", "returning"] as const) {
   const useSubject: () => Subject = kind === "fresh" ? () => useFreshDraft("trip", member, collection) : () => useReturningDraft(history, "trip");
   async function setup() { const hook = renderHook(useSubject); await waitFor(() => expect(hook.result.current.pending).toBe(false)); return hook; }
   describe(`${kind} draft response races`, () => {
+    it("automatically polls an uploaded passport until extracted fields arrive and then stops", async () => {
+      const hook = await setup();
+      vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "setInterval", "clearInterval", "Date"] });
+      api.upload.mockImplementationOnce(async () => {
+        server = { ...server, revision: 3, passport_fields: {},
+          documents: [{ id: "selected-front", side: "front", state: "ready" }], extraction_status: "pending" };
+        return snapshot();
+      });
+      await act(() => hook.result.current.upload("front", file()));
+      expect(hook.result.current.draft?.extraction_status).toBe("pending");
+      expect(hook.result.current.payload?.passport_fields).toEqual({});
+      act(() => hook.result.current.update("custom_answers", "meal", "Veg"));
+      server = { ...server, extraction_status: "running" };
+      await act(() => vi.advanceTimersByTimeAsync(2_000));
+      expect(api.read).toHaveBeenCalledOnce();
+      expect(hook.result.current.draft?.extraction_status).toBe("running");
+      const fields = { given_names: "SYNTHETIC", surname: "TRAVELLER", passport_number: "TEST1234",
+        nationality: "Indian", place_of_issue: "TEST CITY", date_of_birth: "1990-01-01",
+        date_of_issue: "2024-01-01", date_of_expiry: "2034-01-01", sex: "F" };
+      server = { ...server, revision: server.revision + 1, extraction_status: "succeeded",
+        passport_fields: fields, extracted_fields: fields };
+      await act(() => vi.advanceTimersByTimeAsync(2_000));
+      expect(api.read).toHaveBeenCalledTimes(2);
+      expect(hook.result.current.draft?.extraction_status).toBe("succeeded");
+      expect(hook.result.current.payload?.passport_fields).toEqual(fields);
+      expect(hook.result.current.payload?.custom_answers.meal).toBe("Veg");
+      expect(hook.result.current.draft?.documents[0].id).toBe("selected-front");
+      await act(() => vi.advanceTimersByTimeAsync(10_000));
+      expect(api.read).toHaveBeenCalledTimes(2);
+      hook.unmount();
+    });
+
     it("saves the latest text before explicitly leaving and removes only temporary images", async () => {
       server.documents = [{ id: "staged-front", side: "front", state: "ready" }];
       const hook = await setup(); act(() => hook.result.current.update("current_details", "staff_code", "KEEP THIS"));

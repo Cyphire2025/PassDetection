@@ -22,20 +22,30 @@ describe("ordered document processing", () => {
     expect(screen.getByLabelText("Upload address details page")).toBeEnabled();
   });
   it("shows the selected image immediately, waits for processing, and releases it on leaving", async () => {
-    let finish!: (file: File) => void;
+    let finish!: (file: File) => void, finishUpload!: (receipt: { documents: [{ id: string; side: "front"; state: "ready" }] }) => void;
     vi.mocked(preparePublicUploadFile).mockImplementationOnce(() => new Promise((resolve) => { finish = resolve; }));
     const state = makeState();
+    vi.mocked(state.upload).mockImplementationOnce(() => new Promise((resolve) => { finishUpload = resolve; }));
     const view = render(<FreshDocuments state={state} settings={settings} token="trip" sessionId="session" />);
     const file = new File(["synthetic"], "new-front.jpg", { type: "image/jpeg" });
     fireEvent.change(screen.getByLabelText("Upload personal details page"), { target: { files: [file] } });
     expect(await screen.findByRole("img", { name: "Passport details page" })).toHaveAttribute("src", "blob:new-front.jpg");
-    expect(screen.getByText("Preparing your image…")).toBeVisible();
+    expect(screen.getByText("Extracting details…")).toBeVisible();
     expect(state.upload).not.toHaveBeenCalled();
     await act(async () => finish(file));
     await waitFor(() => expect(state.upload).toHaveBeenCalledExactlyOnceWith("front", file));
+    expect(screen.getByText("Extracting details…")).toBeVisible();
+    const documents = [{ id: "new-front", side: "front" as const, state: "ready" as const }] as [{ id: string; side: "front"; state: "ready" }];
+    await act(async () => finishUpload({ documents }));
+    view.rerender(<FreshDocuments state={{ ...state, draft: { documents, extraction_status: "pending" } }} settings={settings} token="trip" sessionId="session" />);
+    expect(screen.getByText("Extracting details…")).toBeVisible();
     view.rerender(<FreshDocuments state={{ ...state, draft: { documents: [{ id: "new-front", side: "front", state: "ready" }], extraction_status: "running" } }} settings={settings} token="trip" sessionId="session" />);
     expect(screen.getByText("Extracting details…")).toBeVisible();
     expect(screen.getByRole("img", { name: "Passport details page" })).toHaveAttribute("src", "blob:new-front.jpg");
+    expect(screen.getByRole("img", { name: "Passport details page" }).closest('[aria-busy]')).toHaveAttribute("aria-busy", "true");
+    view.rerender(<FreshDocuments state={{ ...state, draft: { documents, extraction_status: "succeeded" } }} settings={settings} token="trip" sessionId="session" />);
+    expect(screen.queryByText("Extracting details…")).not.toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Passport details page" }).closest('[aria-busy]')).toHaveAttribute("aria-busy", "false");
     view.unmount(); expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:new-front.jpg");
   });
   it("shows the real ECR checking status only on enabled address-page checks", async () => {
@@ -45,6 +55,22 @@ describe("ordered document processing", () => {
     expect(screen.getByText("Verifying ECR presence…")).toBeVisible();
     view.rerender(<FreshDocuments state={state} settings={{ ...settings, uploadConfig: { ...settings.uploadConfig, passport_ecr_enabled: false } }} token="trip" sessionId="session" />);
     expect(screen.queryByText("Verifying ECR presence…")).not.toBeInTheDocument();
+  });
+  it.each([true, false])("keeps the correct address-page stage through transfer with ECR enabled=%s", async (ecr) => {
+    let finish!: (file: File) => void;
+    vi.mocked(preparePublicUploadFile).mockImplementationOnce(() => new Promise((resolve) => { finish = resolve; }));
+    const state = makeState(), configured = { ...settings, uploadConfig: { ...settings.uploadConfig, passport_ecr_enabled: ecr } };
+    const view = render(<FreshDocuments state={state} settings={configured} token="trip" sessionId="session" />);
+    const file = new File(["address"], "address.jpg", { type: "image/jpeg" });
+    fireEvent.change(screen.getByLabelText("Upload address details page"), { target: { files: [file] } });
+    expect(await screen.findByText(ecr ? "Verifying ECR presence…" : "Uploading document…")).toBeVisible();
+    await act(async () => finish(file));
+    await waitFor(() => expect(state.upload).toHaveBeenCalledExactlyOnceWith("back", file));
+    const documents = [{ id: "new-back", side: "back" as const, state: "ready" as const }];
+    view.rerender(<FreshDocuments state={{ ...state, draft: { documents, ecr_status: ecr ? "failed" : "none" } }} settings={configured} token="trip" sessionId="session" />);
+    expect(screen.queryByText("Verifying ECR presence…")).not.toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Passport address page" }).closest('[aria-busy]')).toHaveAttribute("aria-busy", "false");
+    if (ecr) expect(screen.getByRole("alert")).toHaveTextContent("couldn’t check ECR");
   });
   it("rolls back a failed local selection instead of presenting it as a saved upload", async () => {
     const state = makeState(); vi.mocked(state.upload).mockRejectedValueOnce(new Error("Upload interrupted"));

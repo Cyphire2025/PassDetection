@@ -109,6 +109,9 @@ async def publish_asset(service: DraftStore, draft: Draft, asset: Asset, previou
         if (config or {}).get("passport_enabled", True) is True and (config or {}).get("passport_ecr_enabled", False) is True:
             asset.extraction_status = "pending"
     draft.revision += 1
+    # Production sessions disable autoflush. The authoritative view refreshes
+    # asset rows, so publish first or it would reload the old uploading state.
+    await service.session.flush()
     result = await draft_view(service, draft)
     await service.session.commit()
     return result

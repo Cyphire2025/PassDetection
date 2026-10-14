@@ -29,6 +29,8 @@ async def expire_draft_assets(*, factory: async_sessionmaker[AsyncSession] = Asy
             draft.verified_phone_ciphertext = draft.verified_phone_fingerprint = None
             draft.payload_ciphertext = ""  # No retained personal draft text after expiry.
             draft.requirements_ciphertext = None
+        # Production disables autoflush; the asset join must see these expiries.
+        await session.flush()
         expired_ids = [draft.id for draft in drafts]
         if expired_ids:
             await session.execute(delete(Proof).where(Proof.draft_id.in_(expired_ids)))
@@ -40,5 +42,7 @@ async def expire_draft_assets(*, factory: async_sessionmaker[AsyncSession] = Asy
         ).order_by(Asset.created_at, Asset.id).limit(100).with_for_update(skip_locked=True, of=Asset)))
         for asset in assets:
             stage_draft_asset_cleanup(session, asset)
+        # The orphan pass refreshes rows; never reload a just-discarded upload.
+        await session.flush()
         orphaned = await discard_orphan_images(session, limit=100-len(assets)) if len(assets) < 100 else 0
         return len(assets) + orphaned
