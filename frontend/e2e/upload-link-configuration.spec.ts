@@ -17,6 +17,7 @@ const admin = {
   updated_at: "2026-09-05T00:00:00Z",
   capabilities: [],
 };
+const company = { id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", name: "Example corporate client", status: "active" };
 
 async function json(route: Route, body: unknown, status = 200) {
   await route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
@@ -53,6 +54,8 @@ async function mockUploadLinkApi(page: Page) {
       });
     }
     if (pathname === "/api/v1/auth/me") return json(route, admin);
+    if (pathname === "/api/v1/companies/workspace" && request.method() === "GET") return json(route, { agency_id: admin.agency_id });
+    if (pathname === "/api/v1/companies/lookup") return json(route, { items: [company], next_cursor: null, has_more: false });
     if (pathname === "/api/v1/notifications/feed") {
       return json(route, { items: [], unread_count: 0, next_cursor: null });
     }
@@ -152,6 +155,8 @@ for (const viewport of [
     await expect(dialog.getByRole("switch")).toHaveCount(0);
     await expect(dialog.getByRole("heading", { name: "Link existing WhatsApp broadcasts" })).toHaveCount(0);
     await dialog.getByRole("textbox", { name: "Group Name", exact: true }).fill("Final Excel Roster");
+    await dialog.getByRole("button", { name: /Select a company/ }).click();
+    await dialog.getByRole("option", { name: company.name }).click();
     await dialog.getByRole("textbox", { name: "Destination", exact: true }).fill("Dubai");
     await dialog.getByLabel(/Travel\/Departure Date/).fill("2026-11-01");
     await dialog.getByLabel(/Return Date/).fill("2026-11-08");
@@ -211,6 +216,8 @@ for (const viewport of [
     await expect(createDialog.getByLabel("Notes", { exact: true })).toHaveCount(0);
     await expect(createDialog.getByRole("switch", { name: /Live Photo Capture/ })).toHaveCount(0);
     await createDialog.getByRole("textbox", { name: "Group Name", exact: true }).fill("Autumn Producer Group");
+    await createDialog.getByRole("button", { name: /Select a company/ }).click();
+    await createDialog.getByRole("option", { name: company.name }).click();
     await createDialog.getByRole("textbox", { name: "Destination", exact: true }).fill("Dubai");
     await createDialog.getByLabel(/Travel\/Departure Date/).fill("2026-11-01");
     await createDialog.getByLabel(/Return Date/).fill("2026-11-08");

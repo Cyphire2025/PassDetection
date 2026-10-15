@@ -1,0 +1,72 @@
+{
+  "after": [
+    {
+      "assets": 11,
+      "availability": "pending",
+      "copy_attempt_count": 2,
+      "due": 11,
+      "earliest_next_attempt": "2026-10-14 10:18:57.366820+00:00",
+      "expired_leases": 0,
+      "latest_next_attempt": "2026-10-14 10:19:32.174157+00:00",
+      "live_leases": 0
+    },
+    {
+      "assets": 61,
+      "availability": "pending",
+      "copy_attempt_count": 3,
+      "due": 43,
+      "earliest_next_attempt": "2026-10-14 10:19:22.200346+00:00",
+      "expired_leases": 0,
+      "latest_next_attempt": "2026-10-14 10:22:12.251703+00:00",
+      "live_leases": 0
+    }
+  ],
+  "backend": "retained-ffef7eb76c65-185f02cb-backend",
+  "backend_image": "sha256:2f3efd2e8ec508dfa0bc8f6577366a72a719530802018e62452deee9b7abd95e",
+  "before": [
+    {
+      "assets": 13,
+      "availability": "pending",
+      "copy_attempt_count": 2,
+      "due": 13,
+      "earliest_next_attempt": "2026-10-14 10:18:52.198131+00:00",
+      "expired_leases": 0,
+      "latest_next_attempt": "2026-10-14 10:19:32.174157+00:00",
+      "live_leases": 0
+    },
+    {
+      "assets": 59,
+      "availability": "pending",
+      "copy_attempt_count": 3,
+      "due": 43,
+      "earliest_next_attempt": "2026-10-14 10:19:22.200346+00:00",
+      "expired_leases": 0,
+      "latest_next_attempt": "2026-10-14 10:22:07.241670+00:00",
+      "live_leases": 0
+    }
+  ],
+  "checked_at": "2026-10-14T10:21:32.112217+00:00",
+  "copy_authority": {
+    "current": 72
+  },
+  "document_bytes_downloaded": 0,
+  "document_sides": {
+    "front": 72
+  },
+  "examined_assets": 72,
+  "head_concurrency": 2,
+  "head_connect_timeout_seconds": 3,
+  "head_max_attempts": 1,
+  "head_read_timeout_seconds": 5,
+  "read_only": true,
+  "release": "ffef7eb76c6576ddd2ac49b4dca42d3dad0229e4",
+  "source_head_count": 72,
+  "source_head_limit": 72,
+  "source_head_outcomes": {
+    "not_found": 72
+  },
+  "source_reference_categories": {
+    "excel_import_placeholder": 72
+  },
+  "worker_max_copy_attempts": 5
+}

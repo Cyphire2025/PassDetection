@@ -1,0 +1,144 @@
+{
+  "selected_test_files": 29,
+  "current_selected_tests": 333,
+  "latest_results_passed": 333,
+  "unverified_current_tests": [],
+  "runs": [
+    {
+      "receipt": "test200-regression-tests.xml",
+      "tests": 325,
+      "failures": 3,
+      "errors": 0,
+      "seconds": 257.751
+    },
+    {
+      "receipt": "test200-followup-tests.xml",
+      "tests": 24,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 32.325
+    },
+    {
+      "receipt": "test200-consumers-tests.xml",
+      "tests": 17,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 27.306
+    }
+  ],
+  "coverage_of_changed_modules": [
+    {
+      "path": "app/application/companies/export_source.py",
+      "statement_coverage_percent": 98.78,
+      "reviewed_floor": 95
+    },
+    {
+      "path": "app/application/companies/people.py",
+      "statement_coverage_percent": 98.65,
+      "reviewed_floor": 95
+    },
+    {
+      "path": "app/application/travellers/authority.py",
+      "statement_coverage_percent": 94.12,
+      "reviewed_floor": null
+    },
+    {
+      "path": "app/application/travellers/claims.py",
+      "statement_coverage_percent": 87.62,
+      "reviewed_floor": null
+    },
+    {
+      "path": "app/application/travellers/company_history_jobs.py",
+      "statement_coverage_percent": 100.0,
+      "reviewed_floor": 95
+    },
+    {
+      "path": "app/application/travellers/document_selection.py",
+      "statement_coverage_percent": 97.44,
+      "reviewed_floor": 90
+    },
+    {
+      "path": "app/application/travellers/enrollment.py",
+      "statement_coverage_percent": 93.06,
+      "reviewed_floor": null
+    },
+    {
+      "path": "app/application/travellers/grants.py",
+      "statement_coverage_percent": 92.41,
+      "reviewed_floor": null
+    },
+    {
+      "path": "app/application/travellers/historical_identity.py",
+      "statement_coverage_percent": 93.44,
+      "reviewed_floor": 85
+    },
+    {
+      "path": "app/application/travellers/historical_registration.py",
+      "statement_coverage_percent": 95.61,
+      "reviewed_floor": 95
+    },
+    {
+      "path": "app/application/travellers/history.py",
+      "statement_coverage_percent": 94.37,
+      "reviewed_floor": null
+    },
+    {
+      "path": "app/application/travellers/identity_candidates.py",
+      "statement_coverage_percent": 94.44,
+      "reviewed_floor": 90
+    },
+    {
+      "path": "app/application/travellers/identity_index.py",
+      "statement_coverage_percent": 93.51,
+      "reviewed_floor": 90
+    },
+    {
+      "path": "app/application/travellers/impact.py",
+      "statement_coverage_percent": 87.5,
+      "reviewed_floor": null
+    },
+    {
+      "path": "app/application/travellers/legacy_source_acceptance.py",
+      "statement_coverage_percent": 97.96,
+      "reviewed_floor": 90
+    },
+    {
+      "path": "app/application/travellers/matching.py",
+      "statement_coverage_percent": 92.77,
+      "reviewed_floor": null
+    },
+    {
+      "path": "app/application/travellers/operational_autoassignment.py",
+      "statement_coverage_percent": 90.91,
+      "reviewed_floor": 90
+    },
+    {
+      "path": "app/application/travellers/passport_selection.py",
+      "statement_coverage_percent": 94.74,
+      "reviewed_floor": null
+    },
+    {
+      "path": "app/application/travellers/versioning.py",
+      "statement_coverage_percent": 93.75,
+      "reviewed_floor": 90
+    },
+    {
+      "path": "app/domain/services/identity_decisions.py",
+      "statement_coverage_percent": 96.77,
+      "reviewed_floor": 90
+    },
+    {
+      "path": "app/domain/services/traveller_identity.py",
+      "statement_coverage_percent": 97.56,
+      "reviewed_floor": 95
+    },
+    {
+      "path": "app/domain/services/traveller_names.py",
+      "statement_coverage_percent": 90.0,
+      "reviewed_floor": 90
+    }
+  ],
+  "coverage_floor_failures": [],
+  "full_ci_qualified": false,
+  "note": "333 current selected test cases have passing evidence across the combined run and targeted reruns. Initial3 synthetic workbook fixtures were corrected to carry valid client phone-review authority; audit-evidence and consumer pagination/export changes were rerun. Counts are deduplicated, not summed. Full CI remains paused."
+}

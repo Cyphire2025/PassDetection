@@ -173,6 +173,42 @@ def test_lock_failure_closes_candidate_descriptor(tmp_path, monkeypatch):
     assert admission._open_descriptors == before
 
 
+@pytest.mark.parametrize("wait_seconds", [-1, 5.01, float("inf"), float("nan")])
+def test_invalid_wait_cannot_enter_or_create_admission_files(tmp_path, wait_seconds):
+    with pytest.raises(ValueError, match="Invalid image admission wait"):
+        with admission.native_image_slot(directory=tmp_path, wait_seconds=wait_seconds):
+            pytest.fail("Invalid wait admitted native processing")
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_hardlinked_ticket_fails_closed_without_leaking_a_descriptor(tmp_path):
+    ticket = tmp_path / "ticket-0.lock"
+    ticket.touch(mode=0o600)
+    os.link(ticket, tmp_path / "aliased-ticket.lock")
+    before = set(admission._open_descriptors)
+    with pytest.raises(ImageProcessingBusy):
+        with admission.native_image_slot(directory=tmp_path):
+            pytest.fail("Hardlinked admission ticket was accepted")
+    assert admission._open_descriptors == before
+
+
+@pytest.mark.skipif(os.name != "posix", reason="POSIX admission permission boundaries")
+@pytest.mark.parametrize("unsafe_target", ["directory", "ticket"])
+def test_shared_writable_admission_paths_fail_closed(tmp_path, unsafe_target):
+    target = tmp_path if unsafe_target == "directory" else tmp_path / "ticket-0.lock"
+    if unsafe_target == "ticket":
+        target.touch(mode=0o600)
+    target.chmod(0o777 if unsafe_target == "directory" else 0o666)
+    before = set(admission._open_descriptors)
+    try:
+        with pytest.raises(ImageProcessingBusy):
+            with admission.native_image_slot(directory=tmp_path):
+                pytest.fail("Shared writable admission path was accepted")
+        assert admission._open_descriptors == before
+    finally:
+        target.chmod(0o700 if unsafe_target == "directory" else 0o600)
+
+
 def test_native_failure_releases_slot_and_preserves_original_exception(tmp_path):
     with pytest.raises(ValueError, match="image decode failure"):
         with admission.native_image_slot(directory=tmp_path):

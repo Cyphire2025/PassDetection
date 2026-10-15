@@ -281,3 +281,4 @@ describe("public configurable upload flow", () => {
     expect(attempts[1].passportCoverFile).toBe(cover);
   });
 });
+vi.mock("@/features/travellers/components/returning-offer", () => ({ ReturningTravellerOffer: () => null }));

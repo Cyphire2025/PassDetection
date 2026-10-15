@@ -16,6 +16,7 @@ export const PROTECTED_PREFIXES = [
   "/coordinator",
   "/tour-scanner",
   "/dashboard",
+  "/companies",
   "/passports",
   "/upload-links",
   "/whatsapp",
@@ -38,7 +39,7 @@ function matchesRouteBoundary(pathname: string, prefix: string) {
   return pathname === prefix || pathname.startsWith(`${prefix}/`);
 }
 
-export function buildContentSecurityPolicy(nonce: string, isDevelopment: boolean) {
+export function buildContentSecurityPolicy(nonce: string, isDevelopment: boolean, allowPrivateDocumentFrames = false) {
   return [
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'wasm-unsafe-eval'${
@@ -59,6 +60,8 @@ export function buildContentSecurityPolicy(nonce: string, isDevelopment: boolean
     "worker-src 'self' blob:",
     "manifest-src 'self'",
     "object-src 'none'",
+    // Only the public review mounts authorised, MIME-checked PDF blob previews.
+    `frame-src 'self'${allowPrivateDocumentFrames ? " blob:" : ""}`,
     "base-uri 'self'",
     "frame-ancestors 'none'",
     "form-action 'self'",
@@ -76,6 +79,7 @@ export function proxy(request: NextRequest): NextResponse {
   const contentSecurityPolicy = buildContentSecurityPolicy(
     nonce,
     process.env.NODE_ENV === "development",
+    matchesRouteBoundary(pathname, "/upload"),
   );
 
   // The backend sets this HttpOnly cookie. Presence is only an optimistic

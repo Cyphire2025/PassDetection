@@ -61,6 +61,7 @@ export const customDetailSchema = z.object({
 });
 
 const groupDetailsSchema = z.object({
+  company_id: z.string().uuid("Select a company / client"),
   name: z.string().trim().min(1, "Group name is required").max(100),
   destination: z.string().trim().min(1, "Destination is required").max(255),
   travel_date: z.string().trim().min(1, "Travel/Departure date is required"),

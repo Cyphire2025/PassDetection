@@ -1,0 +1,226 @@
+{
+  "backend": "retained-ffef7eb76c65-185f02cb-backend",
+  "backend_image": "sha256:2f3efd2e8ec508dfa0bc8f6577366a72a719530802018e62452deee9b7abd95e",
+  "checked_at": "2026-10-14T10:19:40.686993+00:00",
+  "completion": {
+    "all_test_recipients_assigned": true,
+    "both_group_jobs_succeeded": true,
+    "both_refreshes_admitted": true,
+    "staff_copy_pending": 72,
+    "staff_copy_unreadable": 0
+  },
+  "current_link": [
+    {
+      "created_at": "2026-10-14 08:42:40.035555+00:00"
+    }
+  ],
+  "fingerprint_preservation": {
+    "exact_twelve_unchanged": 12,
+    "expected_exact_sources": 12,
+    "original_source_unchanged": true
+  },
+  "group_refresh_jobs": [
+    {
+      "attempt_count": 0,
+      "completed_at": "2026-10-14 10:14:49.227874+00:00",
+      "created_at": "2026-10-14 10:14:15.885334+00:00",
+      "group_id": "20b93ca4-ac66-4194-babc-432f2c00720a",
+      "last_error_code": null,
+      "processed_count": 1560,
+      "status": "succeeded"
+    },
+    {
+      "attempt_count": 0,
+      "completed_at": "2026-10-14 10:14:48.524445+00:00",
+      "created_at": "2026-10-14 10:14:15.908757+00:00",
+      "group_id": "d6647741-0d4b-48c9-b4ad-1f3a61b34b5a",
+      "last_error_code": null,
+      "processed_count": 1438,
+      "status": "succeeded"
+    }
+  ],
+  "lock_timeout_seconds": 2,
+  "maximum_remaining_acceptance_sample": 50,
+  "origin_population": [
+    {
+      "sources": 853
+    }
+  ],
+  "policy": [
+    {
+      "company_revision": 4,
+      "company_status": "active",
+      "enabled": true,
+      "policy_revision": 3
+    }
+  ],
+  "public_authorization": [
+    {
+      "authorized_claims": 0,
+      "history_grants": 0
+    }
+  ],
+  "read_only": true,
+  "refresh_audits": [
+    {
+      "created_at": "2026-10-14 10:14:15.891932+00:00",
+      "group_id": "20b93ca4-ac66-4194-babc-432f2c00720a"
+    },
+    {
+      "created_at": "2026-10-14 10:14:15.911095+00:00",
+      "group_id": "d6647741-0d4b-48c9-b4ad-1f3a61b34b5a"
+    }
+  ],
+  "release": "ffef7eb76c6576ddd2ac49b4dca42d3dad0229e4",
+  "remaining_registration_reasons": [
+    {
+      "group_id": "20b93ca4-ac66-4194-babc-432f2c00720a",
+      "reason_code": "operator_historical_registration",
+      "registration_reason": "conflicting_passport_owner",
+      "sources": 1,
+      "status": "resolved"
+    },
+    {
+      "group_id": "d6647741-0d4b-48c9-b4ad-1f3a61b34b5a",
+      "reason_code": "operator_historical_registration",
+      "registration_reason": "conflicting_passport_owner",
+      "sources": 1,
+      "status": "resolved"
+    },
+    {
+      "group_id": "d6647741-0d4b-48c9-b4ad-1f3a61b34b5a",
+      "reason_code": "operator_historical_registration",
+      "registration_reason": "identity_review_required",
+      "sources": 646,
+      "status": "resolved"
+    }
+  ],
+  "remaining_source_acceptance": {
+    "complete_sample": false,
+    "examined": 50,
+    "outcomes": {
+      "accepted:staff_reviewed_current_v1": 50
+    },
+    "total": 648
+  },
+  "scoped_job_statuses": [
+    {
+      "group_id": "20b93ca4-ac66-4194-babc-432f2c00720a",
+      "jobs": 1,
+      "processed_rows": 0,
+      "status": "cancelled"
+    },
+    {
+      "group_id": "20b93ca4-ac66-4194-babc-432f2c00720a",
+      "jobs": 18,
+      "processed_rows": 8375,
+      "status": "succeeded"
+    },
+    {
+      "group_id": "a9136760-8708-4487-a1fc-5133267f86bb",
+      "jobs": 5,
+      "processed_rows": 1405,
+      "status": "succeeded"
+    },
+    {
+      "group_id": "d6647741-0d4b-48c9-b4ad-1f3a61b34b5a",
+      "jobs": 1,
+      "processed_rows": 0,
+      "status": "cancelled"
+    },
+    {
+      "group_id": "d6647741-0d4b-48c9-b4ad-1f3a61b34b5a",
+      "jobs": 4,
+      "processed_rows": 5752,
+      "status": "succeeded"
+    }
+  ],
+  "source_document_coverage": [
+    {
+      "group_id": "20b93ca4-ac66-4194-babc-432f2c00720a",
+      "staff_approved_sources": 70,
+      "with_current_extraction_document": 69,
+      "with_current_staff_generation_document": 69
+    },
+    {
+      "group_id": "d6647741-0d4b-48c9-b4ad-1f3a61b34b5a",
+      "staff_approved_sources": 719,
+      "with_current_extraction_document": 72,
+      "with_current_staff_generation_document": 72
+    }
+  ],
+  "source_groups": [
+    {
+      "company_revision": 3,
+      "group_id": "20b93ca4-ac66-4194-babc-432f2c00720a",
+      "status": "active"
+    },
+    {
+      "company_revision": 1,
+      "group_id": "d6647741-0d4b-48c9-b4ad-1f3a61b34b5a",
+      "status": "archived"
+    }
+  ],
+  "staff_rule_assets": [
+    {
+      "assets": 345,
+      "availability": "available",
+      "due_pending": 0,
+      "kind": "original",
+      "maximum_copy_attempts": 1,
+      "retained_bytes": 154473176,
+      "retried_assets": 0,
+      "source_group_id": "20b93ca4-ac66-4194-babc-432f2c00720a",
+      "stale_leases": 0
+    },
+    {
+      "assets": 72,
+      "availability": "pending",
+      "due_pending": 59,
+      "kind": "original",
+      "maximum_copy_attempts": 3,
+      "retained_bytes": 0,
+      "retried_assets": 72,
+      "source_group_id": "d6647741-0d4b-48c9-b4ad-1f3a61b34b5a",
+      "stale_leases": 0
+    }
+  ],
+  "staff_rule_documents": [
+    {
+      "distinct_people": 69,
+      "distinct_sources": 69,
+      "document_revisions": 69,
+      "first_accepted_at": "2026-10-14 10:13:32.087219+00:00",
+      "latest_accepted_at": "2026-10-14 10:14:37.040702+00:00",
+      "source_group_id": "20b93ca4-ac66-4194-babc-432f2c00720a"
+    },
+    {
+      "distinct_people": 72,
+      "distinct_sources": 72,
+      "document_revisions": 72,
+      "first_accepted_at": "2026-10-14 10:14:17.092262+00:00",
+      "latest_accepted_at": "2026-10-14 10:14:34.360904+00:00",
+      "source_group_id": "d6647741-0d4b-48c9-b4ad-1f3a61b34b5a"
+    }
+  ],
+  "statement_timeout_seconds": 8,
+  "test_assignments": [
+    {
+      "accepted_memberships": 100,
+      "automatic_memberships": 100,
+      "automatically_assigned": 100,
+      "distinct_matched_people": 100,
+      "distinct_materialized_submissions": 100,
+      "information_confirmed": 0,
+      "valid_recipients": 100
+    }
+  ],
+  "test_submissions": [
+    {
+      "client_reviewed": 0,
+      "sources": 100,
+      "status": "confirmed",
+      "with_front_image": 100
+    }
+  ]
+}

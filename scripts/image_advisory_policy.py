@@ -17,11 +17,15 @@ ROOT = Path(__file__).resolve().parents[1]
 # A new JSON entry cannot grant itself an exception without a corresponding
 # executable condition and code review here. These IDs share the probes below.
 CHECKED_DISPOSITIONS = {
-    **dict.fromkeys(("CVE-2026-66046", "CVE-2026-76956", "CVE-2026-76957", "CVE-2026-93990", "CVE-2026-82049"), "fixed_by_backport"),
     **dict.fromkeys(("CVE-2025-69720", "CVE-2026-52490", "CVE-2026-82560", "CVE-2026-9538", "CVE-2026-54370"), "affected_component_absent"),
     **dict.fromkeys(("CVE-2026-19499", "CVE-2026-5435"), "affected_code_not_used"),
     **dict.fromkeys(("CVE-2026-76642", "CVE-2026-78408", "CVE-2026-78409", "CVE-2026-78410", "CVE-2026-54369"), "mitigated_not_patched"),
     "CVE-2026-85091": "incorrect_affected_range",
+    "CVE-2026-95619": "incorrect_affected_range",
+    "CVE-2026-102010": "affected_component_absent",
+}
+GCC_REVIEWED_PACKAGES = {
+    (name, "14.2.0-19") for name in ("gcc-14-base", "libgcc-s1", "libgomp1", "libstdc++6")
 }
 
 
@@ -53,6 +57,9 @@ def validate_policy(policy: dict, today: dt.date) -> set[tuple[str, str, str]]:
         if CHECKED_DISPOSITIONS.get(entry["advisory"]) != entry["disposition"]:
             raise ValueError("Advisory has no matching executable runtime condition")
         for package in entry["packages"]:
+            if (entry["advisory"] in {"CVE-2026-95619", "CVE-2026-102010"}
+                    and (package["name"], package["version"]) not in GCC_REVIEWED_PACKAGES):
+                raise ValueError("GCC advisory exceeds the reviewed runtime package scope")
             key = (entry["advisory"], package["name"], package["version"])
             if key in accepted:
                 raise ValueError("Duplicate image advisory review")

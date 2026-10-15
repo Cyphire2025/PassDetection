@@ -21,7 +21,7 @@ from app.infrastructure.repositories.audit_log_repository import AuditLogReposit
 COORDINATOR_EXPIRY_GROUP_BATCH_SIZE = 100
 
 
-def _trip_local_date(now: datetime | None, group_model: Any) -> Any:
+def trip_local_date(now: datetime | None, group_model: Any) -> Any:
     timestamp = now or datetime.now(tz=UTC)
     if timestamp.tzinfo is None or timestamp.utcoffset() is None:
         raise ValueError("Trip lifecycle checks require a timezone-aware timestamp")
@@ -39,7 +39,7 @@ def expired_trip_clause(
     """Trips strictly past their local end date; undated groups are false."""
 
     end_date = func.coalesce(group_model.return_date, group_model.travel_date)
-    return and_(end_date.is_not(None), end_date < _trip_local_date(now, group_model))
+    return and_(end_date.is_not(None), end_date < trip_local_date(now, group_model))
 
 
 def current_trip_clause(
@@ -50,7 +50,7 @@ def current_trip_clause(
     """Dated upcoming/in-progress trips that can receive new assignments."""
 
     end_date = func.coalesce(group_model.return_date, group_model.travel_date)
-    return and_(end_date.is_not(None), end_date >= _trip_local_date(now, group_model))
+    return and_(end_date.is_not(None), end_date >= trip_local_date(now, group_model))
 
 
 @dataclass(frozen=True, slots=True)

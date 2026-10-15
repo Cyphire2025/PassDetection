@@ -7,7 +7,7 @@ const hooks = registerHooks({
     return nextResolve(specifier === "./recipient-delivery" ? "./recipient-delivery.ts" : specifier, context);
   },
 });
-const { filterRecipientRosterItems, recipientHasFailedMessage, recipientHasSentMessage, searchRecipientRosterItems } = await import("./recipient-roster.ts");
+const { countRecipientRosterItems, filterRecipientRosterItems, recipientHasFailedMessage, recipientHasSentMessage, searchRecipientRosterItems } = await import("./recipient-roster.ts");
 hooks.deregister();
 
 function messageStatus({
@@ -299,4 +299,118 @@ test("recipient search covers rejected, replaced, and unidentified roster rows",
 test("blank recipient search preserves the already-filtered roster", () => {
   const filtered = filterRecipientRosterItems(unorderedRoster, "failed");
   assert.equal(searchRecipientRosterItems(filtered, "  "), filtered);
+});
+
+test("Delivery left counts only accepted and sent attempts for the selected message, in import order", () => {
+  const states = ["not_sent", "queued", "processing", "submitted", "sent", "delivered", "read", "failed", "delivery_unknown"];
+  const items = states.map((status, index) => recipientItem({
+    id: status,
+    displayOrder: index + 1,
+    messageStatuses: [messageStatus({ messageType: "welcome", status })],
+  }));
+  items.push(recipientItem({
+    id: "other-message",
+    displayOrder: 10,
+    messageStatuses: [messageStatus({ messageType: "passport_link", status: "sent" })],
+  }), neverSent, rejected);
+  const reversed = [...items].reverse();
+
+  assert.deepEqual(filterRecipientRosterItems(reversed, "delivery_left", "welcome").map(itemId), ["submitted", "sent"]);
+  assert.equal(countRecipientRosterItems(items, "delivery_left", "welcome"), 2);
+  assert.deepEqual(filterRecipientRosterItems(items, "delivery_left", "passport_link").map(itemId), ["other-message"]);
+  assert.equal(countRecipientRosterItems(items, "delivery_left"), 3);
+  assert.deepEqual(filterRecipientRosterItems(searchRecipientRosterItems(items, "submitted"), "delivery_left", "welcome").map(itemId), ["submitted"]);
+});
+
+test("Delivery left stops counting an attempt after delivery, read, or failure confirmation", () => {
+  const item = recipientItem({
+    id: "pending",
+    displayOrder: 1,
+    messageStatuses: [messageStatus({ messageType: "welcome", status: "sent", alreadySent: true })],
+  });
+  assert.equal(countRecipientRosterItems([item], "delivery_left", "welcome"), 1);
+  for (const status of ["delivered", "read", "failed"]) {
+    const updated = structuredClone(item);
+    updated.recipient.message_statuses[0].status = status;
+    assert.equal(countRecipientRosterItems([updated], "delivery_left", "welcome"), 0);
+  }
+});
+
+test("Welcome delivery left keeps unconfirmed original or resend delivery visible", () => {
+  const cases = [
+    ["submitted", null, true],
+    ["sent", null, true],
+    ["read", "submitted", false],
+    ["delivered", "sent", false],
+    ["failed", "sent", true],
+    ["failed", "submitted", true],
+    ["not_sent", "sent", true],
+    ["sent", "failed", true],
+    ["submitted", "failed", true],
+    ["sent", "delivered", false],
+    ["submitted", "read", false],
+    ["sent", "queued", true],
+    ["sent", "processing", true],
+    ["sent", "submitted", true],
+    ["sent", "sent", true],
+    ["submitted", "sent", true],
+    ["sent", "delivery_unknown", true],
+    ["delivered", "queued", false],
+    ["delivered", "processing", false],
+    ["delivered", "failed", false],
+    ["delivered", "delivery_unknown", false],
+    ["failed", "read", false],
+    ["failed", "queued", false],
+    ["failed", "delivery_unknown", false],
+  ];
+  for (const [status, latestResendStatus, awaiting] of cases) {
+    const item = recipientItem({
+      id: `${status}-${latestResendStatus}`,
+      displayOrder: 1,
+      messageStatuses: [messageStatus({ messageType: "welcome", status, latestResendStatus })],
+    });
+    assert.equal(countRecipientRosterItems([item], "delivery_left", "welcome"), Number(awaiting), item.recipient.id);
+    assert.equal(countRecipientRosterItems([item], "delivery_left"), Number(awaiting), item.recipient.id);
+    assert.deepEqual(filterRecipientRosterItems([item], "delivery_left", "welcome").map(itemId), awaiting ? [item.recipient.id] : []);
+  }
+});
+
+test("Welcome delivery left honors confirmed historical delivery and canonical-only pending welcomes", () => {
+  const item = recipientItem({
+    id: "welcome-history",
+    displayOrder: 1,
+    messageStatuses: [messageStatus({ messageType: "welcome", status: "sent", latestResendStatus: "failed" })],
+  });
+  for (const confirmation of [{ welcome_delivered: true }, { welcome_status: "delivered" }, { welcome_status: "read" }]) {
+    const confirmed = structuredClone(item);
+    Object.assign(confirmed.recipient, confirmation);
+    assert.equal(countRecipientRosterItems([confirmed], "delivery_left", "welcome"), 0);
+    assert.equal(countRecipientRosterItems([confirmed], "delivery_left"), 0);
+  }
+  for (const welcomeStatus of ["submitted", "sent", "failed", "queued", "delivery_unknown", null]) {
+    const canonicalOnly = recipientItem({ id: "canonical-welcome", displayOrder: 2 });
+    canonicalOnly.recipient.welcome_status = welcomeStatus;
+    const expected = ["submitted", "sent"].includes(welcomeStatus) ? ["canonical-welcome"] : [];
+    assert.deepEqual(filterRecipientRosterItems([canonicalOnly], "delivery_left", "welcome").map(itemId), expected);
+    assert.deepEqual(filterRecipientRosterItems([canonicalOnly], "delivery_left").map(itemId), expected);
+    assert.equal(countRecipientRosterItems([canonicalOnly], "delivery_left", "passport_link"), 0);
+  }
+});
+
+test("Confirmed welcome does not hide a pending passport link or change reminder filtering", () => {
+  const item = recipientItem({
+    id: "pending-passport",
+    displayOrder: 1,
+    messageStatuses: [
+      messageStatus({ messageType: "welcome", status: "sent", latestResendStatus: "failed" }),
+      messageStatus({ messageType: "passport_link", status: "sent" }),
+      messageStatus({ messageType: "reminder", status: "sent", latestResendStatus: "read" }),
+    ],
+  });
+  item.recipient.welcome_delivered = true;
+  item.recipient.welcome_status = "delivered";
+  assert.equal(countRecipientRosterItems([item], "delivery_left", "welcome"), 0);
+  assert.equal(countRecipientRosterItems([item], "delivery_left", "passport_link"), 1);
+  assert.equal(countRecipientRosterItems([item], "delivery_left", "reminder"), 1);
+  assert.equal(countRecipientRosterItems([item], "delivery_left"), 1);
 });

@@ -94,6 +94,11 @@ celery_app = Celery(
         "app.infrastructure.my_photos.tasks",
         "app.infrastructure.ecr.tasks",
         "app.infrastructure.ecr.passport_tasks",
+        "app.infrastructure.travellers.tasks",
+        "app.infrastructure.travellers.draft_tasks",
+        "app.infrastructure.travellers.directory_tasks",
+        "app.infrastructure.travellers.impact_tasks",
+        "app.infrastructure.travellers.company_export_tasks",
     ],
 )
 
@@ -278,6 +283,13 @@ celery_app.conf.update(
     timezone="UTC",
     enable_utc=True,
     beat_schedule={
+        "refresh-company-directory": {"task": "companies.refresh_directory", "schedule": 5.0, "options": {"queue": "passport_ocr", "expires": 5}},
+        "process-returning-drafts": {"task": "travellers.returning_drafts", "schedule": 5.0, "options": {"queue": "passport_ocr", "expires": 5}},
+        "export-company-data": {"task": "travellers.company_data_export", "schedule": 5.0, "options": {"queue": "passport_ocr", "expires": 5}},
+        "reconcile-traveller-history": {"task": "travellers.reconcile", "schedule": 5.0, "options": {"queue": "passport_ocr", "expires": 5}},
+        "copy-retained-traveller-assets": {"task": "travellers.copy_assets", "schedule": 5.0, "options": {"queue": "passport_ocr", "expires": 5}},
+        "withdraw-retained-traveller-assets": {"task": "travellers.withdraw_assets", "schedule": 30.0, "options": {"queue": "passport_ocr", "expires": 30}},
+        "review-traveller-document-impact": {"task": "travellers.document_impact", "schedule": 5.0, "options": {"queue": "passport_ocr", "expires": 5}},
         "publish-whatsapp-send-intents": {
             "task": WHATSAPP_SEND_PUBLICATION_TASK,
             "schedule": 60.0,

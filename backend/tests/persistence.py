@@ -40,5 +40,6 @@ async def persist_mobile_access_graph(session, access, records=()):
         ))
     if await session.get(ClientGroupModel, access.group_id) is None:
         parents.append(ClientGroupModel(id=access.group_id, agency_id=access.agency_id,
+                                       company_id=access.client_organization_id,
                                        name="Synthetic group", token=f"synthetic-{access.group_id}", status="active"))
     await persist_graph(session, [*parents, access, *records])

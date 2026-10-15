@@ -108,7 +108,7 @@ async def test_concurrent_decisions_finalization_and_creation_are_serialized(
             "-m",
             "alembic",
             "upgrade",
-            "0125_mcp_connection_requests",
+            "head",
             cwd=backend,
             env={**os.environ, "POSTGRES_DB": name},
             stdout=asyncio.subprocess.PIPE,

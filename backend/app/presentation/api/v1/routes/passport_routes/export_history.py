@@ -13,6 +13,7 @@ from app.application.use_cases.passports.complete_export_delivery import (
     ExportDeliveryConflict,
     complete_export_delivery,
 )
+from app.application.use_cases.passports.export_changes import export_changes, submission_revision
 from app.application.use_cases.passports.export_history_projection import (
     project_history_item,
     project_history_people,
@@ -108,6 +109,7 @@ async def list_passport_group_export_history(
         limit=page_size,
     )
     history_items: list[PassportExportHistoryItemResponse] = []
+    revisions = {str(row.id): submission_revision(row) for row in submissions}
     for item in history:
         if item.completed_at is None:
             logger.error(
@@ -122,12 +124,17 @@ async def list_passport_group_export_history(
             )
             compatible = True
             new_submission_count = len(current_ids - snapshot_ids)
+            delta = export_changes(submissions, item, revisions=revisions)
+            changed_count = sum(row["change"] == "changed" for row in delta.rows)
+            removed_count = sum(row["change"] == "removed" for row in delta.rows)
         except ValueError:
             compatible = False
             new_submission_count = 0
+            changed_count = removed_count = 0
         history_items.append(
             PassportExportHistoryItemResponse.model_validate(project_history_item(
                 item, compatible=compatible, new_submission_count=new_submission_count,
+                changed_submission_count=changed_count, removed_submission_count=removed_count,
             ).model_dump())
         )
     return PassportExportHistoryListResponse(

@@ -50,6 +50,7 @@ def test_client_group_owns_a_validated_canonical_timezone() -> None:
 
 def test_create_and_update_api_contracts_default_validate_and_forbid_null() -> None:
     create = CreateClientGroupRequest(
+        company_id=uuid.uuid4(),
         name="Default timezone group",
         destination="Delhi",
         travel_date=date(2026, 10, 1),

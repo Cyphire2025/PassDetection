@@ -18,6 +18,29 @@ from app.presentation.api.v1.routes.attendance_runtime import router as attendan
 from app.presentation.api.v1.routes.audit_logs import router as audit_logs_router
 from app.presentation.api.v1.routes.auth import router as auth_router
 from app.presentation.api.v1.routes.client_groups import router as links_router
+from app.presentation.api.v1.routes.companies import router as companies_router
+from app.presentation.api.v1.routes.company_data_exports import (
+    router as company_data_exports_router,
+)
+from app.presentation.api.v1.routes.company_document_uploads import (
+    router as company_document_uploads_router,
+)
+from app.presentation.api.v1.routes.company_match_review import (
+    router as company_match_review_router,
+)
+from app.presentation.api.v1.routes.company_passports import router as company_passports_router
+from app.presentation.api.v1.routes.company_people import router as company_people_router
+from app.presentation.api.v1.routes.company_reassignments import (
+    router as company_reassignments_router,
+)
+from app.presentation.api.v1.routes.company_reuse_setup import router as company_reuse_setup_router
+from app.presentation.api.v1.routes.company_review_tasks import (
+    router as company_review_tasks_router,
+)
+from app.presentation.api.v1.routes.company_submissions import router as company_submissions_router
+from app.presentation.api.v1.routes.company_traveller_history import (
+    router as company_traveller_history_router,
+)
 from app.presentation.api.v1.routes.dashboard import router as dashboard_router
 from app.presentation.api.v1.routes.dashboard_realtime import (
     router as dashboard_realtime_router,
@@ -26,6 +49,7 @@ from app.presentation.api.v1.routes.document_distribution import (
     router as document_distribution_router,
 )
 from app.presentation.api.v1.routes.document_rename import router as document_rename_router
+from app.presentation.api.v1.routes.draft_lifecycle import router as draft_lifecycle_router
 from app.presentation.api.v1.routes.ecr_checker import router as ecr_checker_router
 from app.presentation.api.v1.routes.email_ai_inbox import (
     router as email_ai_inbox_router,
@@ -36,6 +60,11 @@ from app.presentation.api.v1.routes.email_ai_rollout_admin import (
 from app.presentation.api.v1.routes.email_integrations import (
     router as email_integrations_router,
 )
+from app.presentation.api.v1.routes.fresh_draft import router as fresh_draft_router
+from app.presentation.api.v1.routes.fresh_draft_completion import (
+    router as fresh_draft_completion_router,
+)
+from app.presentation.api.v1.routes.fresh_draft_contact import router as fresh_draft_contact_router
 from app.presentation.api.v1.routes.frontend_errors import router as frontend_errors_router
 from app.presentation.api.v1.routes.gc_app import router as gc_app_router
 from app.presentation.api.v1.routes.gc_app_content import router as gc_app_content_router
@@ -62,6 +91,18 @@ from app.presentation.api.v1.routes.passport_image_library import (
     router as passport_image_library_router,
 )
 from app.presentation.api.v1.routes.passports import router as passport_router
+from app.presentation.api.v1.routes.returning_claims import router as returning_claims_router
+from app.presentation.api.v1.routes.returning_completion import (
+    router as returning_completion_router,
+)
+from app.presentation.api.v1.routes.returning_contact import router as returning_contact_router
+from app.presentation.api.v1.routes.returning_detection import router as returning_detection_router
+from app.presentation.api.v1.routes.returning_draft import router as returning_draft_router
+from app.presentation.api.v1.routes.returning_history import router as returning_history_router
+from app.presentation.api.v1.routes.returning_replacement import (
+    router as returning_replacement_router,
+)
+from app.presentation.api.v1.routes.returning_selection import router as returning_selection_router
 from app.presentation.api.v1.routes.rooming import router as rooming_router
 from app.presentation.api.v1.routes.search import router as search_router
 from app.presentation.api.v1.routes.tour_operations import router as tour_operations_router
@@ -69,12 +110,37 @@ from app.presentation.api.v1.routes.tour_operations_qr_delivery import (
     router as tour_operations_qr_delivery_router,
 )
 from app.presentation.api.v1.routes.travel_tracker import router as travel_tracker_router
+from app.presentation.api.v1.routes.traveller_admin import router as traveller_admin_router
 from app.presentation.api.v1.routes.whatsapp import router as whatsapp_router
 from app.presentation.api.v1.routes.whatsapp_activity import (
     router as whatsapp_activity_router,
 )
 
 api_v1_router = APIRouter()
+api_v1_router.include_router(returning_claims_router, prefix="/returning", tags=["Returning Travellers"])
+api_v1_router.include_router(returning_history_router, prefix="/returning", tags=["Returning Travellers"])
+api_v1_router.include_router(returning_contact_router, prefix="/returning", tags=["Returning Travellers"])
+api_v1_router.include_router(returning_draft_router, prefix="/returning", tags=["Returning Travellers"])
+api_v1_router.include_router(draft_lifecycle_router, tags=["Traveller Drafts"])
+api_v1_router.include_router(fresh_draft_router, prefix="/public-drafts", tags=["Traveller Drafts"])
+api_v1_router.include_router(fresh_draft_contact_router, prefix="/public-drafts", tags=["Traveller Drafts"])
+api_v1_router.include_router(fresh_draft_completion_router, prefix="/public-drafts", tags=["Traveller Drafts"])
+api_v1_router.include_router(returning_detection_router, prefix="/returning", tags=["Returning Travellers"])
+api_v1_router.include_router(returning_completion_router, prefix="/returning", tags=["Returning Travellers"])
+api_v1_router.include_router(returning_replacement_router, prefix="/returning", tags=["Returning Travellers"])
+api_v1_router.include_router(returning_selection_router, prefix="/returning", tags=["Returning Travellers"])
+api_v1_router.include_router(company_review_tasks_router, prefix="/companies", tags=["Company Review Tasks"])
+api_v1_router.include_router(company_passports_router, prefix="/companies", tags=["Company Documents"])
+api_v1_router.include_router(company_match_review_router, prefix="/companies", tags=["Company Match Review"])
+api_v1_router.include_router(company_traveller_history_router, prefix="/companies", tags=["Companies"])
+api_v1_router.include_router(company_submissions_router, prefix="/companies", tags=["Companies / Clients"])
+api_v1_router.include_router(company_people_router, prefix="/companies", tags=["Companies / Clients"])
+api_v1_router.include_router(company_data_exports_router, prefix="/companies", tags=["Companies / Clients"])
+api_v1_router.include_router(company_document_uploads_router, prefix="/companies", tags=["Company Documents"])
+api_v1_router.include_router(traveller_admin_router, prefix="/companies", tags=["Company Travellers"])
+api_v1_router.include_router(companies_router, prefix="/companies", tags=["Companies / Clients"])
+api_v1_router.include_router(company_reuse_setup_router, prefix="/companies", tags=["Companies / Clients"])
+api_v1_router.include_router(company_reassignments_router, prefix="/companies", tags=["Companies / Clients"])
 api_v1_router.include_router(travel_tracker_router, prefix="/travel-tracker", tags=["Travel Tracker"])
 api_v1_router.include_router(mcp_read_access_router, prefix="/mcp", tags=["MCP Read Access"])
 api_v1_router.include_router(mcp_admin_router, prefix="/admin/mcp", tags=["MCP Administration"])

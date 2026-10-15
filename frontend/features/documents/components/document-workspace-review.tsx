@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { type KeyboardEvent, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import {
   CheckCircle2,
@@ -257,46 +257,55 @@ export function DocumentRowActionMenu({
   const inputRef = useRef<HTMLInputElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const anchorPositionRef = useRef<{ left: number; top: number } | null>(null);
+  const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
   const [position, setPosition] = useState<{ left: number; top?: number; bottom?: number; maxHeight: number }>({ left: 8, top: 8, maxHeight: 320 });
   const label = distributionDocumentUploadLabel(documentType);
 
   useEffect(() => {
     if (!open) return;
-    menuRef.current?.querySelector<HTMLButtonElement>("[role=menuitem]")?.focus();
+    menuRef.current?.querySelector<HTMLButtonElement>("[role=menuitem]")?.focus({ preventScroll: true });
     const handlePointerDown = (event: PointerEvent) => {
       if (!menuRef.current?.contains(event.target as Node)
         && !triggerRef.current?.contains(event.target as Node)) setOpen(false);
     };
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setOpen(false);
-        triggerRef.current?.focus();
-      }
-      if (event.key === "Tab") setOpen(false);
-      if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
-        const items = Array.from(menuRef.current?.querySelectorAll<HTMLButtonElement>("[role=menuitem]") ?? []);
-        if (!items.length) return;
-        event.preventDefault();
-        const current = items.indexOf(document.activeElement as HTMLButtonElement);
-        const next = event.key === "Home" ? 0 : event.key === "End" ? items.length - 1
-          : (current + (event.key === "ArrowDown" ? 1 : -1) + items.length) % items.length;
-        items[next]?.focus();
-      }
-    };
     const closeOnMove = (event: Event) => {
-      if (!(event.target instanceof Node) || !menuRef.current?.contains(event.target)) setOpen(false);
+      if (event.target instanceof Node && menuRef.current?.contains(event.target)) return;
+      const bounds = triggerRef.current?.getBoundingClientRect();
+      const anchor = anchorPositionRef.current;
+      // A scroll queued while revealing the trigger can arrive after the menu
+      // opens. Dismiss only when the anchor actually moves from its saved place.
+      if (event.type === "resize" || !bounds || !anchor
+        || Math.abs(bounds.left - anchor.left) > 0.5 || Math.abs(bounds.top - anchor.top) > 0.5) setOpen(false);
     };
     document.addEventListener("pointerdown", handlePointerDown);
-    document.addEventListener("keydown", handleKeyDown);
     window.addEventListener("scroll", closeOnMove, true);
     window.addEventListener("resize", closeOnMove);
     return () => {
       document.removeEventListener("pointerdown", handlePointerDown);
-      document.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("scroll", closeOnMove, true);
       window.removeEventListener("resize", closeOnMove);
     };
   }, [open]);
+
+  const handleMenuKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      event.stopPropagation();
+      setOpen(false);
+      triggerRef.current?.focus({ preventScroll: true });
+    }
+    if (event.key === "Tab") setOpen(false);
+    if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
+      const items = Array.from(menuRef.current?.querySelectorAll<HTMLButtonElement>("[role=menuitem]") ?? []);
+      if (!items.length) return;
+      event.preventDefault();
+      const current = items.indexOf(document.activeElement as HTMLButtonElement);
+      const next = event.key === "Home" ? 0 : event.key === "End" ? items.length - 1
+        : (current + (event.key === "ArrowDown" ? 1 : -1) + items.length) % items.length;
+      items[next]?.focus();
+    }
+  };
 
   return (
     <div className="relative inline-flex justify-end">
@@ -321,8 +330,11 @@ export function DocumentRowActionMenu({
         aria-haspopup="menu"
         disabled={pending}
         onClick={() => {
+          // Keep focus within an owning modal while escaping the scrolling table.
+          setPortalContainer(triggerRef.current?.closest<HTMLElement>('[role="dialog"]') ?? document.body);
           const bounds = triggerRef.current?.getBoundingClientRect();
           if (bounds) {
+            anchorPositionRef.current = { left: bounds.left, top: bounds.top };
             const availableBelow = window.innerHeight - bounds.bottom - 14;
             const above = availableBelow < 220 && bounds.top > availableBelow;
             const maxHeight = Math.min(320, Math.max(120, above ? bounds.top - 14 : availableBelow));
@@ -337,8 +349,8 @@ export function DocumentRowActionMenu({
       >
         <MoreVertical className="h-4 w-4" />
       </button>
-      {open && createPortal(
-        <div ref={menuRef} role="menu" aria-label={`${row.passenger_name} document actions`} style={position} className="fixed z-[70] w-72 max-w-[calc(100vw-16px)] overflow-y-auto rounded-lg border border-slate-200 bg-white py-1 text-left shadow-lg">
+      {open && portalContainer && createPortal(
+        <div ref={menuRef} role="menu" aria-label={`${row.passenger_name} document actions`} onKeyDown={handleMenuKeyDown} style={position} className="fixed z-[70] w-72 max-w-[calc(100vw-16px)] overflow-y-auto rounded-lg border border-slate-200 bg-white py-1 text-left shadow-lg">
           <button
             type="button"
             role="menuitem"
@@ -379,7 +391,7 @@ export function DocumentRowActionMenu({
             {onManualUpload ? `Assign a ${label} PDF directly to this passenger and save.` : `Upload one more ${label} PDF without removing saved documents.`}
           </div>
         </div>,
-        document.body,
+        portalContainer,
       )}
     </div>
   );

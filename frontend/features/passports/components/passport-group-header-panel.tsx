@@ -1,13 +1,11 @@
 "use client";
-import { IntentPrefetchLink } from "@/components/shared/intent-prefetch-link";
+import { CompanyGroupReturnLink } from "@/features/companies/components/company-group-return-link";
 import {
   WorkspaceHeaderContext,
   WorkspacePageHeader,
 } from "@/components/shared/workspace-ui";
 import { Button } from "@/components/ui";
-import { ROUTES } from "@/constants/routes";
 import {
-  ArrowLeft,
   CalendarDays,
   Download,
   FileText,
@@ -154,13 +152,7 @@ export function PassportGroupHeaderPanel({
                 </span>
               </div>
             )}
-            <IntentPrefetchLink
-              href={ROUTES.dashboard.passports}
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-white/20 bg-white/10 px-4 text-sm font-semibold text-white transition hover:bg-white/15"
-            >
-              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-              All Groups
-            </IntentPrefetchLink>
+            <CompanyGroupReturnLink />
             <div ref={actionsMenuRef} className="relative">
               <Button
                 ref={actionsMenuButtonRef}

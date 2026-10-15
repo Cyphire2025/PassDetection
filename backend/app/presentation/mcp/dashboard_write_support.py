@@ -22,6 +22,7 @@ from starlette.requests import Request
 from app.application.mcp.change_context import require_change_actor
 from app.application.mcp.credentials import utc
 from app.application.mcp.operations import MCPDatabaseContext, MCPOperationError
+from app.domain.entities.entities import User
 from app.infrastructure.database.models import ClientGroupModel
 
 MAX_RESULT_BYTES = 256 * 1024
@@ -52,7 +53,7 @@ def audit_request() -> Request:
                     "server": None, "scheme": "https"})
 
 
-async def scoped_actor(context: MCPDatabaseContext, agency_id: UUID | None):
+async def scoped_actor(context: MCPDatabaseContext, agency_id: UUID | None) -> User:
     actor = await require_change_actor(context, agency_id)
     # The current, authenticated superadmin selects a tenant explicitly. Identity,
     # role, security version and audit attribution remain the real actor's.

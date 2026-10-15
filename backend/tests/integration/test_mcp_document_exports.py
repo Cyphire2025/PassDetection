@@ -1,6 +1,7 @@
 """Canonical document-review XLSX, retained delivery semantics and no business writes."""
 
 import asyncio
+import threading
 import uuid
 from datetime import UTC, datetime, timedelta
 
@@ -164,8 +165,12 @@ async def test_all_review_filters_match_website_without_presigning_or_business_c
 ):
     f = await seed(artifacts)
     calls = []
+    clients = []
 
     class URLs:
+        def __init__(self):
+            clients.append(self)
+
         async def get_presigned_url(self, key):
             calls.append(key)
             return "https://fixture.invalid/never-fetched"
@@ -183,6 +188,15 @@ async def test_all_review_filters_match_website_without_presigning_or_business_c
     assert not calls
     received = await downloaded(f, result)
     actor = await UserRepository(f.session).get_by_id(f.user.id)
+    request_thread = threading.get_ident()
+    workbook_threads = []
+    build_workbook = web.build_document_assignment_workbook
+
+    def build_off_request_thread(**kwargs):
+        workbook_threads.append(threading.get_ident())
+        return build_workbook(**kwargs)
+
+    monkeypatch.setattr(web, "build_document_assignment_workbook", build_off_request_thread)
     response = await web.export_document_assignments(
         f.group.id,
         "visa",
@@ -193,7 +207,9 @@ async def test_all_review_filters_match_website_without_presigning_or_business_c
     )
     expected = b"".join([part async for part in response.body_iterator])
     assert values(received) == values(expected)
-    assert len(calls) == 3
+    assert not clients
+    assert not calls
+    assert len(workbook_threads) == 1 and workbook_threads[0] != request_thread
     rendered = str(values(received))
     assert "private-provider" not in rendered and "private-error" not in rendered
     assert "https://" not in rendered and "original/never-read" not in rendered

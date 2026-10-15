@@ -12,8 +12,11 @@ test("settings remain unavailable until an authoritative load succeeds", () => {
   assert.match(page, /type SettingsLoadState = "loading" \| "ready" \| "error" \| "conflict"/);
   assert.match(page, /setLoadState\("ready"\)/);
   assert.match(page, /setLoadState\("error"\)/);
-  assert.match(page, /disabled=\{loadState !== "ready"\}/);
-  assert.match(page, /fieldset\s+disabled=\{loadState !== "ready" \|\| isSaving\}/);
+  assert.match(page, /isAuthorityReady = loadState === "ready" && user !== null/);
+  assert.match(page, /isSuperAdmin = user\?\.role === "super_admin"/);
+  assert.match(page, /canEditPolicies = isAuthorityReady && isSuperAdmin/);
+  assert.match(page, /disabled=\{!canEditPolicies\}/);
+  assert.match(page, /fieldset\s+disabled=\{!canEditPolicies \|\| isSaving\}/);
   assert.match(page, /destructive actions remain unavailable/);
 });
 

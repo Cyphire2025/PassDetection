@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import logging
 import sys
+from threading import Lock
 from typing import Any
 
 try:
@@ -25,12 +26,30 @@ except ModuleNotFoundError:  # pragma: no cover - exercised in lightweight local
 
 from app.core.config.settings import get_settings
 
+_HANDLER_NAME = "passdetection.application.stdout"
+_HANDLER_LOCK = Lock()
+
+
+def _configure_root_handler(formatter: logging.Formatter, level: int) -> None:
+    """Replace only our output handler when another app is created in-process."""
+    with _HANDLER_LOCK:
+        root_logger = logging.getLogger()
+        for previous in root_logger.handlers[:]:
+            if previous.name == _HANDLER_NAME:
+                root_logger.removeHandler(previous)
+                previous.close()
+        handler = logging.StreamHandler(sys.stdout)
+        handler.set_name(_HANDLER_NAME)
+        handler.setFormatter(formatter)
+        root_logger.addHandler(handler)
+        root_logger.setLevel(level)
+
 
 def configure_logging() -> None:
     """
     Bootstrap structlog.
 
-    Call once at application startup before any other code runs.
+    Safe to call for each application created in the same process.
     """
     # HTTPX includes the complete APNs device-token URL at INFO; HTTP/2 debug
     # traces can include authentication headers. Keep transport internals quiet
@@ -42,10 +61,9 @@ def configure_logging() -> None:
         logging.getLogger(noisy).setLevel(logging.WARNING)
 
     if structlog is None:
-        logging.basicConfig(
-            stream=sys.stdout,
-            level=logging.INFO,
-            format="%(asctime)s %(levelname)s %(name)s %(message)s",
+        _configure_root_handler(
+            logging.Formatter("%(asctime)s %(levelname)s %(name)s %(message)s"),
+            logging.INFO,
         )
         return
 
@@ -84,12 +102,7 @@ def configure_logging() -> None:
         ],
     )
 
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(formatter)
-
-    root_logger = logging.getLogger()
-    root_logger.addHandler(handler)
-    root_logger.setLevel(logging.DEBUG if settings.app_debug else logging.INFO)
+    _configure_root_handler(formatter, logging.DEBUG if settings.app_debug else logging.INFO)
 
 class _StdlibStructuredLogger:
     def __init__(self, name: str) -> None:

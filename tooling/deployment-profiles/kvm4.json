@@ -42,6 +42,7 @@
   },
   "evidence": {
     "document_delivery_rebalance": "docs/remediation/document-delivery-rebalance-evidence.json",
+    "redis_dataset_transition": "docs/remediation/redis-dataset-transition-evidence.json",
     "persistent_service_memory": "docs/remediation/persistent-service-memory-evidence.json",
     "postgres_memory": "docs/remediation/postgres-memory-evidence.json",
     "native_image_baseline": "docs/remediation/native-memory-baseline-evidence.json",
@@ -59,7 +60,7 @@
     "Single physical host; no host high availability claim",
     "Two children consume interactive extraction; other background consumers retain one child",
     "External AI latency and capacity are not measured by provider-free synthetic probes",
-    "Qualification used backend image 0066ad357a08c4b207fa93bfa12e6111a90ebcac3514b4edbbdeb31a66db0f67; CI must independently qualify and sign the exact pushed-revision images",
+    "Historical qualification used backend image 0066ad357a08c4b207fa93bfa12e6111a90ebcac3514b4edbbdeb31a66db0f67; Full mode requires signed exact-revision CI images, while the explicitly selected document VPS Fast lane requires its separate image-bound migration and resource receipts",
     "The 20260929 resource delta used installed image a4db6d631fd0f36001ba03368ecf04182a156f7bcf778540346161b2e3445960 with a recorded read-only candidate source overlay; it is not an exact final-release image or live provider capacity claim",
     "Component pressure and a mixed API workload are measured; a simultaneous whole-host all-service peak and long soak are not established",
     "Production activation still requires observed host capacity, zero host swap, phased admission and actual running-container readback",

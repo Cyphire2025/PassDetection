@@ -64,7 +64,7 @@ class DatasetFixture(PersistentFixture):
         if args[:2] == ("docker", "compose"):
             self.calls.append(args)
             self.restarts += 1
-            current = self.containers[self.service]
+            current = self.containers.setdefault(self.service, copy.deepcopy(self.record["persistent"][self.service]["original"]))
             spec = self.config["services"][self.service]
             current["Id"] = self.service + "-candidate"
             current["Config"]["Cmd"] = spec["command"].copy()
@@ -155,6 +155,24 @@ class DatasetTransitionTests(unittest.TestCase):
         self.apply(fixture)
         self.assertEqual(fixture.record["persistent"][fixture.service]["stage"], "complete")
 
+    def test_removed_container_can_be_recreated_only_in_recorded_starting_stage(self):
+        fixture = self.fixture()
+        fixture.interrupt_after_start = True
+        with self.assertRaises(ReleaseError):
+            self.apply(fixture)
+        fixture.containers.pop(fixture.service)
+        self.apply(fixture)
+        self.assertEqual(fixture.record["persistent"][fixture.service]["stage"], "complete")
+
+    def test_value_change_after_verified_checkpoint_is_rejected(self):
+        fixture = self.fixture()
+        fixture.interrupt_after_archive = True
+        with self.assertRaises(ReleaseError):
+            self.apply(fixture)
+        fixture.after["rows"]["0:key"] = ["intervening-change", -1]
+        with self.assertRaisesRegex(ReleaseError, "value or absolute TTL"):
+            self.apply(fixture)
+
     def test_missing_unexpired_key_or_changed_value_or_ttl_stays_fenced(self):
         fixture = self.fixture()
         fixture.after["rows"].pop("0:key")
@@ -188,6 +206,14 @@ class DatasetTransitionTests(unittest.TestCase):
         fixture.volumes["redis-cache-retained-data"]["CreatedAt"] = "different"
         with self.assertRaisesRegex(ReleaseError, "volume identity"):
             self.apply(fixture)
+
+    def test_memory_pressure_refuses_snapshot_and_stop(self):
+        fixture = self.fixture()
+        fixture.memory["current"] = 180 * 1024**2
+        with self.assertRaisesRegex(ReleaseError, "container headroom"):
+            self.apply(fixture)
+        self.assertTrue(fixture.containers[fixture.service]["State"]["Running"])
+        self.assertEqual(fixture.files, {})
 
 
 if __name__ == "__main__":

@@ -12,6 +12,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.application.mobile.passenger_change_propagation import (
     reconcile_mobile_passenger_access_for_broadcast,
 )
+from app.application.travellers.broadcast_history_schedule import (
+    finish_broadcast_history_refresh,
+    prepare_broadcast_history_refresh,
+    require_current_broadcast_history_scope,
+)
 from app.application.use_cases.whatsapp.recipient_capacity import (
     MAX_WHATSAPP_RECIPIENTS,
     WhatsAppRecipientCapacityExceeded,
@@ -86,6 +91,14 @@ async def add_validated_broadcast_recipients(
     group_predicates = [WhatsAppBroadcastGroupModel.id == group_id]
     if actor.role != UserRole.SUPER_ADMIN.value:
         group_predicates.append(WhatsAppBroadcastGroupModel.agency_id == actor.agency_id)
+    initial_group = await session.scalar(select(WhatsAppBroadcastGroupModel).join(
+        AgencyModel, AgencyModel.id == WhatsAppBroadcastGroupModel.agency_id).where(
+        *group_predicates, AgencyModel.is_active.is_(True)))
+    if initial_group is None:
+        raise HTTPException(status_code=404, detail="WhatsApp broadcast group not found")
+    require_active_broadcast(initial_group)
+    history_refresh = await prepare_broadcast_history_refresh(session,
+        agency_id=initial_group.agency_id, broadcast_id=initial_group.id)
     group_result = await session.execute(
         select(WhatsAppBroadcastGroupModel)
         .join(AgencyModel, AgencyModel.id == WhatsAppBroadcastGroupModel.agency_id)
@@ -100,6 +113,7 @@ async def add_validated_broadcast_recipients(
             detail="WhatsApp broadcast group not found",
         )
     require_active_broadcast(group)
+    await require_current_broadcast_history_scope(session, history_refresh)
 
     existing_by_phone: dict[str, WhatsAppBroadcastRecipientModel] = {}
     if normalized_contacts:
@@ -203,6 +217,7 @@ async def add_validated_broadcast_recipients(
         group.recipient_opt_in_confirmed_at = group.recipient_opt_in_confirmed_at or now
     group.updated_at = now
     await session.flush()
+    await finish_broadcast_history_refresh(session, history_refresh)
     if normalized_contacts:
         await suppress_active_replacement_recipients(
             session,

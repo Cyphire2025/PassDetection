@@ -1,0 +1,75 @@
+Companies and returning traveller frontend verification
+Date: 2026-10-13, local Windows checkout
+Workspace: C:\Users\nipun\.codex\worktrees\companies-traveller-release\PassDetection
+
+After applying the feature delta to current origin/main, npm ci --ignore-scripts
+was completed by the release coordinator. Verification in this checkout:
+
+1. npm run type-check
+   PASS: Next route generation and TypeScript noEmit.
+2. Scoped ESLint for companies, travellers, upload integration, changed WhatsApp
+   import modules and all three new browser suites: PASS.
+3. npm run maintainability:check
+   PASS: all 40 protected module budgets. upload-flow.tsx is 752 physical lines,
+   maximum function complexity 46, below existing limits 765 and 50.
+4. node scripts/patch-mediapipe-csp.mjs --check
+   PASS: CSP bindings verified; detection graph/model/WASM unchanged.
+5. npx vitest run features/companies features/travellers
+   features/auth/config/route-capabilities.test.ts
+   features/whatsapp/components/whatsapp-recipient-import.test.tsx
+   features/whatsapp/components/whatsapp-large-import-form.test.tsx
+   features/whatsapp/api/whatsapp-duplicate-sources.test.ts
+   features/upload/components/upload-flow-configured.test.tsx
+   features/upload/components/upload-processing-motion.test.tsx
+   lib/api/client-returning.test.ts
+   PASS: 78 tests / 18 files (32.17 seconds).
+6. npx vitest run
+   features/passports/components/create-upload-link-modal.test.tsx
+   features/passports/components/upload-link-list.test.tsx
+   features/passports/schemas/upload-link.schema.test.ts
+   PASS: 45 tests / 3 files (4.12 seconds).
+7. node --test features/whatsapp/utils/recipient-import.test.mjs
+   features/whatsapp/utils/recipient-roster.test.mjs
+   PASS: 29 tests (116.9 milliseconds). Node reported existing module-type
+   detection warnings; no test failures.
+8. npx playwright test e2e/companies.spec.ts
+   e2e/returning-travellers.spec.ts e2e/whatsapp-large-import.spec.ts --workers=2
+   PASS: 18 Chromium scenarios (47.5 seconds).
+
+Scope and limits
+- Unit totals above are distinct: 123 Vitest tests across 21 files, plus 29 Node
+  tests. They are selected feature and regression coverage, not the entire repo.
+- Browser flows use isolated synthetic API responses and document bytes. No
+  real WhatsApp OTP, production storage, agency data or delivery service is used.
+- Company and returning UI flows exercise widths 320 and 1440 pixels; large
+  WhatsApp imports exercise 390 pixels. Company matching uses one 25-case page,
+  explicit person selection, evidence acknowledgement and both case/group
+  revisions. A resolved association is described as pending roster membership,
+  never as consent, completed collection or an automatic profile merge.
+- The large-import fixture has 700 traveller source rows: one delivery contact
+  and 699 duplicate-phone rows; the preview contains only 500 duplicate rows.
+  Both create/add browser flows verify original-file multipart submission,
+  preserved edited delivery JSON and the full pending count of 700. Fixture
+  bytes test transport, not workbook parsing; the backend workbook parsing and
+  deduplication tests are separate evidence owned by the backend implementer.
+- At most 10 original workbook File references are retained in the open dialog;
+  the server enforces a combined 2,000-entry source budget. A truncated preview
+  lacking an authoritative all-duplicate summary fails before mutating draft
+  contacts. Original sources recover records only, never silently recreate
+  removed delivery recipients.
+- Returning state and replacement intent remain in memory. Lazy authorised
+  document blobs are revoked on close; image pixel-memory capacity has not been
+  measured. Per-trip passport selection and stale review refresh reset explicit
+  image/field confirmation before completion.
+- Wall times are test-run durations, not latency SLOs or capacity measurements.
+  These checks do not establish throughput at millions of users, production
+  latency percentiles, memory under sustained concurrency or real queue depth.
+
+Release-only maintainability extraction
+- features/upload/hooks/use-returning-upload.tsx owns the transient returning
+  selection, lazy verification screens, fresh-path clearing and replacement
+  success boundary. It preserves the same saved-submission and upload-session
+  checks before attempting association.
+- features/upload/services/upload-flow-helpers.ts now owns the unchanged active
+  upload-progress predicate (O(f) time, O(1) space for at most 20 family drafts).
+- No module size/complexity ceilings were raised.

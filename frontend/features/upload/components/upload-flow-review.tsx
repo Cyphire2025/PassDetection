@@ -27,10 +27,9 @@ export function ReviewLayout({
   children: ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-6 font-sans sm:py-10">
-      <div className="mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-        <div className="space-y-4">
-          <div>
+    <div className="traveller-portal min-h-screen px-4 py-6 font-sans sm:py-10">
+      <div className="mx-auto w-full max-w-6xl">
+          <header className="mb-6 max-w-3xl">
             <Button
               type="button"
               variant="ghost"
@@ -41,12 +40,13 @@ export function ReviewLayout({
               <ArrowLeft className="h-4 w-4" />
               Back
             </Button>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">{title}</h1>
+            <h1 className="text-3xl font-semibold tracking-tight text-slate-950">{title}</h1>
             <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
-          </div>
-          {documents}
+          </header>
+        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
+          <div className="space-y-4">{documents}</div>
+          {children}
         </div>
-        {children}
       </div>
     </div>
   );
@@ -77,7 +77,7 @@ export function ReviewFields({
         const isOptional = key === "date_of_issue" || key === "surname";
         return (
           <div key={key} className="space-y-1.5">
-            <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+            <span className="flex items-center gap-2 text-sm font-medium text-slate-600">
               {toLabel(key)}
             </span>
             {isDate ? (
@@ -92,7 +92,7 @@ export function ReviewFields({
                     : "2200-12-31"}
                 required={!isOptional}
                 aria-label={toLabel(key)}
-                className="h-12 w-full min-w-0 rounded-xl border-slate-200 bg-slate-50 text-base shadow-sm placeholder:text-slate-400 focus-visible:bg-white"
+                className="h-12 w-full min-w-0 rounded-xl border-slate-200 bg-white text-base placeholder:text-slate-400"
               />
             ) : (
               <Input
@@ -102,7 +102,7 @@ export function ReviewFields({
                 placeholder={key === "surname" ? "Leave blank if not present" : "Not extracted"}
                 required={!isOptional}
                 aria-label={toLabel(key)}
-                className="h-12 w-full min-w-0 rounded-xl border-slate-200 bg-slate-50 text-base shadow-sm placeholder:text-slate-400 focus-visible:bg-white"
+                className="h-12 w-full min-w-0 rounded-xl border-slate-200 bg-white text-base placeholder:text-slate-400"
               />
             )}
           </div>

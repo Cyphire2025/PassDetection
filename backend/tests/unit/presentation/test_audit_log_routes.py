@@ -25,6 +25,7 @@ from app.presentation.api.v1.routes.audit_logs import (
     _audit_filters,
     _audit_scope,
     _safe_csv_cell,
+    list_audit_logs,
     page_audit_logs,
 )
 from app.presentation.api.v1.schemas.audit_log_schemas import AuditLogListItemResponse
@@ -89,6 +90,36 @@ def test_super_admin_may_explicitly_scope_or_review_the_global_ledger() -> None:
 
     assert _audit_scope(user, None) is None
     assert _audit_scope(user, target) == target
+
+
+@pytest.mark.parametrize("role", [role for role in UserRole if role not in {UserRole.SUPER_ADMIN, UserRole.AGENCY_ADMIN}])
+def test_audit_scope_rejects_roles_outside_the_administrative_boundary(role):
+    with pytest.raises(HTTPException) as denied:
+        _audit_scope(_user(role, uuid.uuid4()), None)
+    assert denied.value.status_code == 403
+
+
+async def test_legacy_audit_orphan_admin_is_denied_before_query_or_success_audit():
+    with patch.object(AuditLogRepository, "list_by_agency", new_callable=AsyncMock) as query, \
+            patch.object(AuditLogRepository, "record", new_callable=AsyncMock) as record:
+        with pytest.raises(HTTPException) as denied:
+            await list_audit_logs(request=_request(), current_user=_user(UserRole.AGENCY_ADMIN, None),
+                                  session=cast(AsyncSession, object()), skip=0, limit=100)
+    assert denied.value.status_code == 403
+    query.assert_not_awaited()
+    record.assert_not_awaited()
+
+
+@pytest.mark.parametrize("role", [UserRole.AGENCY_ADMIN, UserRole.SUPER_ADMIN])
+async def test_legacy_audit_preserves_authorized_scope(role):
+    agency_id = uuid.uuid4()
+    with patch.object(AuditLogRepository, "list_by_agency", new_callable=AsyncMock, return_value=[]) as query, \
+            patch.object(AuditLogRepository, "record", new_callable=AsyncMock) as record:
+        assert await list_audit_logs(request=_request(), current_user=_user(role, agency_id),
+                                     session=cast(AsyncSession, object()), skip=0, limit=100) == []
+    scope = None if role == UserRole.SUPER_ADMIN else agency_id
+    query.assert_awaited_once_with(scope, skip=0, limit=100)
+    assert record.await_args.kwargs["agency_id"] == scope
 
 
 def test_audit_filters_validate_time_order_and_normalize_strings() -> None:

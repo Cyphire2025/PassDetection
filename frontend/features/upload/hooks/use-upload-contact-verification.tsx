@@ -3,7 +3,7 @@ import type { PassportSubmission } from "@/types/passport.types";
 import { normalizePhoneNumber } from "@/lib/utils/phone-number";
 import { UploadContactVerification, validContactEmail, type ContactVerification } from "../components/upload-contact-verification";
 import type { FamilyMember, UploadFlowStep } from "../components/upload-flow.types";
-import { isClientSubmissionComplete } from "../services/upload-flow-helpers";
+import { isFamilyMemberSubmitted } from "../services/family-returning";
 
 export function isContactVerificationError(error: unknown) {
   return Boolean(error && typeof error === "object" && "code" in error && error.code === "CONTACT_VERIFICATION_REQUIRED");
@@ -71,7 +71,7 @@ export function useUploadContactVerification(props: Props) {
     contacts.push({ submissionId: props.submission.id, sessionId: props.sessionId, name: props.name, email: props.email, phone: props.phone });
   } else if (props.step === "FAMILY_REVIEW") {
     props.familyMembers.forEach((member, familyIndex) => {
-      if (member.submission && !isClientSubmissionComplete(member.submission)) contacts.push({ submissionId: member.submission.id, sessionId: member.uploadIdempotencyKey, name: member.name, email: member.email, phone: member.phone, familyIndex });
+      if (member.submission && !isFamilyMemberSubmitted(member)) contacts.push({ submissionId: member.submission.id, sessionId: member.uploadIdempotencyKey, name: member.name, email: member.email, phone: member.phone, familyIndex });
     });
   }
   const active = contacts.find((contact) => contact.submissionId === editing)

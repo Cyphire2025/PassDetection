@@ -1,5 +1,7 @@
 """Current database section authority, independent of stored bearer claims."""
 
+from uuid import UUID
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -28,7 +30,7 @@ async def current_read_access(session: AsyncSession, *, lock: bool = False) -> t
     return values, row[1]
 
 
-async def require_read_sections(session: AsyncSession, name: str, *, grant_id=None) -> None:
+async def require_read_sections(session: AsyncSession, name: str, *, grant_id: UUID | None = None) -> None:
     required = READ_TOOL_SECTIONS.get(name)
     if required is None:
         raise MCPAuthError("unsupported_read_tool", 403)

@@ -84,6 +84,7 @@ from .dependencies import (
 from .processing_support import _dispatch_processing_job
 from .response_support import _ensure_submission_qr, _response_from_dto, _response_from_submission
 from .submission_contact import require_verified_submission_contact
+from .submission_execution import execute_client_review
 from .submission_side_effects import stage_submission_side_effects
 
 router = APIRouter()
@@ -228,34 +229,7 @@ async def client_submit_passport(
     committed = False
     commit_attempted = False
     try:
-        result = await use_case.execute(
-            submission_id,
-            group_token=body.group_token,
-            confirmed_fields=body.confirmed_fields,
-            client_email=str(body.client_email) if body.client_email else None,
-            client_phone=body.client_phone,
-            departure_city=body.departure_city,
-            nearest_domestic_airport=body.nearest_domestic_airport,
-            base_city=body.base_city,
-            staff_code=body.staff_code,
-            agent_employee_type=body.agent_employee_type,
-            agent_employee_code=body.agent_employee_code,
-            designation=body.designation,
-            agency_dealership_name=body.agency_dealership_name,
-            meal_preference=body.meal_preference,
-            submission_mode=body.submission_mode,
-            family_group_id=body.family_group_id,
-            family_member_index=body.family_member_index,
-            family_relation=body.family_relation,
-            family_gender=body.family_gender,
-            family_head_name=body.family_head_name,
-            family_head_email=str(body.family_head_email) if body.family_head_email else None,
-            family_head_phone=body.family_head_phone,
-            custom_answers=[answer.model_dump(mode="json") for answer in body.custom_answers],
-            custom_detail_answers=[
-                answer.model_dump(mode="json") for answer in body.custom_detail_answers
-            ],
-        )
+        result = await execute_client_review(use_case, submission_id, body)
         effects = await stage_submission_side_effects(
             session, result=result, contact_proof=contact_proof
         )
@@ -349,6 +323,17 @@ async def staff_approve_passport(
             review_reason=body.review_reason,
         )
         result = approval.submission
+        from app.application.travellers.history_schedule import schedule_submission_history
+        await schedule_submission_history(session, agency_id=result.agency_id, group_id=result.group_id,
+            source_submission_id=result.id, expected_extraction_revision=result.extraction_revision,
+            trigger=f"staff-approval:{result.id}:{result.extraction_revision}")
+        from app.application.travellers.snapshot_access import (
+            has_retained_document,
+            sync_accepted_participations,
+        )
+        if has_retained_document(result):
+            await sync_accepted_participations(session, agency_id=result.agency_id,
+                group_id=result.group_id, submission_ids=[result.id])
         if approval.outcome is StaffApprovalOutcome.APPROVED:
             audit_metadata: dict[str, object] = {
                 "group_id": str(result.group_id),
@@ -636,6 +621,17 @@ async def confirm_passport(
             submission_id,
             confirmed_fields=body.confirmed_fields,
         )
+        from app.application.travellers.history_schedule import schedule_submission_history
+        await schedule_submission_history(session, agency_id=result.agency_id, group_id=result.group_id,
+            source_submission_id=result.id, expected_extraction_revision=result.extraction_revision,
+            trigger=f"staff-confirm:{result.id}:{result.extraction_revision}")
+        from app.application.travellers.snapshot_access import (
+            has_retained_document,
+            sync_accepted_participations,
+        )
+        if has_retained_document(result):
+            await sync_accepted_participations(session, agency_id=result.agency_id,
+                group_id=result.group_id, submission_ids=[result.id])
         await AuditLogRepository(session).record(
             action="passport_confirmed",
             entity_type="passport_submission",

@@ -7,7 +7,8 @@ import type { PassportSubmission } from "@/types/passport.types";
 import type { Dispatch, SetStateAction } from "react";
 import type { FamilyMember, UploadFlowStep } from "../components/upload-flow.types";
 import type { getUploadFlowSettings } from "../services/configured-upload";
-import { isClientSubmissionComplete, passportHolderName, submitErrorMessage } from "../services/upload-flow-helpers";
+import { passportHolderName, submitErrorMessage } from "../services/upload-flow-helpers";
+import { isFamilyMemberSubmitted } from "../services/family-returning";
 import { useSubmitClientPassportReview } from "./use-upload";
 import { isContactVerificationError, type useUploadContactVerification } from "./use-upload-contact-verification";
 import type { useUploadOperation } from "./use-upload-operation";
@@ -97,7 +98,7 @@ export function useUploadSubmission({ token, submission, singleUploadIdempotency
     if (operation.isBusy()) return;
     const headEmail = familyMembers[0]?.email ?? "";
     const headPhone = familyMembers[0]?.phone ?? "";
-    const unverified = familyMembers.find((member) => member.submission && !isClientSubmissionComplete(member.submission) && !contactVerification.getProof(member.submission.id, member.uploadIdempotencyKey, member.email, member.phone));
+    const unverified = familyMembers.find((member) => member.submission && !isFamilyMemberSubmitted(member) && !contactVerification.getProof(member.submission.id, member.uploadIdempotencyKey, member.email, member.phone));
     if (unverified?.submission) { contactVerification.edit(unverified.submission.id); return; }
     const validationError = validateFamilyReview({ familyMembers, settings, draft, canReviewSubmission, requiresPassportReview });
     if (validationError) { setUploadError(validationError); return; }
@@ -108,7 +109,7 @@ export function useUploadSubmission({ token, submission, singleUploadIdempotency
       setUploadError(null);
       setStep("SUBMITTING");
       for (const [index, member] of familyMembers.entries()) {
-        if (!member.submission || isClientSubmissionComplete(member.submission)) continue;
+        if (!member.submission || isFamilyMemberSubmitted(member)) continue;
         const contactProof = contactVerification.getProof(member.submission.id, member.uploadIdempotencyKey, member.email, member.phone);
         if (!contactProof) throw { code: "CONTACT_VERIFICATION_REQUIRED", message: "Verify your WhatsApp number again before submitting." };
         const submitted = await submitClientReview({

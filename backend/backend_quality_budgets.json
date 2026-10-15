@@ -3,6 +3,14 @@
   "untracked_module_line_threshold": 2000,
   "modules": [
     {
+      "path": "app/application/companies/source_chronology.py",
+      "baseline_lines": 18,
+      "maximum_lines": 20,
+      "baseline_max_function_complexity": 4,
+      "maximum_function_complexity": 4,
+      "minimum_coverage_percent": 90
+    },
+    {
       "path": "app/core/native_image_admission.py",
       "baseline_lines": 194,
       "maximum_lines": 200,
@@ -696,6 +704,342 @@
       "maximum_lines": 275,
       "baseline_max_function_complexity": 7,
       "maximum_function_complexity": 7,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/application/companies/current_record.py",
+      "baseline_lines": 181,
+      "maximum_lines": 190,
+      "baseline_max_function_complexity": 16,
+      "maximum_function_complexity": 16,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/application/companies/data_exports.py",
+      "baseline_lines": 92,
+      "maximum_lines": 100,
+      "baseline_max_function_complexity": 6,
+      "maximum_function_complexity": 6,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/application/companies/document_publication.py",
+      "baseline_lines": 94,
+      "maximum_lines": 100,
+      "baseline_max_function_complexity": 15,
+      "maximum_function_complexity": 15,
+      "minimum_coverage_percent": 85
+    },
+    {
+      "path": "app/application/companies/document_upload.py",
+      "baseline_lines": 119,
+      "maximum_lines": 120,
+      "baseline_max_function_complexity": 26,
+      "maximum_function_complexity": 26,
+      "minimum_coverage_percent": 80
+    },
+    {
+      "path": "app/application/companies/export_source.py",
+      "baseline_lines": 143,
+      "maximum_lines": 150,
+      "baseline_max_function_complexity": 16,
+      "maximum_function_complexity": 16,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/application/companies/original_record.py",
+      "baseline_lines": 64,
+      "maximum_lines": 70,
+      "baseline_max_function_complexity": 19,
+      "maximum_function_complexity": 19,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/application/companies/people.py",
+      "baseline_lines": 166,
+      "maximum_lines": 170,
+      "baseline_max_function_complexity": 7,
+      "maximum_function_complexity": 7,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/application/companies/people_contracts.py",
+      "baseline_lines": 136,
+      "maximum_lines": 140,
+      "baseline_max_function_complexity": 4,
+      "maximum_function_complexity": 4,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/application/companies/removal.py",
+      "baseline_lines": 76,
+      "maximum_lines": 80,
+      "baseline_max_function_complexity": 10,
+      "maximum_function_complexity": 10,
+      "minimum_coverage_percent": 85
+    },
+    {
+      "path": "app/application/companies/source_documents.py",
+      "baseline_lines": 50,
+      "maximum_lines": 50,
+      "baseline_max_function_complexity": 4,
+      "maximum_function_complexity": 4,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/application/companies/trip_phase.py",
+      "baseline_lines": 18,
+      "maximum_lines": 20,
+      "baseline_max_function_complexity": 1,
+      "maximum_function_complexity": 1,
+      "minimum_coverage_percent": 100
+    },
+    {
+      "path": "app/application/travellers/accepted_source.py",
+      "baseline_lines": 84,
+      "maximum_lines": 90,
+      "baseline_max_function_complexity": 19,
+      "maximum_function_complexity": 19,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/application/travellers/broadcast_history_schedule.py",
+      "baseline_lines": 96,
+      "maximum_lines": 100,
+      "baseline_max_function_complexity": 15,
+      "maximum_function_complexity": 15,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/application/travellers/company_history_jobs.py",
+      "baseline_lines": 171,
+      "maximum_lines": 180,
+      "baseline_max_function_complexity": 15,
+      "maximum_function_complexity": 15,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/application/travellers/historical_registration.py",
+      "baseline_lines": 270,
+      "maximum_lines": 270,
+      "baseline_max_function_complexity": 24,
+      "maximum_function_complexity": 24,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/application/travellers/history_schedule.py",
+      "baseline_lines": 74,
+      "maximum_lines": 80,
+      "baseline_max_function_complexity": 7,
+      "maximum_function_complexity": 7,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/application/travellers/identity_index.py",
+      "baseline_lines": 123,
+      "maximum_lines": 130,
+      "baseline_max_function_complexity": 18,
+      "maximum_function_complexity": 18,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/application/travellers/incremental_history.py",
+      "baseline_lines": 184,
+      "maximum_lines": 190,
+      "baseline_max_function_complexity": 21,
+      "maximum_function_complexity": 21,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/application/travellers/legacy_staff_acceptance.py",
+      "baseline_lines": 81,
+      "maximum_lines": 90,
+      "baseline_max_function_complexity": 22,
+      "maximum_function_complexity": 22,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/application/travellers/operational_autoassignment.py",
+      "baseline_lines": 194,
+      "maximum_lines": 200,
+      "baseline_max_function_complexity": 34,
+      "maximum_function_complexity": 34,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/application/travellers/owned_extraction.py",
+      "baseline_lines": 34,
+      "maximum_lines": 40,
+      "baseline_max_function_complexity": 10,
+      "maximum_function_complexity": 10,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/application/travellers/retained_authority.py",
+      "baseline_lines": 97,
+      "maximum_lines": 100,
+      "baseline_max_function_complexity": 12,
+      "maximum_function_complexity": 12,
+      "minimum_coverage_percent": 100
+    },
+    {
+      "path": "app/application/travellers/submission_snapshot.py",
+      "baseline_lines": 36,
+      "maximum_lines": 40,
+      "baseline_max_function_complexity": 7,
+      "maximum_function_complexity": 7,
+      "minimum_coverage_percent": 100
+    },
+    {
+      "path": "app/application/travellers/versioning.py",
+      "baseline_lines": 57,
+      "maximum_lines": 60,
+      "baseline_max_function_complexity": 12,
+      "maximum_function_complexity": 12,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/domain/services/traveller_identity.py",
+      "baseline_lines": 133,
+      "maximum_lines": 140,
+      "baseline_max_function_complexity": 23,
+      "maximum_function_complexity": 23,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/infrastructure/travellers/company_export_cleanup.py",
+      "baseline_lines": 37,
+      "maximum_lines": 40,
+      "baseline_max_function_complexity": 3,
+      "maximum_function_complexity": 3,
+      "minimum_coverage_percent": 100
+    },
+    {
+      "path": "app/infrastructure/travellers/company_export_render.py",
+      "baseline_lines": 143,
+      "maximum_lines": 150,
+      "baseline_max_function_complexity": 12,
+      "maximum_function_complexity": 12,
+      "minimum_coverage_percent": 85
+    },
+    {
+      "path": "app/infrastructure/travellers/company_export_worker.py",
+      "baseline_lines": 237,
+      "maximum_lines": 240,
+      "baseline_max_function_complexity": 34,
+      "maximum_function_complexity": 34,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/infrastructure/travellers/staff_record_asset_copy.py",
+      "baseline_lines": 46,
+      "maximum_lines": 50,
+      "baseline_max_function_complexity": 16,
+      "maximum_function_complexity": 16,
+      "minimum_coverage_percent": 100
+    },
+    {
+      "path": "app/presentation/api/v1/routes/company_data_exports.py",
+      "baseline_lines": 149,
+      "maximum_lines": 150,
+      "baseline_max_function_complexity": 5,
+      "maximum_function_complexity": 5,
+      "minimum_coverage_percent": 80
+    },
+    {
+      "path": "app/presentation/api/v1/routes/company_document_uploads.py",
+      "baseline_lines": 69,
+      "maximum_lines": 70,
+      "baseline_max_function_complexity": 5,
+      "maximum_function_complexity": 5,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/presentation/api/v1/routes/company_people.py",
+      "baseline_lines": 170,
+      "maximum_lines": 170,
+      "baseline_max_function_complexity": 5,
+      "maximum_function_complexity": 5,
+      "minimum_coverage_percent": 95
+    },
+    {
+      "path": "app/presentation/api/v1/routes/company_source_documents.py",
+      "baseline_lines": 111,
+      "maximum_lines": 120,
+      "baseline_max_function_complexity": 13,
+      "maximum_function_complexity": 13,
+      "minimum_coverage_percent": 80
+    },
+    {
+      "path": "app/presentation/api/v1/routes/returning_detection.py",
+      "baseline_lines": 47,
+      "maximum_lines": 50,
+      "baseline_max_function_complexity": 3,
+      "maximum_function_complexity": 3,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/application/travellers/legacy_source_acceptance.py",
+      "baseline_lines": 72,
+      "maximum_lines": 85,
+      "baseline_max_function_complexity": 13,
+      "maximum_function_complexity": 16,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/application/travellers/source_acceptance_provenance.py",
+      "baseline_lines": 58,
+      "maximum_lines": 65,
+      "baseline_max_function_complexity": 13,
+      "maximum_function_complexity": 14,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/application/travellers/passport_lookup.py",
+      "baseline_lines": 78,
+      "maximum_lines": 90,
+      "baseline_max_function_complexity": 7,
+      "maximum_function_complexity": 8,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/application/travellers/document_selection.py",
+      "baseline_lines": 96,
+      "maximum_lines": 110,
+      "baseline_max_function_complexity": 9,
+      "maximum_function_complexity": 10,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/application/travellers/historical_identity.py",
+      "baseline_lines": 113,
+      "maximum_lines": 125,
+      "baseline_max_function_complexity": 18,
+      "maximum_function_complexity": 18,
+      "minimum_coverage_percent": 85
+    },
+    {
+      "path": "app/application/travellers/identity_candidates.py",
+      "baseline_lines": 40,
+      "maximum_lines": 50,
+      "baseline_max_function_complexity": 2,
+      "maximum_function_complexity": 3,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/domain/services/identity_decisions.py",
+      "baseline_lines": 44,
+      "maximum_lines": 55,
+      "baseline_max_function_complexity": 21,
+      "maximum_function_complexity": 21,
+      "minimum_coverage_percent": 90
+    },
+    {
+      "path": "app/domain/services/traveller_names.py",
+      "baseline_lines": 18,
+      "maximum_lines": 25,
+      "baseline_max_function_complexity": 9,
+      "maximum_function_complexity": 9,
       "minimum_coverage_percent": 90
     }
   ],

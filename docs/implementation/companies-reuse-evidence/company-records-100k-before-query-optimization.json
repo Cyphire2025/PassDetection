@@ -1,0 +1,78 @@
+{
+  "dataset": {
+    "collected_records": 100000,
+    "client_companies": 1,
+    "assigned_groups": 100
+  },
+  "runtime": {
+    "python": "3.11.15",
+    "sqlite": "3.53.1",
+    "platform": "Windows"
+  },
+  "seed_batch_size": 500,
+  "seed_seconds": 7.473,
+  "concurrent_readers": 4,
+  "elapsed_seconds": 60.238,
+  "errors": 0,
+  "max_records_returned": 25,
+  "database_bytes": 132657152,
+  "peak_working_set_bytes": 160227328,
+  "latencies": {
+    "first_page": {
+      "sampled_operations": 139,
+      "p50_ms": 344.926,
+      "p95_ms": 508.398,
+      "p99_ms": 836.865
+    },
+    "cursor_page": {
+      "sampled_operations": 137,
+      "p50_ms": 440.802,
+      "p95_ms": 629.138,
+      "p99_ms": 884.317
+    },
+    "name_search": {
+      "sampled_operations": 67,
+      "p50_ms": 1934.805,
+      "p95_ms": 2139.64,
+      "p99_ms": 2217.381
+    }
+  },
+  "query_plans": [
+    {
+      "sql": "SELECT client_organizations.id, client_organizations.agency_id, client_organizations.revision, client_organizations.name, client_organizations.normalized_name, client_organizations.external_reference, client_organizations.status, client_organizations.created_by_user_id, client_organizations.updated_by_user_id, client_organizations.created_at, client_organizations.updated_at, client_organizations.deleted_at \nFROM client_organizations \nWHERE client_organizations.id = ? AND client_organizations.agency_id = ? AND client_organizations.status != ?",
+      "plan": [
+        "SEARCH client_organizations USING INDEX sqlite_autoindex_client_organizations_2 (id=? AND agency_id=?)"
+      ]
+    },
+    {
+      "sql": "SELECT passport_submissions.id, passport_submissions.group_id, anon_1.name AS group_name, anon_1.travel_date, passport_submissions.client_name AS display_name, passport_submissions.status, passport_submissions.created_at \nFROM passport_submissions JOIN (SELECT client_groups.id AS id, client_groups.name AS name, client_groups.travel_date AS travel_date \nFROM client_groups \nWHERE client_groups.agency_id = ? AND client_groups.company_id = ? AND client_groups.status IN (?, ?, ?) AND client_groups.deleted_at IS NULL AND client_groups.agency_id = ? AND client_groups.deleted_at IS NULL AND client_groups.status IN (?, ?, ?)) AS anon_1 ON anon_1.id = passport_submissions.group_id \nWHERE passport_submissions.agency_id = ? AND passport_submissions.status IN (?, ?, ?, ?, ?, ?) AND passport_submissions.created_at <= ? AND lower(coalesce(passport_submissions.client_name, ?) || ? || coalesce(passport_submissions.client_email, ?) || ? || coalesce(passport_submissions.client_phone, ?) || ? || coalesce(passport_submissions.departure_city, ?) || ? || coalesce(JSON_EXTRACT(passport_submissions.extracted_fields, ?), ?) || ? || coalesce(JSON_EXTRACT(passport_submissions.confirmed_fields, ?), ?) || ? || coalesce(JSON_EXTRACT(passport_submissions.extracted_fields, ?), ?) || ? || coalesce(JSON_EXTRACT(passport_submissions.confirmed_fields, ?), ?) || ? || coalesce(JSON_EXTRACT(passport_submissions.extracted_fields, ?), ?) || ? || coalesce(JSON_EXTRACT(passport_submissions.confirmed_fields, ?), ?)) LIKE ? ESCAPE '\\' AND (lower(passport_submissions.client_name) LIKE ? ESCAPE '\\' OR lower(JSON_EXTRACT(passport_submissions.extracted_fields, ?)) LIKE ? ESCAPE '\\' OR lower(JSON_EXTRACT(passport_submissions.confirmed_fields, ?)) LIKE ? ESCAPE '\\' OR lower(JSON_EXTRACT(passport_submissions.extracted_fields, ?)) LIKE ? ESCAPE '\\' OR lower(JSON_EXTRACT(passport_submissions.confirmed_fields, ?)) LIKE ? ESCAPE '\\') ORDER BY passport_submissions.created_at DESC, passport_submissions.id DESC\n LIMIT ? OFFSET ?",
+      "plan": [
+        "SCAN client_groups",
+        "SEARCH passport_submissions USING INDEX ix_passport_submissions_group_status_created_at (group_id=? AND status=? AND created_at<?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "SELECT passport_submissions.id, passport_submissions.group_id, anon_1.name AS group_name, anon_1.travel_date, passport_submissions.client_name AS display_name, passport_submissions.status, passport_submissions.created_at \nFROM passport_submissions JOIN (SELECT client_groups.id AS id, client_groups.name AS name, client_groups.travel_date AS travel_date \nFROM client_groups \nWHERE client_groups.agency_id = ? AND client_groups.company_id = ? AND client_groups.status IN (?, ?, ?) AND client_groups.deleted_at IS NULL AND client_groups.agency_id = ? AND client_groups.deleted_at IS NULL AND client_groups.status IN (?, ?, ?)) AS anon_1 ON anon_1.id = passport_submissions.group_id \nWHERE passport_submissions.agency_id = ? AND passport_submissions.status IN (?, ?, ?, ?, ?, ?) AND passport_submissions.created_at <= ? ORDER BY passport_submissions.created_at DESC, passport_submissions.id DESC\n LIMIT ? OFFSET ?",
+      "plan": [
+        "SCAN client_groups",
+        "SEARCH passport_submissions USING INDEX ix_passport_submissions_group_status_created_at (group_id=? AND status=? AND created_at<?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    },
+    {
+      "sql": "SELECT passport_submissions.id, passport_submissions.group_id, anon_1.name AS group_name, anon_1.travel_date, passport_submissions.client_name AS display_name, passport_submissions.status, passport_submissions.created_at \nFROM passport_submissions JOIN (SELECT client_groups.id AS id, client_groups.name AS name, client_groups.travel_date AS travel_date \nFROM client_groups \nWHERE client_groups.agency_id = ? AND client_groups.company_id = ? AND client_groups.status IN (?, ?, ?) AND client_groups.deleted_at IS NULL AND client_groups.agency_id = ? AND client_groups.deleted_at IS NULL AND client_groups.status IN (?, ?, ?)) AS anon_1 ON anon_1.id = passport_submissions.group_id \nWHERE passport_submissions.agency_id = ? AND passport_submissions.status IN (?, ?, ?, ?, ?, ?) AND passport_submissions.created_at <= ? AND (passport_submissions.created_at < ? OR passport_submissions.created_at = ? AND passport_submissions.id < ?) ORDER BY passport_submissions.created_at DESC, passport_submissions.id DESC\n LIMIT ? OFFSET ?",
+      "plan": [
+        "SCAN client_groups",
+        "SEARCH passport_submissions USING INDEX ix_passport_submissions_group_status_created_at (group_id=? AND status=? AND created_at<?)",
+        "USE TEMP B-TREE FOR ORDER BY"
+      ]
+    }
+  ],
+  "limitations": [
+    "Synthetic SQLite application-helper benchmark, not PostgreSQL or HTTP capacity",
+    "No OTP, document bytes, authentication middleware or network",
+    "No million-user or sustained-production claim",
+    "SQLite name search does not provide the production PostgreSQL trigram index"
+  ]
+}

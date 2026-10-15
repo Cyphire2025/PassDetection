@@ -96,7 +96,7 @@ function DialogLoadingState({ label }: { label: string }) {
   );
 }
 
-const ROSTER_FILTER_IDS: WhatsAppRecipientRosterTab[] = ["all", "ready", "not_sent", "sent", "failed", "in_progress", "needs_review", "shared", "rejected", "unidentified", "replaced"];
+const ROSTER_FILTER_IDS: WhatsAppRecipientRosterTab[] = ["all", "sent", "not_sent", "delivery_left", "failed", "needs_review", "rejected", "unidentified", "replaced"];
 
 export function RecipientListDialog({
   group,
@@ -189,7 +189,10 @@ export function RecipientListDialog({
     importState,
     previewFile,
     rejectedContacts,
+    rejectedContactCount,
     importedFieldKeys,
+    duplicateSourceFiles,
+    dismissImportError,
     resetImport,
   } = useRecipientExcelPreview({
     contacts,
@@ -283,6 +286,10 @@ export function RecipientListDialog({
       setRecipientError("Wait for the Excel contacts to finish loading.");
       return;
     }
+    if (importState.status === "error") {
+      setRecipientError("Correct or explicitly ignore the failed Excel import before saving.");
+      return;
+    }
     if (contacts.length === 0 && rejectedContacts.length === 0) {
       setRecipientError(
         "Add at least one named recipient or import rejected rows for correction.",
@@ -318,8 +325,9 @@ export function RecipientListDialog({
         recipientOptInConfirmed:
           contacts.length > 0 && recipientOptInConfirmed,
         importedFieldKeys,
+        ...(duplicateSourceFiles.length ? { duplicateSourceFiles } : {}),
       });
-      const savedRejectedCount = rejectedContacts.length;
+      const savedRejectedCount = rejectedContactCount;
       setContacts([]);
       resetImport();
       setRecipientOptInConfirmed(false);
@@ -454,14 +462,13 @@ export function RecipientListDialog({
     }
     return names;
   }, [sourceContacts.data?.contacts, recipientRoster?.items]);
-  const sharedPhones = useMemo(() => new Set([...sourceNamesByPhone].filter(([, names]) => names.length > 1).map(([phone]) => phone)), [sourceNamesByPhone]);
   const hasRecipientSearch = Boolean(deferredRecipientSearchQuery.trim());
   const rosterSearchIndex = useMemo(() => hasRecipientSearch ? createRecipientRosterSearchIndex(recipientRoster?.items ?? [], sourceNamesByPhone) : undefined, [recipientRoster?.items, sourceNamesByPhone, hasRecipientSearch]);
   const searchedRosterItems = useMemo(() => searchRecipientRosterItems(recipientRoster?.items ?? [], deferredRecipientSearchQuery, sourceNamesByPhone, rosterSearchIndex), [recipientRoster?.items, deferredRecipientSearchQuery, sourceNamesByPhone, rosterSearchIndex]);
-  const filterCounts = useMemo(() => Object.fromEntries(ROSTER_FILTER_IDS.map((id) => [id, countRecipientRosterItems(searchedRosterItems, id, selectedMessageType, sharedPhones)])) as Record<WhatsAppRecipientRosterTab, number>, [searchedRosterItems, selectedMessageType, sharedPhones]);
+  const filterCounts = useMemo(() => Object.fromEntries(ROSTER_FILTER_IDS.map((id) => [id, countRecipientRosterItems(searchedRosterItems, id, selectedMessageType)])) as Record<WhatsAppRecipientRosterTab, number>, [searchedRosterItems, selectedMessageType]);
   const visibleRosterItems = useMemo(
-    () => filterRecipientRosterItems(searchedRosterItems, recipientRosterTab, selectedMessageType, sharedPhones),
-    [searchedRosterItems, recipientRosterTab, selectedMessageType, sharedPhones],
+    () => filterRecipientRosterItems(searchedRosterItems, recipientRosterTab, selectedMessageType),
+    [searchedRosterItems, recipientRosterTab, selectedMessageType],
   );
   const allRecipients = useMemo(() => recipientRoster?.items.flatMap((item) => item.kind === "recipient" ? [item.recipient] : []) ?? [], [recipientRoster?.items]);
   const visibleRecipientIds = useMemo(() => visibleRosterItems.flatMap((item) => item.kind === "recipient" ? [item.recipient.id] : []), [visibleRosterItems]);
@@ -621,7 +628,7 @@ export function RecipientListDialog({
           }
           widthClass="max-w-[1600px] h-[94dvh]"
         >
-        <RecipientWorkspaceNavigation section={section} onChange={setSection} recipientCount={detail?.recipient_count ?? group.recipient_count} pendingCount={contacts.length + rejectedContacts.length} readOnly={isArchived} sourceContactCount={sourceContactCount} />
+        <RecipientWorkspaceNavigation section={section} onChange={setSection} recipientCount={detail?.recipient_count ?? group.recipient_count} pendingCount={contacts.length + rejectedContactCount} readOnly={isArchived} sourceContactCount={sourceContactCount} />
         <div className="min-h-0 flex-1 overflow-y-auto bg-slate-50/70 p-4 sm:p-6">
         {isArchived && <p role="status" className="mb-4 rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-700">This broadcast is archived and read-only. Restore it from Archived broadcasts to edit recipients or send messages.</p>}
         {loadError ? (
@@ -776,6 +783,7 @@ export function RecipientListDialog({
               <ExcelRecipientImport
                 state={importState}
                 onFile={previewFile}
+                onDismissError={dismissImportError}
                 label="Upload additional Excel contacts"
               />
 
@@ -811,7 +819,7 @@ export function RecipientListDialog({
                     (contacts.length === 0 &&
                       rejectedContacts.length === 0) ||
                     (contacts.length > 0 && !recipientOptInConfirmed) ||
-                    importState.status === "loading"
+                    importState.status === "loading" || importState.status === "error"
                   }
                   onClick={addRecipients}
                 >
@@ -888,7 +896,7 @@ export function RecipientListDialog({
               </div>}
               <details className="mt-3 text-xs text-slate-500">
                 <summary className="cursor-pointer hover:text-slate-800">About these delivery filters</summary>
-                <p className="mt-2 max-w-3xl leading-relaxed">Every delivery filter uses the selected message type within this broadcast. Sent includes messages accepted by WhatsApp; only Delivered or Read confirms receipt. Ready includes eligible first sends and failed attempts. A welcome in another broadcast does not affect this broadcast. Select recipients and review a resend to send their welcome again. Needs review includes uncertain delivery or a welcome requirement that blocks sending. A failed later resend can appear under Failed while the original remains Sent. Shared numbers represent multiple travellers receiving one copy. Contact records lists rejected imports, replaced people and unidentified uploads separately.</p>
+                <p className="mt-2 max-w-3xl leading-relaxed">Every delivery filter uses the selected message type within this broadcast. Sent includes messages accepted by WhatsApp; only Delivered or Read confirms receipt. Not Sent shows recipients with no send attempt. Delivery left tracks messages awaiting delivery confirmation. Welcome recipients stay here after a resend until welcome delivery is confirmed. Queued and processing messages remain visible in All. Need Review includes uncertain delivery or a welcome requirement that blocks sending. A welcome in another broadcast does not affect this broadcast. Select recipients and review a resend to send their welcome again. A failed later resend can appear under Failed while the original remains Sent. Contact records lists rejected imports, replaced people and unidentified uploads separately.</p>
               </details>
               {recipientError && <div className="mt-3"><ErrorBanner message={recipientError} /></div>}
               {displayedResendError && (

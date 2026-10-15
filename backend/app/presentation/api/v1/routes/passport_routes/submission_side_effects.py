@@ -37,6 +37,7 @@ async def stage_submission_side_effects(
     *,
     result: PassportSubmissionOutputDTO,
     contact_proof: PublicUploadContactChallengeModel,
+    sync_broadcast_contacts: bool = True,
 ) -> SubmissionSideEffects:
     """Stage durable work without committing, publishing, or deleting objects."""
     # Proof consumption and submission promotion commit atomically. A failed
@@ -56,6 +57,10 @@ async def stage_submission_side_effects(
             verification_revision=result.post_submission_verification_revision,
         )
     if not result.idempotent_replay:
+        from app.application.travellers.history_schedule import schedule_submission_history
+        await schedule_submission_history(session, agency_id=result.agency_id, group_id=result.group_id,
+            source_submission_id=result.id, expected_extraction_revision=result.extraction_revision,
+            trigger=f"client-submit:{result.id}:{result.extraction_revision}")
         await propagate_mobile_passenger_change(
             session,
             agency_id=result.agency_id,
@@ -63,7 +68,7 @@ async def stage_submission_side_effects(
             passenger_submission_ids=[result.id],
             actor_user_id=None,
             change_kind="documents",
-            sync_broadcast_contacts=True,
+            sync_broadcast_contacts=sync_broadcast_contacts,
         )
         await AuditLogRepository(session).record(
             action="client_passport_submitted",

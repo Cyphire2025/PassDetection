@@ -17,6 +17,7 @@ from app.domain.value_objects.travel_document_taxonomy import DOCUMENT_TYPES
 from app.infrastructure.database.models import (
     DistributedDocumentModel,
     DocumentDistributionBatchModel,
+    UserModel,
 )
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.documents.distribution_capacity import DocumentDistributionCapacityError
@@ -98,7 +99,7 @@ async def manually_upload_passenger_document(
         reason=MANUAL_DOCUMENT_TYPE_APPROVAL_PREFIX + "Passenger explicitly selected by staff",
         text="", extracted_name=None, extracted_passport_number=None, extracted_reference=None,
     )
-    actor = current_user
+    actor: UserModel | User = current_user
     released_passenger_ids: tuple[uuid.UUID, ...] = ()
 
     async def reauthorize() -> tuple[uuid.UUID, str | None]:

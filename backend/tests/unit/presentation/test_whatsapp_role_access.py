@@ -93,6 +93,7 @@ async def test_non_office_roles_cannot_read_broadcast_options(role: UserRole) ->
 async def test_non_office_roles_cannot_link_broadcast_during_group_creation(role: UserRole) -> None:
     use_case = SimpleNamespace(execute=AsyncMock())
     request = CreateClientGroupRequest(
+        company_id=uuid.uuid4(),
         name="Vietnam 2026",
         destination="Vietnam",
         travel_date=date(2026, 9, 1),

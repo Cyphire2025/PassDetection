@@ -29,6 +29,7 @@ beforeEach(() => {
 it("applies, persists and resets only real appearance preferences", async () => {
   const user = userEvent.setup();
   render(<DashboardSettingsPage />);
+  expect(screen.queryByLabelText("Policy draft")).not.toBeInTheDocument();
   await user.click(screen.getByRole("button", { name: "Compact" }));
   await user.click(screen.getByRole("button", { name: "Focused" }));
   await user.click(screen.getByRole("button", { name: "Larger" }));
@@ -64,7 +65,7 @@ it("preserves policy drafts across sections and exposes only permitted template 
   render(<DashboardSettingsPage />);
   expect(screen.queryByRole("button", { name: /WhatsApp templates/ })).not.toBeInTheDocument();
   await user.click(screen.getByRole("button", { name: /Platform policies/ }));
-  await user.type(screen.getByRole("textbox", { name: "Policy draft" }), "Pending policy");
+  await user.type(await screen.findByRole("textbox", { name: "Policy draft" }), "Pending policy");
   await user.click(screen.getByRole("button", { name: /Account & security/ }));
   expect(screen.getByText("Account security")).toBeVisible();
   expect(screen.getAllByText("Unavailable")).toHaveLength(3);

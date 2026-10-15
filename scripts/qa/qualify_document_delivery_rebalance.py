@@ -50,10 +50,15 @@ def memory(name: str) -> dict:
 
 
 def remove_owned(name: str) -> None:
-    state = inspect(name)
+    identifiers = command("docker", "ps", "-aq", "--filter", f"name=^/{name}$").split()
+    if not identifiers:
+        return
+    if len(identifiers) != 1:
+        raise RuntimeError("Ambiguous isolated cleanup target")
+    state = inspect(identifiers[0])
     if state["Config"]["Labels"].get(LABEL) != RUN_ID or state["HostConfig"]["NetworkMode"] != "none":
         raise RuntimeError("Cleanup target does not belong to this isolated run")
-    command("docker", "rm", "-f", "-v", name)
+    command("docker", "rm", "-f", "-v", state["Id"])
 
 
 def create(name: str, image: str, cap: int, *args: str, user: str | None = None) -> None:
@@ -83,11 +88,11 @@ def pipeline(name: str, start: int, count: int, values: list[bytes], *, total: i
 
 def redis_probe(image: str, *, durable: bool, cap: int, maximum: int) -> dict:
     name = RUN_ID + ("-broker" if durable else "-cache")
-    create(name, image, cap, "redis-server", "--bind", "127.0.0.1", "--save", "",
-        "--dir", "/tmp", "--maxmemory", f"{maximum}mb", "--maxmemory-policy",
-        "noeviction" if durable else "allkeys-lru", "--appendonly", "yes" if durable else "no",
-        "--auto-aof-rewrite-percentage", "0", user="redis")
     try:
+        create(name, image, cap, "redis-server", "--bind", "127.0.0.1", "--save", "",
+            "--dir", "/tmp", "--maxmemory", f"{maximum}mb", "--maxmemory-policy",
+            "noeviction" if durable else "allkeys-lru", "--appendonly", "yes" if durable else "no",
+            "--auto-aof-rewrite-percentage", "0", user="redis")
         values = [os.urandom(32768) for _ in range(64)]
         inserted = 0
         until = time.monotonic() + 120
@@ -110,17 +115,21 @@ def redis_probe(image: str, *, durable: bool, cap: int, maximum: int) -> dict:
                 pipeline(name, overwritten, 64, values[1:] + values[:1], total=inserted)
                 overwritten += 64
             persistence = redis_info(name, "persistence")
-            assert observed and overwritten and persistence["aof_last_bgrewrite_status"] == "ok"
-            assert redis_info(name, "stats")["evicted_keys"] == "0"
+            if not observed or not overwritten or persistence["aof_last_bgrewrite_status"] != "ok":
+                raise RuntimeError("Synthetic AOF rewrite was not completed under overlapping writes")
+            if redis_info(name, "stats")["evicted_keys"] != "0":
+                raise RuntimeError("Durable broker evicted a synthetic key")
         else:
             # Evictable cache must remain healthy after exceeding its key budget.
             for _ in range(24):
                 guard()
                 pipeline(name, inserted, 64, values)
                 inserted += 64
-            assert int(redis_info(name, "stats")["evicted_keys"]) > 0
+            if int(redis_info(name, "stats")["evicted_keys"]) <= 0:
+                raise RuntimeError("Synthetic cache did not exercise eviction")
         measured = memory(name)
-        assert measured["running"] and measured["events"]["oom_kill"] == "0"
+        if not measured["running"] or any(measured["events"].get(key) != "0" for key in ("oom", "oom_kill", "max")):
+            raise RuntimeError("Synthetic Redis reached its memory limit")
         return {"service": "redis-broker" if durable else "redis-cache", "image": image,
             "cap_mib": cap, "maxmemory_mib": maximum, "filled_used_memory_mib": round(filled / 1024**2, 2),
             "rewrite_observed": observed, "rewrite_overwrites": overwritten, "memory": measured,
@@ -131,8 +140,8 @@ def redis_probe(image: str, *, durable: bool, cap: int, maximum: int) -> dict:
 
 def frontend_probe(image: str) -> dict:
     name = RUN_ID + "-frontend"
-    create(name, image, 256)
     try:
+        create(name, image, 256)
         until = time.monotonic() + 45
         while True:
             guard()
@@ -150,7 +159,8 @@ def frontend_probe(image: str) -> dict:
             command("docker", "exec", name, "node", "-e",
                 "Promise.all(Array.from({length:8},()=>fetch('http://127.0.0.1:3000/login').then(async r=>{if(!r.ok)throw Error();return(await r.text()).length}))).then(x=>console.log(Math.min(...x))).catch(()=>process.exit(2))")
         measured = memory(name)
-        assert measured["running"] and measured["events"]["oom_kill"] == "0"
+        if not measured["running"] or any(measured["events"].get(key) != "0" for key in ("oom", "oom_kill", "max")):
+            raise RuntimeError("Synthetic frontend reached its memory limit")
         return {"service": "frontend", "image": image, "cap_mib": 256, "requests": 81,
             "concurrency": 8, "memory": measured, "result": "passed"}
     finally:

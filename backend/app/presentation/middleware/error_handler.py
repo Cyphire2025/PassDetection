@@ -18,6 +18,7 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException
 
 from app.application.mobile.notification_errors import NotificationWorkflowError
+from app.application.travellers.errors import ReuseError, ReuseReason
 from app.core.logging.logger import get_logger
 from app.domain.exceptions.exceptions import (
     AuthenticationError,
@@ -39,6 +40,12 @@ from app.domain.exceptions.exceptions import (
     ValidationError,
 )
 from app.domain.exceptions.resource_capacity import ImageProcessingBusy
+from app.domain.services.traveller_verification import VerificationFailure
+from app.infrastructure.security.mobile_otp_rate_limiter import (
+    OTPRateLimitExceeded,
+    OTPRateLimitUnavailable,
+)
+from app.infrastructure.security.traveller_reuse_crypto import ReuseCryptoUnavailable
 from app.presentation.middleware.error_response import (
     HTTP_ERROR_CODES,
 )
@@ -50,6 +57,39 @@ logger = get_logger(__name__)
 
 def register_exception_handlers(app: FastAPI) -> None:
     """Register all exception handlers on the FastAPI application."""
+
+    @app.exception_handler(ReuseError)
+    async def returning_failure(request: Request, exc: ReuseError) -> JSONResponse:
+        statuses = {ReuseReason.UNAVAILABLE: 403, ReuseReason.EXPIRED: 410,
+            ReuseReason.VERIFICATION_FAILED: 403, ReuseReason.RATE_LIMITED: 429,
+            ReuseReason.REVISION_CONFLICT: 409, ReuseReason.INSUFFICIENT_EVIDENCE: 403,
+            ReuseReason.INFRASTRUCTURE: 503}
+        messages = {ReuseReason.EXPIRED: "Your secure session expired. Start again or submit fresh documents.",
+            ReuseReason.RATE_LIMITED: "Please wait before trying again. Fresh submission remains available.",
+            ReuseReason.REVISION_CONFLICT: "This information changed. Refresh and verify again.",
+            ReuseReason.INFRASTRUCTURE: "Verification is temporarily unavailable. Please retry shortly."}
+        message = messages.get(exc.reason, "We could not verify these details. Check your information or submit fresh documents.")
+        headers = {"Cache-Control": "private, no-store"}
+        if exc.retry_after is not None:
+            headers["Retry-After"] = str(exc.retry_after)
+        return _error_response(exc.reason.value, message, statuses[exc.reason], headers=headers,
+            detail={"code": exc.reason.value, "message": message, "retry_after": exc.retry_after})
+
+    @app.exception_handler(VerificationFailure)
+    async def returning_invalid(request: Request, exc: VerificationFailure) -> JSONResponse:
+        return await returning_failure(request, ReuseError(ReuseReason.VERIFICATION_FAILED))
+
+    @app.exception_handler(ReuseCryptoUnavailable)
+    async def returning_crypto_unavailable(request: Request, exc: ReuseCryptoUnavailable) -> JSONResponse:
+        return await returning_failure(request, ReuseError(ReuseReason.INFRASTRUCTURE))
+
+    @app.exception_handler(OTPRateLimitExceeded)
+    async def returning_rate_limited(request: Request, exc: OTPRateLimitExceeded) -> JSONResponse:
+        return await returning_failure(request, ReuseError(ReuseReason.RATE_LIMITED))
+
+    @app.exception_handler(OTPRateLimitUnavailable)
+    async def returning_limit_unavailable(request: Request, exc: OTPRateLimitUnavailable) -> JSONResponse:
+        return await returning_failure(request, ReuseError(ReuseReason.INFRASTRUCTURE))
 
     @app.exception_handler(ImageProcessingBusy)
     async def image_capacity_handler(request: Request, exc: ImageProcessingBusy) -> JSONResponse:

@@ -1,0 +1,28 @@
+{
+  "admitted_source_jobs": 12,
+  "all_source_fingerprints_unchanged": true,
+  "apply_requested": true,
+  "case_states": {
+    "provisional:replacement_required": 12
+  },
+  "checked_at": "2026-10-14T10:13:30.685887+00:00",
+  "current_staff_audits_verified": 12,
+  "downstream_roster": "existing_source_completion_fanout",
+  "job_status_counts": {
+    "queued": 12
+  },
+  "manifest_sha256": "c6c1f6051a8521827b7b3ce87a8e2a3eb0e81698afce41f96b5113ce62761d6f",
+  "operation": "staff-legacy-reuse-20261014-12-v1",
+  "origin_source_count": 853,
+  "original_source_unchanged": true,
+  "previously_admitted": false,
+  "ready_for_apply": true,
+  "release": "ffef7eb76c6576ddd2ac49b4dca42d3dad0229e4",
+  "source_acceptance": {
+    "staff_reviewed_current_v1": 12
+  },
+  "source_count": 12,
+  "target_source_count": 88,
+  "transaction_committed": true,
+  "valid_recipients": 100
+}

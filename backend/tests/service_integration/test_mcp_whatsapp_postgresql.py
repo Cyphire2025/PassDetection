@@ -152,7 +152,7 @@ async def confirm(fixture, prepared, *, connection=0, key=None):
     return await invoke(
         fixture,
         "confirm_whatsapp_reminder",
-        {"plan_id": prepared["data"]["plan_id"], "plan_hash": prepared["data"]["plan_hash"]},
+        {"plan_id": prepared["data"]["plan_id"], "plan_hash": prepared["data"]["plan_hash"], "user_confirmed": True},
         connection=connection,
         key=key,
     )

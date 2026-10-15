@@ -1,5 +1,7 @@
 """Strict dashboard-only permission decisions, never bearer authority."""
 
+from typing import Self
+
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from app.domain.mcp_read_sections import validate_read_sections
@@ -57,7 +59,7 @@ class MCPPermissionsUpdate(BaseModel):
         return validate_write_tools(values) if values is not None else None
 
     @model_validator(mode="after")
-    def tools_within_sections(self):
+    def tools_within_sections(self) -> Self:
         if self.allowed_write_tools is None:
             self.allowed_write_tools = sorted(name for name, required in WRITE_TOOL_SECTIONS.items()
                                               if not required - set(self.allowed_write_sections))

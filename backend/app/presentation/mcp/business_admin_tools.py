@@ -32,7 +32,10 @@ from app.application.mcp.operations import (
     MCPDatabaseResult,
     MCPOperationError,
 )
+from app.application.use_cases.whatsapp.contact_normalization import normalize_whatsapp_phone
 from app.core.config.settings import Settings
+from app.core.security.mobile_jwt import hash_mobile_lookup
+from app.domain.entities.entities import User
 from app.domain.mcp_policy import MCPCapability, MCPToolPolicy
 from app.presentation.api.v1.routes import gc_app, gc_app_content
 from app.presentation.api.v1.schemas.gc_app_schemas import (
@@ -117,7 +120,7 @@ class MCPPublishItinerary(BaseModel):
     expected_access_revision: int = Field(ge=1, strict=True)
 
 
-BUSINESS_TOOL_MODELS = {
+BUSINESS_TOOL_MODELS: dict[str, type[BaseModel]] = {
     "create_workforce_account": MCPWorkforceAccount,
     "create_gc_client_manager_account": MCPClientManagerAccount,
     "configure_gc_group_access": MCPGCGroupSettings,
@@ -156,7 +159,7 @@ def _request() -> Request:
     return Request({"type": "http", "headers": [], "client": None})
 
 
-async def _gc_scope(context: MCPDatabaseContext, agency_id: UUID, group_id: UUID):
+async def _gc_scope(context: MCPDatabaseContext, agency_id: UUID, group_id: UUID) -> User:
     actor = await require_change_actor(context, agency_id)
     await require_access_mfa(context)
     await require_change_group(context, actor, group_id, agency_id, exclusive=True)
@@ -170,18 +173,20 @@ def business_definition(kind: str) -> MCPDatabaseOperation:
     async def mutate(context: MCPDatabaseContext, payload: dict[str, Any]) -> MCPDatabaseResult:
         body = validate_business(kind, payload)
         try:
-            if kind == "create_workforce_account":
+            if isinstance(body, MCPWorkforceAccount):
                 return await create_workforce(context, body)
-            if kind == "create_gc_client_manager_account":
+            if isinstance(body, MCPClientManagerAccount):
                 support = ClientManagerCreationSupport(
                     gc_app._get_organization,
                     gc_app._validate_manager_groups,
-                    gc_app.normalize_whatsapp_phone,
-                    gc_app.hash_mobile_lookup,
+                    normalize_whatsapp_phone,
+                    hash_mobile_lookup,
                 )
                 return await create_client_manager(context, body, support)
+            assert isinstance(body, (MCPGCGroupSettings, MCPGCMyPhotos, MCPPublishItinerary))
+            response: BaseModel
             actor = await _gc_scope(context, body.agency_id, body.group_id)
-            if kind == "configure_gc_group_access":
+            if isinstance(body, MCPGCGroupSettings):
                 settings_body = GCGroupAccessUpdateRequest.model_validate(
                     body.model_dump(exclude={"agency_id", "group_id"})
                 )
@@ -193,13 +198,13 @@ def business_definition(kind: str) -> MCPDatabaseOperation:
                     current_user=actor,
                     session=context.session,
                 )
-            elif kind == "configure_gc_my_photos":
-                settings_body = GCMyPhotosFeatureUpdateRequest(
+            elif isinstance(body, MCPGCMyPhotos):
+                photos_body = GCMyPhotosFeatureUpdateRequest(
                     enabled=body.enabled, expected_revision=body.expected_revision
                 )
                 response = await gc_app.configure_gc_group_my_photos_feature(
                     body.group_id,
-                    settings_body,
+                    photos_body,
                     _request(),
                     agency_id=body.agency_id,
                     current_user=actor,

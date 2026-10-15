@@ -75,6 +75,10 @@ class ClientOrganizationModel(Base):
             sqlite_where=text("external_reference IS NOT NULL"),
         ),
         Index("ix_client_org_agency_status", "agency_id", "status"),
+        Index("ix_client_org_directory_seek", "agency_id", "status", "normalized_name", "id"),
+        Index("ix_client_org_directory_all_seek", "agency_id", "normalized_name", "id"),
+        Index("ix_client_org_search_trgm", "normalized_name", postgresql_using="gin",
+              postgresql_ops={"normalized_name": "gin_trgm_ops"}).ddl_if(dialect="postgresql"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -83,6 +87,7 @@ class ClientOrganizationModel(Base):
         ForeignKey("agencies.id", ondelete="CASCADE"),
         nullable=False,
     )
+    revision: Mapped[int] = mapped_column(Integer, nullable=False, default=1, server_default="1")
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     normalized_name: Mapped[str] = mapped_column(String(255), nullable=False)
     external_reference: Mapped[str | None] = mapped_column(String(128), nullable=True)
@@ -231,6 +236,11 @@ class GCGroupAccessModel(Base):
 
     __tablename__ = "gc_group_access"
     __table_args__ = (
+        ForeignKeyConstraint(
+            ["group_id", "agency_id", "client_organization_id"],
+            ["client_groups.id", "client_groups.agency_id", "client_groups.company_id"],
+            name="fk_gc_group_canonical_company", deferrable=True, initially="DEFERRED",
+        ),
         UniqueConstraint("group_id", name="uq_gc_group_access_group"),
         UniqueConstraint("id", "agency_id", "group_id", name="uq_gc_group_access_scope"),
         UniqueConstraint(
@@ -360,6 +370,14 @@ class ClientManagerGroupAssignmentModel(Base):
 
     __tablename__ = "client_manager_group_assignments"
     __table_args__ = (
+        ForeignKeyConstraint(["profile_id", "agency_id"],
+            ["client_manager_profiles.id", "client_manager_profiles.agency_id"],
+            name="fk_client_manager_assignment_retained_profile", ondelete="CASCADE"),
+        ForeignKeyConstraint(["gc_group_access_id", "agency_id", "group_id"],
+            ["gc_group_access.id", "gc_group_access.agency_id", "gc_group_access.group_id"],
+            name="fk_client_manager_assignment_retained_group", ondelete="CASCADE"),
+        CheckConstraint("NOT is_active OR organization_id IS NOT NULL",
+            name="ck_client_manager_assignment_active_organization"),
         UniqueConstraint(
             "profile_id",
             "gc_group_access_id",
@@ -393,13 +411,14 @@ class ClientManagerGroupAssignmentModel(Base):
         ),
         Index("ix_client_manager_assignment_profile", "profile_id", "is_active"),
         Index("ix_client_manager_assignment_group", "gc_group_access_id", "is_active"),
+        Index("ix_client_manager_assignment_company", "agency_id", "organization_id", "id"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     agency_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("agencies.id", ondelete="CASCADE"), nullable=False
     )
-    organization_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    organization_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
     group_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
     profile_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
     gc_group_access_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)

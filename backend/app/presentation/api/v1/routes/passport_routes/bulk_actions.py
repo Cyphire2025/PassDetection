@@ -290,6 +290,8 @@ async def bulk_delete_passport_submissions(
         )
     )
     deleted_notifications = int(getattr(notification_result, "rowcount", 0) or 0)
+    from app.application.travellers.retention import detach_submission_provenance
+    await detach_submission_provenance(session, submission_ids)
     delete_result = await session.execute(
         delete(PassportSubmissionModel).where(
             PassportSubmissionModel.group_id == group_id,
@@ -576,6 +578,14 @@ async def bulk_staff_approve_passport_submissions(
             session.add_all(audit_rows)
         await session.flush()
         if approved_ids:
+            from app.application.travellers.history_schedule import schedule_submission_history
+            from app.application.travellers.snapshot_access import (
+                sync_approved_snapshot_participations,
+            )
+            await schedule_submission_history(session, agency_id=group.agency_id,
+                group_id=group_id, trigger="bulk_staff_approval")
+            await sync_approved_snapshot_participations(session, agency_id=group.agency_id,
+                group_id=group_id, sources=models, approved_ids=approved_ids)
             await ensure_approved_passenger_qrs(
                 session,
                 approved_ids,

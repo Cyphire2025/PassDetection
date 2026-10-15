@@ -1,0 +1,42 @@
+{
+  "checked_at": "2026-10-14T12:43:57.162081+00:00",
+  "checks": {
+    "accepted_participations_bound_to_current_documents": true,
+    "automatic_cases_resolved_to_expected_people": true,
+    "expected_population_preserved": true,
+    "information_confirmed_false": true,
+    "original_source_images_preserved": true,
+    "seven_exact_source_jobs_succeeded": true,
+    "snapshot_fields_match_frozen_revision": true,
+    "snapshot_images_backed_by_available_revision_assets": true,
+    "source_and_recipient_fingerprints_unchanged": true
+  },
+  "consistency_checks": "exact_row_fingerprints_and_populations",
+  "database_read_only": true,
+  "isolation_level": "read committed",
+  "passed": true,
+  "populations": {
+    "original_source_count": 853,
+    "target_source_count": 200,
+    "valid_recipients": 200
+  },
+  "public_access_record_counts": {
+    "claims": 0,
+    "history_grants": 0
+  },
+  "read_only": true,
+  "ready_asset_counts": [
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5
+  ],
+  "release": "0bb8de2c6cb260c34f4ba966309f938708ae8841",
+  "reviewed_people": 7,
+  "source_job_status_counts": {
+    "succeeded": 7
+  }
+}

@@ -64,7 +64,7 @@ async def test_duplicate_confirmation_and_revocation_wait_on_original_provider_b
             control.enabled, control.write_enabled = True, True
             control.allowed_read_sections, control.allowed_write_sections = sorted(SUPPORTED_READ_SECTIONS), sorted(SUPPORTED_WRITE_SECTIONS)
             control.allowed_write_tools = sorted(WRITE_TOOL_SECTIONS)
-            user, grants, tokens = await seed_identity(session, settings, email=f"documents-{uuid.uuid4()}@example.test")
+            user, grants, tokens = await seed_identity(session, settings, enable_write_policy=True, email=f"documents-{uuid.uuid4()}@example.test")
             for grant in grants:
                 grant.capabilities = ["mcp:read", "mcp:communicate"]
             await session.commit()

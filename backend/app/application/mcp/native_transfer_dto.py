@@ -1,7 +1,7 @@
 """Exact upload descriptors; transfer capabilities never select ambient accounts."""
 
 import uuid
-from typing import Literal
+from typing import Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -27,7 +27,7 @@ class MCPNativeUploadRequest(BaseModel):
     sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
 
     @model_validator(mode="after")
-    def exact_lane(self):
+    def exact_lane(self) -> Self:
         if self.purpose in {"group_workbook", "document_pdf"} and self.group_id is None:
             raise ValueError("Choose the exact target group")
         if self.purpose == "contact_broadcast" and self.group_id is not None:

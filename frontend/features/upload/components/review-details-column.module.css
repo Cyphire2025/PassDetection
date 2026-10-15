@@ -1,0 +1,8 @@
+.column { min-width: 0; }
+@media (min-width: 1024px) {
+  .column {
+    position: sticky;
+    top: var(--review-sticky-top, 24px);
+    align-self: start;
+  }
+}

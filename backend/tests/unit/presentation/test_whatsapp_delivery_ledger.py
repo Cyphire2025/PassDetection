@@ -1125,12 +1125,13 @@ async def test_excel_contact_preview_returns_named_normalized_recipients() -> No
                 },
                 "reason_code": "duplicate_phone",
                 "reason": (
-                    "This WhatsApp number is already listed; its extra details "
-                    "were merged into the first accepted contact."
+                    "This WhatsApp number is already listed; the first delivery contact is "
+                    "retained and this source row remains available for staff review."
                 ),
             }
         ],
         "rejected_rows_truncated": False,
+        "rejected_counts": {"duplicate_phone": 1},
         "omitted_rejected_count": 0,
         "available_matching_fields": [
             {"key": "s_no", "label": "S No"},
@@ -1393,6 +1394,7 @@ def test_excel_contact_preview_route_is_role_gated_and_has_stable_contract() -> 
         "accepted_count",
         "recipients",
         "rejected_count",
+        "rejected_counts",
         "rejected_rows",
         "rejected_rows_truncated",
         "omitted_rejected_count",

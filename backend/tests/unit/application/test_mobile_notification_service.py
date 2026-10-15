@@ -103,6 +103,7 @@ def _group(
     return ClientGroupModel(
         id=access.group_id,
         agency_id=access.agency_id,
+        company_id=access.client_organization_id,
         name="Countdown test group",
         token=f"countdown-{uuid.uuid4().hex}",
         status="active",

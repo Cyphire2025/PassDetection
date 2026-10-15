@@ -1,0 +1,1099 @@
+Companies / Clients and returning-traveller feature review handoff
+Date: 2026-10-14 (Asia/Calcutta)
+Client dashboard and automatic reuse: follow-up deployed and verified; Full CI remains paused.
+Current live application: 0bb8de2c6cb260c34f4ba966309f938708ae8841.
+Current live schema: 0135_company_removal_history.
+The earlier release passed deployment checks but its initial live history processing
+was not verified with populated client records. The follow-up below corrects that gap.
+
+2026-10-14 exported-name consistency and seven-person Test correction
+- Diagnosis of the 200-person Test import: 193 automatic assignments, three name
+  mismatches, three current-document selection failures, and one AI approval
+  formatting failure. The matching job finished successfully; these seven were
+  blocked decisions, not a queue still catching up. The older 100 rejected email
+  companions remain historical import records and are not seven extra people.
+- The Excel exporter combines confirmed given_names and surname. The historical
+  profile/index instead preferred the separately entered client_name. Canonical
+  registration and replay now use the accepted current passport name. A replay
+  updates the same active profile/index, invalidates stale access/export revisions,
+  and preserves original submissions, trip snapshots, contacts and document versions.
+- User-approved partial-name rule: names must contain compatible whole words
+  (one word set contained in the other). Require one exact passport number plus
+  two independent matching types among DOB, phone, email and individual code.
+  Code aliases count once. Supplied passport/DOB disagreements, incompatible names,
+  multiple matching owners and candidate overflow still reject automatic selection.
+  This supports missing middle names and duplicate name words; it does not guess
+  spelling changes. Exact names keep the established three-type rule.
+- Candidate lookup uses two scoped HMAC index seeks with at most 101 rows per
+  branch, a bounded union, and at most 1,601 signal rows. Overflow is review-only.
+  Work is O(log N + C), with C bounded; no company history scan or fuzzy-name scan.
+  Case and participation evidence retain identity_match_reason and rule version 2;
+  partial matches are labelled operator_corroborated_matching. Disclosure still
+  requires the existing traveller verification and revision-bound grant.
+- Three legacy Excel placeholder revisions had displaced real scans. One shared
+  selector now examines at most 16 accepted revisions of the SAME scoped passport,
+  skips only proven metadata-only operator imports, and revalidates frozen source
+  proof when doing so. Newly submitted metadata-only placeholders are rejected
+  before promotion/copy. A newer REAL pending, unreadable, missing, expired or
+  corrected revision remains authoritative; there is no generic older-file fallback.
+  Staff current details, Excel exports, public passport choices, impact tracking
+  and operational reuse use the same selector. Old versions remain preserved.
+- One AI-approved source had observed sex M and confirmed sex Male. Acceptance now
+  uses the existing recognized sex normalizer, rejects unknown/conflicting values,
+  and keeps the other eight approval fields exact. Frozen provenance still binds
+  raw original fields, so later source edits invalidate old approval/copy proof.
+- Read-only candidate check against the seven exact live recipients found all
+  seven expected owners: four exact and three corroborated partial matches.
+  Six already-retained passports selected their real original version with five
+  available assets each; the seventh source passed corrected AI acceptance and
+  still needs its normal enrollment/copy job. PostgreSQL used the revision and
+  scoped-source indexes; six individual selector EXPLAIN ANALYZE executions were
+  0.175-0.368 ms. This is a small warm correctness/query-plan probe, not load testing.
+- Rollout uses the authorized Fast path with unchanged schema/dependencies/task
+  signatures. The private seven-source repair manifest binds exact source and
+  recipient fingerprints, company/policy/group/link revisions and initial 193/200
+  counts. Reviewed recovery admits only existing source jobs plus an integrity
+  audit, with idempotency and current-row locks. No direct assignments, merges,
+  public grants, traveller confirmations or provider messages are fabricated.
+- Final selected regression inventory: 333 distinct current cases have passing
+  results across the combined run and focused follow-ups, including real XLSX
+  round trips, actual roster processing/replay, private-source export pagination
+  and current-document consumers. This is not a claim of one clean full-suite run:
+  three synthetic phone-authority fixtures were corrected and rerun. All changed
+  modules meet their reviewed coverage floors; Ruff, mypy (54 modules), dependency
+  boundaries and 129 size/complexity budgets pass without relaxing old limits.
+  Sanitized receipts: regression-test200-correction.json and
+  test200-candidate-readonly.json in companies-reuse-evidence.
+- Deployed application 0bb8de2c6cb260c34f4ba966309f938708ae8841 through Fast on
+  2026-10-14. Same schema, no migrations, previous resources retained and backup
+  archive listing recorded. All 20 services were running; all configured container
+  health checks were healthy. Live backend/frontend image IDs and served frontend
+  bytes matched the release. All 12 public smoke checks passed (10 GET requests).
+  This is Fast evidence, not Full CI qualification or an authenticated UI journey.
+- At 12:42:22 UTC, admitted exactly seven existing source jobs under the reviewed
+  manifest and one integrity audit. The normal matching worker completed at
+  12:42:32 UTC: Test now has 200 valid recipients, 200 distinct matched people and
+  200 materialized submissions, each with core identity fields and a front image.
+  No traveller response was required for assignment. All seven remain explicitly
+  unconfirmed by the traveller and have no public claims/history grants.
+- Read-only verification at 12:43:57 UTC proved all seven source/recipient
+  fingerprints unchanged, all seven source jobs succeeded, correct current-document
+  bindings, matching frozen fields and five available original images per person.
+  Original Bluechip October source population remains 853; Test changed 193->200.
+  A subsequent admission preview recognized the prior audit, admitted zero jobs,
+  and found all seven names now matched exactly through canonical indexing.
+- Eleven live business comparison checks passed, including populated company All
+  data and denied anonymous history/document access. Bluechip directory count was
+  1,396 and TATA 905; historical identity totals remain partial because separate
+  legacy conflicts still require review. This repair did not merge those records.
+- Sanitized release and recovery evidence is in companies-reuse-evidence:
+  fast-release-0bb8de2c.json, live-release-0bb8de2c.json,
+  public-smoke-0bb8de2c.json, test200-recovery-0bb8de2c.json,
+  test200-seven-after-0bb8de2c.json and business-comparison-0bb8de2c.json.
+  The read-only observer used verified READ ONLY at the existing READ COMMITTED
+  isolation with exact row fingerprints and population guards. No new sustained
+  load/capacity benchmark was run for this patch; the small query-plan timings
+  above do not establish performance at millions of records.
+
+2026-10-14 Excel contact import and incremental broadcast matching repair
+- Live diagnosis found 100 valid recipients in the Test broadcast: its original
+  person plus 99 added at 09:19:32 UTC. The last matching job had finished at
+  08:42:43 UTC, before the import. All 100 valid recipients matched 100 distinct
+  saved people by exact name, DOB, passport and phone; no fresh job had been
+  admitted for the 99 additions. Document suitability remains a separate gate.
+- The exported "WhatsApp Email" heading was classified as a phone heading merely
+  because it contained "WhatsApp", producing rejected email companions beside
+  valid contacts. Email/mail headings are now excluded from phone columns. The
+  headerless fallback excludes email cells, including numeric email local parts.
+  An email entered in an explicitly labelled Phone column remains invalid input.
+- "WhatsApp Email" stays separate broadcast metadata; "Upload Email" maps to
+  client_email for identity matching. Differing addresses are retained separately.
+- Dashboard/MCP shared additions, recipient detail/phone edits and rejected-row
+  corrections now admit existing durable roster jobs in the same transaction.
+  Group locks precede company/job/broadcast locks; parent NO KEY UPDATE locks
+  permit harmless foreign-key reads. The linked group set is rechecked after the
+  broadcast lock. Source cutoff advances after contact writes. Concurrent changes
+  coalesce, and an in-progress cursor gets a trailing pass. No new job payload,
+  schema, dependencies, configuration or provider-send operation is introduced.
+- Resource budget: at most 100 linked client groups per contact mutation, with
+  explicit rejection above that bound rather than a partial refresh. Admission
+  uses O(g) indexed queries and O(g) memory, g <= 100; matching remains resumable
+  in pages of 25. Imports do not scan saved company history interactively.
+- Verification before release: 190 regression tests plus one real database-backed
+  shared-add -> match -> second-add -> match integration passed. Real XLSX tests
+  cover 100 people with unique phones and 100 people sharing 50 phones. A separate
+  disposable PostgreSQL database exercised two concurrent 50-contact additions,
+  rollback, job coalescing and parent-lock interactions with three connections.
+  This is correctness/concurrency evidence, not a sustained capacity benchmark.
+- The original 100 rejected email companions are preserved import history. They
+  are not additional people or a reason to upload documents again. After retry,
+  all 100 have unresolved historical match-case references. There is no safe
+  existing archive/dismiss operation; do not silently delete or relabel them.
+- Fast deployment 490b5ade completed with unchanged schema and all 20 services
+  healthy/running. Exact image/revision and served JavaScript checks passed, as
+  did 12 public smoke checks. The running backend also passed the synthetic
+  real-export round trip: 100 unique phones -> 100 valid contacts, zero rejected
+  emails; 100 people sharing 50 phones -> all 100 source identities retained.
+- One guarded repair at 09:46:29 UTC verified the exact deployed image, policy,
+  current broadcast link, 100 recipients and original-source HMAC, then admitted
+  the normal application scheduler and an audit in one transaction. It finished
+  at 09:46:36 UTC. The Test group increased from 1 to 88 confirmed passengers;
+  all 100 recipients matched distinct people, but 12 hit document acceptance.
+  No sources, broadcast destinations, public grants or confirmation flags changed.
+- Diagnosis of the remaining 12: all are staff_approved with images, valid dates
+  beyond the six-month cutoff, current saved reviewer/time and matching successful
+  staff-approval audit evidence. Their old records have no issuer/type/MRZ. The
+  staff acceptance branch wrongly insists on MRZ when context is missing. Their
+  preceding AI decisions need review, so AI proof must never substitute for the
+  later explicit staff decision. The compatibility fix below was subsequently
+  deployed and all 12 were assigned; the Test group now contains all 100 people.
+- Receipts in companies-reuse-evidence: fast-release-490b5ade.json,
+  live-verification-490b5ade.json, http-smoke-490b5ade.json,
+  live-import-parser-490b5ade.json, live-broadcast-import-490b5ade-01.json,
+  live-history-business-490b5ade-comparison.json and
+  live-replacement-reasons-490b5ade-04.json. Full CI remains paused; these are
+  focused correctness and live checks, not a million-record load qualification.
+
+2026-10-14 compatibility for older staff-approved passports
+- The new staff_reviewed_current_v1 rule applies only to operator registration
+  of staff_approved sources with missing context and no saved MRZ. It requires
+  a saved reviewer, identical staff-review/confirmation timestamps, positive
+  extraction and verification revisions, and no later client review or AI result.
+  Real saved MRZ disagreements still reject. An absent issuer stays UNK / Not
+  recorded; nationality is never treated as issuing-country evidence.
+- Current staff authority is the canonical source decision published atomically
+  by the existing staff-approval transition. Live audit records independently
+  corroborate all 12 affected sources; audit lookup is not a second approval path
+  or an extra per-passenger query in normal execution.
+- Frozen provenance binds reviewer, review time, both revisions and an HMAC of
+  the source fields and image references. Pending copies reject changed proof.
+  Replay keys follow this generation and preserve older trip/document references.
+  Source field edits clear staff approval; acceptance resumes only after staff
+  reapproval. Proof work is O(F + B) for the fields and serialized bytes of one
+  source plus its five image references, independent of the company population;
+  it adds no database query or history scan.
+- Focused validation: 84 tests passed. An independent integration runs actual
+  registration, the private-copy worker (mocked object storage), roster matching
+  and replay: one source -> one retained document -> one automatic target
+  submission, zero duplicate people, zero public grants/claims and no invented
+  traveller confirmation. The new helper has 95.12% statement coverage. Existing
+  public collision/disclosure checks remain intact. Mypy, Ruff, architecture and
+  existing size/complexity ratchets passed; this does not qualify real OTP delivery.
+- Final combined regression: 278 tests passed in 134.87 seconds, covering import,
+  export, recipient mutations, coalescing, historical registration, AI/staff/MRZ
+  acceptance, proof generations, copies and matching. Two new per-module ratchets
+  bring the static quality gate to 124 modules without relaxing previous limits.
+  The broadcast scheduler measured 100% statement coverage (45/45); its separate
+  68-test run and staff coverage above are overlapping evidence, not extra unique
+  tests to add to 278. Partial-suite global coverage is not Full CI qualification.
+- Wider read-only diagnosis found 789 Bluechip staff-approved sources without
+  an accepted current document. In 50-row pages, 788 passed the staff proof and
+  source-field acceptance checks, including these 12. This measures document
+  approval only, not safe association with a traveller profile. Later identity
+  checks remain authoritative; do not call all 788 ready or eligible for reuse.
+- Fast deployment ffef7eb7 completed with unchanged schema, all 20 services
+  running/healthy, exact runtime images/revision and served-byte verification.
+  Twelve public smoke checks and eleven business-preservation checks passed.
+  Full CI remains paused. The release uses inherited runtime dependencies.
+- At 10:13:30 UTC the guarded repair admitted exactly 12 source jobs through the
+  existing scheduler. It checked the exact image, source fingerprints, current
+  approval evidence, company policy and broadcast link, and wrote a scoped audit.
+  By 10:14:03 UTC all 12 jobs, retained documents and copies were ready. Test has
+  100 valid recipients -> 100 distinct matched people -> 100 automatic accepted
+  memberships -> 100 confirmed submissions with front images. No traveller
+  confirmation, public grant or authorized claim was fabricated. The original
+  source all-column HMAC and all twelve source fingerprints remained unchanged;
+  the original active group still contains 853 source records.
+- At 10:14:15 UTC a separately audited, bounded refresh admitted the existing
+  Bluechip active/archived group history jobs. Both completed by 10:14:49 UTC,
+  preserving 25-row pages, existing concurrency, expiry and identity gates.
+  TATA reuse remains disabled; no policy or broadcast destination was changed.
+  Enrollment registered 141 staff-approved documents (69 active / 72 archived).
+  At 10:19:40 UTC all 345 active-source assets were available. At 10:21:32 UTC,
+  all 72 archived front-image references were proven to be Excel-import
+  placeholders with no object at their saved storage reference (72/72 HEADs,
+  concurrency two, no document bytes downloaded). Copy authority remained valid.
+  These are missing source images, not a matching/approval problem or evidence
+  that actual uploaded images were deleted. They remained pending at attempts
+  two/three of five; normal retries cannot create an original image. No ready
+  state was forced. These archived rows need real images before document reuse.
+- Remaining historical identity limitation: 648 sources did not enroll a current
+  document. 646 profiles remain review_required, and two conflict with another
+  profile's exact passport ownership. All 648 source records, memberships and
+  All data entries are preserved. This is not an unfinished registration backlog.
+  In 641 of the 646 review cases, legacy staff_metadata.dob uses DD.MM.YYYY and
+  equals the confirmed ISO date; the identity normalizer rejects that dotted
+  alias. These are supported same-date representations, not proven different
+  dates. Four others have identical raw aliases; one needs further diagnosis.
+  The existing historical case is resolved and hides the document blocker in
+  its evidence: current Review matches cannot resolve these cases. Do not tell
+  operators to wait or claim that the current queue can repair them. A separate
+  compatibility/reconciliation correction is still required; no profile status,
+  ownership, merge or split was forced during this import repair.
+- Current receipts: fast-release-ffef7eb7.json, live-verification-ffef7eb7.json,
+  http-smoke-ffef7eb7.json, regression-staff-reuse-ffef7eb7.json,
+  staff-repair-ffef7eb7.json, bluechip-history-refresh-ffef7eb7.json,
+  bluechip-history-observer-ffef7eb7-02.json,
+  archived-staff-assets-ffef7eb7-diagnosis-01.json,
+  live-history-business-ffef7eb7-comparison.json and
+  live-staff-review-remaining-ffef7eb7-03.json in companies-reuse-evidence.
+
+2026-10-14 live history / broadcast assignment follow-up
+- User recreated Bluechip and TATA AIG and assigned their groups after the requested
+  cleanup. Those new client entries must NOT be removed by repeating the old cleanup.
+- Live diagnosis: nine durable jobs remained queued at attempt=0 / processed=0,
+  with no registered profiles, match cases or retained assets. Reconciliation held
+  an advisory admission transaction while requesting a second pooled connection;
+  the production worker has pool_size=1, max_overflow=0 and a five-second timeout.
+- Worker fix commits a bounded lease first, then holds the PostgreSQL global slot
+  in the actual page transaction. Local pages are sequential; the global limit
+  stays two. Denied admission restores the attempt budget; exact lease tokens fence
+  stale failure/release writes. The same nested-connection defect in document-impact
+  processing is fixed. Safe failure logs contain only class, SQLSTATE and job UUID.
+- Productive group-history pages schedule a coalesced company roster retry so an
+  earlier unmatched broadcast is retried as saved records become available. Private
+  indexing does not enable reuse; roster-only passes do not recursively fan out.
+- Excel exports/imports supplied DOB as YYYY-MM-DD 00:00:00. Identity comparison
+  now accepts that exact naive-midnight representation (including zero fractions),
+  while rejecting timezones, non-midnight values, ambiguous locale formats, numeric
+  serials and invalid dates. The live test then matched name, passport, DOB and phone.
+- The user clarified that existing AI Approved, client-reviewed passport records
+  should be reusable without an extra issuing-country/MRZ requirement absent from
+  the historical form. Do not infer India from nationality or the usual clientele.
+  The exact saved verification result must support the current source fields;
+  missing issuer remains explicitly unknown (internal UNK marker, displayed as
+  Not recorded). Nine distinct verified observations must equal the current fields.
+  Acceptance is bound to the verification revision/time and an HMAC of fields/images;
+  pending document copies recheck that evidence. Public known/unknown-context lookup
+  reads at most two candidates and rejects collisions; verification is still required.
+  An additional exact passport identity-index lookup rejects another eligible owner
+  before binding an unknown-issuer record, including a different known issuer. This
+  covers current indexed identities, not every superseded historical passport number.
+- AI result publication now queues the exact source history refresh in the same
+  transaction, including completion after an earlier private-history pass. Group,
+  company and source locks use the established order; cached group/source rows are
+  refreshed before applying results, so reassignment cannot schedule stale scope.
+  Historical enrollment keys include the frozen AI proof generation. Re-verification
+  at the same extraction revision can create current copies without replacing old
+  document versions or trip references; replay remains idempotent.
+- All data gets bounded visible-page refresh (six five-second checks then six
+  fifteen-second checks), pauses while hidden/searching/paging/editing, keeps loaded
+  rows visible and refreshes totals only on meaningful changes. Partial identity
+  counts no longer falsely promise that work is actively progressing.
+- Current evidence: 265 backend regression tests plus 17 subtests and 73 public
+  returning-flow tests passed; TypeScript,
+  scoped lint, strict mypy (15 production files), architecture and module budgets
+  passed. Eight frontend polling/document-upload tests and six country-display
+  tests passed. Final public passport lookup coverage is 94.87% (90% floor).
+- Real PostgreSQL 16.14 qualification passed: three synthetic sources became three
+  people/documents using pool_size=1/max_overflow=0. Admission denial, stale leases,
+  failure/retry, document-impact and feed paths passed. Separate disposable database
+  on the existing server, bounded 512 MiB/90 CPU-second subprocess, at most three
+  extra connections; all owned database/login/temp files removed. This is not a
+  sustained-load or final release-image qualification. Receipt: companies-reuse-evidence/
+  history-worker-postgresql-20261014.json. No production tables or app files modified.
+  Production browser automation is unavailable in this session (no connected
+  browsers); live database/API/served-build verification is recorded below.
+
+2026-10-14 follow-up release and actual business verification
+- Fast unit passdetection-deploy-a58b17dc3dc2-d945623a completed successfully.
+  Same schema 0135; no migrations, dependency/configuration or queued-task contract
+  changes. Both builds passed, all 20 services and exact runtime image/revision
+  checks passed, public readiness is ready, and served JavaScript bytes match the
+  running build. Ten public GETs passed 12 bounded smoke checks. This is Fast
+  qualification using inherited runtimes, not Full CI or a new capacity benchmark.
+- Actual company All data projections now contain 1,396 Bluechip people and 901
+  TATA people. All 3,160 staged Bluechip image copies became available. These are
+  observed production record/copy counts, not concurrent-user capacity. Identity
+  totals remain marked partial where older matching cases need review.
+- The exact copied test recipient matched name, DOB, passport and phone. It has
+  one accepted automatic group membership and a materialized submission with the
+  correct saved person/document references and all five images available. The
+  original source's all-column HMAC is unchanged; its original group still has
+  853 source records. No original passenger or historical document was overwritten.
+- Automatic assignment left information_confirmed=false and client_reviewed unset;
+  it did not mint any public history grant or authorized claim. Anonymous requests
+  for both history and an actual saved asset were denied with private/no-store:
+  public edge 403, direct application boundary 410. Real OTP delivery and a full
+  authenticated browser/document-review journey were not exercised.
+- Live audit explains the temporary test interruption: an authenticated update
+  disconnected the broadcast at 08:39:33 UTC, then another authenticated update
+  reconnected it at 08:42:40 UTC. Its fresh matching job completed at 08:42:43 UTC.
+  The user confirmed the earlier disconnection was intentional. Our verification
+  helpers did not reconnect/disconnect anything or submit/edit passenger records.
+- An earlier release attempt was stopped by an old Celery parent's shutdown
+  deadlock. Original ingress was restored, and a separately recorded operator
+  repair restarted only the exact old worker after proving no live child tasks
+  and a sole retry-safe internal impact tick. TERM/QUIT had failed; one explicit
+  KILL exited 137 without OOM, followed by one unchanged-container restart. All
+  eight original worker nodes and readiness were verified before the fresh release.
+  This was not recorded as a clean drain or used to bypass release qualification.
+- The release runner now stops the scheduler, obtains the existing exact-eight-
+  worker idle proof and cleanly stops workers before pausing website containers.
+  Its no-force stop, writer fencing, retention, schema and readiness gates remain
+  unchanged. 66 focused release tests passed (57 also rerun independently by root),
+  including busy/missing-worker evidence and warm-stop timeout behavior.
+- Receipts: companies-reuse-evidence/fast-release-a58b17dc.json,
+  live-verification-a58b17dc.json, http-smoke-a58b17dc.json,
+  live-history-business-a58b17dc.json and worker-recovery-20261014.json.
+
+Earlier a8345cb2 release and requested cleanup
+- Fast unit: passdetection-deploy-a8345cb2b021-2c1041dd; completed successfully.
+  Both candidate images built without OOM. Exact source/image binding and API
+  contract were checked. The live runtime reuses the previously installed native
+  dependencies; this is not a fresh native-image rebuild or Full CI qualification.
+- The candidate's isolated PostgreSQL 16 rehearsal passed with 700 synthetic roster
+  people and two real contact-concurrency tests. It proved backup/restore, both
+  transactional DDL failures, preservation, checkpoint resume, wrong-baseline
+  rejection, manager scope constraints, runtime grants and split migration roles.
+- Live backup, original-row/catalog/ACL baseline and 0133->0135 migration validation
+  passed. All original business fields were preserved; only the new source-date
+  projection was backfilled. No automatic downgrade was attempted.
+- Independent postdeploy verification found all 20 expected services running with
+  configured health checks passing, exact application/image/schema revisions,
+  identical reuse configuration across writers and public readiness=ready.
+  A served JavaScript asset matched the running candidate's SHA-256. Ten bounded
+  public HTTP requests passed 12 checks, including auth/session boundaries,
+  security headers, exact revision, frontend assets and logo retrieval.
+- Signed-in production browser inspection verified View company controls, the
+  four-card dashboard, Groups/Settings/All data tabs and Active/Completed group
+  sections. Existing groups open the established All Groups detail route.
+  The Companies directory was visibly empty after the requested cleanup.
+  Group Links still showed two active and six archived groups, all eight visibly
+  marked Company not assigned; two additional groups outside that visible list
+  were included in the ten-group transactional preservation/unassignment proof.
+- Requested cleanup committed as ONE transaction through delete_company:
+  BLUECHIPP: 5 groups; NIPUN: 2; TATA AIG: 3. All 10 groups are unassigned.
+  Three directory entries were tombstoned; zero rows were hard-deleted. Protected
+  audit records remain. Thirty scoped table proofs matched before/after, including
+  1,752 passport submissions, 11 shared group documents, one linked broadcast,
+  707 recipients, 1,442 message logs and 1,413 recipient-message state rows.
+  The manager profile/account and assignment history remain; its company-specific
+  assignment was revoked and detached. No provider/storage/message action ran.
+- Evidence in companies-reuse-evidence/: fast-release-a8345cb2.json,
+  live-verification-a8345cb2.json, http-smoke-a8345cb2.json and
+  requested-client-removal-a8345cb2.json. Large-dataset receipt is separate below.
+  Real traveller OTP delivery and complete saved-document disclosure were not
+  exercised on production, and no large synthetic dataset was seeded there.
+
+Implemented client dashboard and automatic reuse
+- Approved scope: this is the operator's own company platform. Companies are its
+  clients. No agency selector belongs in this workflow.
+- Group Links main Save changes now persists the selected client through the
+  authoritative revision-checked assignment endpoint. Partial success retains the
+  unsaved draft and is reported accurately; session-scoped caches are invalidated.
+- Compact company directory has View company. The dashboard has four counts and
+  Groups / Settings / All data. Groups open the existing All Groups detail page.
+  The old verbose collected-record/reuse-policy/review-task screens leave this UX;
+  their backend authorization, audit and document safety controls remain.
+- Completed means return_date strictly before today's date in the group's timezone.
+  A group stays Active through its return day, even if collection is closed or
+  archived. Missing return dates remain Active. Passenger trips counts completed
+  accepted participations; unique people count canonical accepted people. Backfill
+  state is stated rather than presenting unresolved records as known unique people.
+- User approved removing only NIPUN, TATA AIG and BLUECHIPP, with ALL their groups
+  becoming unassigned. Production removal completed with preservation checks.
+  There were 2, 3 and 5 groups respectively across all lifecycle states, plus one
+  BLUECHIPP manager profile. Every group, source, document, broadcast, profile and
+  historical grant row is retained. Company-specific manager grants are revoked
+  and detached; passenger/coordinator access settings remain. Prior revocation
+  timestamps are preserved. Removal has limits of 500 groups / 5000 grants / 5000 active jobs
+  and uses NOWAIT locks to reject concurrent contention before changing records.
+- Approved automatic matching: exact normalized name plus two other distinct
+  imported identity field types. A supplied passport or DOB conflict vetoes a match;
+  multiple candidates remain for review. This is an operational assignment rule,
+  not permission to disclose documents to an unverified browser.
+- A qualified broadcast match creates a usable trip submission immediately, with
+  information_confirmed=false and no invented traveller review/consent. Link visits
+  are optional for assignment; opening saved files still uses the approved identity
+  verification flow. Passports expiring on or before six calendar months from the
+  trip date are excluded. Retries cannot replace a frozen existing trip snapshot.
+- All data includes private historical/current people even with saved reuse off.
+  Private registration and operational/public reuse authority are separate.
+  Staff may edit current fields and upload reviewed document versions while old
+  trip details and earlier versions remain. Merge/split remains unavailable.
+  Review matches opens a compact group picker and the existing matching queue.
+  Historical files without current accepted source verification remain private
+  source records; issuer is never inferred from nationality.
+- All data uses 25-person cursor pages, indexed exact-name search and lazy protected
+  image loading. Excel details and ZIP image exports have durable jobs, bounded
+  batches, output receipts before storage writes, controlled retries and expiry.
+  Larger image exports use bounded volumes. Export authority is rechecked against
+  the company revision and requester; jobs cannot bypass changed access.
+- Fresh extraction only offers a saved-history hint for an owned source. OCR fields
+  are never credited as proof. Family completion must bind the verified person to
+  that exact member/source/revision; it cannot silently complete another draft.
+- Phone behavior remains: new number verified by OTP for public changes; current
+  and future reuse use it, older trip snapshots retain old numbers; broadcast
+  contacts are independent and no phone-change alert is required.
+- Five decisions answered: removal/unassignment, return-date counts, matching,
+  immediate operational assignment with preserved historical versions, both exports.
+  ONE decision remains pending: when a company link has no broadcast, can any
+  verified saved company person reuse, or only people in a linked broadcast?
+  Do not infer an answer because the user is asleep. No-broadcast eligibility remains unchanged: existing explicit configurations
+  retain their behavior; other no-broadcast links do not gain reuse access. Linked
+  broadcasts inherit a closed matched roster from the company switch without
+  separate group setup. All document opening still requires the proof flow.
+- New schema 0134 adds export jobs/parts, bounded seek/queue indexes and a nullable
+  source_created_at projection on match cases. Its scoped backfill copies source
+  creation dates into this NEW column; every original business field is preserved.
+  Schema 0135
+  permits a null company only on inactive manager grants and adds independent
+  tenant/profile/group FKs and an agency/company manager-grant lookup index.
+  The exact Fast 0133->0135 rehearsal passed: populated backup/restore,
+  every old row/catalog/ACL hash, transaction failures in BOTH revisions, checkpoint
+  resume, wrong-baseline rejection, actual manager scope constraint probes, grants,
+  idempotency and split migration ownership. No generic schema bypass is allowed.
+- Current local evidence (overlapping runs; do not sum as unique tests):
+  336 release-script tests passed with one unrelated skip; 17 direct-build tests;
+  15 migration-qualification receipt tests; 33 migration/schema rehearsal units.
+  109 frontend unit tests plus focused follow-up cases; seven Companies browser
+  cases and five returning/family/PDF browser cases passed. Production build passed.
+  Combined backend run passed 362 tests; its sole schema-fixture failure was caused
+  by a migration edit during collection. The frozen follow-up passed 81 tests.
+  Final completion/contact run passed 21; withdrawal/HTTP/copy checks passed 43.
+  The final owned backend run passed 70; combined frozen coverage append passed 49.
+  These overlap. Scoped coverage is 90.55% lines / 74.07% branches, not repository
+  coverage. All 32 new measured modules meet their reviewed 80-100% line floors.
+  Architecture: 26 reviewed boundaries. Module budgets: 119 backend / 51 frontend,
+  with every previous budget and global gate retained. Eleven backend and four
+  frontend boundary/budget guard tests passed. Final API snapshot check passed.
+  The actual Fast candidate also passed its isolated PostgreSQL rehearsal.
+- Actual new-path capacity receipt:
+  docs/implementation/companies-reuse-evidence/company-all-data-100000-people.json
+  SQLite 3.53.1 / Python 3.11.15, synthetic 100,000 people, one client, 100 groups,
+  one retained document version per person; four readers, 60.019 seconds, 5560
+  reads, zero errors, at most 25 people and eight SELECTs per full page.
+  p95 / p99 milliseconds: first page 76.427 / 157.414; cursor page 78.821 / 162.772;
+  exact name search 38.787 / 125.724. Fixed budgets were p95 <=250, p99 <=500 ms.
+  Peak process working set 174,141,440 bytes. Indexed plans are in the receipt.
+  The 100,000-person Excel worker completed 402 ticks in 51.825 seconds including
+  validation/readback, with 6,849,644-byte workbook and 89,986,906-byte peak temporary
+  XML. Lost provider acknowledgement and deterministic retry were verified.
+  Limits: helper-level SQLite test, no HTTP/network/storage service latency, no
+  PostgreSQL sustained load, only one client/one version, no large ZIP benchmark.
+  Excel has an explicit 100,000-person job limit. These results are not evidence
+  of million-user or production throughput capacity.
+- Incremental source work registers only that exact source revision. Repeated
+  changes coalesce a company roster fanout and bounded group jobs; they do not
+  each rescan company history. Full chains are initial/policy work only.
+  Workers have advisory concurrency two, up to 40 pages per 50-second burst,
+  transaction deadlines and controlled retries. These are bounds, not throughput
+  promises. Strong matches with unsuitable passports receive pending membership
+  for replacement verification, never an accepted submission or stale passport.
+- Root extraction of shared missing-document requirements preserves one rule path.
+  Strict retained-authority SQL/object parity rejects malformed evidence without
+  casting untrusted JSON directly. Current-identity changes invalidate completed
+  exports as well as pending work; private historical receipts remain retained.
+  Staff image reads and ZIP exports use the same retained-authority or lawful-trip
+  predicate as snapshot access. Withdrawal denies unreferenced files immediately;
+  a real retained trip reference remains available unless purge is required.
+  Interactive pending-index status can scan retained completed reconciliation jobs.
+  A separate single-reader SQLite check with 100,000 completed jobs measured
+  8.98 ms mean across 20 reads; query-only alternatives were slower and not adopted.
+  This does not establish PostgreSQL plans or concurrent HTTP capacity for long job histories.
+- Application commit 1daa4952f4af2f000ed60fa24f44fb6852ce4ac2 was pushed to main.
+  Two Fast attempts refused before builds/migrations because a scheduled
+  travellers.document_impact worker was active. All 20 old services remain healthy;
+  no production company removal or schema change occurred in those attempts.
+  The successful release uses a bounded 150-second worker drain; unavailable/malformed
+  idle evidence still fails immediately, and all nodes must show zero tasks.
+  The live evidence below describes the PREVIOUS 10914d09 release only.
+
+Historical live correction verification (10914d09, schema 0133)
+- The prior retained Fast release completed on revision
+  10914d09fb858bf37e2c9a1c7e7c373a452c5d08.
+  Backend/frontend builds and frontend runtime preparation exited zero without OOM.
+  Every prior resource was retained and service memory caps were unchanged.
+- Independent postdeploy checks verified all 20 expected services, configured health
+  checks, candidate image IDs/revision labels, schema and public ready status.
+  Publicly served JavaScript matched the running candidate asset hash. The running
+  frontend contains the Add client company and Collected records UI.
+- Ten bounded, cookie-free public requests passed: exact revision, authentication
+  redirects, login/upload shells and security headers, required upload-session
+  rejection, JavaScript/CSS and logo retrieval. They did not submit data or send OTP.
+- Separate signed-in Chrome inspection verified the direct client directory with
+  no agency selection, Add client company dialog, an empty client dashboard, and
+  a populated existing client with two assigned groups and 708 collected records.
+  Its records tab loaded 25 rows with Next page enabled and no error; the next page
+  loaded another 25 rows with zero overlap with the first page. No production
+  client/group/record was created, edited or deleted during this UI verification.
+- Evidence: companies-reuse-evidence/fast-release-10914d09.json,
+  live-verification-10914d09.json and http-smoke-10914d09.json. The JSON verifiers'
+  stated scope stays separate from the browser observations described here.
+  Real OTP delivery, returning-document disclosure and production capacity were
+  not retested by this client-workflow correction. Full CI was not dispatched.
+
+Client-workflow correction, 2026-10-14
+- This is the operator's own platform. Companies / Clients is a directory of the
+  external client companies it serves. There is no agency picker or agency setup
+  in the client directory or group-creation workflow. Add client company accepts
+  a client name; groups select that client. Existing internal ownership keys and
+  authorization checks are preserved without adding agency-management features.
+- A signed-in account's workspace resolves automatically. The existing unbound
+  Superadmin resolves the sole active workspace; ambiguous/missing context fails
+  closed. The live read-only prerequisite confirmed exactly one active workspace.
+  Resolution does not return an agency directory or expose names/contact data.
+- The client dashboard combines its assigned active, closed and archived groups.
+  Collected records includes ordinary office-visible submissions even when they
+  have not enrolled in returning-traveller reuse. A person may have several records;
+  collected records and accepted unique travellers are distinct, overlapping counts.
+  Deleted/Old Data groups and other clients' or owners' records remain excluded.
+- New collected-record pages return seven summary fields and at most 25 records
+  by default (server maximum 100). They use signed, actor/client/search-bound
+  cursors, a three-character minimum name search, debounce and request cancellation.
+  Documents are opened on their detail screen; this list retrieves no document
+  bytes or sensitive identity fields and does not prefetch record/group pages.
+- Summary counts now include ordinary collected records and unresolved durable
+  WhatsApp roster sources. Deleted people are excluded from accepted-person counts;
+  pending memberships, unresolved matches and unfinished jobs keep totals partial.
+  Four aggregate queries plus authorization return constant-size results. No full
+  history is hydrated into application memory, but exact counts still do database
+  work proportional to the scoped history. No background job or schema was added.
+- API contract, reviewed architecture edges and workflow inventory are updated.
+  The internal resolver and new collected-record read are not newly advertised as
+  verified MCP tools; the inventory records their actual implementation status.
+- A temporary workspace-resolution error hides dependent controls while retaining
+  an in-progress group form in the same authenticated session. Retry restores that
+  draft; a real account/session/workspace change resets it. The final correction
+  passed 15 focused unit tests across two files, scoped lint and strict TypeScript.
+
+Correction validation and capacity evidence
+- Frontend: 36 focused unit tests across ten files; strict TypeScript, scoped lint,
+  module budgets and production build passed. Nine Companies Chromium scenarios
+  passed across the initial run and corrected test-selector rerun, covering direct
+  Superadmin access, client creation/group assignment, permissions, lazy histories,
+  and combined records at 320px/1440px. Four existing group/import/configuration
+  Chromium scenarios also passed on mobile and desktop. These use synthetic mocks,
+  not production credentials or real documents. Later focused fixes are recorded
+  separately below rather than silently included in these historical checkpoints.
+- Backend: 46 focused company/summary/roster/reconciliation tests and eight existing
+  matching/returning tests passed in overlapping scopes. The final collected-record
+  optimization passed seven focused regressions, strict mypy and Ruff. They exercise
+  six statuses, timestamp ties across pages, cutoff, denied scope and empty clients.
+  API-contract, architecture-boundary and 1,762-surface inventory checks passed.
+- Reproducible harness: backend/scripts/benchmark_company_records.py. It creates a
+  fresh synthetic SQLite database, seeds in batches of 500, uses four pooled readers,
+  limits retained samples, and never reads real documents or application settings.
+  It accepts 50,000-100,000 records and 20-120 seconds; output must be a new directory.
+- Measured workload: 100,000 collected records, 100 groups, one client, four concurrent
+  readers for 60.442 seconds. All 773 operations succeeded, returning at most 25 rows.
+  Before optimization p95: first page 508.398ms; cursor 629.138ms; name search 2139.640ms.
+  After optimization p95: first page 9.557ms; cursor 9.421ms; name search 1614.710ms.
+  A single exact summary request took 62.594ms and returned the expected 100,000
+  collected/unresolved records, 100 groups, zero resolved people and partial totals.
+  Database size 132,657,152 bytes; process peak working set 166,694,912 bytes.
+  The 300ms interactive p95 target passed for list/cursor helpers and FAILED for
+  SQLite name search, which lacks the production PostgreSQL trigram index. The
+  summary timing is one sample, not a latency distribution or throughput result.
+- The no-search query retains top K IDs per each of six disjoint statuses before a
+  <=6K merge. It still uses two DB round trips and O(page_size) application memory.
+  Sparse/old clients can scan many other-client index entries; bounded candidates
+  do NOT imply bounded database I/O. Separate single-reader actual-helper probes:
+  target oldest 100 / other client 99,900 records: 98.33ms cold, 94.24/94.36ms warm;
+  empty client / 100,000 neighbour records: 211.12ms cold, 104.19/102.37ms warm.
+  These are supplemental local probes, not sustained latency distributions.
+- Receipts: companies-reuse-evidence/company-records-100k-before-query-optimization.json
+  and company-records-100k-after-query-optimization.json include plans and percentiles.
+  No PostgreSQL/HTTP/authentication/OTP/image throughput or million-user capacity is
+  established by this test. Production query plans and sustained representative
+  multi-client search load remain unqualified; Full CI is paused by user instruction.
+
+Previously deployed feature and release history
+Status: FAST DEPLOYED FOR FEATURE REVIEW; not Full CI qualified.
+Previous feature revision: 0e596846f85ec3dbf87cbc70a581b8902e7a2c0c.
+Verified schema: 0133_traveller_document_impact. All 20 expected services are running;
+all configured container health checks are healthy. Public readiness is ready at
+the exact revision. A publicly served frontend JavaScript asset matches the bytes
+and SHA-256 in the running candidate image. Company/returning feature assets exist.
+Authenticated production journeys and real OTP delivery are not claimed by these
+read-only checks. Company/group policy and accepted person permission remain required.
+This file records the implementation, earlier attempts and final deployment proof.
+The first Full CI run exposed integration fixture and dependency issues. Follow-up
+details are in companies-reuse-evidence/ci-security-patch-followup.txt. A subsequent
+successful exact-commit Full run would be required for Full qualification; the first
+run does not qualify release. The user has now paused Full CI until feature review
+and explicitly requested a Fast VPS review deployment. The existing code-only Fast
+lane cannot apply this schema change. A dedicated exact 0129 -> 0133 Fast path now
+requires source/image-bound populated PostgreSQL checks before any production DDL.
+It inherits the prior backend native runtime and explicitly does not apply the
+Dockerfile/native-library security updates prepared for a later Full build.
+Earlier release attempts and fixes below are historical, not current outage status.
+The first Fast attempt at 60a391e830d28b7fbbe207dc3add0a7169555774 stopped at the
+backend API-contract check before DDL or cutover. All original workers resumed.
+An inherited /candidate directory made docker cp nest the new source below an
+older tree; the mandatory contract hash caught the stale build. The follow-up
+uses fresh isolated source staging and regression coverage for consecutive builds.
+The next attempt at 01fe7f72f71791f3ad3cea6cf316dd3910d0283d built both images,
+then stopped in the isolated PostgreSQL restore comparison, still before live DDL.
+A separate diagnostic confirmed exact row hashes, ACLs and runtime grants. Its
+188 catalog differences (182 constraints, 6 indexes) were PostgreSQL restore
+representations. The 218d7f3f4aa6059c0257925bb469b7ff1ac496d4 attempt also stopped
+before live DDL; its isolated follow-up confirmed 176 equivalent varchar-array
+casts and 12 associative AND grouping differences. The rehearsal comparison
+handles only those bounded representations, preserving literal bytes, operand
+order and other operators, then uses the untouched restored snapshot as the exact
+migration baseline. Production preservation hashing stays unchanged.
+The 9de17621320d7fb7e3ca65ae105b28acd38bc6cd rehearsal passed restoration and
+then caught a real backfill side effect at 0131. Its isolated diagnostic compared
+40 retained client_groups columns and found only roster_revision changed: the
+existing unconditional UPDATE trigger ran during canonical company backfill.
+The correction validates and temporarily disables only that exact trigger inside
+0130's transaction, then restores it before commit. A disposable injected failure
+after DISABLE must prove complete rollback before the normal resume rehearsal.
+These failures all occurred before production DDL, and original workers resumed.
+The a44b4669da2a3c9be28733d6e038cc808cfbafd8 candidate passed the complete actual
+PostgreSQL migration rehearsal, including the new backfill rollback control. Both
+contact concurrency tests passed, but schema teardown exhausted the disposable
+database's default lock table with its reduced 24-connection configuration. The
+test-only max_locks_per_transaction is now explicitly 256; the 512 MiB memory cap,
+24 connections and all cleanup assertions remain. A complete new receipt is still
+required before production DDL; the partial test result did not authorize release.
+The 4df0bbb12a79af4a3c6b96d4f4585fd211db010b attempt passed the complete isolated
+PostgreSQL rehearsal, both contact concurrency tests and disposable cleanup. Its
+production backup was verified, but the first read-only baseline helper rejected
+the bootstrap identity: existing_migration_identity_required. No production DDL
+ran. The launcher had incorrectly selected credentials from the database container
+instead of the existing separate migration identity in the maintenance configuration.
+The exact capture-only command, stopped helper, unchanged 0129 schema and absence
+of a migration-validation receipt were verified before restoring the original
+3cdbb7be447e1beec08d3009e7bf0dbd0fd36ed5 services. Public readiness passed afterward.
+Backup, candidates, helper, private diagnostic and original resources are retained.
+This was an unchanged-schema service restoration, not a database downgrade.
+The correction resolves the existing maintenance identity into immutable private
+custody, bound to this source and the inspected database. A read-only authentication,
+exact ownership and default-runtime-grant preflight runs before building and again
+before cutover. Drift fails before stopping a healthy application. Recovery retains
+the same credentials and successful preflight; it never starts old writers merely
+to authenticate. Helper journals retain configuration hashes instead of credentials.
+The owner guard and existing production role grants are unchanged. The synthetic
+rehearsal now separates a non-superuser migration owner from its cluster administrator
+and runtime grantee, and must reject the administrator before any DDL. Both inner
+and host receipts require this additional proof. Actual execution of the strengthened
+rehearsal is required for the next candidate; the older receipt cannot qualify it.
+Local correction checks: 83 focused host/qualification tests and 29 backend
+migration/rehearsal/role tests passed. Strict mypy and Ruff passed for the affected
+runtime/rehearsal modules. Independent review found no concrete blocker. The two
+phone-copy UI suites passed 10 tests. These scopes overlap prior checkpoints and
+must not be summed into a unique total or presented as actual PostgreSQL execution.
+The subsequent host release regression completed with 326 passed and one existing
+skip (327 tests, 13.988 seconds); Full CI remains paused.
+The final 0e596846 candidate passed actual isolated split-role PostgreSQL rehearsal,
+both contact races and cleanup, and successfully upgraded production to 0133 with
+the original preservation digest and runtime-grant proof. Host parsing then rejected
+the receipt because a generic command utility appended Alembic stderr after valid
+stdout JSON. The site remained fenced while the exact retained attempt performed
+its supported target-schema no-op validation with the SAME original backup, images,
+source and baseline. This recorded durable validation and activated the new services.
+No DDL was replayed, no new baseline was invented, and no downgrade was attempted.
+The permanent host-reader correction separately captures stdout with a continuous
+32 KiB limit and 30-second timeout, requires one JSON object and retains all original
+image/exit/OOM/proof checks. Its 9 real-subprocess regressions cover stderr, malformed
+or multiple receipts, trailing noise, timeout, nonzero exit and overflow. The complete
+host suite passed 335 tests with one existing skip (336 tests, 13.550 seconds).
+The parser correction and final evidence are host tooling/documentation follow-ups;
+the deployed application remains the immutable 0e596846 revision listed above.
+Sanitized final evidence: companies-reuse-evidence/fast-release-0e596846.json and
+companies-reuse-evidence/live-verification-0e596846.json. Private credentials, backup
+contents and business records are not exported into these files. Full CI has not
+been rerun since the user's explicit pause for feature review.
+The feature patch was transferred to the release worktree based on current origin/main.
+Subsequent CI/release preparation and final verification occur there; the original
+working tree remains preserved with its unrelated local changes.
+
+Read the original user attachment alongside this file:
+C:\Users\nipun\.codex\attachments\30563fea-5539-4c12-b1c0-afde4239bd20\Pasted text.txt
+User clarifications in this chat override conflicting portions of that attachment.
+
+Settled clarifications received during implementation
+- The platform is used only by the user's own company. Companies / Clients means
+  the external client companies that company serves. Agency management/selection
+  is not part of this workflow. The initial Superadmin agency picker was a product
+  error. The correction opens the client directory directly, offers Add client
+  company, and combines assigned groups and collected records under each client.
+  Existing internal ownership columns remain to preserve data and authorization;
+  they are not a request to build a multi-agency product or agency-management UI.
+- Initial work was local. The user subsequently authorized completing the feature,
+  pushing it to main, and then checking the main VPS. They subsequently requested
+  Fast VPS deployment for review, with Full CI paused until they confirm satisfaction.
+  No real WhatsApp message is part of local testing.
+- User explicitly requested multi-agent implementation and asked that unresolved product
+  decisions wait for their answer while independent work continues.
+- User overrides the attachment's finite history retention requirement: retain document
+  versions until explicit withdrawal/deletion. No invented fixed purge deadline.
+  Future travel uses the appropriate latest accepted, suitable version; an expired
+  passport or passport with under six calendar months from the group travel date is
+  unavailable for travel reuse. Historical identity evidence and travel suitability
+  remain separate. Explicit deletion/withdrawal must still revoke access.
+- WhatsApp route: OTP, masked linked-person selection, then full passport number.
+  Established-phone route does not ask a stored date under the revised decision.
+- Passport route: full passport plus a reliable stored date, DOB shown first and
+  issue/expiry date available as explicit alternate questions. Routine OTP is not
+  required on this route under the user's later clarification.
+- Individual-code route: company-scoped individual code plus full passport number;
+  routine OTP is not required under the user's later clarification.
+- Changing a contact number still requires OTP on the new number and an atomic
+  selected-person contact update. Do not rewrite everyone sharing either number.
+- The user explicitly rejected external phone-change alerts; preserve the audit
+  record, but do not send a notification to either number. The new OTP-verified
+  number becomes the person's current contact and is used for future reused
+  submissions. Old groups retain the number recorded for their trip. WhatsApp
+  broadcast contacts/delivery destinations remain independent and must not be
+  rewritten when a traveller enters or changes their number in this flow.
+- These revised routes offer weaker phone-possession assurance than the original
+  attachment. Do not claim universal phone proof, three-factor authentication or
+  proven passport ownership. Someone holding relevant passport information may pass.
+- User requested masked surname and passport suffix in the shared-phone list.
+  Selecting a person never unlocks another person. A shared number is not proof of
+  legal guardianship or adult delegation; do not invent that relationship.
+- User accepted bounded synthetic tests around 50,000 to 100,000 records. The original
+  million-participation test is an unverified target unless a later receipt proves it.
+- User explicitly chose to keep identity merges/splits unavailable in this release.
+  Use the matching-review queue; do not infer permission to rewrite identity history.
+
+Complete feature map for a fresh reviewer
+- Companies/Clients reuses the existing tenant-scoped GC company foundation. The
+  canonical group company_id is shared by dashboard, API, MCP creation/import and
+  GC App assignment. Migration 0130 preserves company IDs and the existing normalized
+  name uniqueness, adds revisions/indexes and backfills only unambiguous assignments.
+- Directory: cursor search, active/inactive states, external reference, revision-
+  checked editing and dependency-blocked soft deletion. Dashboard counts and detail
+  lists share existing group visibility. Company administration and minimal company
+  lookup are separate capabilities. Super-admin operations require an agency scope.
+- Group create/edit supports the searchable company picker, inactive legacy values,
+  preservation on omitted edits, closed/archived company-only assignment and a
+  populated reassignment preview with reason, expected company/roster revisions,
+  claim revocation and reconciliation. No silent movement of old company profiles.
+- Current group metrics distinguish accepted participation, earlier actual travel
+  and verified reuse completion. Reconciliation incompleteness is visible and
+  unresolved records are not reported as unique people.
+- Public returning collection offers WhatsApp, passport, configured individual code,
+  and fresh collection. Masked candidate selection is phone-OTP scoped. Claims and
+  grants use short-lived HttpOnly Strict cookies; secret capabilities never enter
+  URLs, browser localStorage or API response bodies. Server-side authorization
+  rechecks group/company/person/contact/document/policy revisions on protected reads.
+- Independent Redis network/session request limits and persisted person-level proof
+  budgets apply across routes. Missing production limiter/crypto configuration fails
+  closed. Responses are private/no-store. Asset IDs are checked against the exact
+  grant and retained owner before any object-store access.
+- Review shows allowlisted extracted identity fields and protected, lazy document
+  previews. Passport lifecycle/expiry is separate from identity proof. The six-
+  calendar-month group-date rule is centralized in traveller_suitability.py; unknown
+  itinerary/issuer/rule coverage never becomes an asserted destination clearance.
+- Current trip requirements and custom questions are validated using existing
+  collection rules. Only unchanged answers from the same trip may be restored.
+  Completion creates one normal client-submitted source plus a frozen participation,
+  requires current review/version evidence, is idempotent and still needs normal
+  staff review. It never treats a provisional match as submission or approval.
+- Updating a passport uses fresh document collection and a selected-person candidate
+  association. Staff acceptance/enrollment is explicit; old accepted versions remain.
+  Changing phone requires OTP on the new number, affects only the selected person,
+  revokes old grants and preserves historical snapshots. Contact events are durable;
+  no external contact-change alert is sent, by the user's explicit decision.
+- Lost/cancelled/compromised lifecycle changes revoke affected grants and queue
+  bounded operational review tasks. The committed change feed uses a company
+  sequence so late commits cannot be skipped by a timestamp checkpoint. It does not
+  write to external visa/ticketing systems.
+- Excel/ZIP and MCP export history use one content-revision comparison rule, including
+  edits to the same submission ID, additions and removals. Changes are represented
+  in an Excel Changes sheet / ZIP changes.json. Export reads are bounded and check
+  retained authority before and after generation.
+- All new staff pages use the existing dashboard design. Search is debounced and
+  cancellable; lists use bounded cursor pages; document payloads load on request.
+  Fresh-upload entry remains available from returning verification/error states.
+
+Primary code boundaries
+- backend/app/application/companies: directory, visibility, assignment, policy, metrics.
+- backend/app/application/travellers: proof/authority, review, completion, contact,
+  enrollment, matching, replacement, retention, change feed and review tasks.
+- backend/app/domain/services/traveller_{verification,suitability}.py: shared rules.
+- backend/app/infrastructure/database/traveller_*: scoped persistent constraints.
+- backend/app/infrastructure/travellers: bounded copy/reconcile/impact consumers.
+- backend/app/presentation/api/v1/routes/companies.py and company_*.py: staff APIs.
+- backend/app/presentation/api/v1/routes/returning_*.py: cookie-scoped public APIs.
+- frontend/features/companies and frontend/features/travellers: typed UI boundaries.
+- frontend/features/upload/hooks/use-returning-upload.tsx: existing upload integration.
+- backend/app/application/use_cases/passports/export_changes.py: export revision rule.
+- backend/scripts/release_companies_traveller_upgrade.py: bound migration helper.
+- scripts/release_companies_{retained_update,runtime,policy}.py: additive rollout controls.
+- scripts/release_companies_fast.py: local-image/source/rehearsal binding, no Full claim.
+- scripts/qa/qualify_companies_fast_migration.py: isolated 700-person PostgreSQL checks
+  and two real contact concurrency regressions using the exact candidate image.
+- scripts/release_companies_secrets.py: first-install independent crypto keys retained
+  privately; existing complete configuration preserved, partial configuration denied.
+
+Latest combined local verification on the current-main release worktree
+- CI follow-up: the full frontend suite passed 1,336 tests across 185 files after
+  the minimum supported Next.js security patch. Production audit, lint, type-check
+  and build passed. Existing browser fixture guards remain enforced; 18 corrected
+  legacy scenarios and 19 feature scenarios passed in their separate local runs.
+- Actual PostgreSQL concurrency uncovered a contact-change retry gap: successful
+  OTP verification commits before promotion, allowing another retry to issue the
+  new grant and revoke the original grant. Completion now re-locks the claim and
+  validates the current resulting grant before recovering success. The contact
+  and ASGI slice passed 12 tests, including a deterministic commit-gap regression;
+  concurrent PostgreSQL confirmation is required by the targeted Fast rehearsal;
+  the complete real-service suite still needs the later Full CI result.
+- Legacy mobile notification fixtures now assign the exact canonical company,
+  retaining the deferred foreign-key checks. Ninety affected local tests passed.
+  GC company CRUD checks now use real database records and durable audits;
+  13 tests passed, including historical-group and manager deletion dependencies.
+  Sixteen historical mobile-access tests passed after canonical fixture correction.
+- 224 feature backend tests passed in 107.16 seconds, including real ASGI cookie,
+  routing and database authorization tests with synthetic OTP/storage providers.
+- Strict mypy passed all 1,060 application source files. Ruff app/tests passed.
+- Latest complete release/infrastructure unittest discovery: 697 tests passed,
+  5 environment-dependent skips, in 27.587 seconds after the Fast/recovery changes.
+- Frontend: 123 Vitest tests, 29 Node contract tests and 18 Chromium scenarios passed
+  at applicable widths of 320/390/1440 pixels before the final cross-layer audit.
+  Browser data/providers are synthetic; frontend-release-verification.txt records
+  the exact follow-up receipts. These counts overlap smaller checks below.
+- Changed existing backend regression files: 183 tests passed in 73.34 seconds.
+- Updated required-contact projection/completion and actual ASGI flow: 12 tests
+  passed in 12.73 seconds. The platform contact policy is visible before submit.
+- Full local backend regression/coverage was deliberately stopped after available
+  system RAM fell below 1 GiB. Only the four verified test workers were stopped;
+  available RAM recovered above 6 GiB. Its partial 2,553 passes are NOT a complete
+  suite result. Four worker-crash failures were caused by that deliberate stop.
+  One actual old MCP fixture omitted required company_id and has been corrected;
+  one unrelated pypdf import error reflects the older shared local venv. CI installs
+  the current locked dependencies and must run complete regression/coverage.
+- MCP HTTP replay, SDK Excel/group journey and related creation fixture follow-up:
+  62 passed, 9 service-dependent tests skipped in 58.24 seconds. Three fixtures now
+  pass an explicitly seeded tenant company without weakening replay/race assertions.
+- Exact-SHA real-service CI and production rollout are not yet verified.
+- Final frontend cross-layer audit examined 45 OpenAPI operations. Follow-up checks
+  passed 47 Vitest tests, 19 Chromium scenarios in 40.1 seconds, type checking,
+  scoped lint and all 40 maintainability budgets. These overlap earlier counts.
+  Fixes include stale-review idempotency recovery, cannot-assess completion denial,
+  required contact collection, the Companies proxy guard, upload-only PDF blob CSP
+  and explicit PDF visibility acknowledgement. Native PDF viewer pixels were blank
+  in inspected headless Chromium, so supported-browser native PDF rendering remains
+  unverified; cookie/CSP/byte delivery is verified. See frontend-contract-audit.txt.
+
+Implemented persistence, ingestion and storage slice
+- Frozen additive persistence migration 0131_traveller_reuse. 0132_traveller_source_seek
+  creates passport and linked WhatsApp source cursor indexes concurrently, recovers
+  interrupted invalid indexes and verifies valid definitions. Operational impact/feed
+  work follows as 0133; use release_manifest.json for the final exact schema head.
+- Separate tenant/company scoped profile, passport, immutable evidence revision,
+  original asset, contact history, individual code, participation, permission policy,
+  claim, attempt budget, grant, match case, resumable job and change-event records.
+  Historical group FKs preserve source company across populated reassignment.
+- Recognition is preview only. No name/phone merge, invented OTP, permission grant,
+  profile enrollment or current-trip participation is created by a matching job.
+- Jobs read accepted submissions AND linked durable WhatsApp recipient/rejected rows.
+  Source kind + UUID cursors use v2:<source_kind>:<UUID>; legacy UUID cursors remain
+  compatible. Each UNION branch is capped before the final sort, so at most 303 rows
+  reach it; final page <= 100. Exact configured individual code can propose a match;
+  imported passport fields are not accepted proof. Unsuffixed primary code is used;
+  merged phone-delivery alternate fields never imply another person's identity.
+- Coverage is explicitly durable_saved_rows_only. The import follow-up now preserves
+  all individual rejected rows within the existing 2,000-row workbook limit while
+  returning only a bounded 500-row preview. A real 700-person XLSX with one phone was
+  verified through dashboard and MCP parse/create/persist: one delivery recipient and
+  699 distinct saved rejected sources, with the preview reporting 199 truncated rows.
+  Primary identity fields remain unchanged; bounded alternates cannot grow per person.
+  Direct create/add preserves duplicate source rows too. Historical rows already lost
+  by the former 500-row truncation require the original file to be reimported.
+- Explicit staff resolution creates pending trip membership only. It rechecks the
+  current source tenant/group, revision, content/name/phone fingerprint, key version,
+  group/configuration revisions and identifier semantics. Changed sources require a
+  new preview. Refreshing unresolved cases preserves human resolutions and authorized
+  replacement candidates. Source-only locks avoid locking joined broadcast rows.
+- Staff source listing uses selective cursor pages (default 25, max 50), name search
+  with the existing trigram prefilter and a bounded candidate projection query.
+- Explicit enrollment requires accepted source/current revisions, configured purpose
+  and notice, permission evidence, plus a reviewed target for updates. Missing issuer
+  and document type require explicit document-view attestation, not nationality or
+  place-of-issue inference. Retry HMAC binds the complete enrollment payload.
+- Lost/cancelled/compromised/disputed/rejected passport identities cannot be revived
+  by enrolling a new scan. A reviewed renewal creates another identity for the same
+  person. Later accepted issue dates can become future defaults; trip references freeze.
+- Public replacement-candidate linkage requires a live grant/review version AND the
+  fresh upload's own X-Upload-Session-ID capability. It binds one source to the selected
+  person, preserves provisional status, and records a keyed digest of source fields
+  and images. Staff must approve the source and acknowledge the selected-person
+  association during enrollment. Changed content requires fresh association. Ordinary
+  staff approval revision increments with unchanged content remain valid.
+- Independent original copies are queued durably and performed server-side without
+  loading document bodies into the worker. Global PostgreSQL copy admission <= 2,
+  attempts <= 5, explicit provider timeout envelope, stable destinations, post-copy
+  size/checksum checks and live authorization both before and after I/O.
+  MIME-derived allowlisted extensions are durably bound before copying; copied MIME
+  must match and cannot change between retries. Older extensionless exports use the
+  existing validated archive handling rather than trusting a guessed filename.
+- Shared private media policy permits JPEG/PNG/WebP/PDF <= 20 MiB. Pending, purged,
+  unsupported, expired or unreadable assets cannot satisfy reuse requirements.
+- Group/source deletion detaches operational FKs and preserves immutable provenance.
+  Pending copies block unsafe source deletion. Cleanup consults retained ownership;
+  copied originals cannot be deleted as incidental old-group assets.
+- Future-reuse withdrawal immediately revokes historical access. Lawful current-trip
+  snapshots retain their own referenced data until the operational source is removed.
+  Asset purge/hard profile deletion immediately denies staff image/thumbnail access.
+- Staff confirmation/single/bulk approval synchronizes the current participation once
+  and records its accepted source extraction revision; it does not silently promote
+  edited trip fields into retained identity evidence.
+- ZIP preparation uses batched retained-asset authorization (<= 200 sources / 1,000 assets
+  per query), rechecks immediately before and after rendering, and closes the spool if
+  authority was removed during generation. MCP's existing re-preparation around upload
+  also uses this guard. Previously published artifacts need their own download-time
+  revocation checks; do not confuse generation guards with permanent artifact erasure.
+
+New slice files for review
+backend/app/infrastructure/database/traveller_model_support.py
+backend/app/infrastructure/database/traveller_identity_models.py
+backend/app/infrastructure/database/traveller_document_models.py
+backend/app/infrastructure/database/traveller_claim_models.py
+backend/app/infrastructure/database/traveller_operations_models.py
+backend/app/infrastructure/database/traveller_reuse_models.py
+backend/alembic/versions/0131_traveller_reuse.py
+backend/alembic/versions/0132_traveller_source_seek.py
+backend/app/application/travellers/reconciliation.py
+backend/app/application/travellers/reconciliation_sources.py
+backend/app/application/travellers/match_freshness.py
+backend/app/application/travellers/enrollment.py
+backend/app/application/travellers/source_evidence.py
+backend/app/application/travellers/replacement.py
+backend/app/application/travellers/retention.py
+backend/app/application/travellers/snapshot_access.py
+backend/app/application/travellers/export_authority.py
+backend/app/infrastructure/travellers/asset_copy.py
+backend/app/infrastructure/travellers/runtime.py
+backend/app/infrastructure/travellers/tasks.py
+backend/app/presentation/api/v1/routes/traveller_admin.py
+backend/app/presentation/api/v1/routes/returning_replacement.py
+
+Integration boundaries changed surgically
+- models.py/communications_models.py metadata indexes; existing Celery includes/beat.
+- PassportSubmissionRepository.delete and bulk deletion detach retained provenance.
+- platform_lifecycle cleanup excludes pending copy sources and detaches retained FKs.
+- storage_cleanup.py checks live ownership for traveller keys.
+- passport_routes/image_support.py guards retained reads and direct image cleanup.
+- passport_routes/response_support.py never presigns retained keys.
+- passport_routes/submission_review.py and bulk_actions.py reflect staff acceptance.
+- prepare_image_export.py checks retained authority before publication.
+Parent preserved the initial unrelated working-tree patch at:
+.tmp/companies-reuse-evidence/initial-dirty.patch
+Do not revert preexisting dashboard, mobile or WhatsApp work as part of this feature.
+
+Validation receipts (overlapping suites; do not add their counts)
+Persistence/enrollment/snapshot/replacement/reconciliation/source-list/migration slice:
+  42 passed in 16.41 seconds before adding actual durable-roster coverage.
+Command from backend:
+  .venv311\Scripts\python.exe -m pytest tests/unit/application/test_traveller_enrollment.py tests/unit/application/test_traveller_snapshot_access.py tests/integration/test_returning_replacement.py tests/unit/presentation/test_traveller_enrollment_sources.py tests/unit/infrastructure/test_traveller_reuse_schema.py tests/unit/infrastructure/test_traveller_seek_migration.py tests/unit/application/test_traveller_reconciliation.py -q --no-cov
+- Tests cover unchanged renewal versus old scan, blocked identity statuses, explicit
+  issuer attestation, payload replay conflicts, five-attempt outage, timeout leases,
+  unsupported/oversize copy denial, withdrawal during copy, lawful snapshot retention,
+  hard deletion, stale/foreign sources, staff synchronization and post-render revocation.
+- Synthetic accepted-source fixture: 700 => 400 provisional / 300 unmatched with <= 8 SELECTs
+  per 100 rows, rollback/idempotency and no new participation or permission grant.
+- Actual WhatsApp durable-record fixture has 1 delivery recipient + 699 rejected contacts
+  sharing one phone. This tests all 700 database rows, not parser preservation.
+- Latest matching/source/selected-export slice: 18 passed in 7.68 seconds. This includes
+  real source freshness failures, updated identifier rules, forbidden replacement
+  candidate resolution, deleted sources and the 700-person saved-roster fixture.
+- Copy, snapshot, match and reconciliation slice: 33 passed in 16.07 seconds after
+  MIME-derived destination naming; subsequent source fingerprint checks passed above.
+- Backend agent's actual workbook import/regression slice: 117 passed in 35.15 seconds,
+  including tests/integration/test_whatsapp_shared_phone_import.py for dashboard and MCP.
+- Focused legacy storage cleanup, operational retention and delete tests: 38 passed.
+- Existing approval/image route regression run initially 59 passed plus 2 subtests;
+  five fake-image-fixture failures were corrected by skipping new checks entirely for
+  nonretained keys. Root final regression receipt supersedes this checkpoint.
+- Focused Ruff checks passed. Strict mypy passed 14 source files before latest source
+  paging module; its own strict check passed after typed union correction.
+- Backend quality budgets passed 87 modules after cohesive approval/GC extraction.
+- Release-worktree CI preparation: 11 rehearsal guard/resume unit tests passed and
+  38 CI input/workflow tests passed. Strict mypy passed the two new rehearsal scripts,
+  focused Ruff passed, and topology verification checks the exact 0133 -> 0132 ->
+  0131 -> 0130 -> 0129 chain. These checks do not mean PostgreSQL rehearsal ran.
+
+Exact populated migration qualification prepared for CI
+- Independent release review closed two recovery gaps: a target Alembic head can no
+  longer skip uncompleted validation, and partial resumes cannot replace the original
+  preservation baseline with an intermediate snapshot. The signed helper captures the
+  original 0129 rows/catalog/ACL digest, bound by the host to the original backup and
+  release proof; every unvalidated attempt compares that exact digest before and after
+  DDL. A durable successful validation receipt separately allows activation recovery
+  after legitimate target application writes.
+- PostgreSQL 16 public-schema ownership through pg_database_owner is accepted only
+  alongside exact current database/table ownership; no roles or grants are modified.
+- Fresh release-worktree focused persistence/enrollment/reconciliation/replacement/
+  schema/source-list suite: 62 passed in 22.29 seconds. Additional baseline/rehearsal
+  tests and release contract/CI tests are separate receipts; do not add overlapping
+  suites to imply a unique total. Actual PostgreSQL execution subsequently passed
+  in the isolated Fast rehearsal at 4df0bbb; Full CI remains paused by the user.
+- Existing populated 0085 backup/restore gate remains intact.
+- backend/scripts/rehearse_companies_traveller_upgrade.py adds an independent populated
+  0129 backup/restore plus actual release-helper interruption/resume exercise.
+- Its synthetic source contains accepted passports, an exact existing GC-company
+  assignment, an unassigned group, 700 durable WhatsApp people sharing one number,
+  and nonempty runtime DML grants. It compares all original rows, catalog and ACLs.
+- The release helper commits 0130 and 0131, then receives an injected interruption
+  before 0132. PostgreSQL must create a real invalid concurrent index after a synthetic
+  uniqueness failure. Resume must repair that index, reach 0133, preserve history,
+  keep all new reuse tables empty, preserve grants and pass an idempotent rerun.
+- CI also submits an intentionally wrong original baseline at 0131; the helper must
+  reject it without advancing the schema, before the correctly bound resume succeeds.
+- The script requires the existing destructive-CI acknowledgement, a loopback host,
+  and two exact synthetic database names distinct from POSTGRES_DB. It never targets
+  a deployed application database. Temporary CI databases are removed on completion.
+- CI retains companies-migration-rehearsal-evidence.json alongside the existing
+  migration receipt. The isolated Fast rehearsal subsequently passed at 4df0bbb;
+  this does not qualify Full CI or production activation.
+- Fixture: backend/scripts/companies_rehearsal_fixture.py. Guard/resume tests:
+  backend/tests/unit/infrastructure/test_companies_migration_rehearsal.py.
+
+Other root/agent receipts reported during this same task
+- The final phone-scope clarification is covered by
+  backend/tests/integration/test_returning_contact_scope.py: future reuse takes the
+  new verified number, old trip submission/participation stay unchanged, a shared
+  family contact stays unchanged and linked broadcast/source/delivery rows remain
+  unchanged even when broadcast contact synchronization is enabled. The focused
+  scope/contact-change/completion suite passed 20 tests in 12.28 seconds with mocked
+  OTP delivery; this is not PostgreSQL concurrency or actual-provider evidence.
+- Root export regression suite 96 passed; company backend 13 passed; returning suite 46
+  passed at its checkpoint. Root subsequently added requirements/selected-passport
+  work and is rerunning. Do not present these overlapping checkpoints as one total.
+- Frontend agent reported 97 unit and 13 loopback fixture browser tests, with mobile and
+  desktop UI coverage. These are mocked local responses, not a deployed full stack.
+
+Measured capacity, exact scope
+Reproducible script: backend/scripts/benchmark_traveller_queries.py
+Receipt: docs/implementation/companies-reuse-evidence/capacity-100000-profiles-200000-participations.json
+- SQLite 3.53.1, Windows, Python 3.11.15, 32 logical CPUs.
+- 100,000 profiles, 100,000 passports, 200,000 participations, 250 companies, 101 groups,
+  including one 700-person group; 4 concurrent readers for 120.03 seconds.
+- Zero query errors; 113,246,208 peak working-set bytes; 426,442,752 database bytes.
+- Query p95: company search 1.814 ms; passport lookup 0.280 ms; traveller page 2.198 ms;
+  group summary 2.676 ms. p99 respectively 2.194 / 0.408 / 2.688 / 3.047 ms.
+- Each operation type: 159,737 iterations (~1330.8/s). These are synthetic local query
+  loops, NOT HTTP/API throughput, ORM/encryption timing or production capacity.
+- Additional 50k and 100k, 20-second, 4-reader receipts are in the same evidence directory.
+- Millions were not tested. No production/PostgreSQL/provider-capacity claim is made.
+
+Remaining qualification and explicit limits
+- The isolated PostgreSQL 16 migration and two contact concurrency tests passed at
+  4df0bbb. This does not qualify every lock-order/advisory admission, withdrawal,
+  reassignment or provider failure scenario; Full CI remains paused.
+- Real MinIO/S3 and broker timeouts, worker crashes and sustained API load are not
+  qualified by SQLite tests or fake storage objects.
+- Online encryption-key rotation/re-encryption is not implemented; populated records
+  cannot be migrated by simply replacing the configured keys.
+- Private originals load lazily and are byte capped. Background small preview
+  derivatives for public retained documents are not implemented in this slice.
+- Legacy truncated WhatsApp input cannot be recovered automatically. Current imports
+  preserve the tested 700 rows within the existing 2,000-row workbook limit.
+- Match previews grant no closed-roster eligibility. Explicit staff case resolution
+  creates pending current-trip participation and never substitutes traveller proof.
+- Local unit receipts do not represent production migration or real OTP provider
+  sends. The separate sanitized 0e596846 release/live receipts above establish this
+  Fast activation. Real-provider and authenticated journeys remain unverified.
+  First-install Fast provisions
+  the independent keys and technical disclosure switch only when all writer
+  services have no reuse configuration. Explicit company/group policies and accepted
+  traveller permission remain mandatory; no legacy history is automatically enrolled.
+
+Architecture: docs/architecture/returning-traveller-reuse.md
+Qualification/runbook: docs/runbooks/companies-returning-travellers.md

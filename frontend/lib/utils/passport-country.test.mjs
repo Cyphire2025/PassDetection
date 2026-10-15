@@ -21,6 +21,12 @@ test("preserves country names and unknown values", () => {
   assert.equal(formatPassportCountry(""), "");
 });
 
+test("shows missing legacy issuer honestly without adding a selectable country", () => {
+  assert.equal(formatPassportCountry("UNK"), "Not recorded");
+  assert.equal(isRecognizedPassportCountryCode("UNK"), false);
+  assert.equal(getPassportCountryOptions(3).some((option) => option.value === "UNK"), false);
+});
+
 test("formats Indian nationality separately from the India country label", () => {
   for (const value of ["IN", "IND", "India", "indian"]) {
     assert.equal(formatPassportNationality(value), "Indian");

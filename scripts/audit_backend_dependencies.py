@@ -19,6 +19,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 POLICY = ROOT / "tooling/dependency-exceptions.json"
 FORBIDDEN = {"jose", "ecdsa"}
+REVIEWED_ADVISORIES = {
+    ("ecdsa", "PYSEC-2026-1325"): {"CVE-2024-23342", "GHSA-wj6h-64fc-37mp"},
+    ("python-jose", "CVE-2026-85394"): {"GHSA-3qf3-8w2g-rqmx"},
+}
 
 
 def imported_modules(source: str, module: str = "") -> set[str]:
@@ -51,12 +55,26 @@ def imported_modules(source: str, module: str = "") -> set[str]:
 def review_errors(policy: dict, *, today: dt.date, lock: bytes,
                   sources: dict[str, str], verifier_sources: dict[str, str],
                   versions: dict[str, str], hashes: dict[str, str]) -> list[str]:
+    exceptions = policy.get("exceptions", [])
+    if (policy.get("schema_version") != 1 or len(exceptions) != len(REVIEWED_ADVISORIES)
+            or {(item.get("package"), item.get("advisory")) for item in exceptions}
+            != set(REVIEWED_ADVISORIES)):
+        return ["Only the two explicitly reviewed unreachable signing advisories are supported"]
     errors = []
-    if policy.get("schema_version") != 1 or len(policy.get("exceptions", [])) != 1:
-        return ["Exactly one reviewed exception is supported"]
-    exception = policy["exceptions"][0]
-    if exception.get("advisory") != "PYSEC-2026-1325" or exception.get("package") != "ecdsa":
-        errors.append("Unexpected advisory exception")
+    for exception in exceptions:
+        identity = (exception["package"], exception["advisory"])
+        if set(exception.get("aliases", [])) != REVIEWED_ADVISORIES[identity]:
+            errors.append("Unexpected advisory aliases")
+        errors.extend(_review_exception(exception, today=today, lock=lock, sources=sources,
+                                        verifier_sources=verifier_sources, versions=versions,
+                                        hashes=hashes))
+    return errors
+
+
+def _review_exception(exception: dict, *, today: dt.date, lock: bytes,
+                      sources: dict[str, str], verifier_sources: dict[str, str],
+                      versions: dict[str, str], hashes: dict[str, str]) -> list[str]:
+    errors = []
     if not exception.get("owner") or not exception.get("rationale") or not exception.get("evidence"):
         errors.append("Exception requires an owner, rationale, and evidence")
     try:
@@ -135,8 +153,9 @@ def main() -> int:
             report = json.loads(args.image_report.read_text())
             if not isinstance(report.get("matches"), list) or not isinstance(report.get("descriptor"), dict):
                 raise ValueError("Full-image scan report is missing required fields")
-            exception = policy["exceptions"][0]
-            allowed = {exception["advisory"], *exception["aliases"]}
+            allowed = {(advisory, exception["package"], exception["versions"][exception["package"]])
+                       for exception in policy["exceptions"]
+                       for advisory in (exception["advisory"], *exception["aliases"])}
             scoped = set()
             if args.image:
                 from image_advisory_policy import validate_runtime_conditions
@@ -146,7 +165,7 @@ def main() -> int:
                 vulnerability, artifact = match["vulnerability"], match["artifact"]
                 if vulnerability["severity"].lower() not in {"high", "critical"}:
                     continue
-                if vulnerability["id"] in allowed and artifact["name"] == "ecdsa" and artifact["version"] == exception["versions"]["ecdsa"]:
+                if (vulnerability["id"], artifact["name"], artifact["version"]) in allowed:
                     continue
                 if (vulnerability["id"], artifact["name"], artifact["version"]) in scoped:
                     continue
@@ -158,7 +177,9 @@ def main() -> int:
         if args.check_only:
             return 0
         command = [sys.executable, "-m", "pip_audit", "-r", str(ROOT / "backend/requirements.lock"),
-                   "--require-hashes", "--disable-pip", "--ignore-vuln", policy["exceptions"][0]["advisory"]]
+                   "--require-hashes", "--disable-pip"]
+        for exception in policy["exceptions"]:
+            command.extend(["--ignore-vuln", exception["advisory"]])
         if args.sbom:
             command.extend(["--format", "cyclonedx-json", "--output", str(args.sbom)])
         return subprocess.run(command, check=False).returncode

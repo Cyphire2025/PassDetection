@@ -33,6 +33,7 @@ from app.presentation.api.v1.schemas.client_group_schemas import (
 
 def minimal_request(**overrides):
     return CreateClientGroupRequest.model_validate({
+        "company_id": str(uuid.uuid4()),
         "import_only": True,
         "name": "Final Dubai passengers",
         "destination": "Dubai",
@@ -89,6 +90,7 @@ async def test_import_mode_survives_creation_storage_and_response():
     dto = CreateClientGroupInputDTO(**{f.name: values[f.name] for f in fields(CreateClientGroupInputDTO)})
     repo = AsyncMock()
     repo.save.side_effect = lambda group: group
+    repo.require_active_company.return_value = {"id": dto.company_id, "name": "Import company", "status": "active"}
     output = await CreateClientGroupUseCase(repo).execute(dto, uuid.uuid4(), uuid.uuid4())
     stored = ClientGroupRepository._to_model(repo.save.call_args.args[0])
     restored = ClientGroupRepository._to_entity(stored)

@@ -4,8 +4,7 @@ from __future__ import annotations
 
 from io import BytesIO
 
-import pypdf._page as pypdf_page
-from pypdf import PdfWriter
+from pypdf import PdfWriter, apply_configuration, get_configuration
 from pypdf.generic import (
     ArrayObject,
     DecodedStreamObject,
@@ -85,12 +84,14 @@ def test_valid_nested_ticket_or_visa_forms_remain_readable_without_pdfium(monkey
 def test_xform_limit_is_shared_across_nested_and_repeated_form_calls(monkeypatch, caplog):
     # Lower the library's cap only in this test, so a tiny benign fixture
     # exercises the production guard without a large or malicious PDF workload.
-    monkeypatch.setattr(pypdf_page, "MAX_XFORM_INVOCATIONS_PER_EXTRACTION", 4)
     monkeypatch.setattr(document_matcher, "pypdfium2", None)
     content = _form_pdf(repetitions=6)
 
-    result = DocumentMatcher()._read_pdf_text_with_pypdf(content)
+    original_configuration = get_configuration()
+    with apply_configuration(xform_maximum_invocations_per_extraction=4):
+        result = DocumentMatcher()._read_pdf_text_with_pypdf(content)
 
+    assert get_configuration() == original_configuration
     assert result.safe_for_ocr is True
     # One outer invocation and three leaf invocations consume the shared cap.
     assert result.text.count("ELECTRONIC VISA") == 3

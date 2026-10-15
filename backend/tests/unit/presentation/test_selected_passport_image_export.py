@@ -63,8 +63,10 @@ async def test_selected_image_export_uses_full_group_naming_namespace(
         staff_code_enabled=True,
         agent_employee_code_enabled=True,
     )
-    selected = SimpleNamespace(id=selected_id)
-    other = SimpleNamespace(id=other_id)
+    image_keys = dict(image_s3_key=None, passport_back_s3_key=None, passport_photo_s3_key=None,
+        passport_cover_s3_key=None, passport_back_cover_s3_key=None)
+    selected = SimpleNamespace(id=selected_id, **image_keys)
+    other = SimpleNamespace(id=other_id, **image_keys)
     current_submissions = [other, selected]
     authorize = AsyncMock()
     crop_metadata = {selected_id: {}}

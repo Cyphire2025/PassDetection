@@ -7,6 +7,7 @@ import {
   CalendarDays,
   Check,
   CheckCircle2,
+  ChevronDown,
   Clock,
   Copy,
   Link2,
@@ -14,7 +15,6 @@ import {
   RotateCcw,
   Trash2,
   UploadCloud,
-  X,
   XCircle,
 } from "lucide-react";
 import { useDeferredValue, useMemo, useRef, useState } from "react";
@@ -28,14 +28,13 @@ import {
   WorkspaceToolbar,
 } from "@/components/shared/workspace-ui";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { EditGroupDialog } from "./edit-group-dialog";
 import { ConfirmDialog } from "@/components/ui";
 import { useModalKeyboardBoundary } from "@/components/ui/modal";
 import { copyTextToClipboard } from "@/lib/utils/clipboard";
 import { getPassportUploadTargets } from "@/lib/utils/public-url";
 import { canArchiveGroup, canPermanentlyDeleteGroup } from "@/lib/utils/role-access";
 import { selectUserRole, useAuthStore } from "@/stores/auth.store";
-import { getImportOnlySettings } from "../schemas/upload-link.schema";
 import type {
   UploadLinkResponse,
 } from "../api/upload-links.api";
@@ -44,15 +43,8 @@ import {
   usePermanentlyDeleteUploadLink,
   useRestoreUploadLink,
   useRevokeUploadLink,
-  useUpdateUploadLink,
   useUploadLinks,
 } from "../hooks/use-upload-links";
-import {
-  getUploadLinkSettings,
-  getUploadLinkSettingsError,
-  UploadLinkSettings,
-  type UploadLinkSettingsValue,
-} from "./upload-link-settings";
 
 const loadCreateUploadLinkModal = () =>
   import("./create-upload-link-modal");
@@ -67,6 +59,7 @@ export function UploadLinkList() {
   const canPermanentlyDelete = canPermanentlyDeleteGroup(role);
   const canArchive = canArchiveGroup(role);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isArchivedExpanded, setIsArchivedExpanded] = useState(false);
   const [query, setQuery] = useState("");
   const deferredQuery = useDeferredValue(query);
   const [copiedLinkKey, setCopiedLinkKey] = useState<string | null>(null);
@@ -80,8 +73,6 @@ export function UploadLinkList() {
   } | null>(null);
   const [renameTarget, setRenameTarget] = useState<UploadLinkResponse | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<UploadLinkResponse | null>(null);
-  const [renameValue, setRenameValue] = useState("");
-  const [editSettings, setEditSettings] = useState(() => getUploadLinkSettings({}));
   const {
     data: activeLinks = [],
     isLoading: isLoadingActive,
@@ -95,7 +86,6 @@ export function UploadLinkList() {
   const { mutate: closeLink, isPending: isClosing } = useRevokeUploadLink();
   const { mutate: archiveLink, isPending: isArchiving } = useDeleteUploadLink();
   const { mutate: restoreLink, isPending: isRestoring } = useRestoreUploadLink();
-  const { mutate: renameLink, isPending: isRenaming } = useUpdateUploadLink();
   const {
     mutate: permanentlyDeleteLink,
     isPending: isPermanentlyDeleting,
@@ -117,8 +107,6 @@ export function UploadLinkList() {
 
   const openGroupEditor = (link: UploadLinkResponse) => {
     setRenameTarget(link);
-    setRenameValue(link.name);
-    setEditSettings(link.import_only ? getImportOnlySettings() : getUploadLinkSettings(link));
   };
 
   const copyUploadLink = async (linkId: string, targetKey: string, url: string) => {
@@ -285,7 +273,7 @@ export function UploadLinkList() {
               });
             } : undefined}
             onRename={openGroupEditor}
-            isMutating={isClosing || isArchiving || isRestoring || isRenaming}
+            isMutating={isClosing || isArchiving || isRestoring}
             compact
           />
         )}
@@ -295,7 +283,7 @@ export function UploadLinkList() {
         className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
         aria-labelledby="archived-group-links-heading"
       >
-        <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3.5 sm:px-5">
+        <div className={`flex items-center justify-between gap-3 px-4 py-3.5 sm:px-5 ${isArchivedExpanded ? "border-b border-slate-200" : ""}`}>
           <div>
 
             <h2 id="archived-group-links-heading" className="mt-0.5 font-semibold text-slate-950">
@@ -303,41 +291,60 @@ export function UploadLinkList() {
             </h2>
             <p className="mt-1 text-sm text-slate-500">Groups removed from active passport queues.</p>
           </div>
-          <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
-            {archivedLinks.length.toLocaleString()}
-          </span>
+          <div className="flex shrink-0 items-center gap-2">
+            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
+              {archivedLinks.length.toLocaleString()}
+            </span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              aria-label={isArchivedExpanded ? "Hide archived groups" : "Show archived groups"}
+              aria-expanded={isArchivedExpanded}
+              aria-controls="archived-group-links-content"
+              onClick={() => setIsArchivedExpanded((current) => !current)}
+            >
+              {isArchivedExpanded ? "Hide" : "Show"}
+              <ChevronDown
+                className={`h-4 w-4 transition-transform motion-reduce:transition-none ${isArchivedExpanded ? "rotate-180" : ""}`}
+                aria-hidden="true"
+              />
+            </Button>
+          </div>
         </div>
 
-        {isLoadingArchived ? (
-          <div className="p-5"><LoadingRows /></div>
-        ) : archivedLinks.length === 0 ? (
-          <WorkspaceEmptyState
-            title="No archived Group Links"
-            description="Groups moved out of active work will remain available here according to their retention choice."
-          />
-        ) : filteredArchivedLinks.length === 0 ? (
-          <WorkspaceEmptyState
-            filtered
-            title="No archived groups match this search"
-            description="Clear the shared Group Link search to restore archived history."
-          />
-        ) : (
-          <UploadLinkTable
-            caption="Archived Group Links"
-            links={filteredArchivedLinks}
-            copiedLinkKey={copiedLinkKey}
-            onCopy={copyUploadLink}
-            onRestore={(id) => restoreLink(id)}
-            onRename={openGroupEditor}
-            onPermanentDelete={(id) => {
-              resetPermanentDelete();
-              setDeleteTarget(archivedLinks.find((link) => link.id === id) ?? null);
-            }}
-            canPermanentlyDelete={canPermanentlyDelete}
-            isMutating={isRestoring || isRenaming || isPermanentlyDeleting}
-            compact
-          />
-        )}
+        <div id="archived-group-links-content" hidden={!isArchivedExpanded}>
+          {isLoadingArchived ? (
+            <div className="p-5"><LoadingRows /></div>
+          ) : archivedLinks.length === 0 ? (
+            <WorkspaceEmptyState
+              title="No archived Group Links"
+              description="Groups moved out of active work will remain available here according to their retention choice."
+            />
+          ) : filteredArchivedLinks.length === 0 ? (
+            <WorkspaceEmptyState
+              filtered
+              title="No archived groups match this search"
+              description="Clear the shared Group Link search to restore archived history."
+            />
+          ) : (
+            <UploadLinkTable
+              caption="Archived Group Links"
+              links={filteredArchivedLinks}
+              copiedLinkKey={copiedLinkKey}
+              onCopy={copyUploadLink}
+              onRestore={(id) => restoreLink(id)}
+              onRename={openGroupEditor}
+              onPermanentDelete={(id) => {
+                resetPermanentDelete();
+                setDeleteTarget(archivedLinks.find((link) => link.id === id) ?? null);
+              }}
+              canPermanentlyDelete={canPermanentlyDelete}
+              isMutating={isRestoring || isPermanentlyDeleting}
+              compact
+            />
+          )}
+        </div>
       </section>
 
       <ConfirmDialog
@@ -350,41 +357,7 @@ export function UploadLinkList() {
         onClose={() => setConfirmAction(null)}
         onConfirm={() => confirmAction?.onConfirm()}
       />
-      <EditGroupDialog
-        group={renameTarget}
-        name={renameValue}
-        settings={editSettings}
-        isLoading={isRenaming}
-        onNameChange={setRenameValue}
-        onSettingsChange={(patch) => setEditSettings((current) => ({ ...current, ...patch }))}
-        onClose={() => setRenameTarget(null)}
-        onConfirm={() => {
-          if (!renameTarget) return;
-          const nextName = renameValue.trim();
-          if (!renameTarget.import_only && getUploadLinkSettingsError(editSettings)) return;
-          const hasChanges = nextName !== renameTarget.name
-            || JSON.stringify(editSettings) !== JSON.stringify(getUploadLinkSettings(renameTarget));
-          if (!nextName || !hasChanges) {
-            setRenameTarget(null);
-            return;
-          }
-          renameLink(
-            {
-              id: renameTarget.id,
-              name: nextName,
-              destination: renameTarget.destination,
-              travel_date: renameTarget.travel_date,
-              return_date: renameTarget.return_date,
-              package_name: renameTarget.package_name,
-              timezone: renameTarget.timezone,
-              ...(renameTarget.import_only ? getImportOnlySettings() : editSettings),
-              departure_cities: editSettings.nearest_international_airport_enabled ? editSettings.departure_cities : [],
-              notes: renameTarget.notes,
-            },
-            { onSuccess: () => setRenameTarget(null) },
-          );
-        }}
-      />
+      {renameTarget && <EditGroupDialog key={renameTarget.id} group={renameTarget} onClose={() => setRenameTarget(null)} />}
       <GroupDeleteRetentionDialog
         group={deleteTarget}
         isLoading={isPermanentlyDeleting}
@@ -407,99 +380,6 @@ export function UploadLinkList() {
           );
         }}
       />
-    </div>
-  );
-}
-
-function EditGroupDialog({
-  group,
-  name,
-  settings,
-  isLoading,
-  onNameChange,
-  onSettingsChange,
-  onConfirm,
-  onClose,
-}: {
-  group: UploadLinkResponse | null;
-  name: string;
-  settings: UploadLinkSettingsValue;
-  isLoading: boolean;
-  onNameChange: (value: string) => void;
-  onSettingsChange: (patch: Partial<UploadLinkSettingsValue>) => void;
-  onConfirm: () => void;
-  onClose: () => void;
-}) {
-  const dialogRef = useRef<HTMLDivElement>(null);
-  const handleDialogKeyDown = useModalKeyboardBoundary({
-    dialogRef,
-    isOpen: Boolean(group),
-    canClose: !isLoading,
-    onClose,
-  });
-  if (!group) return null;
-  const settingsError = group.import_only ? undefined : getUploadLinkSettingsError(settings);
-
-  return (
-    <div
-      ref={dialogRef}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="edit-passport-group-title"
-      onKeyDown={handleDialogKeyDown}
-    >
-      <form
-        className="max-h-[90vh] w-full max-w-2xl overflow-hidden rounded-xl bg-white shadow-2xl animate-in fade-in zoom-in-95 duration-200"
-        onSubmit={(event) => {
-          event.preventDefault();
-          if (!isLoading && !settingsError && name.trim()) onConfirm();
-        }}
-      >
-        <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-6 py-4">
-          <div>
-            <h2 id="edit-passport-group-title" className="text-lg font-semibold text-slate-900">
-              Edit Group
-            </h2>
-            <p className="mt-1 text-sm leading-6 text-slate-600">
-              {group.import_only ? "Update the name of your Excel import group. Trip details can be edited in the group workspace." : "Update the group name and traveller passport-capture requirements."}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={isLoading}
-            className="rounded-full p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 disabled:cursor-not-allowed disabled:opacity-60"
-            aria-label="Close edit group dialog"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-        <div className="max-h-[calc(90vh-9rem)] space-y-4 overflow-y-auto px-6 py-5">
-          <Input
-            label="Group name"
-            value={name}
-            maxLength={100}
-            required
-            data-dialog-initial-focus
-            disabled={isLoading}
-            onChange={(event) => onNameChange(event.target.value)}
-          />
-          {!group.import_only && <UploadLinkSettings value={settings} onChange={onSettingsChange} disabled={isLoading} error={settingsError} />}
-        </div>
-        <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4">
-          <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            isLoading={isLoading}
-            disabled={!name.trim() || Boolean(settingsError) || isLoading}
-          >
-            Save changes
-          </Button>
-        </div>
-      </form>
     </div>
   );
 }
@@ -616,6 +496,7 @@ function UploadLinkTable({
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <h3 className="font-semibold text-slate-950">{link.name}</h3>
+                <CompanyAssignmentLabel group={link} />
                 {link.import_only && <span className="mt-1 inline-block rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">Excel import</span>}
                 {link.destination && (
                   <p className="mt-1 truncate text-xs text-slate-500">{link.destination}</p>
@@ -659,6 +540,7 @@ function UploadLinkTable({
               <tr key={link.id} className="transition-colors hover:bg-slate-50/50">
                 <td className="px-6 py-4">
                   <div className="font-medium text-slate-900">{link.name}</div>
+                  <CompanyAssignmentLabel group={link} />
                   {link.import_only && <span className="mt-1 inline-block rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">Excel import</span>}
                 </td>
                 <td className="px-6 py-4"><StatusPill status={link.status} /></td>
@@ -674,6 +556,10 @@ function UploadLinkTable({
       </div>
     </div>
   );
+}
+
+function CompanyAssignmentLabel({ group }: { group: UploadLinkResponse }) {
+  return <p className="mt-1 break-words text-xs text-slate-500">{group.company?.name ?? "Company not assigned"}{group.company?.status === "inactive" ? " · Inactive" : ""}</p>;
 }
 
 function StatusPill({ status }: { status: UploadLinkResponse["status"] }) {
@@ -808,7 +694,7 @@ function GroupDeleteRetentionDialog({
           >
             <div className="text-base font-semibold text-red-950">Delete passport records</div>
             <p className="mt-2 text-sm leading-6 text-red-800">
-              Permanently remove uploaded passport files and extracted records. The historical passport count for this group will still remain in total submissions.
+              Permanently remove uploaded passport files and extracted records.
             </p>
           </button>
         </div>

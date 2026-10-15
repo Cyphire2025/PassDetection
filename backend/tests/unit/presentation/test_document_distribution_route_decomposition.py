@@ -8,8 +8,8 @@ import inspect
 from app.presentation.api.v1.routes import (
     document_distribution,
     document_distribution_delivery_support,
-    document_distribution_manual_verification,
     document_distribution_manual_upload,
+    document_distribution_manual_verification,
     document_distribution_review_support,
     document_updates,
     traveller_welcome,

@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "status": "source_overlay_mechanical_probe_passed_not_final_image_qualification",
+  "fixture_source_sha256": {
+    "scripts/qa/probe_document_sender.py": "52a697315b28335ec2553237e8bd0f917e204f8c449a311bc3d8a59e9c619702"
+  },
+  "application_source_sha256": {
+    "backend/app/infrastructure/whatsapp/document_delivery_runtime.py": "995e3c43450e9ab3e6a82789c7df4456f0c02eb3f7280efbb49468c74d4a358a"
+  },
+  "fixture": {
+    "passed": true,
+    "rows": 700,
+    "slices": [
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      23
+    ],
+    "mock_sends": 698,
+    "mock_uploads": 698,
+    "peak_upload_concurrency": 4,
+    "provider_calls": 0,
+    "outcomes": {
+      "delivery_unknown": 1,
+      "submitted": 699
+    },
+    "pdf_buffer_bytes_each": 26214400,
+    "limitations": [
+      "Synthetic storage and provider; no external HTTP or delivery latency qualification."
+    ],
+    "worker_children": 1,
+    "celery_parent_imported": true,
+    "memory": {
+      "peak_bytes": 474226688,
+      "events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0"
+      }
+    }
+  },
+  "limits": {
+    "worker_memory_bytes": 1073741824,
+    "postgres_memory_bytes": 536870912,
+    "each_cpu": 0.5
+  },
+  "postgres_peak_bytes": 122953728,
+  "minimum_host_available_bytes": 8470650880,
+  "all_owned_resources_removed": true,
+  "production_changed": false,
+  "limitations": [
+    "Installed dependency image with candidate source overlay; exact final image qualification remains required.",
+    "Synthetic storage and provider functions; zero external provider calls.",
+    "The first upload wave is forced to retain four original25MiB buffers and four serialization copies simultaneously."
+  ]
+}

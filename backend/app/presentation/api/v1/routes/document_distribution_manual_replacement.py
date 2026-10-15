@@ -13,6 +13,7 @@ from app.domain.entities.entities import User
 from app.infrastructure.database.models import (
     DistributedDocumentModel,
     DocumentWhatsAppDeliveryModel,
+    UserModel,
 )
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
 from app.presentation.api.v1.routes.document_distribution_replacements import (
@@ -27,7 +28,7 @@ from app.presentation.api.v1.routes.document_distribution_storage import (
 async def supersede_passenger_documents(
     session: AsyncSession, *, agency_id: uuid.UUID, group_id: uuid.UUID,
     document_type: str, passenger_id: uuid.UUID, versions: list[ReplacementDocumentVersion],
-    replacement_id: uuid.UUID, actor: User,
+    replacement_id: uuid.UUID, actor: UserModel | User,
 ) -> tuple[uuid.UUID, ...]:
     ids = [version.id for version in versions]
     existing = list((await session.scalars(select(DistributedDocumentModel).where(

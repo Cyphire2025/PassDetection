@@ -427,6 +427,9 @@ class ClientGroup:
     agency_id: uuid.UUID
     status: GroupStatus
     created_by_user_id: uuid.UUID | None
+    company_id: uuid.UUID | None = None
+    company_revision: int = 0
+    company: dict[str, object] | None = None
     import_only: bool = False
     created_at: datetime = field(default_factory=_utcnow)
     closed_at: datetime | None = None
@@ -1175,8 +1178,15 @@ class PassportSubmission:
         custom_answers: list[CustomAnswerSnapshot] | None = None,
         custom_detail_answers: list[CustomDetailAnswerSnapshot] | None = None,
         allow_manual_submission: bool = False,
+        allow_returning_snapshot_review: bool = False,
     ) -> None:
-        if self.status.value in OFFICE_VISIBLE_PASSPORT_STATUS_VALUES:
+        returning_snapshot = (allow_returning_snapshot_review
+            and self.status == PassportProcessingStatus.CONFIRMED
+            and (self.staff_metadata or {}).get("reuse_assignment") == "automatic"
+            and self.client_reviewed_at is None and self.confirmed_at is None
+            and self.verification_reviewed_at is None and self.verification_reviewed_by_user_id is None
+            and self.post_submission_verified_at is None and self.post_submission_verification is None)
+        if self.status.value in OFFICE_VISIBLE_PASSPORT_STATUS_VALUES and not returning_snapshot:
             raise ValidationError(
                 "Passport details were already submitted.",
                 field="status",

@@ -35,6 +35,7 @@ export type RecipientImportPreview = {
   accepted_count?: number;
   recipients: RecipientImportContact[];
   rejected_count?: number;
+  rejected_counts?: Partial<Record<RecipientImportRejectionReasonCode, number>>;
   rejected_rows?: RecipientImportRejectedRow[];
   rejected_rows_truncated?: boolean;
   omitted_rejected_count?: number;

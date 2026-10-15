@@ -64,7 +64,7 @@ async def email_integration_status(
     current_user: User = Depends(_current_email_user),
 ) -> EmailIntegrationStatusResponse:
     del current_user
-    return EmailIntegrationStatusResponse(**email_readiness(get_settings()))
+    return EmailIntegrationStatusResponse.model_validate(email_readiness(get_settings()))
 
 
 @router.get("/connections", response_model=list[EmailConnectionResponse])

@@ -191,7 +191,7 @@ test("a temporary recovery failure retains the saved upload and retry restores i
   expect(newUploads).toBe(0);
 });
 
-test("AI service failure permits manual entry but reports awaiting staff review", async ({ page }) => {
+test("AI service failure permits manual entry for verification and respects the resulting staff-review status", async ({ page }) => {
   await seedSavedUpload(page);
   let submittedBody: Record<string, unknown> | undefined;
   await page.route("**/api/v1/**", async (route) => {
@@ -211,9 +211,9 @@ test("AI service failure permits manual entry but reports awaiting staff review"
   await mockPublicContactOtp(page);
   await page.goto(`/upload/${token}`);
   await verifyPublicContact(page);
-  await expect(page.getByRole("button", { name: "Submit for staff review", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Submit for AI verification", exact: true })).toBeVisible();
   await expect(page.getByText(/Automatic reading is unavailable/)).toBeVisible();
-  await page.getByRole("button", { name: "Submit for staff review", exact: true }).click();
+  await page.getByRole("button", { name: "Submit for AI verification", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Submitted — awaiting staff review" })).toBeVisible();
   expect(submittedBody).toMatchObject({ client_phone: "+919900001234", group_token: token, phone_verification_id: expect.any(String) });
   expect(submittedBody).not.toHaveProperty("manual_review_submission_allowed");

@@ -138,9 +138,9 @@ class MCPConnectionRequestService:
             )
         )
         if (
-            total >= GLOBAL_CREATION_LIMIT
-            or source_total >= SOURCE_CREATION_LIMIT
-            or active >= ACTIVE_REQUEST_LIMIT
+            (total or 0) >= GLOBAL_CREATION_LIMIT
+            or (source_total or 0) >= SOURCE_CREATION_LIMIT
+            or (active or 0) >= ACTIVE_REQUEST_LIMIT
         ):
             raise MCPAuthError("slow_down", 429)
         secret = new_credential("request")

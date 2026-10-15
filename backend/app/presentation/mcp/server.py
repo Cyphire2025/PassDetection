@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Callable
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime
+from typing import Any, TypeVar
 from urllib.parse import urlsplit
 
 from fastapi import FastAPI
@@ -111,13 +112,16 @@ class ConnectionTokenVerifier(TokenVerifier):
         )
 
 
+ToolFunction = TypeVar("ToolFunction", bound=Callable[..., Any])
+
+
 class ObservationalMCPServer(MCPServer):
     """Only explicitly reviewed observational names enter the SDK registry."""
 
-    def tool(self, *args, **kwargs):
+    def tool(self, *args: Any, **kwargs: Any) -> Callable[[ToolFunction], ToolFunction]:
         register = super().tool(*args, **kwargs)
 
-        def reviewed(function):
+        def reviewed(function: ToolFunction) -> ToolFunction:
             name = kwargs.get("name") or (args[0] if args else None) or function.__name__
             annotations = kwargs.get("annotations")
             if (
@@ -135,10 +139,10 @@ class ObservationalMCPServer(MCPServer):
 class ReviewedMCPServer(MCPServer):
     """Mixed releases expose only code-owned observational or effect adapters."""
 
-    def tool(self, *args, **kwargs):
+    def tool(self, *args: Any, **kwargs: Any) -> Callable[[ToolFunction], ToolFunction]:
         register = super().tool(*args, **kwargs)
 
-        def reviewed(function):
+        def reviewed(function: ToolFunction) -> ToolFunction:
             name = kwargs.get("name") or (args[0] if args else None) or function.__name__
             capability = (kwargs.get("meta") or {}).get("capability")
             if (name in READ_TOOL_SECTIONS and capability == "mcp:read"

@@ -139,7 +139,7 @@ async def test_postgresql_counts_above_export_ceiling_fixed_preview_and_website_
             for model in (PassportSubmissionModel, ClientGroupModel):
                 event.remove(model, "load", forbidden)
                 event.remove(model, "refresh", forbidden)
-        assert (result["total_passports"], result["pending_review"], result["confirmed"], result["active_links"]) == (174, 6, 6, 2)
+        assert (result["total_passports"], result["pending_review"], result["confirmed"], result["active_links"]) == (168, 6, 6, 2)
         assert len(statements) == 7 and not any(statement.lstrip().startswith(("insert", "update", "delete")) for statement in statements)
         preview = statements[-1].split("\nfrom")[0]
         assert "substr(" in preview and not any(name in preview for name in ("extracted_fields", "image_s3_key", "confirmed_fields"))
@@ -208,5 +208,5 @@ async def test_postgresql_blocked_read_deadline_cancels_and_retry_remains_safe(d
         await holder.rollback()
         monkeypatch.setattr(dashboard_reads, "DASHBOARD_READ_TIMEOUT_SECONDS", 10)
         result = await asyncio.wait_for(service(f, reader).get_summary(f.actor), 3)
-        assert result["total_passports"] == 174
+        assert result["total_passports"] == 168
         await assert_no_effects(reader, f)

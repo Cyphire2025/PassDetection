@@ -39,7 +39,7 @@ async def test_projection_omits_raw_documents_and_page_query_retains_staff_scope
     await repository.projection(group_id=group_id, user=user, include_deleted=False)
     statement = session.execute.call_args.args[0]
     selected = {column.key for column in statement.selected_columns}
-    assert selected == set(PassportViewProjection.__dataclass_fields__)
+    assert selected == set(PassportViewProjection.__dataclass_fields__) - {"staff_metadata"}
     assert not selected & {
         "image_s3_key",
         "mrz_raw",

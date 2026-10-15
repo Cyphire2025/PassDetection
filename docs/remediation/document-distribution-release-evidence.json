@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "qualified_at_utc": "2026-10-15T20:18:43Z",
+  "status": "isolated_backend_helper_passed_not_production_activation",
+  "deployment_kind": "document_distribution_updates_v1",
+  "source_schema": "0138_verified_portal_lookup",
+  "target_schema": "0140_document_update_context",
+  "source_sha256": {
+    "backend/scripts/document_distribution_release.py": "b1197a1096a9366b1db1b4ba47f00abb92905baa9f601d71f3d57f3d2ce5845e",
+    "backend/scripts/document_distribution_release_schema.py": "59f94c96a815ebe8c756229ce9951a081bf600f875c8258bed666d0763533d04",
+    "backend/scripts/release_document_distribution_upgrade.py": "49fe381cda75e7de4a4b400a1ef582b25a92952e7dbcef6adc31f1cdf0f48e21",
+    "backend/scripts/qualify_document_distribution_release.py": "4b4d52e3286b1ac2479bdd119d04f85dcb0ebb8dafc90fea6741716b550ffa85",
+    "backend/scripts/qualify_document_distribution_upgrade.py": "92a4448736734ed3bf59c196747191c0301efa968040c1ffe85657043dacbabe",
+    "backend/alembic/versions/0139_passenger_display_name.py": "03cc8479e1c97683515a2108e59b0396346cc840efa882edbc610c4e4e3712f7",
+    "backend/alembic/versions/0140_document_update_context.py": "bcf70232618b8c1bf6d0382314f72baa2dda7f2b28de5cf9082f553f890d18e6"
+  },
+  "checks": {
+    "original_source_baseline_retained": true,
+    "full_source_upgrade": true,
+    "intermediate_forward_resume": true,
+    "target_idempotency": true,
+    "invalid_baseline_rejected": true,
+    "held_lock_fails_closed": true,
+    "changed_historical_rows_rejected": true,
+    "changed_table_catalog_rejected": true,
+    "new_column_values_before_activation_rejected": true,
+    "orm_read_write_and_transaction_rollback": true,
+    "test_database_only_downgrade_and_reupgrade": true,
+    "automatic_release_downgrade": false
+  },
+  "resources": {
+    "postgres_memory_cap_bytes": 536870912,
+    "client_memory_cap_bytes": 536870912,
+    "each_cpu_limit": 0.5,
+    "postgres_peak_bytes": 140410880,
+    "client_peak_bytes": 174755840,
+    "minimum_host_available_bytes": 8975843328,
+    "oom_or_memory_limit_events": 0
+  },
+  "unit_checks": {
+    "release_policy_and_helper_tests_passed": 41,
+    "combined_display_name_and_release_tests_passed": 66
+  },
+  "cleanup": {
+    "all_owned_containers_and_data_removed": true,
+    "production_services_or_data_changed": false,
+    "messages_sent_or_resent": 0
+  },
+  "limitations": [
+    "Synthetic isolated PostgreSQL database only; no production migration or activation occurred.",
+    "Candidate source was mounted into the installed backend dependency image; this is not exact final image or signed Full CI qualification.",
+    "Host release orchestration and exact final resource/image validation are separately required."
+  ]
+}

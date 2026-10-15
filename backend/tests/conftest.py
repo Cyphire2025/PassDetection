@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import os
 from collections import defaultdict
+from types import SimpleNamespace
 
 import pytest
 from httpx import ASGITransport, AsyncClient
@@ -39,6 +40,7 @@ from app.core.config.settings import Settings  # noqa: E402
 from app.infrastructure.database.models import Base  # noqa: E402
 from app.infrastructure.database.session import get_db_session  # noqa: E402
 from app.main import create_application  # noqa: E402
+from tests import sqlite_uuid  # noqa: E402, F401 -- register test-only SQLite UUID DDL
 from tests.management_audit_fixtures import (  # noqa: E402
     forbid_global_management_audit_database as forbid_global_management_audit_database,
 )
@@ -48,6 +50,26 @@ from tests.management_audit_fixtures import (  # noqa: E402
 from tests.sqlite_trip_timezone import register_sqlite_trip_timezone  # noqa: E402
 
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
+
+
+@pytest.fixture(autouse=True)
+def isolate_mcp_export_admission(
+    monkeypatch: pytest.MonkeyPatch, request: pytest.FixtureRequest
+) -> None:
+    """Give independent tests separate lock files while preserving real admission."""
+    from app.core import mcp_export_admission
+
+    # Production deliberately shares one kernel lock across server processes.
+    # Independent xdist tests represent different applications and must not
+    # consume each other's slot. Resolve tmp_path lazily so tests that never
+    # export do not allocate a temporary directory. Do not patch the stdlib's
+    # tempfile module: native-image admission and other tempfiles are unrelated.
+    def export_tempdir() -> str:
+        return str(request.getfixturevalue("tmp_path"))
+
+    monkeypatch.setattr(
+        mcp_export_admission, "tempfile", SimpleNamespace(gettempdir=export_tempdir)
+    )
 
 
 @pytest.fixture(autouse=True)

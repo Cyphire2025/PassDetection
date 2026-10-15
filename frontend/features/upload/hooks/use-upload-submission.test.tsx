@@ -43,6 +43,19 @@ function deferred<T>() {
 beforeEach(() => { vi.resetAllMocks(); mocks.submit.mockResolvedValue(complete); mocks.refreshLink.mockResolvedValue({}); });
 
 describe("review submission controller", () => {
+  it("skips only a server-completed family source and submits a changed upload again", async () => {
+    const input = context();
+    const member = input.familyMembers[0];
+    member.submission = { ...member.submission!, extraction_revision: 3 };
+    member.reuseCompletion = { binding: { localId: member.localId, sourceSubmissionId: member.submission.id, extractionRevision: 3, uploadSessionId: member.uploadIdempotencyKey }, result: { status: "accepted", participation_id: "participation", source_submission_id: "reused-snapshot" } };
+    const { result, rerender } = harness(input);
+    await act(async () => { await result.current.submission.handleFamilySubmit(event()); });
+    expect(mocks.submit).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ submissionId: "saved-1" }));
+    mocks.submit.mockClear();
+    rerender({ ...input, familyMembers: input.familyMembers.map((item, index) => index === 0 ? { ...item, submission: { ...item.submission!, id: "new-upload" } } : item) });
+    await act(async () => { await result.current.submission.handleFamilySubmit(event()); });
+    expect(mocks.submit).toHaveBeenCalledWith(expect.objectContaining({ submissionId: "new-upload" }));
+  });
   it("sends only configured answers and cleans fields while retaining each contact credential", async () => {
     const input = context();
     input.settings.enabledCustomQuestions = [{ id: "enabled", label: "Question", enabled: true, options: ["Yes"] }];

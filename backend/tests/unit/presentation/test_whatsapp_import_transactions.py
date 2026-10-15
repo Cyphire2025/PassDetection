@@ -10,6 +10,7 @@ from fastapi import HTTPException
 
 from app.domain.entities.entities import UserRole
 from app.presentation.api.v1.routes import whatsapp as whatsapp_routes
+from app.presentation.api.v1.routes import whatsapp_recipient_additions
 from app.presentation.api.v1.routes.whatsapp import (
     WhatsAppRecipientInput,
     _lock_active_whatsapp_actor,
@@ -22,6 +23,8 @@ from tests.route_dependencies import patch_route_dependency, set_route_dependenc
 
 @pytest.fixture(autouse=True)
 def _isolate_mobile_passenger_reconciliation(monkeypatch: pytest.MonkeyPatch) -> None:
+    for name in ("prepare_broadcast_history_refresh", "require_current_broadcast_history_scope", "finish_broadcast_history_refresh"):
+        monkeypatch.setattr(whatsapp_recipient_additions, name, AsyncMock())
     set_route_dependency(
         monkeypatch,
         whatsapp_routes,
@@ -174,6 +177,7 @@ async def test_add_recipients_parses_before_tenant_group_lock() -> None:
     )
     query_results = iter([_scalar_result(group), _scalars_result([])])
     session = MagicMock()
+    session.scalar = AsyncMock(return_value=group)
 
     async def rollback() -> None:
         events.append("rollback_auth_transaction")

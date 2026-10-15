@@ -39,6 +39,7 @@ export function formatPassportCountry(value: string | null | undefined) {
   if (!trimmed) return "";
 
   const code = trimmed.toUpperCase();
+  if (code === "UNK") return "Not recorded";
   const iso2 = code.length === 2
     ? code
     : code.length === 3

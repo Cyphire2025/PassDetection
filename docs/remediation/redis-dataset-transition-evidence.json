@@ -1,0 +1,80 @@
+{
+  "date_utc": "2026-10-15T20:03:08.712198+00:00",
+  "production_changes": false,
+  "scope": "Sequential isolated installed-image fixtures; current production retained-update executor is not extended",
+  "cleanup": "Exact uniquely labelled containers and volumes removed; temporary candidate source and synthetic checkpoints removed",
+  "admission_refusals": [{"service": "redis-cache", "measured_used_memory_bytes": 128077184, "target_maxmemory_bytes": 134217728, "required_headroom_percent": 10, "result": "refused before cache restart; fixture cleaned"}],
+  "initial_host_available_gib": 8.69,
+  "final_host_available_gib": 8.62,
+  "rows": [
+    {
+      "service": "redis-broker",
+      "passed": true,
+      "keys": 7,
+      "types": [
+        "string",
+        "list",
+        "hash",
+        "set",
+        "zset"
+      ],
+      "databases": 16,
+      "absolute_ttl_preserved": true,
+      "same_data_volume": true,
+      "replacement_interruption_recovered": true,
+      "memory_after": {
+        "current": 3526656,
+        "oom": 0,
+        "oom_kill": 0
+      },
+      "cap_mib": 896,
+      "replacement_peak_mib": 8.59,
+      "cache_fill_used_memory_bytes": null,
+      "used_memory_after_fingerprint": 1561576,
+      "large_cache_value_bytes": null
+    },
+    {
+      "service": "redis-cache",
+      "passed": true,
+      "keys": 2184,
+      "types": [
+        "string",
+        "list",
+        "hash",
+        "set",
+        "zset"
+      ],
+      "databases": 16,
+      "absolute_ttl_preserved": true,
+      "same_data_volume": true,
+      "replacement_interruption_recovered": true,
+      "memory_after": {
+        "current": 103129088,
+        "oom": 0,
+        "oom_kill": 0
+      },
+      "cap_mib": 192,
+      "replacement_peak_mib": 107.86,
+      "cache_fill_used_memory_bytes": 94188608,
+      "used_memory_after_fingerprint": 111211600,
+      "large_cache_value_bytes": 3145728
+    }
+  ],
+  "limitations": [
+    "Small synthetic fixtures test preservation and interruption recovery; pressure tested separately.",
+    "Exact final release qualification and guarded idle activation remain pending."
+  ],
+  "source_sha256": {
+    "release_persistent_resources.py": "189b66136952aed3e32c3a74e689af0afa58468da43078c241330e23e5f647ff",
+    "release_redis_dataset_transition.py": "2a38e254b492a57f4ccae5ffd41a8857cd255b68402fd0cfd582530a8c78ceac",
+    "release_resource_fence.py": "1de8c4d88662369deb9321e0f13d4b64a8fa4ebdee4e5a2fa792211a0889649b",
+    "release_resource_budget.py": "d132cb6cd8ab6a52aaea058bc5c9be17cae986eab30b7e8d68412696e0e334a0",
+    "release_resource_profile.py": "bd705c6cad063fd871da912ae6c99b08eb5070d5b014cec10fca590bd5f7d0a8",
+    "release_traveller_whatsapp.py": "bc9bc3f27c9c65914dd00c582ce6abd03fc1e18564e8e222ca79f7d03ff4ba32",
+    "verify_deployment_resource_budget.py": "ddf0a209830530097c854f228ad43cdb61b2112d5c839903cc8ebe43c28e50a4",
+    "image_runtime_policy.py": "e5ddf0e10283ef896249ccfaf59c608cef5d2827e6a36bce3385f55df93f7320",
+    "storage_writer_fence.py": "d6d6ef96b95005318d72a19219d6ae42ba6849fe13841d8cb3f24c57eaee69ce",
+    "release_network_identity.py": "39f3b49133e410dc9bd6753565205744c60a581490f52f8990af326330aadd9e",
+    "qualify_redis_dataset_transition.py": "97fbeb81774c34a6868822492bacdb814b9b30b912585750cdccf5fc66942869"
+  }
+}

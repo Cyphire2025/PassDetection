@@ -58,6 +58,14 @@ def main() -> None:
         raise RuntimeError("Unneeded video APIs or FFmpeg survived the restricted image build")
     parser_checks = {}
     if args.require_patched_parsers:
+        from expat_runtime_security import probe_expat_security
+        from python_runtime_security import probe_python_security
+
+        python_security = probe_python_security()
+        xml_security = probe_expat_security()
+        security_packages = json.loads(subprocess.check_output([
+            sys.executable, "/usr/local/share/passdetection/verify_runtime_security_packages.py",
+        ], text=True))
         import io
         import pyexpat
         import xml.etree.ElementTree as ET
@@ -116,7 +124,7 @@ def main() -> None:
         languages = subprocess.check_output(["tesseract", "--list-langs"], text=True)
         if not {"eng", "osd"} <= set(languages.splitlines()):
             raise RuntimeError("Required English and orientation OCR data is missing")
-        parser_checks = {"expat": pyexpat.EXPAT_VERSION, "utf16_negatives": 4,
+        parser_checks = {**security_packages, **python_security, **xml_security, "expat": pyexpat.EXPAT_VERSION, "utf16_negatives": 4,
                          "tarfile_hardlink_relocation_negatives": 2,
                          "xlsx_round_trip": True, "ocr_url_archive_dependencies_absent": True,
                          "ocr_languages": ["eng", "osd"], "tesseract": str(pytesseract.get_tesseract_version())}

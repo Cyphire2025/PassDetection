@@ -10,12 +10,15 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import gc
 import hashlib
 import io
 import json
 import multiprocessing
 import os
 import statistics
+import subprocess
+import sys
 import time
 from pathlib import Path
 
@@ -148,6 +151,7 @@ def _probe_child_identity(job, _per_file_seconds):
 
 def _probe_child_memory(job, _per_file_seconds):
     import resource
+
     from app.infrastructure.documents import pdf_parser_sandbox as sandbox
 
     assert resource.getrlimit(resource.RLIMIT_AS) == (sandbox.PDF_PARSER_MEMORY_BYTES,) * 2
@@ -218,9 +222,73 @@ def safety_probes(directory: Path) -> None:
         "bad_pdfs_fail_closed_in_order": True, "no_active_parser_children": True}), flush=True)
 
 
+def idle_parent(directory: Path, method: str) -> None:
+    from app.infrastructure.documents import (
+        document_matcher,  # noqa: F401 -- API imports this before parsing
+    )
+    from app.infrastructure.documents import pdf_parser_sandbox as sandbox
+
+    original_context = multiprocessing.get_context
+    if method == "forkserver":
+        multiprocessing.set_forkserver_preload(["app.infrastructure.documents.document_matcher"])
+    if method != "native":
+        sandbox.multiprocessing.get_context = lambda _method: original_context(method)
+    print(json.dumps({"ready": True}), flush=True)
+    for command in sys.stdin:
+        if command.strip() == "stop":
+            return
+        assert command.strip() == "run"
+        jobs = _jobs(directory)
+        timings, signatures, counts = [], [], []
+        for _ in range(2):
+            start = time.monotonic()
+            results = sandbox._classify_pdf_batch_admitted(jobs, batch_timeout_seconds=90, per_file_timeout_seconds=10)
+            timings.append(round(time.monotonic() - start, 4))
+            signatures.append(hashlib.sha256(json.dumps(results, sort_keys=True).encode()).hexdigest())
+            counts.append(sum(bool(result["accepted"]) for result in results))
+        del jobs, results
+        gc.collect()
+        print(json.dumps({"seconds": timings, "signatures": signatures, "accepted": counts,
+            "active_parser_children": len(multiprocessing.active_children())}), flush=True)
+
+
+def idle_comparison(directory: Path, method: str) -> None:
+    parents = []
+    memory_file = Path("/sys/fs/cgroup/memory.current")
+    try:
+        for _ in range(4):
+            process = subprocess.Popen([sys.executable, __file__, "idle_parent", "--fixtures", str(directory), "--method", method],
+                stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
+            parents.append(process)
+            assert json.loads(process.stdout.readline())["ready"]
+        time.sleep(2)
+        before = int(memory_file.read_text())
+        results, retained_bytes = [], []
+        for process in parents:
+            process.stdin.write("run\n")
+            process.stdin.flush()
+            results.append(json.loads(process.stdout.readline()))
+            time.sleep(1)
+            retained_bytes.append(int(memory_file.read_text()))
+        # Keep all four independent parent interpreters alive while measuring.
+        time.sleep(5)
+        after = int(memory_file.read_text())
+        print(json.dumps({"phase": "four_parent_idle", "method": method,
+            "initial_idle_memory_bytes": before, "after_each_parent_memory_bytes": retained_bytes,
+            "final_idle_memory_bytes": after, "per_parent_results": results,
+            "parent_scope": "parser and matcher imports; full API application excluded"}), flush=True)
+    finally:
+        for process in parents:
+            if process.poll() is None:
+                process.stdin.write("stop\n")
+                process.stdin.flush()
+        for process in parents:
+            process.wait(timeout=10)
+
+
 if __name__ == "__main__":
     cli = argparse.ArgumentParser(description=__doc__)
-    cli.add_argument("phase", choices=["generate", "parser", "scan", "scan_compare", "safety"])
+    cli.add_argument("phase", choices=["generate", "parser", "scan", "scan_compare", "safety", "idle_parent", "idle_compare"])
     cli.add_argument("--fixtures", type=Path, default=Path("/bench/fixtures"))
     cli.add_argument("--method", choices=["spawn", "forkserver", "native"], default="spawn")
     cli.add_argument("--concurrency", type=int, choices=[1, 2], default=1)
@@ -237,5 +305,9 @@ if __name__ == "__main__":
         asyncio.run(compare_scans(args.fixtures, args.scanner_host, args.runs))
     elif args.phase == "safety":
         safety_probes(args.fixtures)
+    elif args.phase == "idle_parent":
+        idle_parent(args.fixtures, args.method)
+    elif args.phase == "idle_compare":
+        idle_comparison(args.fixtures, args.method)
     else:
         asyncio.run(scans(args.fixtures, args.scanner_host, args.concurrency, args.runs))

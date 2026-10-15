@@ -13,6 +13,7 @@ async function prepareLink(page: Page, methods: Methods) {
     const request = route.request();
     const pathname = new URL(request.url()).pathname;
     const json = (body: unknown, status = 200) => route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
+    if (pathname === "/api/v1/returning/capabilities" && request.method() === "GET") return json({ enabled: false, code_label: null });
     if (pathname === `/api/v1/upload-links/token/${token}`) return json({
       id: "qualifier-test-group", name: "Dubai Client Group", token, agency_id: "test-agency",
       status: "active", created_at: "2026-09-08T00:00:00Z", destination: "Dubai",

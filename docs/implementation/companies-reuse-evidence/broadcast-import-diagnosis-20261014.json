@@ -1,0 +1,151 @@
+{
+  "cases": [
+    {
+      "count": 1,
+      "newest_created": "2026-10-14 08:36:44.258178+00:00",
+      "newest_resolved": "2026-10-14 08:42:43.392354+00:00",
+      "reason_code": "automatic_group_assignment",
+      "source_kind": "whatsapp_recipient",
+      "status": "resolved"
+    },
+    {
+      "count": 1,
+      "newest_created": "2026-10-14 08:36:44.258183+00:00",
+      "newest_resolved": null,
+      "reason_code": "exact_name_required",
+      "source_kind": "whatsapp_rejected",
+      "status": "conflicting"
+    }
+  ],
+  "checked_at": "2026-10-14T09:27:41.331266+00:00",
+  "current_link": [
+    {
+      "created_at": "2026-10-14 08:42:40.035555+00:00"
+    }
+  ],
+  "identity_dry_run": {
+    "additional_rejected_sources_excluded_by_limit": true,
+    "conflicting_signal_counts": {},
+    "diagnostic_patterns": {
+      "matching_types:birth_date,name,passport,phone": 100
+    },
+    "distinct_matched_people": 100,
+    "field_key_presence": {
+      "age_group": 100,
+      "designation": 100,
+      "destination": 100,
+      "dob": 100,
+      "doe": 100,
+      "doi": 100,
+      "ecr": 9,
+      "gender": 100,
+      "given_names": 100,
+      "group": 100,
+      "meal_preference": 100,
+      "nationality": 100,
+      "passport_number": 100,
+      "phone_number": 100,
+      "place_of_issue": 100,
+      "return_date": 100,
+      "source_file": 100,
+      "source_order": 100,
+      "source_row": 100,
+      "source_sheet": 100,
+      "staff_code": 100,
+      "surname": 90,
+      "travel_departure_date": 100,
+      "upload_email": 100,
+      "whatsapp_email": 99
+    },
+    "identity_outcomes": {
+      "matched:exact_three_type_match": 100
+    },
+    "newest_source_created": "2026-10-14 09:19:32.298867+00:00",
+    "oldest_source_created": "2026-10-14 07:11:30.019506+00:00",
+    "signal_presence": {
+      "birth_date": 100,
+      "code": 100,
+      "name": 100,
+      "passport": 100,
+      "phone": 100
+    },
+    "source_kinds": {
+      "whatsapp_recipient": 100
+    },
+    "sources_selected": 100,
+    "valid_recipient_sample_complete": true
+  },
+  "import_audit": [],
+  "jobs": [
+    {
+      "attempt_count": 0,
+      "completed_at": "2026-10-14 08:42:43.392354+00:00",
+      "created_at": "2026-10-14 08:42:40.065889+00:00",
+      "idempotency_key": "company-group:g:3:1",
+      "last_error_code": null,
+      "processed_count": 2,
+      "status": "succeeded"
+    },
+    {
+      "attempt_count": 0,
+      "completed_at": "2026-10-14 08:39:33.864590+00:00",
+      "created_at": "2026-10-14 08:38:17.017270+00:00",
+      "idempotency_key": "company-history:m:3:31d4f572519cee6f590760c5",
+      "last_error_code": null,
+      "processed_count": 0,
+      "status": "succeeded"
+    },
+    {
+      "attempt_count": 0,
+      "completed_at": "2026-10-14 08:37:41.245225+00:00",
+      "created_at": "2026-10-14 08:37:41.228236+00:00",
+      "idempotency_key": "company-history:p:0:e4295933d2d3d8fb2bc44238",
+      "last_error_code": null,
+      "processed_count": 2,
+      "status": "succeeded"
+    },
+    {
+      "attempt_count": 0,
+      "completed_at": "2026-10-14 08:37:41.203766+00:00",
+      "created_at": "2026-10-14 08:37:41.153517+00:00",
+      "idempotency_key": "company-history:r:3:31d4f572519cee6f590760c5",
+      "last_error_code": null,
+      "processed_count": 2,
+      "status": "succeeded"
+    }
+  ],
+  "matching_source_limit": 100,
+  "read_only": true,
+  "recipient_population": [
+    {
+      "active_manual": 100,
+      "newest_created": "2026-10-14 09:19:32.298867+00:00",
+      "oldest_created": "2026-10-14 07:11:30.019506+00:00",
+      "source_managed": 0,
+      "total": 100
+    }
+  ],
+  "rejected_metadata": [
+    {
+      "count": 100,
+      "has_upload_email": 100,
+      "has_whatsapp_email": 100,
+      "phone_equals_upload_email": 86,
+      "phone_equals_whatsapp_email": 100
+    }
+  ],
+  "rejected_population": [
+    {
+      "count": 100,
+      "newest_created": "2026-10-14 09:19:32.298867+00:00",
+      "oldest_created": "2026-10-14 07:11:30.019506+00:00",
+      "phone_contains_at": 100,
+      "reason_code": "invalid_phone"
+    }
+  ],
+  "target_submissions": [
+    {
+      "count": 1
+    }
+  ]
+}

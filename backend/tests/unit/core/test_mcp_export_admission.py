@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import multiprocessing
 import os
+import tempfile
 import threading
 from pathlib import Path
 
@@ -69,6 +70,28 @@ async def _try_entry(directory):
             return "entered"
     except admission.ExportAdmissionBusy:
         return "busy"
+
+
+async def test_default_test_slot_is_private_but_preserves_real_task_exclusion(tmp_path):
+    directory = tmp_path / "passdetection-mcp-exports-v1"
+    assert Path(tempfile.gettempdir()) != tmp_path
+
+    async def default_entry():
+        try:
+            with admission.export_slot():
+                return "entered"
+        except admission.ExportAdmissionBusy:
+            return "busy"
+
+    with admission.export_slot():
+        assert (directory / "execute.lock").is_file()
+        # Imported aliases and the application decorator use this same real
+        # kernel lease, while unrelated xdist workers have their own directory.
+        assert await asyncio.create_task(default_entry()) == "busy"
+        assert await asyncio.create_task(_try_entry(directory)) == "busy"
+        with admission.export_slot():
+            pass
+    assert await asyncio.create_task(default_entry()) == "entered"
 
 
 async def test_same_task_reentry_never_authorizes_an_inherited_child_task(tmp_path):

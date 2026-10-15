@@ -121,6 +121,8 @@ def group_creation_operation(
         return MCPDatabaseResult(
             {
                 "group_id": str(result.id),
+                "company_id": str(result.company_id),
+                "company_revision": result.company_revision,
                 "name": result.name,
                 "agency_id": str(agency.id),
                 "owner_user_id": str(owner.id),

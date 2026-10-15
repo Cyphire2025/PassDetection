@@ -1,0 +1,29 @@
+{
+  "database_access": false,
+  "passed": true,
+  "provider_calls": false,
+  "results": [
+    {
+      "all_source_people_retained": true,
+      "elapsed_seconds": 0.13,
+      "email_metadata_preserved": true,
+      "people": 100,
+      "rejected_reason_counts": {},
+      "shared_phone_pairs": false,
+      "valid_contacts": 100
+    },
+    {
+      "all_source_people_retained": true,
+      "elapsed_seconds": 0.095,
+      "email_metadata_preserved": true,
+      "people": 100,
+      "rejected_reason_counts": {
+        "duplicate_phone": 50
+      },
+      "shared_phone_pairs": true,
+      "valid_contacts": 50
+    }
+  ],
+  "running_backend_image": "sha256:ce3f48626c8028ea42bb10723edfcbce4b113d577cfd2d0b7536039888e7ea87",
+  "synthetic_only": true
+}

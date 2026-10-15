@@ -14,7 +14,13 @@ import {
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { AppearanceSettings } from "./appearance-settings";
-import { PlatformSettingsPanel } from "./platform-settings-panel";
+
+const PlatformSettingsPanel = dynamic(
+  () => import("./platform-settings-panel").then((module) => module.PlatformSettingsPanel),
+  {
+    loading: () => <div role="status" className="p-6 text-sm text-slate-500">Loading platform settings…</div>,
+  },
+);
 
 const WhatsAppTemplateSettingsPanel = dynamic(
   () => import("./whatsapp-template-settings-panel").then(
@@ -66,6 +72,7 @@ type Section = (typeof SECTIONS)[number]["id"];
 export function DashboardSettingsPage() {
   const [section, setSection] = useState<Section>("appearance");
   const [templatesVisited, setTemplatesVisited] = useState(false);
+  const [policiesVisited, setPoliciesVisited] = useState(false);
   const user = useAuthStore(selectUser);
   const canViewTemplates = user?.role === "super_admin" || user?.role === "agency_admin";
   return (
@@ -88,6 +95,7 @@ export function DashboardSettingsPage() {
               onClick={() => {
                 setSection(id);
                 if (id === "whatsapp") setTemplatesVisited(true);
+                if (id === "policies" || id === "data") setPoliciesVisited(true);
               }}
               className={`flex items-start gap-3 rounded-xl px-4 py-3.5 text-left transition ${section === id ? "bg-white shadow-sm ring-1 ring-slate-200" : "hover:bg-slate-100"}`}
             >
@@ -107,12 +115,13 @@ export function DashboardSettingsPage() {
         </nav>
         <div className="min-w-0" aria-live="polite">
           {section === "appearance" && <AppearanceSettings />}
-          {/* Preserve policy drafts while another settings section is open. */}
-          <div hidden={section !== "policies" && section !== "data"}>
+          {/* Load policy data on demand, preserving drafts within this authority. */}
+          {policiesVisited && <div hidden={section !== "policies" && section !== "data"}>
             <PlatformSettingsPanel
+              key={`${user?.id}:${user?.role}:${user?.agency_id}`}
               section={section === "data" ? "data" : "policies"}
             />
-          </div>
+          </div>}
           <VisitedTemplateSettings
             visited={templatesVisited}
             authorized={canViewTemplates}

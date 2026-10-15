@@ -312,53 +312,8 @@ def _install_fake_pool(monkeypatch, pool: _FakePool) -> None:
     monkeypatch.setattr(
         pdf_parser_sandbox.multiprocessing,
         "get_context",
-        lambda method: SimpleNamespace(
-            Pool=lambda **_kwargs: pool if method in {"spawn", "forkserver"} else None
-        ),
+        lambda method: SimpleNamespace(Pool=lambda **_kwargs: pool if method == "spawn" else None),
     )
-
-
-@pytest.mark.parametrize("platform, method", [("linux", "forkserver"), ("win32", "spawn"), ("darwin", "spawn")])
-def test_parser_context_reuses_only_clean_imports_on_linux(monkeypatch, platform, method):
-    preloads = []
-    methods = []
-    context = object()
-    monkeypatch.setattr(pdf_parser_sandbox.sys, "platform", platform)
-    monkeypatch.setattr(pdf_parser_sandbox.multiprocessing, "set_forkserver_preload", preloads.append)
-
-    def get_context(selected_method):
-        methods.append(selected_method)
-        return context
-
-    monkeypatch.setattr(pdf_parser_sandbox.multiprocessing, "get_context", get_context)
-    assert pdf_parser_sandbox._parser_process_context() is context
-    assert methods == [method]
-    assert preloads == ([["app.infrastructure.documents.document_matcher"]] if platform == "linux" else [])
-
-
-def test_each_batch_creates_and_joins_fresh_bounded_parser_children(monkeypatch):
-    pools = []
-    arguments = []
-
-    def new_pool(**kwargs):
-        arguments.append(kwargs)
-        pool = _FakePool(lambda args: _ReadyResult((args[0][0], pdf_parser_sandbox._failed_payload(args[0][1], "fixture"))))
-        pools.append(pool)
-        return pool
-
-    monkeypatch.setattr(pdf_parser_sandbox, "_parser_process_context", lambda: SimpleNamespace(Pool=new_pool))
-    for _ in range(2):
-        pdf_parser_sandbox._classify_pdf_batch_admitted(
-            [(f"{i}.pdf", _blank_pdf(), "visa") for i in range(7)],
-            batch_timeout_seconds=45,
-            per_file_timeout_seconds=10,
-        )
-    assert len(pools) == 2
-    assert pools[0] is not pools[1]
-    assert all(pool.closed and pool.joined for pool in pools)
-    assert all(args["processes"] == 2 for args in arguments)
-    assert all(args["initializer"] is pdf_parser_sandbox._configure_parser_process for args in arguments)
-    assert all(args["initargs"] == (45,) for args in arguments)
 
 
 def test_hard_cumulative_timeout_terminates_unfinished_pool(monkeypatch) -> None:

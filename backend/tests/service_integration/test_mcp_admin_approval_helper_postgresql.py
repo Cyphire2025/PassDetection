@@ -18,6 +18,8 @@ from sqlalchemy import URL, text
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.pool import NullPool
 
+from tests.release_source_fixtures import admin_approval_source
+
 pytestmark = [
     pytest.mark.service_integration,
     pytest.mark.skipif(
@@ -31,7 +33,9 @@ TARGET = "0125_mcp_connection_requests"
 
 
 @pytest.mark.parametrize("control_enabled", [True, False])
-async def test_exact_helper_upgrade_rejection_lock_retry_and_target_retry(control_enabled):
+async def test_exact_helper_upgrade_rejection_lock_retry_and_target_retry(control_enabled, tmp_path):
+    historical_source = admin_approval_source(ROOT, tmp_path / "source")
+    historical_backend = historical_source / "backend"
     host = os.environ.get("POSTGRES_HOST", "localhost")
     source = os.environ["POSTGRES_DB"]
     if host not in {"localhost", "127.0.0.1", "postgres", "db"} or (
@@ -57,18 +61,18 @@ async def test_exact_helper_upgrade_rejection_lock_retry_and_target_retry(contro
     }
     contract = runpy.run_path(str(ROOT / "scripts/release_mcp_admin_approval_contract.py"))[
         "source_contract"
-    ](ROOT)
+    ](historical_source)
 
     async def process(arguments, *, env=None):
         child = await asyncio.create_subprocess_exec(
-            sys.executable, *arguments, cwd=BACKEND, env=environment if env is None else env,
+            sys.executable, *arguments, cwd=historical_backend, env=environment if env is None else env,
             stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT,
         )
         output, _ = await asyncio.wait_for(child.communicate(), 90)
         return child.returncode, output.decode("utf-8", errors="replace")
 
     async def helper(value=None, *, env=None):
-        migration = BACKEND / "alembic/versions" / f"{TARGET}.py"
+        migration = historical_backend / "alembic/versions" / f"{TARGET}.py"
         frozen_hash = contract["migrations"][0]["sha256"]
         assert hashlib.sha256(migration.read_bytes()).hexdigest() == frozen_hash, (
             "qualification_migration_source_changed"

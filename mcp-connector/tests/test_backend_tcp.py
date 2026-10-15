@@ -67,6 +67,8 @@ async def backend_tcp(tmp_path, monkeypatch):
     from app.application.mcp.authorization import MCPAuthorizationService
     from app.core.config.mcp import MCPSettings
     from app.core.config.settings import Settings
+    from app.domain.mcp_read_sections import SUPPORTED_READ_SECTIONS
+    from app.domain.mcp_section_permissions import SUPPORTED_WRITE_SECTIONS, WRITE_TOOL_SECTIONS
     from app.infrastructure.database.mcp_models import MCPControlModel
     from app.infrastructure.database.model_registry import Base
     from app.infrastructure.database.models import UserModel, UserSecurityStateModel
@@ -114,7 +116,14 @@ async def backend_tcp(tmp_path, monkeypatch):
                     mfa_secret_ciphertext="fixture",
                     mfa_enabled_at=now,
                 ),
-                MCPControlModel(id=1, enabled=True),
+                # This synthetic connection explicitly opts into the reviewed
+                # transfer/export policies; deployed controls stay default-denied.
+                MCPControlModel(
+                    id=1, enabled=True, read_enabled=True, write_enabled=True,
+                    allowed_read_sections=sorted(SUPPORTED_READ_SECTIONS),
+                    allowed_write_sections=sorted(SUPPORTED_WRITE_SECTIONS),
+                    allowed_write_tools=sorted(WRITE_TOOL_SECTIONS),
+                ),
             ]
         )
         await session.flush()
@@ -128,6 +137,9 @@ async def backend_tcp(tmp_path, monkeypatch):
             challenge=attempt.challenge,
             scopes=["mcp:read", "mcp:upload", "mcp:export"],
             name="Isolated connector TCP fixture",
+            write_enabled=True,
+            allowed_read_sections=sorted(SUPPORTED_READ_SECTIONS),
+            allowed_write_sections=sorted(SUPPORTED_WRITE_SECTIONS),
         )
         await session.commit()
 

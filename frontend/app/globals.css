@@ -1,5 +1,28 @@
 @import "tailwindcss";
 
+.traveller-portal {
+  --traveller-canvas-color: #f8fbff;
+  position: relative;
+  isolation: isolate;
+  background-color: var(--traveller-canvas-color);
+}
+.traveller-portal::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-color: var(--traveller-canvas-color);
+  background-image: url('/images/traveller/traveller-portal-4k.webp');
+  background-position: center;
+  /* Preserve every artwork edge, including on short landscape screens. */
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+@media (orientation: portrait) {
+  .traveller-portal::before { background-image: url('/images/traveller/traveller-portal-portrait-4k.webp'); }
+}
+
 /* ── Design Tokens ──────────────────────────────────────────────────────── */
 :root {
   /* Brand */

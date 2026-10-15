@@ -15,9 +15,11 @@ from app.application.mcp.credentials import utc
 from app.application.mcp.read_context import MCPReadContext
 from app.application.use_cases.passports.client_details_fields import saved_field_value
 from app.application.use_cases.whatsapp.group_submission_matching import (
+    SubmissionMatchRow,
     normalize_matching_field_key,
     summarize_match_rows,
 )
+from app.domain.entities.entities import PassportSubmission
 from app.domain.value_objects.phone_number import normalize_phone_number
 from app.infrastructure.database.models import WhatsAppBroadcastRecipientModel
 from app.infrastructure.repositories.sensitive_read_audit import record_sensitive_read
@@ -25,9 +27,11 @@ from app.infrastructure.repositories.sensitive_read_audit import record_sensitiv
 MAX_PAGE_BYTES = 24000
 
 
-def compare_matched_phones(rows, submissions, recipients, broadcast_id):
+def compare_matched_phones(rows: list[SubmissionMatchRow], submissions: dict[UUID, PassportSubmission], recipients: dict[UUID, WhatsAppBroadcastRecipientModel], broadcast_id: UUID) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     """Never create a new identity match or resolve an ambiguous submission party."""
-    differences, compared, identical, missing, invalid = [], set(), 0, 0, 0
+    differences: list[dict[str, Any]] = []
+    compared: set[tuple[UUID, UUID]] = set()
+    identical, missing, invalid = 0, 0, 0
     selected = [row for row in rows if broadcast_id in row.broadcast_ids]
     for row in selected:
         if row.status != "submitted" or row.confidence != "high" or len(row.submission_ids) != 1:
@@ -81,9 +85,9 @@ def compare_matched_phones(rows, submissions, recipients, broadcast_id):
     }
 
 
-def difference_page(items, *, offset, page_size):
+def difference_page(items: list[dict[str, Any]], *, offset: int, page_size: int) -> tuple[list[dict[str, Any]], int | None]:
     """Keep every returned comparison complete, and bound encoded UTF-8 size."""
-    chosen = []
+    chosen: list[dict[str, Any]] = []
     for item in items[offset:offset + page_size]:
         candidate = [*chosen, item]
         if len(json.dumps(candidate, ensure_ascii=True, allow_nan=False).encode()) > MAX_PAGE_BYTES:

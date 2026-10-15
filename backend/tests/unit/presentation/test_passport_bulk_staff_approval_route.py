@@ -58,6 +58,10 @@ def _use_request_actor_for_route_behavior_tests(monkeypatch: pytest.MonkeyPatch)
         "app.presentation.api.v1.routes.passport_routes.bulk_actions.propagate_mobile_passenger_change",
         AsyncMock(),
     )
+    monkeypatch.setattr(
+        "app.application.travellers.history_schedule.schedule_submission_history",
+        AsyncMock(),
+    )
 
 
 def _user(*, role: UserRole = UserRole.SUPER_ADMIN) -> User:

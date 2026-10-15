@@ -204,18 +204,25 @@ describe("configured passport page upload", () => {
     expect(screen.getByLabelText("Nearest International Airport")).not.toBeRequired();
   });
 
-  it("keeps authenticated image retrieval and uses bounded orientation-specific preview dimensions", async () => {
+  it("keeps authenticated retrieval and one bounded preview frame for both image orientations", async () => {
     vi.mocked(uploadApi.getUploadDocument).mockResolvedValue(new Blob(["image"], { type: "image/jpeg" }));
     render(<ProtectedUploadDocumentImage token="group-token" submissionId="submission-1" uploadSessionId="private-session" documentType="cover" alt="Saved cover" />);
     const preview = await screen.findByRole("img", { name: "Saved cover" });
     expect(uploadApi.getUploadDocument).toHaveBeenCalledWith("group-token", "submission-1", "cover", "private-session", expect.any(AbortSignal));
     Object.defineProperties(preview, { naturalWidth: { value: 800, configurable: true }, naturalHeight: { value: 1200, configurable: true } });
     fireEvent.load(preview);
-    expect(screen.getByTestId("secure-document-preview-frame")).toHaveStyle({ width: "220px", height: "300px" });
-    expect(preview).toHaveStyle({ objectFit: "contain", maxHeight: "300px" });
+    const frame = screen.getByTestId("secure-document-preview-frame");
+    expect(frame).toHaveClass("aspect-[4/3]", "w-full");
+    expect(frame).toHaveAttribute("data-orientation", "portrait");
+    expect(preview.style.objectFit).toBe("contain");
+    expect(preview.style.maxHeight).toBe("min(320px, 55vw)");
+    expect(preview.style.maxWidth).toBe("100%");
     Object.defineProperties(preview, { naturalWidth: { value: 1200 }, naturalHeight: { value: 800 } });
     fireEvent.load(preview);
-    expect(screen.getByTestId("secure-document-preview-frame")).toHaveStyle({ width: "360px", height: "230px" });
+    expect(frame).toHaveClass("aspect-[4/3]", "w-full");
+    expect(frame).toHaveAttribute("data-orientation", "landscape");
+    expect(preview.style.objectFit).toBe("contain");
+    expect(preview.style.maxWidth).toBe("100%");
   });
 
   it("offers a credentialed retry when a saved image cannot be decoded", async () => {

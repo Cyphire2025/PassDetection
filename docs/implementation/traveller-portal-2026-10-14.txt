@@ -1,0 +1,86 @@
+Traveller portal and company directory update, 14 October 2026
+
+Release scope
+The first public page offers returning traveller or new traveller. Returning
+travellers choose WhatsApp OTP, passport number or individual code. Passport
+availability is disclosed only after the required proof, with no issuing-country
+selector or separate permission declaration. Number-only lookup remains scoped
+to the linked company and rejects ambiguous candidates.
+
+The review page shows protected images inline and editable passport details,
+separately highlighted current WhatsApp contact and current-trip questions.
+Unchanged passports need no reupload. Replacement pages, new required photos and
+qualifier selections use the configured collection rules. OCR, validation and
+contact proof are retained; staff autoassignment does not wait for public review.
+
+Drafts
+Fresh single/family collection and returning review use encrypted server drafts
+with a fixed 24-hour lifetime. Browser storage contains only opaque resume IDs,
+expiry and concurrency metadata. Browser-bound cookies and per-draft/member
+capabilities authorize temporary assets. Contact verification is staged. Draft
+saves, replacements and OCR do not overwrite official passport/contact data.
+Final Submit publishes the current-trip result atomically and preserves earlier
+versions. Retry receipts prevent duplicate final publication. Replaced temporary
+assets and expired unsubmitted drafts are eligible for existing cleanup; accepted
+historical originals remain retained. Returning contact changes do not change
+old trip contacts or broadcast recipients.
+
+Company directory
+Passenger trips count participation across all assigned groups, including upcoming
+trips. Completed group classification continues to use the return date. All data
+defaults to 100 people per page and supports name/ID search, name/date/submission
+sorting and filters. Names remain encrypted. HMAC search tokens and opaque numeric
+alphabetical ranks are derived asynchronously; incomplete indexing is visible.
+Person detail is a full dashboard route. Submissions and trip history are newest
+first; protected original images load inline near the viewport, at most two at
+once. Existing versions remain available. Company-to-group navigation keeps its
+return context. Repeated same-session token refresh preserves the authentication
+generation; an actual identity/permission boundary still clears private caches.
+
+Background artwork
+Generated with imagegen for this request: pale ice-blue travel illustration,
+peripheral dotted world map, contours, flight paths and fine landmark outlines;
+clear quiet center with no text or UI. Original 1536x1024 raster is saved in the
+main project's OFFICE IMPORTANT FILES as
+Global Connect Traveller Portal Background 2026-10-14.png.
+Web assets: frontend/public/images/traveller/journey-background.webp (30,786 bytes)
+and journey-background-mobile.webp (6,740 bytes). Used consistently on both public
+flows and previews; backgrounds contain no passenger data.
+
+Validation before deployment
+Company unit suite: 83 tests across 20 files. Company browser coverage includes
+search/filter/history, navigation and full-page protected previews at 320/1440px.
+Fresh/returning browser fixtures cover all three proof methods, resume, expired
+proof, protected document headers, final retry and replacement/collection flows.
+Backend coverage includes real HTTP draft scope, source chronology, directory
+indexing, final-only contact/publication, forbidden cross-group reads/selections,
+qualifier validation and preserved configured capture rules. These tests use
+synthetic data/providers and do not prove real WhatsApp delivery or production
+load capacity. Counts from overlapping suites must not be summed.
+
+Deployment and preservation
+User explicitly requested direct VPS deployment with full CI disabled. The
+reviewed additive lane advances 0135 to 0138 using exact candidate image binding,
+a populated isolated PostgreSQL rehearsal, retained database backup, full
+original-row/catalog/ACL conservation checks and forward recovery. It records
+mode fast and full_ci_qualified false. No destructive migration, company detach,
+roster import or identity merge is part of this update. Derived lookup/directory
+indexes are populated in bounded, manifest-bound postactivation batches. A
+separate reviewed admission may requeue four stale source-history jobs without
+editing their original sources. See docs/deployment-modes.md for the exact lane.
+
+Read-only Bluechip export/import preflight
+The observed 853 sources contain 708 final AI/staff-approved exportable records
+and 145 still awaiting client review. The 708 export rows have distinct valid
+delivery numbers; 200 already exist in the test broadcast and 508 would be new.
+Before the four stale source histories are refreshed, there are 495 ready rows
+representing 494 new unique people, plus 13 blocked rows: six passport-validity
+failures, four stale source histories, two ambiguous identities and one review
+requirement. One repeated person has two delivery numbers and must count once
+in the target group. This is a preflight, not an import or a promise that all 853
+records are eligible. Private per-person reasons are retained outside Git.
+
+Release status
+This document describes the tested candidate. The deployment receipt and a fresh
+live check must establish the exact activated SHA and post-indexing counts; this
+document alone is not evidence of successful activation.

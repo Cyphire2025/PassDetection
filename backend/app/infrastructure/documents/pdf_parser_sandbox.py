@@ -11,14 +11,12 @@ import math
 import multiprocessing
 import os
 import signal
-import sys
 import threading
 import time
 import uuid
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from functools import lru_cache
-from multiprocessing.context import BaseContext
 from multiprocessing.pool import AsyncResult
 from typing import Any, TypeAlias, cast
 
@@ -370,7 +368,7 @@ def _classify_pdf_batch_admitted(
     deadline = time.monotonic() + batch_timeout_seconds
     total_text_chars = 0
     process_count = min(MAX_PDF_PARSER_PROCESSES, len(jobs))
-    context = _parser_process_context()
+    context = multiprocessing.get_context("spawn")
     pool = None
 
     try:
@@ -471,20 +469,3 @@ def _classify_pdf_batch_admitted(
             )
         )
     return final_results
-
-
-def _parser_process_context() -> BaseContext:
-    """Reuse clean imports on Linux, never processes which have parsed PDFs.
-
-    A forkserver starts in a fresh interpreter, independently of the threaded
-    API process. It preloads code only and never receives document bytes. Each
-    admitted batch still creates, limits, and joins its own disposable children;
-    native PDF state cannot survive into the next request. Other platforms keep
-    the existing spawn path.
-    """
-    if sys.platform == "linux":
-        multiprocessing.set_forkserver_preload([
-            "app.infrastructure.documents.document_matcher",
-        ])
-        return multiprocessing.get_context("forkserver")
-    return multiprocessing.get_context("spawn")

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import hashlib
 import hmac
 import math
 import secrets
@@ -14,6 +13,22 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.mobile.otp_provider import OTPDeliveryError
+from app.application.security.public_contact_proof import (
+    CONTACT_PROOF_TTL_SECONDS,
+    verify_contact_code,
+)
+from app.application.security.public_contact_proof import (
+    code_digest as _code_digest,
+)
+from app.application.security.public_contact_proof import (
+    digest as _digest,
+)
+from app.application.security.public_contact_proof import (
+    remaining as _remaining,
+)
+from app.application.security.public_contact_proof import (
+    utc as _utc,
+)
 from app.application.security.public_upload_capability import require_active_public_upload
 from app.core.config.settings import get_settings
 from app.core.logging.logger import get_logger
@@ -47,32 +62,6 @@ from .public_security import _require_public_upload_credential
 
 router = APIRouter()
 logger = get_logger(__name__)
-CONTACT_PROOF_TTL_SECONDS = 3600
-
-
-def _digest(purpose: str, value: str) -> str:
-    # A secret-key HMAC prevents offline guessing of six-digit codes from a DB
-    # snapshot; separate domain labels prevent interchange with mobile login.
-    return hmac.new(
-        get_settings().app_secret_key.encode("utf-8"),
-        f"public-upload-contact\0{purpose}\0{value}".encode("utf-8"),
-        hashlib.sha256,
-    ).hexdigest()
-
-
-def _code_digest(challenge_id: uuid.UUID, code: str) -> str:
-    return _digest("code", f"{challenge_id}\0{code}")
-
-
-def _utc(value: datetime) -> datetime:
-    # SQLite loses timezone information; PostgreSQL stores aware timestamps.
-    return value.replace(tzinfo=UTC) if value.tzinfo is None else value
-
-
-def _remaining(value: datetime, now: datetime) -> int:
-    return max(0, math.ceil((_utc(value) - now).total_seconds()))
-
-
 def _no_store(response: Response) -> None:
     response.headers["Cache-Control"] = "private, no-store, max-age=0"
     response.headers["Pragma"] = "no-cache"
@@ -254,20 +243,10 @@ async def verify_public_contact_otp(
         or challenge.attempt_count >= challenge.max_attempts or not challenge.code_hash
     ):
         raise HTTPException(400, "Invalid or expired verification code. Request a new code.")
-    challenge.attempt_count += 1
-    challenge.updated_at = now
-    if not hmac.compare_digest(challenge.code_hash, _code_digest(challenge.id, body.code)):
-        if challenge.attempt_count >= challenge.max_attempts:
-            challenge.status = "locked"
-            challenge.code_hash = None
-        # Persist failed attempts even though the HTTP request returns an error.
+    if not verify_contact_code(challenge, body.code, now):
+        # Failed attempts remain durable even though the request is rejected.
         await session.commit()
         raise HTTPException(400, "Invalid or expired verification code. Request a new code if needed.")
-
-    challenge.status = "verified"
-    challenge.code_hash = None
-    challenge.verified_at = now
-    challenge.proof_expires_at = now + timedelta(seconds=CONTACT_PROOF_TTL_SECONDS)
     await session.commit()
     return PublicContactOTPVerifyResponse(
         phone_verification_id=challenge.id,

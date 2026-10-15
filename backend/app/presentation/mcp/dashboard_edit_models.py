@@ -2,10 +2,10 @@
 
 from copy import deepcopy
 from datetime import datetime
-from typing import Literal
+from typing import TYPE_CHECKING, Any, Literal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, create_model
+from pydantic import ConfigDict, Field, create_model
 
 from app.presentation.api.v1.schemas.client_group_schemas import UpdateClientGroupRequest
 from app.presentation.api.v1.schemas.menu_schemas import (
@@ -49,17 +49,20 @@ GROUP_CONFIGURATION_FIELDS = (
     "custom_details",
     "notes",
 )
-GroupLinkConfiguration = create_model(
-    "GroupLinkConfiguration",
-    __config__=ConfigDict(extra="forbid", str_strip_whitespace=True),
-    **{
-        name: (
-            UpdateClientGroupRequest.model_fields[name].annotation,
-            deepcopy(UpdateClientGroupRequest.model_fields[name]),
-        )
-        for name in GROUP_CONFIGURATION_FIELDS
-    },
-)
+if TYPE_CHECKING:
+    GroupLinkConfiguration = UpdateClientGroupRequest
+else:
+    GroupLinkConfiguration = create_model(
+        "GroupLinkConfiguration",
+        __config__=ConfigDict(extra="forbid", str_strip_whitespace=True),
+        **dict[str, Any]({
+            name: (
+                UpdateClientGroupRequest.model_fields[name].annotation,
+                deepcopy(UpdateClientGroupRequest.model_fields[name]),
+            )
+            for name in GROUP_CONFIGURATION_FIELDS
+        }),
+    )
 
 
 class GroupLinkEdit(GroupLinkConfiguration):
@@ -139,7 +142,9 @@ class HotelAllocation(AutoAllocateRoomsRequest):
     )
 
 
-EDIT_MODELS: dict[str, type[BaseModel]] = {
+DashboardEdit = GroupLinkEdit | MenuCategoryEdit | MenuDishEdit | MealPlanEdit | MealEntryEdit | HotelEdit | HotelSelection | HotelVip | HotelAllocation
+
+EDIT_MODELS: dict[str, type[DashboardEdit]] = {
     "configure_group_link": GroupLinkEdit,
     "update_menu_category": MenuCategoryEdit,
     "update_menu_dish": MenuDishEdit,

@@ -9,11 +9,40 @@
       ],
       "package": "ecdsa",
       "owner": "repository-maintainer (Nipun)",
-      "reviewed_on": "2026-09-26",
+      "reviewed_on": "2026-10-06",
       "expires_on": "2026-12-25",
       "rationale": "Only the reviewed Apple App Attest import closure is used. It does not import jose or ecdsa. Other pyattest verifiers and testutils DO import jose and are not approved. JWT signing uses PyJWT/cryptography. This is a scoped temporary acceptance, not a patched dependency.",
       "evidence": "docs/remediation/phase2-tooling.md#dependency-exception",
-      "runtime_lock_sha256": "12b8af84c5b7ffe4d3e624b2d2ebf96079b8ce464ce74f80800dd7ea4bbc68d9",
+      "runtime_lock_sha256": "1504909b310b33fcfbdd6a45d90f41dc6df8b743ec97f77e3ed918013fa43c75",
+      "versions": {
+        "pyattest": "1.0.5",
+        "python-jose": "3.5.0",
+        "ecdsa": "0.19.2"
+      },
+      "source_sha256": {
+        "pyattest": "a17b1eca43f16f807bbc6585716f1dc4f4fcf0767428697d4cdec6214bf08eed",
+        "python-jose": "a7be317489c146c3ccb94e31ae766915606ca8bf04c3996e56f0199a362c80dd",
+        "ecdsa": "0922bc05140f766ccc85db444d84d92a0d7fb2bfba470ea6ab1a49da911b282b"
+      },
+      "application_entry_modules": [
+        "pyattest.assertion",
+        "pyattest.attestation",
+        "pyattest.configs.apple",
+        "pyattest.exceptions"
+      ]
+    },
+    {
+      "advisory": "CVE-2026-85394",
+      "aliases": [
+        "GHSA-3qf3-8w2g-rqmx"
+      ],
+      "package": "python-jose",
+      "owner": "repository-maintainer (Nipun)",
+      "reviewed_on": "2026-10-06",
+      "expires_on": "2026-12-25",
+      "rationale": "python-jose 3.5.0 is installed solely through pyattest metadata. The reviewed Apple App Attest import closure never imports jose or ecdsa; application JWT verification uses PyJWT with explicit algorithms. No upstream fix exists for the DER-key algorithm-confusion advisory as of 2026-10-06. This temporary acceptance is pinned to the exact lock, source bytes, versions and import graph; new imports or unknown advisories fail closed.",
+      "evidence": "docs/remediation/phase2-tooling.md#dependency-exception",
+      "runtime_lock_sha256": "1504909b310b33fcfbdd6a45d90f41dc6df8b743ec97f77e3ed918013fa43c75",
       "versions": {
         "pyattest": "1.0.5",
         "python-jose": "3.5.0",

@@ -24,7 +24,7 @@ redis==5.0.7
 celery==5.4.0
 
 # ── Authentication & Security ─────────────────────────────────────────────────
-PyJWT==2.13.0
+PyJWT==2.15.0
 cryptography==50.0.0
 # Apple App Attest verifier and its security-sensitive direct dependency set.
 # These are pinned together because provider verification must not drift during
@@ -46,6 +46,7 @@ python-multipart==0.0.32  # file uploads
 
 # ── HTTP Client (for webhooks, cloud APIs) ────────────────────────────────────
 httpx[http2]==0.27.0      # APNs requires HTTP/2
+urllib3==2.8.0           # Patched HTTP parsing shared by the storage SDK and audit tooling.
 google-auth==2.56.3       # Application Default Credentials for Play Integrity REST verification
 
 # ── Storage ───────────────────────────────────────────────────────────────────
@@ -69,7 +70,7 @@ passporteye==2.2.1
 openpyxl==3.1.4
 pycountry==26.2.16
 
-pypdf==6.16.1
+pypdf==6.19.0
 pypdfium2==5.12.1
 
 # ── Observability ─────────────────────────────────────────────────────────────

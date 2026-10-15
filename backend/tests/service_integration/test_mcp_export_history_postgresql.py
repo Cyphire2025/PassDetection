@@ -42,6 +42,9 @@ from app.infrastructure.database.models import (
     UserSecurityStateModel,
     WhatsAppMessageLogModel,
 )
+from app.infrastructure.repositories.mcp_export_history_read_repository import (
+    MCPExportHistoryReadRepository,
+)
 from app.infrastructure.repositories.user_repository import UserRepository
 from app.presentation.api.v1.routes.passport_routes.export_history import (
     get_passport_group_export_history_detail,
@@ -218,7 +221,10 @@ async def test_postgresql_canonical_completed_v1_roster_and_no_source_hydration(
         assert result["items"][0]["actor_email"] is None
         assert result["maximum_checkpoint_people"] == 5000 and f.settings.mcp.export_source_row_limit == 100
         assert len(statements) <= 12 and any("octet_length" in query for query in statements)
-        assert not any("artifact_metadata" in query or "extracted_fields" in query for query in statements)
+        # Revision comparison reads only canonical digest inputs and the revision
+        # map; storage metadata, MRZ and unrelated OCR payload stay unhydrated.
+        assert not any("mrz_raw" in query or "confidence_score" in query for query in statements)
+        assert not any("artifact_metadata as " in query for query in statements)
         assert not any(query.lstrip().startswith(("insert", "update", "delete")) for query in statements)
         assert await effects(session) == before
         actor = await UserRepository(session).get_by_id(f.actor)
@@ -307,9 +313,13 @@ async def test_postgresql_combined_utf8_admission_rejects_before_json_materializ
                 + func.octet_length(PassportExportHistoryModel.actor_email)
             ).where(PassportExportHistoryModel.id.in_([row.id for row in rows]))))
             assert all(size < 1024 for size in sizes) and sum(sizes) > 1024
+            actor = await UserRepository(session).get_by_id(f.actor)
+            admission = MCPExportHistoryReadRepository(session, 1024 * 1024)
+            await admission.current_revision_sources(f.agency, f.group, actor)
+            roster_bytes = 1024 * 1024 - admission.remaining_bytes
         with observed_read(f.engine) as statements:
             with pytest.raises(ExportHistoryReadError, match="^history_limit$"):
-                reader = service(f, session, 1024 * 1024 if details else 1024)
+                reader = service(f, session, 1024 * 1024 if details else roster_bytes + 1024)
                 if details:
                     await reader.get_history(f.principal, agency_id=f.agency, group_id=f.group, history_id=rows[0].id)
                 else:

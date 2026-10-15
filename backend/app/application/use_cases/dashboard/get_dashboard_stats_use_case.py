@@ -35,7 +35,7 @@ class GetDashboardStatsUseCase:
         created_by_user_id: uuid.UUID | None = None,
         visible_to_user: User | None = None,
     ) -> DashboardStatsDTO:
-        # Get count of total submissions
+        # Count passports in current and archived groups, excluding deleted history.
         total_passports = await self._submission_repo.count_by_agency(
             agency_id,
             created_by_user_id=created_by_user_id,

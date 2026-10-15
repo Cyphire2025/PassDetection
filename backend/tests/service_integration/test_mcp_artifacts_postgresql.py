@@ -37,7 +37,7 @@ async def export_transfer(mcp_sessions):
         assert await session.scalar(text("SELECT to_regclass('mcp_artifacts')")) is not None
         (await session.get(MCPControlModel, 1)).enabled = True
         user, grants, tokens = await seed_identity(
-            session, settings, email=f"artifact-{uuid.uuid4()}@example.test"
+            session, settings, enable_write_policy=True, email=f"artifact-{uuid.uuid4()}@example.test"
         )
         grants[0].capabilities = ["mcp:export"]
         agency = AgencyModel(

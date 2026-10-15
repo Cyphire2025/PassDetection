@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import asyncio
-from unittest.mock import patch
+from types import SimpleNamespace
+from unittest.mock import Mock, PropertyMock, patch
 
 import pytest
 
 from app.core.config.release_contract import SCHEMA_REVISION
 from app.core.config.settings import Settings
+from app.infrastructure import runtime_readiness
 from app.infrastructure.readiness_executor import ReadinessProbeExecutor
 from app.infrastructure.runtime_readiness import RuntimeReadinessProbe
 
@@ -231,3 +233,107 @@ async def test_dependency_probe_timeout_is_cached_and_fails_core_closed() -> Non
     assert first.checks["object_storage"] == "probe_timeout"
     assert second.checks == first.checks
     refresh.assert_called_once()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("due_count", "age", "expected_status", "available"),
+    [(1000, 60, "backlog_warning:1000", True), (1, 86401, "oldest_due_over_24h", False)],
+)
+async def test_cleanup_warning_and_expiry_do_not_hide_healthy_core_dependencies(
+    due_count, age, expected_status, available,
+):
+    with patch.object(runtime_readiness, "_probe_object_storage", return_value=True):
+        snapshot = await RuntimeReadinessProbe().snapshot(
+            db=_Database(due_count=due_count, oldest_due_seconds=age), settings=_settings(),
+        )
+    assert snapshot.core_ready is True
+    assert snapshot.capabilities["storage_cleanup"] == {
+        "required": True, "available": available, "traffic_gate": False, "status": expected_status,
+    }
+
+
+@pytest.mark.parametrize("heartbeat", [None, "recent-synthetic-heartbeat"])
+def test_celery_worker_readiness_requires_scheduler_heartbeat_and_closes_redis(heartbeat):
+    settings = _settings().model_copy(update={"processing_backend": "celery"})
+    client = Mock()
+    client.get.return_value = heartbeat
+    with (
+        patch.object(runtime_readiness, "celery_queue_readiness", return_value=("available", True)) as queue,
+        patch.object(runtime_readiness.Redis, "from_url", return_value=client) as redis,
+    ):
+        actual = runtime_readiness._probe_worker_and_scheduler(settings)
+    assert actual == ("available", True, "heartbeat_recent" if heartbeat else "heartbeat_missing", bool(heartbeat))
+    queue.assert_called_once_with(runtime_readiness.GENERAL_PROCESSING_QUEUE, settings)
+    client.get.assert_called_once_with(runtime_readiness.PLATFORM_SCHEDULER_HEARTBEAT_KEY)
+    client.close.assert_called_once_with()
+    assert redis.call_args.kwargs["socket_connect_timeout"] <= 1
+    assert redis.call_args.kwargs["socket_timeout"] <= 1
+
+
+def test_scheduler_redis_failure_closes_the_client_before_propagating():
+    client = Mock()
+    client.get.side_effect = ConnectionError("synthetic disconnected Redis")
+    with patch.object(runtime_readiness.Redis, "from_url", return_value=client):
+        with pytest.raises(ConnectionError):
+            runtime_readiness._platform_scheduler_heartbeat_exists(_settings())
+    client.close.assert_called_once_with()
+
+
+@pytest.mark.parametrize(
+    ("providers_ready", "backend", "queue_ready", "expected"),
+    [
+        ((False, True, True), "celery", (), ("providers_not_ready", False, True)),
+        ((True, False, True), "celery", (), ("providers_not_ready", False, True)),
+        ((True, True, False), "celery", (), ("providers_not_ready", False, True)),
+        ((True, True, True), "background", (), ("worker_backend_not_celery", False, True)),
+        ((True, True, True), "celery", (True, True, True, True), ("available", True, True)),
+        ((True, True, True), "celery", (False, True, False, True), ("queues_unavailable:2", False, True)),
+    ],
+)
+def test_selected_photo_capability_requires_every_provider_and_queue(
+    providers_ready, backend, queue_ready, expected,
+):
+    settings = _settings()
+    selected_photos = settings.my_photos.model_copy(update={"media_provider": "development"})
+    settings = settings.model_copy(update={"processing_backend": backend})
+    providers = SimpleNamespace(**{
+        name: SimpleNamespace(ready=ready)
+        for name, ready in zip(("liveness", "face_search", "media"), providers_ready, strict=True)
+    })
+    with (
+        patch.object(Settings, "my_photos", new_callable=PropertyMock, return_value=selected_photos),
+        patch.object(runtime_readiness, "build_provider_bundle", return_value=providers),
+        patch.object(runtime_readiness, "celery_queue_readiness", side_effect=[
+            ("available" if ready else "worker_missing", ready) for ready in queue_ready
+        ]) as queues,
+    ):
+        assert runtime_readiness._probe_my_photos(settings) == expected
+    assert [call.args[0] for call in queues.call_args_list] == (
+        [runtime_readiness.MY_PHOTOS_CONTROL_QUEUE, runtime_readiness.MY_PHOTOS_INDEX_QUEUE,
+         runtime_readiness.MY_PHOTOS_MEDIA_QUEUE, runtime_readiness.MY_PHOTOS_SEARCH_QUEUE]
+        if queue_ready else []
+    )
+
+
+@pytest.mark.asyncio
+async def test_probe_exceptions_cannot_report_workers_or_selected_photo_capability_ready():
+    settings = _settings()
+    selected_photos = settings.my_photos.model_copy(update={"media_provider": "development"})
+    settings = settings.model_copy(update={"processing_backend": "celery"})
+    with (
+        patch.object(Settings, "my_photos", new_callable=PropertyMock, return_value=selected_photos),
+        patch.object(runtime_readiness, "_probe_object_storage", return_value=True),
+        patch.object(runtime_readiness, "_probe_security_redis", return_value=("not_required", True)),
+        patch.object(runtime_readiness, "_probe_malware_scanner", return_value=("available", True)),
+        patch.object(runtime_readiness, "_probe_worker_and_scheduler", side_effect=ConnectionError),
+        patch.object(runtime_readiness, "_probe_my_photos", side_effect=ConnectionError),
+        patch.object(runtime_readiness, "_probe_ecr_worker", return_value=("available", True)),
+    ):
+        snapshot = await RuntimeReadinessProbe().snapshot(db=_Database(), settings=settings)
+    assert snapshot.core_ready is False
+    assert snapshot.capabilities["background_processing"]["status"] == "probe_failed"
+    assert snapshot.capabilities["lifecycle_scheduler"]["available"] is False
+    assert snapshot.capabilities["my_photos"] == {
+        "required": True, "available": False, "traffic_gate": False, "status": "probe_failed",
+    }

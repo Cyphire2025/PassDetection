@@ -15,6 +15,15 @@ from fastapi import HTTPException, status
 from sqlalchemy import func, select, union_all
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.use_cases.whatsapp.contact_import_limits import (
+    MAX_WHATSAPP_EXCEL_ROWS as MAX_WHATSAPP_EXCEL_ROWS,
+)
+from app.application.use_cases.whatsapp.contact_import_limits import (
+    MAX_WHATSAPP_REJECTED_CONTACTS_PER_GROUP as MAX_WHATSAPP_REJECTED_CONTACTS_PER_GROUP,
+)
+from app.application.use_cases.whatsapp.contact_import_limits import (
+    MAX_WHATSAPP_REJECTED_ROWS as MAX_WHATSAPP_REJECTED_ROWS,
+)
 from app.application.use_cases.whatsapp.contact_normalization import (
     clean_whatsapp_name,
     normalize_whatsapp_phone,
@@ -58,7 +67,6 @@ MAX_WHATSAPP_EXCEL_UNCOMPRESSED_BYTES = 50 * 1024 * 1024
 MAX_WHATSAPP_EXCEL_ARCHIVE_MEMBERS = 2_000
 MAX_WHATSAPP_EXCEL_COMPRESSION_RATIO = 250
 MAX_WHATSAPP_EXCEL_HEADER_SCAN_ROWS = 25
-MAX_WHATSAPP_REJECTED_CONTACTS_PER_GROUP = 500
 MAX_WHATSAPP_IMPORTED_FIELDS = 256
 
 
@@ -172,6 +180,9 @@ _EXCEL_FIELD_ALIASES = {
     "email address": "email",
     "e mail": "email",
     "mail": "email",
+    "upload email": "client_email",
+    "upload e mail": "client_email",
+    "upload email address": "client_email",
     "passport": "passport_number",
     "passport no": "passport_number",
     "passport number": "passport_number",
@@ -350,6 +361,9 @@ def _parse_imported_field_keys(value: str | None) -> list[str]:
 
 def _is_excel_phone_header(label: str) -> bool:
     tokens = set(label.split())
+    # "WhatsApp Email" describes its source, not a second delivery number.
+    if tokens.intersection({"email", "mail"}):
+        return False
     if tokens.intersection({"phone", "mobile", "whatsapp", "telephone"}):
         return True
     return "contact" in tokens and (
@@ -588,8 +602,8 @@ _WHATSAPP_CONTACT_REJECTION_REASONS: dict[WhatsAppContactRejectionCode, str] = {
     ),
     "missing_name": "Add the recipient's name so staff can identify this contact.",
     "duplicate_phone": (
-        "This WhatsApp number is already listed; its extra details were merged "
-        "into the first accepted contact."
+        "This WhatsApp number is already listed; the first delivery contact is "
+        "retained and this source row remains available for staff review."
     ),
 }
 
@@ -623,28 +637,32 @@ def _merge_recipient_inputs(
     existing: WhatsAppRecipientInput,
     incoming: WhatsAppRecipientInput,
 ) -> WhatsAppRecipientInput:
+    # Delivery remains one phone record. Full individual rows live in rejected
+    # source records, so never append an unbounded name_3/name_4/... family.
+    # Preserve the first row's identity fields; retain one alternate for the
+    # existing preview UI. O(fields) work/space, independent of duplicate count.
     merged_fields = dict(existing.imported_fields)
-    conflicting_keys: set[str] = set()
+    conflicting_keys = set(merged_fields.pop("duplicate_conflicting_fields", "").split(", ")) - {""}
+    total_size = sum(len(key.encode()) + len(value.encode()) for key, value in merged_fields.items())
+    field_count = len(merged_fields.keys() - WHATSAPP_ROSTER_SOURCE_FIELDS)
+
+    def add_if_fits(key: str, value: str) -> None:
+        nonlocal total_size, field_count
+        size = len(key.encode()) + len(value.encode())
+        if key not in merged_fields and field_count < MAX_WHATSAPP_IMPORTED_FIELDS and total_size + size <= MAX_WHATSAPP_IMPORTED_FIELDS_BYTES:
+            merged_fields[key] = value
+            total_size += size
+            field_count += 1
+
     for key, value in incoming.imported_fields.items():
-        if key in WHATSAPP_ROSTER_SOURCE_FIELDS:
-            merged_fields.setdefault(key, value)
+        if key in WHATSAPP_NON_MATCHING_IMPORTED_FIELDS:
             continue
         current = merged_fields.get(key)
-        if current is None:
-            merged_fields[key] = value
-        elif current.casefold() != value.casefold():
+        if current is not None and current.casefold() != value.casefold():
             conflicting_keys.add(key)
-            suffix = 2
-            alternate_key = f"{key}_{suffix}"
-            while alternate_key in merged_fields:
-                if merged_fields[alternate_key].casefold() == value.casefold():
-                    break
-                suffix += 1
-                alternate_key = f"{key}_{suffix}"
-            else:
-                merged_fields[alternate_key] = value
+            add_if_fits(f"{key[:62]}_2", value)
     if conflicting_keys:
-        merged_fields["duplicate_conflicting_fields"] = ", ".join(sorted(conflicting_keys))
+        add_if_fits("duplicate_conflicting_fields", ", ".join(sorted(conflicting_keys))[:MAX_WHATSAPP_IMPORTED_FIELD_VALUE_LENGTH])
     return WhatsAppRecipientInput(
         name=existing.name or incoming.name,
         phone_number=existing.phone_number,
@@ -659,8 +677,13 @@ def _excel_contact_preview_response(
     rejected_count: int | None = None,
     available_field_keys: Iterable[object] = (),
 ) -> WhatsAppContactPreviewResponse:
-    rejected_rows = rejected_rows or []
-    total_rejected = len(rejected_rows) if rejected_count is None else rejected_count
+    all_rejected_rows = rejected_rows or []
+    total_rejected = len(all_rejected_rows) if rejected_count is None else rejected_count
+    counts: dict[WhatsAppContactRejectionCode, int] = {}
+    if total_rejected == len(all_rejected_rows):
+        for row in all_rejected_rows:
+            counts[row.reason_code] = counts.get(row.reason_code, 0) + 1
+    rejected_rows = all_rejected_rows[:MAX_WHATSAPP_REJECTED_ROWS]
     if not contacts and total_rejected == 0:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -684,6 +707,7 @@ def _excel_contact_preview_response(
         accepted_count=len(recipients),
         recipients=recipients,
         rejected_count=total_rejected,
+        rejected_counts=counts,
         rejected_rows=rejected_rows,
         rejected_rows_truncated=total_rejected > len(rejected_rows),
         omitted_rejected_count=max(0, total_rejected - len(rejected_rows)),
@@ -902,11 +926,14 @@ def _add_rejected_contact_models(
 ) -> int:
     display_orders_by_fingerprint = display_orders_by_fingerprint or {}
     new_contacts: list[WhatsAppRejectedContactInput] = []
+    pending_fingerprints: set[str] = set()
     for contact in contacts:
         fingerprint = _rejected_contact_fingerprint(contact)
         existing = existing_by_fingerprint.get(fingerprint)
         if existing is None:
-            new_contacts.append(contact)
+            if fingerprint not in pending_fingerprints:
+                pending_fingerprints.add(fingerprint)
+                new_contacts.append(contact)
             continue
         # A repeated import remains one rejected row, but can enrich a record
         # created before imported spreadsheet fields were persisted.

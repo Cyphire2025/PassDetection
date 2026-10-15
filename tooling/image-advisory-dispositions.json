@@ -131,24 +131,6 @@
       ]
     },
     {
-      "advisory": "CVE-2026-66046",
-      "packages": [
-        {
-          "name": "libexpat1",
-          "version": "2.8.4-2"
-        }
-      ],
-      "disposition": "fixed_by_backport",
-      "owner": "Nipun / repository maintainer",
-      "reviewed_on": "2026-09-26",
-      "expires_on": "2026-10-26",
-      "condition": "Exact official libexpat1 2.8.4-2 includes the relevant upstream fix; same-version CPython pyexpat linked to it. Both actual XML parser APIs reject malformed UTF-16. Content-pinned build inputs.",
-      "evidence": [
-        "https://security-tracker.debian.org/tracker/CVE-2026-66046",
-        "scripts/qa/probe_image_advisory_conditions.py"
-      ]
-    },
-    {
       "advisory": "CVE-2026-76642",
       "packages": [
         {
@@ -195,42 +177,6 @@
       "condition": "Affected mount/umount/nsenter executables removed. App processes forced UID/GID1001, empty effective and bounding caps and no-new-privileges; default confinement and no host namespaces/devices/unreviewed mounts. Libraries remain unpatched; release preflight rejects weakened controls. One-off storage copy separately restricted to its controlled evidence directory and fixed Python command.",
       "evidence": [
         "https://security-tracker.debian.org/tracker/CVE-2026-76642",
-        "scripts/qa/probe_image_advisory_conditions.py"
-      ]
-    },
-    {
-      "advisory": "CVE-2026-76956",
-      "packages": [
-        {
-          "name": "libexpat1",
-          "version": "2.8.4-2"
-        }
-      ],
-      "disposition": "fixed_by_backport",
-      "owner": "Nipun / repository maintainer",
-      "reviewed_on": "2026-09-26",
-      "expires_on": "2026-10-26",
-      "condition": "Exact official libexpat1 2.8.4-2 includes the relevant upstream fix; same-version CPython pyexpat linked to it. Both actual XML parser APIs reject malformed UTF-16. Content-pinned build inputs.",
-      "evidence": [
-        "https://security-tracker.debian.org/tracker/CVE-2026-76956",
-        "scripts/qa/probe_image_advisory_conditions.py"
-      ]
-    },
-    {
-      "advisory": "CVE-2026-76957",
-      "packages": [
-        {
-          "name": "libexpat1",
-          "version": "2.8.4-2"
-        }
-      ],
-      "disposition": "fixed_by_backport",
-      "owner": "Nipun / repository maintainer",
-      "reviewed_on": "2026-09-26",
-      "expires_on": "2026-10-26",
-      "condition": "Exact official libexpat1 2.8.4-2 includes the relevant upstream fix; same-version CPython pyexpat linked to it. Both actual XML parser APIs reject malformed UTF-16. Content-pinned build inputs.",
-      "evidence": [
-        "https://security-tracker.debian.org/tracker/CVE-2026-76957",
         "scripts/qa/probe_image_advisory_conditions.py"
       ]
     },
@@ -385,26 +331,6 @@
       ]
     },
     {
-      "advisory": "CVE-2026-82049",
-      "packages": [
-        {
-          "name": "python",
-          "version": "3.11.16"
-        }
-      ],
-      "disposition": "fixed_by_backport",
-      "owner": "Nipun / repository maintainer",
-      "reviewed_on": "2026-09-26",
-      "expires_on": "2026-10-26",
-      "condition": "Exact original Python 3.11.16 tarfile hash patched with upstream realpath hard-link resolution; both data and tar filter adversarial relocation fixtures pass.",
-      "evidence": [
-        "https://security-tracker.debian.org/tracker/CVE-2026-82049",
-        "scripts/qa/probe_image_advisory_conditions.py",
-        "https://github.com/python/cpython/commit/b8f23e307097552eaea2604383a12ab280520d0d",
-        "backend/docker/backport_tarfile_security.py"
-      ]
-    },
-    {
       "advisory": "CVE-2026-82560",
       "packages": [
         {
@@ -443,24 +369,6 @@
       ]
     },
     {
-      "advisory": "CVE-2026-93990",
-      "packages": [
-        {
-          "name": "libexpat1",
-          "version": "2.8.4-2"
-        }
-      ],
-      "disposition": "fixed_by_backport",
-      "owner": "Nipun / repository maintainer",
-      "reviewed_on": "2026-09-26",
-      "expires_on": "2026-10-26",
-      "condition": "Exact official libexpat1 2.8.4-2 includes the relevant upstream fix; same-version CPython pyexpat linked to it. Both actual XML parser APIs reject malformed UTF-16. Content-pinned build inputs.",
-      "evidence": [
-        "https://security-tracker.debian.org/tracker/CVE-2026-93990",
-        "scripts/qa/probe_image_advisory_conditions.py"
-      ]
-    },
-    {
       "advisory": "CVE-2026-9538",
       "packages": [
         {
@@ -476,6 +384,70 @@
       "evidence": [
         "https://security-tracker.debian.org/tracker/CVE-2026-9538",
         "scripts/qa/probe_image_advisory_conditions.py"
+      ]
+    },
+    {
+      "advisory": "CVE-2026-95619",
+      "packages": [
+        {
+          "name": "gcc-14-base",
+          "version": "14.2.0-19"
+        },
+        {
+          "name": "libgcc-s1",
+          "version": "14.2.0-19"
+        },
+        {
+          "name": "libgomp1",
+          "version": "14.2.0-19"
+        },
+        {
+          "name": "libstdc++6",
+          "version": "14.2.0-19"
+        }
+      ],
+      "disposition": "incorrect_affected_range",
+      "owner": "Nipun / repository maintainer",
+      "reviewed_on": "2026-10-06",
+      "expires_on": "2026-11-05",
+      "condition": "Exact official Debian amd64 package files and libstdc++ SHA256 required. GCC14.2 POSIX_MEMALIGN build excludes vulnerable size rounding; actual library must reject all18 upstream boundary cases and pass both normal allocation controls.",
+      "evidence": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-95619",
+        "docs/remediation/gcc-runtime-evidence.json",
+        "scripts/qa/gcc_runtime_manifest.json",
+        "scripts/qa/gcc_runtime_policy.py"
+      ]
+    },
+    {
+      "advisory": "CVE-2026-102010",
+      "packages": [
+        {
+          "name": "gcc-14-base",
+          "version": "14.2.0-19"
+        },
+        {
+          "name": "libgcc-s1",
+          "version": "14.2.0-19"
+        },
+        {
+          "name": "libgomp1",
+          "version": "14.2.0-19"
+        },
+        {
+          "name": "libstdc++6",
+          "version": "14.2.0-19"
+        }
+      ],
+      "disposition": "affected_component_absent",
+      "owner": "Nipun / repository maintainer",
+      "reviewed_on": "2026-10-06",
+      "expires_on": "2026-11-05",
+      "condition": "Scoped only to four exact Debian runtime package payloads, which contain no affected PBDS template. Verify official package ownership/content, reject compiler or PBDS development headers. Does not prove absence of inlined PBDS code in all independently built third-party native consumers.",
+      "evidence": [
+        "https://security-tracker.debian.org/tracker/CVE-2026-102010",
+        "docs/remediation/gcc-runtime-evidence.json",
+        "scripts/qa/gcc_runtime_manifest.json",
+        "scripts/qa/gcc_runtime_policy.py"
       ]
     }
   ]

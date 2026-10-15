@@ -298,7 +298,7 @@ def _build_blocks(
 
 
 def _display_name(submission: Any) -> str:
-    return getattr(submission, "display_name", None) or submission.client_name
+    return str(getattr(submission, "display_name", None) or submission.client_name)
 
 
 def _matches_search(entry: SubmissionViewEntry, search: str) -> bool:

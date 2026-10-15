@@ -77,6 +77,11 @@ for (const width of [1440, 390]) {
     await expect(recipients.getByText("Waiting Traveller", { exact: true })).toHaveCount(0);
     await recipients.getByRole("button", { name: "All (3)", exact: true }).click();
     await recipients.getByRole("button", { name: "Waiting Traveller document actions" }).click();
+    await expect(recipients.getByRole("menuitem", { name: "Upload document", exact: true })).toBeFocused();
+    await page.keyboard.press("Escape");
+    await expect(recipients).toBeVisible();
+    await expect(recipients.getByRole("button", { name: "Waiting Traveller document actions" })).toBeFocused();
+    await recipients.getByRole("button", { name: "Waiting Traveller document actions" }).click();
     await page.getByRole("menuitem", { name: "Upload document", exact: true }).click();
     const upload = page.getByRole("dialog", { name: "Upload document", exact: true });
     await upload.getByLabel("Choose PDF").setInputFiles({ name: "manual.pdf", mimeType: "application/pdf", buffer: Buffer.from("%PDF-1.4\nfixture") });

@@ -511,6 +511,13 @@ async def test_source_mutation_waits_until_provider_window_is_recorded() -> None
     initial_session = AsyncMock()
     initial_session.execute.return_value = initial_result
 
+    # This is a website delivery. Both the upload preflight and final provider
+    # transaction now check for an MCP outbox binding before source locking.
+    web_binding_result = MagicMock()
+    web_binding_result.first.return_value = None
+    upload_session = AsyncMock()
+    upload_session.execute.return_value = web_binding_result
+
     snapshot_result = MagicMock()
     snapshot_result.scalar_one_or_none.return_value = delivery
     source_result = MagicMock()
@@ -523,6 +530,7 @@ async def test_source_mutation_waits_until_provider_window_is_recorded() -> None
     )
     provider_session.execute.side_effect = [
         snapshot_result,
+        web_binding_result,
         source_result,
         locked_result,
     ]
@@ -573,7 +581,7 @@ async def test_source_mutation_waits_until_provider_window_is_recorded() -> None
     session_contexts = [
         _async_session_context(claim_session),
         _async_session_context(initial_session),
-        _async_session_context(AsyncMock()),
+        _async_session_context(upload_session),
         _async_session_context(provider_session),
     ]
 
@@ -593,14 +601,6 @@ async def test_source_mutation_waits_until_provider_window_is_recorded() -> None
         patch(
             "app.infrastructure.whatsapp.document_delivery_runtime.get_settings",
             return_value=SimpleNamespace(whatsapp_phone_number_id="test-provider-account"),
-        ),
-        patch(
-            "app.infrastructure.whatsapp.document_delivery_runtime.upload_mcp_document_media",
-            new=AsyncMock(return_value=(False, None, None)),
-        ),
-        patch(
-            "app.infrastructure.whatsapp.document_delivery_runtime.authorize_mcp_document_dispatch",
-            new=AsyncMock(return_value=(None, None)),
         ),
         patch(
             "app.infrastructure.whatsapp.document_delivery_runtime.upload_whatsapp_document",

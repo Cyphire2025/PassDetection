@@ -53,6 +53,7 @@ class WhatsAppContactPreviewResponse(BaseModel):
     accepted_count: int
     recipients: list[WhatsAppContactPreviewRecipient]
     rejected_count: int
+    rejected_counts: dict[WhatsAppContactRejectionCode, int] = Field(default_factory=dict)
     rejected_rows: list[WhatsAppContactPreviewRejectedRow]
     rejected_rows_truncated: bool
     omitted_rejected_count: int

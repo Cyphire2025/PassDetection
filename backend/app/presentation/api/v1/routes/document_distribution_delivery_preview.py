@@ -22,7 +22,10 @@ from app.infrastructure.database.models import (
     DocumentWhatsAppDeliveryModel,
 )
 from app.infrastructure.whatsapp.template_settings import configured_template_name
-from app.infrastructure.whatsapp.traveller_destinations import load_traveller_destinations
+from app.infrastructure.whatsapp.traveller_destinations import (
+    TravellerDestination,
+    load_traveller_destinations,
+)
 from app.presentation.api.v1.routes.document_distribution_shared import (
     DOCUMENT_DELIVERY_IN_PROGRESS_STATUSES,
     DocumentDeliveryDecision,
@@ -61,6 +64,20 @@ def _delivery_preview_token(
     return hashlib.sha256(json.dumps(value, sort_keys=True).encode()).hexdigest()
 
 
+def _passengers_in_broadcast(
+    passengers: list[PassportSubmission],
+    destinations: dict[uuid.UUID, TravellerDestination],
+    broadcast_group_id: uuid.UUID | None,
+) -> list[PassportSubmission]:
+    if broadcast_group_id is None:
+        return passengers
+    allowed_ids = {
+        passenger_id for passenger_id, destination in destinations.items()
+        if destination.broadcast_group_id == broadcast_group_id
+    }
+    return [passenger for passenger in passengers if passenger.id in allowed_ids]
+
+
 async def _build_document_delivery_preview(
     session: AsyncSession,
     *,
@@ -75,10 +92,7 @@ async def _build_document_delivery_preview(
     destinations = {row.passenger_id: row for row in await load_traveller_destinations(
         session, agency_id=group.agency_id, group_id=group.id,
     )}
-    if broadcast_group_id is not None:
-        passengers = [passenger for passenger in passengers
-            if passenger.id in destinations
-            and destinations[passenger.id].broadcast_group_id == broadcast_group_id]
+    passengers = _passengers_in_broadcast(passengers, destinations, broadcast_group_id)
     documents_result = await session.execute(
         select(DistributedDocumentModel, DocumentDistributionBatchModel.status)
         .join(

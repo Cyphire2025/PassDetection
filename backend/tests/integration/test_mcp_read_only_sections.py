@@ -83,8 +83,16 @@ async def test_sdk_lists_only_explicit_observations_and_metadata_has_effective_a
     client, session, _, _, _, dashboard, tokens, app = readonly_mcp
     tools = await app.state.mcp_server.list_tools()
     assert {tool.name for tool in tools} == set(READ_TOOL_SECTIONS)
-    assert len(tools) == 44
+    assert len(tools) == 46
     assert all(tool.annotations.read_only_hint and tool.meta["capability"] == "mcp:read" for tool in tools)
+    tracker_names = {"list_travel_tracker_groups", "get_travel_tracker_roster"}
+    assert {tool.name for tool in tools if "travel_tracker" in tool.name} == tracker_names
+    for tool in tools:
+        if tool.name in tracker_names:
+            assert READ_TOOL_SECTIONS[tool.name] == frozenset({"all_groups", "documents"})
+            assert tool.meta == {"capability": "mcp:read"}
+            assert tool.annotations.destructive_hint is False
+            assert tool.annotations.open_world_hint is False
     # This reaches the real SDK tools/list handler with a legacy broad bearer.
     listing = await client.post("/mcp", headers={
         "Authorization": f"Bearer {tokens['access_token']}", "Accept": "application/json, text/event-stream",
@@ -101,6 +109,14 @@ async def test_sdk_lists_only_explicit_observations_and_metadata_has_effective_a
     inventory = (await client.get("/api/v1/admin/mcp/inventory", headers={"Authorization": f"Bearer {dashboard}"})).json()
     assert inventory["file_transports"] == [] and inventory["effective_capabilities"] == ["mcp:read"]
     assert all(row["required_read_sections"] == sorted(READ_TOOL_SECTIONS[row["name"]]) for row in inventory["tools"])
+    tracker_inventory = [row for row in inventory["tools"] if row["name"] in tracker_names]
+    assert {row["name"] for row in tracker_inventory} == tracker_names
+    for row in tracker_inventory:
+        assert row["required_read_sections"] == ["all_groups", "documents"]
+        assert row["required_write_sections"] == []
+        assert row["capability"] == "mcp:read" and row["read_only"] is True
+        assert row["deployment_available"] is True
+        assert row["section_access_allowed"] is False and row["available"] is False
     overview = (await client.get("/api/v1/admin/mcp", headers={"Authorization": f"Bearer {dashboard}"})).json()
     assert overview["capabilities"] == overview["defined_capabilities"] == ["mcp:read"]
     grants = (await client.get("/api/v1/admin/mcp/connections", headers={"Authorization": f"Bearer {dashboard}"})).json()

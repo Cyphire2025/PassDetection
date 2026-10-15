@@ -1,0 +1,51 @@
+{
+  "admitted_group_jobs": 2,
+  "apply_requested": true,
+  "checked_at": "2026-10-14T10:14:15.490712+00:00",
+  "committed_groups": [
+    {
+      "admitted": true,
+      "group_id": "20b93ca4-ac66-4194-babc-432f2c00720a",
+      "job_id": "750aed87-36d7-4b33-9cc2-ffaf148ea347",
+      "job_status": "queued"
+    },
+    {
+      "admitted": true,
+      "group_id": "d6647741-0d4b-48c9-b4ad-1f3a61b34b5a",
+      "job_id": "566cc14f-707a-4f8b-bc6d-420cff675ed0",
+      "job_status": "queued"
+    }
+  ],
+  "group_count": 2,
+  "manifest_sha256": "c6c1f6051a8521827b7b3ce87a8e2a3eb0e81698afce41f96b5113ce62761d6f",
+  "operation": "bluechip-staff-history-compatibility-20261014-v1",
+  "origin_source_count": 853,
+  "original_source_unchanged": true,
+  "prerequisites": {
+    "current_staff_documents": 12,
+    "exact_cases_assigned": 12,
+    "exact_source_jobs_succeeded": 12,
+    "exact_twelve_repair_audit": 1,
+    "ready_document_copies": 12,
+    "target_has_100_submissions": 1
+  },
+  "previously_admitted_groups": 0,
+  "ready_for_apply": true,
+  "release": "ffef7eb76c6576ddd2ac49b4dca42d3dad0229e4",
+  "remaining_source_gap": 777,
+  "source_groups": [
+    {
+      "company_revision": 3,
+      "group_id": "20b93ca4-ac66-4194-babc-432f2c00720a",
+      "missing_current_source_documents": 58,
+      "status": "active"
+    },
+    {
+      "company_revision": 1,
+      "group_id": "d6647741-0d4b-48c9-b4ad-1f3a61b34b5a",
+      "missing_current_source_documents": 719,
+      "status": "archived"
+    }
+  ],
+  "target_source_count": 100
+}

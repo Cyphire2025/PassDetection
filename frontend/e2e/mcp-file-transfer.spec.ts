@@ -94,10 +94,11 @@ for (const width of [1440, 390]) {
     const release = state.holdUpload();
     try {
       await page.getByRole("button", { name: "Verify and upload", exact: true }).click();
+      // Disabled controls precede the asynchronous upload; wait for the held route itself.
+      await expect.poll(() => state.calls.filter((item) => item.method === "PUT")).toHaveLength(1);
       await expect(page.getByRole("button", { name: "Verify and upload", exact: true })).toBeDisabled();
       await expect(input).toBeDisabled();
       await expect(page.getByRole("heading", { name: "File uploaded", exact: true })).toHaveCount(0);
-      expect(state.calls.filter((item) => item.method === "PUT")).toHaveLength(1);
       release(); await expect(page.getByRole("heading", { name: "File uploaded", exact: true })).toBeVisible();
     } finally { release(); }
     expect(new URL(page.url()).hash).toBe(""); expect(state.calls.filter((item) => item.method === "PUT")).toHaveLength(1);

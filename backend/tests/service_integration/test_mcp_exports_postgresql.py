@@ -46,7 +46,7 @@ async def queued_export(mcp_sessions):
     async with sessions() as session:
         (await session.get(MCPControlModel, 1)).enabled = True
         user, grants, tokens = await seed_identity(
-            session, settings, email=f"export-{uuid.uuid4()}@example.test"
+            session, settings, enable_write_policy=True, email=f"export-{uuid.uuid4()}@example.test"
         )
         for grant in grants:
             grant.capabilities = ["mcp:export"]

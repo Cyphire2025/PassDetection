@@ -1,0 +1,17 @@
+{
+  "admitted": true,
+  "apply_requested": true,
+  "checked_at": "2026-10-14T09:46:28.656120+00:00",
+  "job_before_created": "2026-10-14 08:42:40.065889+00:00",
+  "job_before_status": "succeeded",
+  "job_created": "2026-10-14 09:46:29.067097+00:00",
+  "job_id": "1d03673a-3022-421b-abd3-3c122d542a5e",
+  "job_status": "queued",
+  "link_unchanged": true,
+  "operation": "test-roster-import-20261014T091932-repair-v1",
+  "original_source_unchanged": true,
+  "previously_admitted": false,
+  "release": "490b5ade5aeb221534894f8bf621d983cac82137",
+  "transaction_committed": true,
+  "valid_recipients": 100
+}

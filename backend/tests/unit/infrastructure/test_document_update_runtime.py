@@ -1,6 +1,7 @@
 """Text update delivery uses current scope and immutable non-media snapshots."""
 
 import uuid
+from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock
@@ -111,6 +112,22 @@ async def test_revoked_broadcast_consent_blocks_queued_update(db_session, monkey
     group = await db_session.get(WhatsAppBroadcastGroupModel, log.broadcast_group_id)
     group.recipient_opt_in_confirmed_at = None
     await db_session.commit()
+    await runtime.run_document_update_broadcast(batch_id=str(log.batch_id))
+    await db_session.refresh(log)
+    assert log.status == "failed"
+    assert "AUDIENCE_CHANGED" in log.error_message
+    send.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_destination_policy_reason_blocks_even_when_identity_and_phone_match(db_session, monkeypatch):
+    log, _, send = await seed_update(db_session, monkeypatch)
+    original_loader = runtime.load_traveller_destinations
+
+    async def blocked_loader(*args, **kwargs):
+        return [replace(row, reason="Contact needs review") for row in await original_loader(*args, **kwargs)]
+
+    monkeypatch.setattr(runtime, "load_traveller_destinations", blocked_loader)
     await runtime.run_document_update_broadcast(batch_id=str(log.batch_id))
     await db_session.refresh(log)
     assert log.status == "failed"

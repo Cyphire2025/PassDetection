@@ -8,6 +8,7 @@ from datetime import UTC, datetime
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import raiseload
 
 from app.application.mobile.passenger_phone_authority import submitted_phone_matches_identity
 from app.core.security.mobile_jwt import MobileAccessClaims, MobilePrincipalType
@@ -52,6 +53,7 @@ class MobileAccessPolicy:
         now = datetime.now(tz=UTC)
         result = await self._session.execute(
             select(GCGroupAccessModel, ClientGroupModel)
+            .options(raiseload(ClientGroupModel.company))
             .join(ClientGroupModel, ClientGroupModel.id == GCGroupAccessModel.group_id)
             .where(
                 GCGroupAccessModel.group_id == group_id,

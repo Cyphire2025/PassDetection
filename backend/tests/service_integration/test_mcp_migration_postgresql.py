@@ -24,7 +24,6 @@ from app.infrastructure.database.gc_notification_models import (
 )
 from app.infrastructure.database.mcp_contact_import_models import MCPContactImportUploadModel
 from app.infrastructure.database.mcp_gc_push_models import MCPGCPushOriginModel, MCPGCPushPlanModel
-from app.infrastructure.database.mcp_models import MCPGrantModel
 from app.infrastructure.database.mcp_operation_models import MCPOperationModel
 from app.infrastructure.database.mcp_whatsapp_media_models import (
     MCPWhatsAppHeaderAccessModel,
@@ -32,7 +31,6 @@ from app.infrastructure.database.mcp_whatsapp_media_models import (
 )
 from app.infrastructure.database.models import (
     AgencyModel,
-    ClientGroupModel,
     UserModel,
     WhatsAppBroadcastGroupModel,
 )
@@ -41,7 +39,10 @@ from app.presentation.api.v1.routes.mcp_admin_files import file_projection
 
 pytestmark = [pytest.mark.service_integration, pytest.mark.skipif(
     os.getenv("RUN_SERVICE_INTEGRATION") != "1", reason="isolated PostgreSQL required")]
-EXPECTED_HEAD = json.loads((Path(__file__).resolve().parents[2] / "app/core/config/release_manifest.json").read_text())["schema_revision"]
+EXPECTED_HEAD = "0129_travel_tracker"
+
+
+LEGACY_HEAD = "0122_mcp_gc_push"
 
 
 async def test_additive_upgrade_preserves_rows_and_refuses_loss_of_connection_history():
@@ -70,9 +71,7 @@ async def test_additive_upgrade_preserves_rows_and_refuses_loss_of_connection_hi
         async with engine.connect() as connection:
             for table in ("agencies", "users", "client_groups", "passport_submissions"):
                 records = (await connection.execute(text(
-                    # A new nullable UI label is not part of the retained
-                    # historical business projection being compared here.
-                    f"SELECT to_jsonb(record) - 'display_name' FROM (SELECT * FROM {table} ORDER BY id) record"
+                    f"SELECT row_to_json(record) FROM (SELECT * FROM {table} ORDER BY id) record"
                 ))).scalars().all()
                 result[table] = json.dumps(records, sort_keys=True)
         return result
@@ -90,17 +89,23 @@ async def test_additive_upgrade_preserves_rows_and_refuses_loss_of_connection_hi
                              hashed_password="synthetic", role="super_admin", is_active=True)
             session.add_all([agency, user])
             await session.flush()
-            group = ClientGroupModel(id=uuid.uuid4(), agency_id=agency.id, name="Retained group", token=uuid.uuid4().hex)
-            session.add(group)
-            await session.flush()
-            # Seed the historical 0113 schema without asking today's ORM to
-            # insert columns introduced by later additive migrations.
+            group_id = uuid.uuid4()
+            # The source is deliberately 0113; current ORM columns do not exist yet.
+            await session.execute(text(
+                "INSERT INTO client_groups(id,agency_id,name,token,status,created_at,"
+                "departure_cities,deleted_passport_count,deletion_retained_records) "
+                "VALUES(:id,:agency,'Retained group',:token,'active',:now,'[]'::jsonb,0,false)"
+            ), {"id": group_id, "agency": agency.id, "token": uuid.uuid4().hex,
+                "now": datetime.now(UTC)})
+            # Seed only columns present in the deliberately retained 0113 schema.
             await session.execute(text("""
                 INSERT INTO passport_submissions
-                    (id, agency_id, group_id, client_name, image_s3_key, status)
+                    (id, agency_id, group_id, client_name, image_s3_key, status,
+                     created_at, updated_at)
                 VALUES (:id, :agency_id, :group_id, 'Retained passport',
-                    'synthetic/retained-source', 'confirmed')
-            """), {"id": uuid.uuid4(), "agency_id": agency.id, "group_id": group.id})
+                    'synthetic/retained-source', 'confirmed', :now, :now)
+            """), {"id": uuid.uuid4(), "agency_id": agency.id, "group_id": group_id,
+                     "now": datetime.now(UTC)})
             await session.commit()
             user_id = user.id
         before = await snapshot()
@@ -108,12 +113,12 @@ async def test_additive_upgrade_preserves_rows_and_refuses_loss_of_connection_hi
         # lock timeout, retain the source version, and permit a clean retry.
         async with engine.begin() as held:
             await held.execute(text("LOCK TABLE users IN ACCESS EXCLUSIVE MODE"))
-            code, output = await migrate("upgrade", "head")
+            code, output = await migrate("upgrade", LEGACY_HEAD)
             assert code != 0 and "lock timeout" in output
             assert await held.scalar(text("SELECT version_num FROM alembic_version")) == "0113_document_follow_up"
             assert await held.scalar(text("SELECT to_regclass('public.mcp_control')")) is None
         assert await snapshot() == before
-        code, output = await migrate("upgrade", "head")
+        code, output = await migrate("upgrade", LEGACY_HEAD)
         assert code == 0, output[-4000:]
         assert await snapshot() == before
         async with engine.connect() as connection:
@@ -128,10 +133,14 @@ async def test_additive_upgrade_preserves_rows_and_refuses_loss_of_connection_hi
         grant_id, artifact_id = uuid.uuid4(), uuid.uuid4()
         async with factory() as session:
             now = datetime.now(UTC)
-            session.add(MCPGrantModel(id=grant_id, user_id=user_id,
-                client_id="global-connects-desktop", name="Retained connection", resource="http://localhost:8000/mcp",
-                capabilities=["mcp:read"], security_version=1, mfa_at=now, created_at=now, expires_at=now + timedelta(days=7)))
-            await session.flush()
+            # Seed the exact 0114 shape: current ORM columns intentionally do
+            # not exist before the later permission/device migrations.
+            await session.execute(text("""
+                INSERT INTO mcp_grants (id,user_id,client_id,name,resource,capabilities,
+                    security_version,mfa_at,created_at,expires_at)
+                VALUES (:id,:user,'global-connects-desktop','Retained connection',
+                    'http://localhost:8000/mcp','["mcp:read"]'::jsonb,1,:now,:now,:expiry)
+            """), {"id": grant_id, "user": user_id, "now": now, "expiry": now + timedelta(days=7)})
             await session.execute(text("""
                 INSERT INTO mcp_artifacts (id, handle_hash, user_id, grant_id, agency_id, group_id,
                     direction, purpose, storage_key, filename, media_type, byte_size, sha256, created_at, expires_at)
@@ -139,37 +148,37 @@ async def test_additive_upgrade_preserves_rows_and_refuses_loss_of_connection_hi
                     'export', 'passport_excel', 'synthetic/legacy-export', 'legacy.xlsx',
                     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 3, :sha256, :now, :expiry)
             """), {"id": artifact_id, "handle_hash": "a" * 64, "user_id": user_id,
-                "grant_id": grant_id, "agency_id": agency.id, "group_id": group.id,
+                "grant_id": grant_id, "agency_id": agency.id, "group_id": group_id,
                 "sha256": "b" * 64, "now": now, "expiry": now + timedelta(hours=1)})
             await session.commit()
-        code, output = await migrate("upgrade", "head")
+        code, output = await migrate("upgrade", LEGACY_HEAD)
         assert code == 0, output[-4000:]
         async with engine.connect() as connection:
             access = (await connection.execute(text("SELECT * FROM mcp_artifact_access"))).mappings().one()
             assert (access["artifact_id"], access["grant_id"], access["handle_hash"], access["handle_version"]) == (
                 artifact_id, grant_id, "a" * 64, 0)
             assert await connection.scalar(text("SELECT association_groups FROM mcp_artifacts")) == [
-                {"agency_id": str(agency.id), "group_id": str(group.id)}]
+                {"agency_id": str(agency.id), "group_id": str(group_id)}]
         assert await snapshot() == before
         # A legacy-only backfill is reversible without losing its original locator.
         code, output = await migrate("downgrade", "0114_mcp_connections")
         assert code == 0, output[-4000:]
         async with engine.connect() as connection:
             assert await connection.scalar(text("SELECT handle_hash FROM mcp_artifacts")) == "a" * 64
-        code, output = await migrate("upgrade", "head")
+        code, output = await migrate("upgrade", LEGACY_HEAD)
         assert code == 0, output[-4000:]
         async with engine.begin() as connection:
             await connection.execute(text("UPDATE mcp_artifact_access SET handle_version = 1"))
         code, output = await migrate("downgrade", "0114_mcp_connections")
         assert code != 0 and "workflow history must be retained" in output
         async with engine.begin() as connection:
-            assert await connection.scalar(text("SELECT version_num FROM alembic_version")) == EXPECTED_HEAD
+            assert await connection.scalar(text("SELECT version_num FROM alembic_version")) == LEGACY_HEAD
             assert await connection.scalar(text("SELECT handle_version FROM mcp_artifact_access")) == 1
             await connection.execute(text("UPDATE mcp_artifact_access SET handle_version = 0"))
         code, output = await migrate("downgrade", "0113_document_follow_up")
         assert code != 0 and "connection history must be retained" in output
         async with engine.connect() as connection:
-            assert await connection.scalar(text("SELECT version_num FROM alembic_version")) == EXPECTED_HEAD
+            assert await connection.scalar(text("SELECT version_num FROM alembic_version")) == LEGACY_HEAD
             assert await connection.scalar(text("SELECT count(*) FROM mcp_grants")) == 1
         assert await snapshot() == before
         # An orphaned dispatch origin must survive even when its former plan is gone.
@@ -182,7 +191,7 @@ async def test_additive_upgrade_preserves_rows_and_refuses_loss_of_connection_hi
         code, output = await migrate("downgrade", "0116_mcp_communications")
         assert code != 0 and "dispatch origins must be retained" in output
         async with engine.connect() as connection:
-            assert await connection.scalar(text("SELECT version_num FROM alembic_version")) == EXPECTED_HEAD
+            assert await connection.scalar(text("SELECT version_num FROM alembic_version")) == LEGACY_HEAD
             assert await connection.scalar(text("SELECT count(*) FROM mcp_whatsapp_outbox WHERE plan_id IS NULL")) == 1
         operation_id = uuid.uuid4()
         async with factory() as session:
@@ -196,7 +205,7 @@ async def test_additive_upgrade_preserves_rows_and_refuses_loss_of_connection_hi
         code, output = await migrate("downgrade", "0117_mcp_dispatch_origin")
         assert code != 0 and "ingestion history must be retained" in output
         async with engine.connect() as connection:
-            assert await connection.scalar(text("SELECT version_num FROM alembic_version")) == EXPECTED_HEAD
+            assert await connection.scalar(text("SELECT version_num FROM alembic_version")) == LEGACY_HEAD
             assert await connection.scalar(text("SELECT ingestion_operation_id FROM mcp_artifacts")) == operation_id
         async with factory() as session:
             session.add(MCPContactImportUploadModel(id=uuid.uuid4(), user_id=user_id, original_grant_id=grant_id,
@@ -208,7 +217,7 @@ async def test_additive_upgrade_preserves_rows_and_refuses_loss_of_connection_hi
         code, output = await migrate("downgrade", "0118_mcp_pdf_ingestion")
         assert code != 0 and "contact source history must be retained" in output
         async with engine.connect() as connection:
-            assert await connection.scalar(text("SELECT version_num FROM alembic_version")) == EXPECTED_HEAD
+            assert await connection.scalar(text("SELECT version_num FROM alembic_version")) == LEGACY_HEAD
             assert await connection.scalar(text("SELECT count(*) FROM mcp_contact_import_uploads")) == 1
         media_id = uuid.uuid4()
         async with factory() as session:
@@ -235,7 +244,7 @@ async def test_additive_upgrade_preserves_rows_and_refuses_loss_of_connection_hi
         code, output = await migrate("downgrade", "0119_mcp_contact_imports")
         assert code != 0 and "WhatsApp media history must be retained" in output
         async with engine.connect() as connection:
-            assert await connection.scalar(text("SELECT version_num FROM alembic_version")) == EXPECTED_HEAD
+            assert await connection.scalar(text("SELECT version_num FROM alembic_version")) == LEGACY_HEAD
             assert await connection.scalar(text("SELECT count(*) FROM mcp_whatsapp_header_media")) == 1
             assert await connection.scalar(text("SELECT count(*) FROM mcp_whatsapp_header_access")) == 1
             projection = file_projection(now)
@@ -251,18 +260,18 @@ async def test_additive_upgrade_preserves_rows_and_refuses_loss_of_connection_hi
         code, output = await migrate("downgrade", "0120_mcp_whatsapp_media")
         assert code != 0 and "send intent history must be retained" in output
         async with engine.connect() as connection:
-            assert await connection.scalar(text("SELECT version_num FROM alembic_version")) == EXPECTED_HEAD
+            assert await connection.scalar(text("SELECT version_num FROM alembic_version")) == LEGACY_HEAD
             assert await connection.scalar(text("SELECT count(*) FROM whatsapp_send_intents")) == 1
         # A retained origin without its former plan still prohibits downgrade.
         async with factory() as session:
             draft = GCNotificationDraftModel(agency_id=agency.id, title="Retained push",
-                body="Synthetic history only", audience="selected_groups", group_ids=[str(group.id)])
+                body="Synthetic history only", audience="selected_groups", group_ids=[str(group_id)])
             session.add(draft)
             await session.flush()
             batch = GCNotificationBatchModel(agency_id=agency.id, draft_id=draft.id,
                 draft_revision=1, request_id=uuid.uuid4(), request_fingerprint="9" * 64,
                 title=draft.title, body=draft.body, audience=draft.audience,
-                group_ids=[str(group.id)], group_names=["Retained group"], role_counts={"coordinator": 1},
+                group_ids=[str(group_id)], group_names=["Retained group"], role_counts={"coordinator": 1},
                 created_at=now, expires_at=now + timedelta(hours=1))
             session.add(batch)
             await session.flush()
@@ -290,10 +299,22 @@ async def test_additive_upgrade_preserves_rows_and_refuses_loss_of_connection_hi
             async with engine.begin() as connection:
                 await connection.execute(text("UPDATE mcp_gc_push_plans SET snapshot_hash=:hash"), {"hash": "G" * 64})
         async with engine.connect() as connection:
-            assert await connection.scalar(text("SELECT version_num FROM alembic_version")) == EXPECTED_HEAD
+            assert await connection.scalar(text("SELECT version_num FROM alembic_version")) == LEGACY_HEAD
             assert await connection.scalar(text("SELECT count(*) FROM mcp_gc_push_origins WHERE plan_id IS NULL")) == 1
             assert await connection.scalar(text("SELECT snapshot_hash FROM mcp_gc_push_plans")) == "a" * 64
         assert await snapshot() == before
+        # The historical reversible migrations are qualified independently of
+        # subsequent permission decisions, whose destructive rollback is banned.
+        # Keep this historical rollback proof before the separately rehearsed
+        # 0130+ additive release and its concurrent-index commit boundaries.
+        code, output = await migrate("upgrade", EXPECTED_HEAD)
+        assert code == 0, output[-4000:]
+        assert await snapshot() == before
+        code, output = await migrate("downgrade", LEGACY_HEAD)
+        assert code != 0 and "history must be retained" in output
+        async with engine.connect() as connection:
+            assert await connection.scalar(text("SELECT version_num FROM alembic_version")) == EXPECTED_HEAD
+            assert await connection.scalar(text("SELECT count(*) FROM mcp_grants")) == 1
     finally:
         await engine.dispose()
         async with admin.connect() as connection:

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from datetime import datetime
-from typing import Annotated, Any, Literal
+from typing import Annotated, Any, Literal, Self
 from uuid import UUID
 
 from fastapi import FastAPI, HTTPException
@@ -54,7 +54,7 @@ class Contact(WhatsAppRecipientInput):
     imported_fields: dict[str, str] = Field(default_factory=dict, max_length=32)
 
     @model_validator(mode="after")
-    def bounded_fields(self):
+    def bounded_fields(self) -> Self:
         if any(len(key) > 64 or len(value) > 500 for key, value in self.imported_fields.items()):
             raise ValueError("Contact fields exceed their limits")
         return self
@@ -86,7 +86,7 @@ class BroadcastEdit(BaseModel):
     support_contacts: list[Support] | None = Field(default=None, min_length=1, max_length=3)
 
     @model_validator(mode="after")
-    def nonempty(self):
+    def nonempty(self) -> Self:
         if (
             self.name is None
             and self.organizing_company_name is None
@@ -105,7 +105,7 @@ class BroadcastContacts(BaseModel):
     recipient_opt_in_confirmed: Literal[True]
 
 
-BROADCAST_WRITE_MODELS = {
+BROADCAST_WRITE_MODELS: dict[str, type[BroadcastCreate] | type[BroadcastEdit] | type[BroadcastContacts]] = {
     "create_whatsapp_broadcast": BroadcastCreate,
     "update_broadcast_details": BroadcastEdit,
     "add_broadcast_contacts": BroadcastContacts,
@@ -117,7 +117,7 @@ def require_bounded_history(history: dict[str, Any]) -> None:
         raise MCPOperationError("broadcast_source_limit")
 
 
-async def broadcast_row(context: MCPDatabaseContext, agency_id: UUID, broadcast_id: UUID):
+async def broadcast_row(context: MCPDatabaseContext, agency_id: UUID, broadcast_id: UUID) -> WhatsAppBroadcastGroupModel:
     row = await context.session.scalar(
         select(WhatsAppBroadcastGroupModel)
         .where(
@@ -140,24 +140,24 @@ def broadcast_write_operation(name: str) -> MCPDatabaseOperation:
     if name not in BROADCAST_WRITE_MODELS:
         raise ValueError("Unsupported broadcast write")
 
-    async def mutate(context: MCPDatabaseContext, payload: dict[str, Any]):
+    async def mutate(context: MCPDatabaseContext, payload: dict[str, Any]) -> MCPDatabaseResult:
         try:
             body = BROADCAST_WRITE_MODELS[name].model_validate(payload)
         except ValidationError as exc:
             raise MCPOperationError("invalid_broadcast_write") from exc
         actor = await require_change_actor(context, body.agency_id)
-        history = {}
+        history: dict[str, Any] = {}
         try:
-            if name == "create_whatsapp_broadcast":
+            if isinstance(body, BroadcastCreate):
                 row = await create_new_broadcast(
                     context.session,
                     agency_id=body.agency_id,
                     actor_id=actor.id,
                     name=body.name,
                     organizing_company_name=body.organizing_company_name,
-                    contacts=body.contacts,
+                    contacts=list(body.contacts),
                     rejected_contacts=[],
-                    support_contacts=body.support_contacts,
+                    support_contacts=list(body.support_contacts),
                     recipient_opt_in_confirmed=body.recipient_opt_in_confirmed,
                     declared_field_keys=[],
                 )
@@ -181,7 +181,7 @@ def broadcast_write_operation(name: str) -> MCPDatabaseOperation:
                 if len(recipients) > 1000:
                     raise MCPOperationError("broadcast_source_limit")
                 history["group"] = row_snapshot(row)
-                if name == "update_broadcast_details":
+                if isinstance(body, BroadcastEdit):
                     support = list(
                         (
                             await context.session.scalars(
@@ -217,7 +217,7 @@ def broadcast_write_operation(name: str) -> MCPDatabaseOperation:
                     require_bounded_history(history)
                     await add_validated_broadcast_recipients(
                         group_id=row.id,
-                        contacts=body.contacts,
+                        contacts=list(body.contacts),
                         rejected_contacts=[],
                         declared_field_keys=[],
                         recipient_opt_in_confirmed=body.recipient_opt_in_confirmed,
@@ -255,7 +255,7 @@ def broadcast_write_operation(name: str) -> MCPDatabaseOperation:
             else (),
         )
 
-    async def authorize_receipt(context: MCPDatabaseContext, receipt: dict[str, Any]):
+    async def authorize_receipt(context: MCPDatabaseContext, receipt: dict[str, Any]) -> None:
         data = receipt["data"]
         await scoped_actor(context, UUID(data["agency_id"]))
         await broadcast_row(context, UUID(data["agency_id"]), UUID(data["broadcast_id"]))
@@ -268,7 +268,7 @@ def broadcast_write_operation(name: str) -> MCPDatabaseOperation:
 
 
 def register_broadcast_write_tools(server: MCPServer, app: FastAPI, settings: Settings) -> None:
-    def register(name: str, model):
+    def register(name: str, model: type[BaseModel]) -> None:
         definition = broadcast_write_operation(name)
         app.state.mcp_operations[name] = definition
 

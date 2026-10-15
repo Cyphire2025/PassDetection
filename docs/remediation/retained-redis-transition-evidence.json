@@ -1,0 +1,49 @@
+{
+  "initial_host_available_gib": 8.66,
+  "final_host_available_gib": 8.6,
+  "rows": [
+    {
+      "service": "redis-broker",
+      "passed": true,
+      "original_container_retained": true,
+      "same_data_volume": true,
+      "absolute_ttl_preserved": true,
+      "orphaned_create_recovered": true,
+      "one_active_writer": true,
+      "memory_after": {
+        "current": 3522560,
+        "oom": 0,
+        "oom_kill": 0
+      },
+      "image_id": "sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99"
+    },
+    {
+      "service": "redis-cache",
+      "passed": true,
+      "original_container_retained": true,
+      "same_data_volume": true,
+      "absolute_ttl_preserved": true,
+      "orphaned_create_recovered": true,
+      "one_active_writer": true,
+      "memory_after": {
+        "current": 3649536,
+        "oom": 0,
+        "oom_kill": 0
+      },
+      "image_id": "sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99"
+    }
+  ],
+  "production_changes": false,
+  "provider_calls": 0,
+  "recorded_at_utc": "2026-10-15T20:24:35.663339+00:00",
+  "scope": "Installed Redis image and small synthetic dataset; retained-adapter mechanical proof, not final application-image pressure qualification",
+  "limitations": [
+    "First run captured memory_after current/oom/oom_kill only; final-image qualifier additionally captures peak/max events.",
+    "Dataset pressure and AOF rewrite measured separately.",
+    "No production configuration, data or services changed."
+  ],
+  "source_sha256": {
+    "scripts/release_document_resource_binding.py": "c2f4d699fb0996acc84bb2e931c24a638abbb635941c56d8a119d474e368c975",
+    "scripts/release_redis_dataset_transition.py": "c75dbdb67763fbfd56d785fdcf21ed71f5c290daaab1e2cfd95e6a1fb33ae977"
+  }
+}

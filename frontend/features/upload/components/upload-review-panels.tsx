@@ -4,14 +4,14 @@ import { Button } from "@/components/ui/button";
 import { isUploadFieldRequired, type RequiredUploadField } from "@/features/passports/types/upload-configuration";
 import type { PassportSubmission } from "@/types/passport.types";
 import { ArrowLeft } from "lucide-react";
-import type { ComponentProps, Dispatch, SetStateAction } from "react";
+import type { ComponentProps, Dispatch, ReactNode, SetStateAction } from "react";
 import type { useUploadContactVerification } from "../hooks/use-upload-contact-verification";
 import type { useUploadDocuments } from "../hooks/use-upload-documents";
 import type { getUploadFlowSettings } from "../services/configured-upload";
 import type { FamilyMemberUpdate } from "../services/family-upload-state";
 import { passportDocumentVerificationGate } from "../services/passport-document-verification";
 import type { SingleReviewDraft } from "../services/review-submission-validation";
-import { isClientSubmissionComplete } from "../services/upload-flow-helpers";
+import { isFamilyMemberSubmitted, matchesFamilySource } from "../services/family-returning";
 import { SavedUploadDocuments } from "./saved-upload-documents";
 import { VerifiedContactSummary } from "./upload-contact-verification";
 import { ConfiguredClientFields, CustomDetailFields, CustomQuestionFields, DepartureCitySelect, NameInput } from "./upload-flow-fields";
@@ -28,6 +28,7 @@ type CommonProps = {
   departureCity: string; setDepartureCity: Set<string>; onSubmit: (event: React.FormEvent) => Promise<void>;
 };
 type SingleProps = CommonProps & {
+  returningOffer?: ReactNode;
   submission: PassportSubmission; singleUploadIdempotencyKey: string; review: SingleReviewDraft;
   configuredFields: ComponentProps<typeof ConfiguredClientFields>;
   requiresPassportReview: (saved: PassportSubmission) => boolean;
@@ -36,6 +37,7 @@ type SingleProps = CommonProps & {
   setCustomAnswers: Set<Record<string, string>>; setCustomDetailAnswers: Set<Record<string, string>>;
 };
 type FamilyProps = CommonProps & {
+  renderReturningOffer?: (member: FamilyMember) => ReactNode;
   familyMembers: FamilyMember[]; hasBlockedFamilyVerification: boolean; setStep: Set<UploadFlowStep>;
   selectFamilyMember: (index: number) => void; updateFamilyMember: (index: number, update: FamilyMemberUpdate) => void;
   handleFamilyReviewFieldChange: (index: number, key: string, value: string) => void;
@@ -44,7 +46,7 @@ type FamilyProps = CommonProps & {
 export function UploadSingleReview({ token, settings, documents, contactVerification, canReviewSubmission, uploadError,
   departureCity, setDepartureCity, onSubmit: handleFinalSubmit, submission, singleUploadIdempotencyKey, review,
   configuredFields, requiresPassportReview, extractionNotice, canRetryExtraction, setClientName,
-  handleReviewFieldChange, setCustomAnswers, setCustomDetailAnswers }: SingleProps) {
+  handleReviewFieldChange, setCustomAnswers, setCustomDetailAnswers, returningOffer }: SingleProps) {
   const { clientName, clientEmail, clientPhone, reviewFields, customAnswers, customDetailAnswers } = review;
   const { extractingSubmissionId, handleScanAgain, replaceSavedPassport, isScanningAgain, isReplacingSavedPassport } = documents;
   const { uploadConfig, airportEnabled, departureCities, enabledCustomQuestions, enabledCustomDetails } = settings;
@@ -77,6 +79,7 @@ export function UploadSingleReview({ token, settings, documents, contactVerifica
         </div>
       ) : (
         <form onSubmit={handleFinalSubmit} className="rounded-3xl border border-slate-100 bg-white p-5 shadow-xl shadow-slate-200/50 sm:p-6">
+          {returningOffer}
           {extractingSubmissionId === submission.id && <ProcessingMotion variant="passport" compact className="mx-auto mb-4" />}
           {hasPassport && <ReviewWarning />}
           <ExtractionNotice message={extractionNotice} />
@@ -131,7 +134,7 @@ export function UploadSingleReview({ token, settings, documents, contactVerifica
 
 export function UploadFamilyReview({ token, settings, documents, contactVerification, canReviewSubmission, uploadError,
   departureCity, setDepartureCity, onSubmit: handleFamilySubmit, familyMembers, hasBlockedFamilyVerification,
-  setStep, selectFamilyMember, updateFamilyMember, handleFamilyReviewFieldChange }: FamilyProps) {
+  setStep, selectFamilyMember, updateFamilyMember, handleFamilyReviewFieldChange, renderReturningOffer }: FamilyProps) {
   const { extractingSubmissionId, handleFamilyScanAgain, replaceSavedPassport, isScanningAgain, isReplacingSavedPassport } = documents;
   const { uploadConfig, airportEnabled, departureCities, baseCityEnabled, askNearestDomesticAirport,
     staffCodeEnabled, agentEmployeeCodeEnabled, designationEnabled, agencyDealershipNameEnabled,
@@ -150,13 +153,16 @@ export function UploadFamilyReview({ token, settings, documents, contactVerifica
         </div>
         <ErrorMessage message={uploadError} />
         {familyMembers.map((member, index) => {
+          if (member.reuseCompletion && matchesFamilySource(member, member.reuseCompletion.binding)) return <section key={member.localId} className="rounded-2xl border border-emerald-100 bg-white p-4"><h2 className="break-words text-lg font-semibold text-slate-900">{member.name}</h2><p role="status" className="mt-2 text-sm text-emerald-800">This member’s trip information has been saved.</p></section>;
           const verificationGate = member.submission
             ? passportDocumentVerificationGate(member.submission)
             : null;
           const reviewAllowed = Boolean(member.submission && canReviewSubmission(member.submission));
           const hasPassport = Boolean(member.submission?.image_s3_key);
           return (
-            <fieldset key={member.localId} disabled={Boolean(member.submission && isClientSubmissionComplete(member.submission))} className="rounded-2xl border border-slate-100 bg-white p-4 shadow-xl shadow-slate-200/50 sm:rounded-3xl sm:p-5">
+            <fieldset key={member.localId} disabled={isFamilyMemberSubmitted(member)} className="rounded-2xl border border-slate-100 bg-white p-4 shadow-xl shadow-slate-200/50 sm:rounded-3xl sm:p-5">
+              {renderReturningOffer?.(member)}
+              <FamilyReplacementNotice member={member} />
               <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
                   <h2 className="text-lg font-bold text-slate-900">{member.name}</h2>
@@ -288,4 +294,9 @@ export function UploadFamilyReview({ token, settings, documents, contactVerifica
       </form>
     </div>
   );
+}
+
+function FamilyReplacementNotice({ member }: { member: FamilyMember }) {
+  if (!member.replacementAssociated || !matchesFamilySource(member, member.replacementAssociated)) return null;
+  return <p role="status" className="mb-4 rounded-xl bg-blue-50 p-3 text-sm text-blue-900">This uploaded document is linked for review. Finish this member’s current details below.</p>;
 }

@@ -14,7 +14,7 @@ const admin = {
 };
 
 const groupId = "image-editor-group";
-const submissionId = "image-editor-submission";
+const submissionId = "00000000-0000-4000-8000-000000000071";
 const imageRoot = `/api/v1/passports/${submissionId}/images`;
 const imageRevision = 7;
 const groupSummary = {
@@ -108,6 +108,7 @@ async function installEditorFixture(
   const saved: CropRequest[] = [];
   const reset: unknown[] = [];
   const unexpected: string[] = [];
+  let refreshRequests = 0;
   await page.context().addCookies([{
     name: "access_token", value: "isolated-image-editor-session", domain: "127.0.0.1",
     path: "/", httpOnly: true, sameSite: "Lax",
@@ -128,10 +129,14 @@ async function installEditorFixture(
   await page.route("**/api/v1/**", async (route) => {
     const request = route.request();
     const pathname = new URL(request.url()).pathname;
-    if (pathname === "/api/v1/auth/refresh") return json(route, {
-      status: "authenticated", user: admin, token_type: "bearer",
-      access_token_expires_at: "2099-09-01T00:00:00Z",
-    });
+    if (pathname === "/api/v1/auth/refresh") {
+      refreshRequests += 1;
+      return json(route, {
+        status: "authenticated", user: admin, token_type: "bearer",
+        // Deliberately outside the browser timer range: renewal must stay bounded.
+        access_token_expires_at: "2099-09-01T00:00:00Z",
+      });
+    }
     if (pathname === "/api/v1/auth/me") return json(route, admin);
     if (pathname === "/api/v1/notifications/feed") return json(route, {
       items: [], unread_count: 0, next_cursor: null,
@@ -177,13 +182,19 @@ async function installEditorFixture(
     unexpected.push(`${request.method()} ${pathname}`);
     return json(route, { error: { code: "UNMOCKED_TEST_REQUEST", message: pathname } }, 400);
   });
-  return { saved, reset, unexpected };
+  return { saved, reset, unexpected, get refreshRequests() { return refreshRequests; } };
 }
 
 async function openEditor(page: Page, label = "Passport front") {
   await page.goto(`/passports/groups/${groupId}?view=docs`);
   await expect(page.getByRole("heading", { name: groupSummary.group_name, level: 1 })).toBeVisible();
-  const cell = page.getByRole("cell").filter({
+  // DOCS thumbnails intentionally load only near the viewport. Bring the
+  // document cell into view before looking for its lazily created image link.
+  const table = page.getByRole("table", { name: "Current passenger document assignments" });
+  const column = label === "Visa Photo" ? 1 : 2;
+  await table.getByRole("row").filter({ hasText: submission.client_name })
+    .getByRole("cell").nth(column).scrollIntoViewIfNeeded();
+  const cell = table.getByRole("cell").filter({
     has: page.getByRole("link", { name: `Open ${label} in a new tab` }),
   });
   await cell.getByRole("button", { name: "Edit", exact: true }).click();
@@ -250,6 +261,7 @@ for (const viewport of [{ width: 1280, height: 800 }, { width: 1366, height: 650
       await expect(dialog).toHaveCount(0);
       expect(fixture.saved).toEqual([]);
       expect(fixture.unexpected).toEqual([]);
+      expect(fixture.refreshRequests).toBe(1);
     });
   }
 }

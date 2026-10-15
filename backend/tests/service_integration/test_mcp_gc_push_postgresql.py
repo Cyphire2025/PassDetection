@@ -77,7 +77,7 @@ async def push_sessions(mcp_sessions, monkeypatch):
             await create_isolated_postgresql_tables(connection, schema)
         async with sessions() as session:
             session.add(MCPControlModel(id=1, enabled=True))
-            user, grants, tokens = await seed_identity(session, settings)
+            user, grants, tokens = await seed_identity(session, settings, enable_write_policy=True)
             for grant in grants:
                 grant.capabilities = ["mcp:read", "mcp:communicate", "mcp:change"]
             actor, accesses, _, _, registration = await authored_audience(session)
@@ -119,7 +119,7 @@ async def prepare(f, *, key=None, connection=0):
 
 
 def confirmation(prepared):
-    return {"plan_id": prepared["data"]["plan_id"], "plan_hash": prepared["data"]["plan_hash"]}
+    return {"plan_id": prepared["data"]["plan_id"], "plan_hash": prepared["data"]["plan_hash"], "user_confirmed": True}
 
 
 async def worker(f, provider, *, now=None, limit=20):

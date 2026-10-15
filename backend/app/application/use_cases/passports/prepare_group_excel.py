@@ -16,6 +16,7 @@ from typing import Any, Callable
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.use_cases.passports.excel_snapshot import snapshot_digest
+from app.application.use_cases.passports.export_changes import export_changes
 from app.domain.entities.entities import ClientGroup, PassportSubmission, User
 from app.infrastructure.documents.storage_transfers import run_bounded_storage_operations
 from app.infrastructure.export.passport_excel_exporter import PassportExcelExporter
@@ -294,6 +295,7 @@ async def prepare_group_excel(
         agency_id=agency_id,
         group_details=group_details,
     )
+    changes = export_changes(current_submissions, baseline)
     render_arguments = dict(
         group_name=group.name,
         group_details=group_details,
@@ -307,6 +309,7 @@ async def prepare_group_excel(
         previous_names=previous_names,
         group_by_field=resolved_group_by,
         pending_rows=pending_rows,
+        change_rows=changes.rows if export_mode == "incremental" else None,
     )
     history_fields = dict(
         group_id=group_id,
@@ -319,6 +322,8 @@ async def prepare_group_excel(
         exported_people_snapshot=support._export_people_snapshot(submissions),
         pending_recipient_count=len(pending_rows),
         artifact_metadata={
+            "submission_revisions": changes.revisions,
+            "changes": changes.rows if export_mode == "incremental" else [],
             "supplemental_fields": requested_field_keys,
             "group_by_field": resolved_group_by,
             "agency_match_field": resolved_agency_match_field,

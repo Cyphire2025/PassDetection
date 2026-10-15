@@ -221,7 +221,6 @@ async def test_worker_requires_welcome_only_for_qr_before_provider(
         delivery = _qr_delivery(context, status="queued")
         runtime = qr_delivery_runtime
         runner = runtime.run_qr_whatsapp_broadcast
-        # The production expiry helper normalizes SQLite's naive timestamps.
         monkeypatch.setattr(runtime, "upload_whatsapp_image", AsyncMock(return_value="media"))
         monkeypatch.setattr(runtime, "render_attendance_qr_png", lambda *_: b"fixture-image")
         send = AsyncMock(return_value="wamid.qr")

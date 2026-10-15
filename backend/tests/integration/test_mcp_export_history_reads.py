@@ -18,6 +18,7 @@ from app.application.mcp.export_history_reads import (
     MCPExportHistoryReadService,
 )
 from app.application.mcp.exports import MCPExcelExportService
+from app.application.use_cases.passports.export_changes import submission_revision
 from app.infrastructure.database.mcp_artifact_models import MCPArtifactModel
 from app.infrastructure.database.mcp_models import MCPGrantModel
 from app.infrastructure.database.mcp_operation_models import MCPOperationModel
@@ -26,6 +27,9 @@ from app.infrastructure.database.models import (
     AuditLogModel,
     ClientGroupModel,
     PassportExportHistoryModel,
+)
+from app.infrastructure.repositories.mcp_export_history_read_repository import (
+    MCPExportHistoryReadRepository,
 )
 from app.infrastructure.repositories.user_repository import UserRepository
 from app.presentation.api.v1.routes.passport_routes.export_history import (
@@ -100,6 +104,73 @@ async def test_completed_v1_list_matches_website_cumulative_checkpoint_and_live_
     assert result["maximum_checkpoint_source_bytes"] == f.settings.mcp.export_source_byte_limit
     assert result["maximum_current_roster_ids"] == 5000
     assert result["maximum_response_bytes"] == 512 * 1024
+
+
+async def test_revision_counts_include_same_id_edits_and_removed_members_without_private_output(artifacts):
+    f = artifacts
+    source = person(f, 1)
+    f.session.add(source)
+    await f.session.flush()
+    missing = uuid.uuid4()
+    await checkpoint(f, snapshot=[source.id, missing], artifact_metadata={
+        "submission_revisions": {str(source.id): submission_revision(source), str(missing): "previous"}})
+    source.client_name = "PRIVATE-updated"
+    await f.session.commit()
+    result = await listing(f)
+    item = result["items"][0]
+    assert item["new_submission_count"] == 0
+    assert item["changed_submission_count"] == item["removed_submission_count"] == 1
+    assert "PRIVATE" not in json.dumps(result)
+
+
+async def test_revision_source_byte_budget_precedes_hydration(artifacts):
+    f = artifacts
+    f.settings.mcp.export_source_byte_limit = 1024 * 1024
+    source = person(f, 1)
+    source.confirmed_fields = {"surname": "界" * 400_000}
+    f.session.add(source)
+    await checkpoint(f, snapshot=[source.id])
+    statements = []
+    def observe(_conn, _cursor, statement, _parameters, _context, _many):
+        statements.append(statement)
+    engine = f.session.get_bind()
+    event.listen(engine, "before_cursor_execute", observe)
+    try:
+        with pytest.raises(ExportHistoryReadError, match="history_limit"):
+            await listing(f)
+    finally:
+        event.remove(engine, "before_cursor_execute", observe)
+    for sql in statements:
+        normalized = sql.lower()
+        # Only the SQL byte measurement may reference the unadmitted JSON.
+        assert normalized.count("passport_submissions.confirmed_fields") == normalized.count(
+            "cast(passport_submissions.confirmed_fields as text)"
+        )
+
+
+@pytest.mark.parametrize("count", [1, 25])
+async def test_revision_source_admission_and_hydration_use_two_queries(artifacts, count):
+    f = artifacts
+    sources = [person(f, index) for index in range(count)]
+    f.session.add_all(sources)
+    await f.session.commit()
+    actor = await UserRepository(f.session).get_by_id(f.user.id)
+    repository = MCPExportHistoryReadRepository(f.session, 1024 * 1024)
+    statements = []
+
+    def observe(_conn, _cursor, statement, _parameters, _context, _many):
+        statements.append(statement)
+
+    engine = f.session.get_bind()
+    event.listen(engine, "before_cursor_execute", observe)
+    try:
+        rows = await repository.current_revision_sources(f.agency.id, f.group.id, actor)
+    finally:
+        event.remove(engine, "before_cursor_execute", observe)
+    assert {row.id for row in rows} == {source.id for source in sources}
+    assert len(statements) == 2
+    assert "source_bytes" in statements[0]
+    assert 0 < repository.remaining_bytes < 1024 * 1024
 
 
 async def test_default_privacy_frozen_order_availability_and_personal_optin_match_website(artifacts):

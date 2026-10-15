@@ -9,7 +9,11 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { copyTextToClipboard } from "@/lib/utils/clipboard";
 import { canAccessWhatsAppBroadcasts } from "@/lib/utils/role-access";
-import { selectUserRole, useAuthStore } from "@/stores/auth.store";
+import { selectUser, selectUserRole, useAuthStore } from "@/stores/auth.store";
+import { CompanyPicker } from "@/features/companies/components/company-picker";
+import { CompanyWorkspaceFeedback } from "@/features/companies/components/company-agency-scope";
+import { useCompanyWorkspace, type CompanyWorkspace } from "@/features/companies/hooks/use-company-workspace";
+import type { CompanyReference } from "@/features/companies/types";
 import {
   getPassportUploadTargets,
   type PassportUploadTarget,
@@ -27,8 +31,18 @@ interface CreateUploadLinkModalProps {
   onClose: () => void;
 }
 
-export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModalProps) {
+export function CreateUploadLinkModal(props: CreateUploadLinkModalProps) {
+  const workspace = useCompanyWorkspace(props.isOpen);
+  // Retain the draft on a failed revalidation; agencyId still gates every control.
+  const resolvedAgencyId = workspace.data?.agency_id ?? null;
+  return <CreateUploadLinkForm key={`${workspace.sessionKey}:${resolvedAgencyId}`} {...props} workspace={workspace} />;
+}
+
+function CreateUploadLinkForm({ isOpen, onClose, workspace }: CreateUploadLinkModalProps & { workspace: CompanyWorkspace }) {
   const role = useAuthStore(selectUserRole);
+  const user = useAuthStore(selectUser);
+  const [company, setCompany] = useState<CompanyReference | null>(null);
+  const agencyId = workspace.agencyId;
   const canAccessWhatsApp = canAccessWhatsAppBroadcasts(role);
   const [generatedTargets, setGeneratedTargets] = useState<PassportUploadTarget[]>([]);
   const [createdImportGroupId, setCreatedImportGroupId] = useState<string | null>(null);
@@ -49,6 +63,7 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
   } = useForm<CreateUploadLinkFormInput, unknown, CreateUploadLinkFormData>({
     resolver: zodResolver(createUploadLinkSchema),
     defaultValues: {
+      company_id: "",
       import_only: false,
       name: "",
       destination: "",
@@ -96,6 +111,7 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
       copiedTimerRef.current = null;
     }
     reset();
+    setCompany(null);
     setGeneratedTargets([]);
     setCreatedImportGroupId(null);
     setCopiedTargetKey(null);
@@ -107,11 +123,12 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
   const handleKeyDown = useModalKeyboardBoundary({ dialogRef, isOpen, canClose: !isPending, onClose: handleClose });
 
   const onSubmit = async (data: CreateUploadLinkFormData) => {
-    if (isPending || !tryEnterCreate()) return;
+    if (!agencyId || isPending || !tryEnterCreate()) return;
     setActionError(null);
     try {
       const result = await createUploadLink({
         ...data,
+        ...(user?.role === "super_admin" && agencyId ? { agency_id: agencyId } : {}),
         name: data.name.trim(),
         destination: data.destination.trim(),
         travel_date: data.travel_date,
@@ -190,7 +207,7 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
         </div>
 
         <div className="max-h-[calc(90vh-73px)] overflow-y-auto p-6">
-          {isCreated ? (
+          {!agencyId ? <CompanyWorkspaceFeedback workspace={workspace} /> : isCreated ? (
             <div className="space-y-6">
               <div role="status" className="rounded-lg border border-green-100 bg-green-50 p-4 text-sm text-green-800">
                 {createdImportGroupId
@@ -270,6 +287,10 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
                 </div>
               </fieldset>
               <h3 className="text-sm font-semibold text-slate-900">Group Details</h3>
+              <CompanyPicker agencyId={agencyId} value={company} onChange={(selected) => {
+                setCompany(selected);
+                setValue("company_id", selected.id, { shouldDirty: true, shouldValidate: true });
+              }} disabled={isPending || !agencyId} required error={errors.company_id?.message} />
               <Input
                 label="Group Name"
                 placeholder="e.g. Summer Europe Tour 2026"
@@ -361,7 +382,7 @@ export function CreateUploadLinkModal({ isOpen, onClose }: CreateUploadLinkModal
                 <Button type="button" variant="secondary" onClick={handleClose} disabled={isPending}>
                   Cancel
                 </Button>
-                <Button type="submit" disabled={isPending}>
+                <Button type="submit" disabled={isPending || !agencyId}>
                   {isPending ? "Creating..." : importOnly ? "Create Group" : "Generate Links"}
                 </Button>
               </div>

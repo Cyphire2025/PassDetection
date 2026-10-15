@@ -33,7 +33,7 @@ def scrub_read(value: Any) -> tuple[Any, list[list[str | int]]]:
 
     def scrub(node: Any, path: list[str | int]) -> Any:
         if isinstance(node, dict):
-            result = {}
+            result: dict[str, Any] = {}
             for key, child in node.items():
                 normalized = key.casefold()
                 business_field = any(part in {"imported_fields", "confirmed_fields", "extracted_fields", "staff_metadata"}
@@ -49,7 +49,7 @@ def scrub_read(value: Any) -> tuple[Any, list[list[str | int]]]:
         if isinstance(node, list):
             return [scrub(child, [*path, index]) for index, child in enumerate(node)]
         if isinstance(node, str):
-            def url_value(match):
+            def url_value(match: re.Match[str]) -> str:
                 parsed = urlsplit(match.group())
                 query = {key.casefold() for key in parse_qs(parsed.query)}
                 if (query & {"token", "signature", "sig", "access_token", "download_token"}
@@ -139,6 +139,7 @@ class ReadProjection:
             references.append(reference)
             return {"_mcp_read_reference": reference}
 
+        data: Any
         if isinstance(node, (list, dict)):
             keys = sorted(node) if isinstance(node, dict) else list(range(len(node)))
             window = min(page_size, max(1, MAX_DATA_CHARS // (self._size(data_path) + 650)))
@@ -168,7 +169,7 @@ class ReadProjection:
         more = following < total
         next_cursor = self._cursor({"v": 1, "query": query, "fingerprint": fingerprint,
             "offset": following, "expires": expires}) if more else None
-        withheld_page = []
+        withheld_page: list[list[str | int]] = []
         for path in withheld[:100]:
             if self._size([*withheld_page, path]) > 8000:
                 break

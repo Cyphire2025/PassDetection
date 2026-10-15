@@ -175,9 +175,12 @@ async def readiness(
     realtime_status, realtime_ready = get_mobile_realtime_hub().readiness()
     checks["mobile_realtime"] = realtime_status
     overall_healthy = overall_healthy and realtime_ready
+    # Settings.mobile loads and validates environment settings on each access.
+    # Use one consistent snapshot for this response, refreshed on the next call.
+    mobile_enabled = settings.mobile.enabled
     # Production/staging settings validation has already cryptographically
     # checked the Ed25519 private/public key match before the app can start.
-    checks["mobile_offline_authorization"] = "configured" if settings.mobile.enabled else "disabled"
+    checks["mobile_offline_authorization"] = "configured" if mobile_enabled else "disabled"
 
     gemini_checks, gemini_ready = gemini_configuration_readiness(settings)
     checks.update(gemini_checks)
@@ -221,9 +224,9 @@ async def readiness(
     capabilities.update(
         {
             "mobile_realtime": {
-                "required": settings.mobile.enabled,
+                "required": mobile_enabled,
                 "available": realtime_ready,
-                "traffic_gate": settings.mobile.enabled,
+                "traffic_gate": mobile_enabled,
                 "status": realtime_status,
             },
             "gemini_processing": {

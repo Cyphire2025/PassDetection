@@ -1,0 +1,170 @@
+{
+  "candidate_image_ids_verified": {
+    "backend": "sha256:43410191b5c09a7f24bb40458abbb40b9cb6e196a9d8ce83df9ba976aec41064",
+    "frontend": "sha256:4deb1bb33f28c97d287d9ee2e1dcbba76bf2e3c3ef641adf6af9762962786312"
+  },
+  "feature_assets_in_running_container": {
+    "company_directory": true,
+    "returning_offer": true
+  },
+  "full_ci_qualified": false,
+  "independent_reuse_keys_present": true,
+  "not_verified": [
+    "Authenticated company and returning user journeys",
+    "Company/group activation and traveller permission",
+    "Actual OTP delivery, document viewing or capacity"
+  ],
+  "public_readiness": "ready",
+  "public_requests_sent": 2,
+  "reuse_configuration_identical_across_writers": true,
+  "revision": "0e596846f85ec3dbf87cbc70a581b8902e7a2c0c",
+  "schema": "0133_traveller_document_impact",
+  "served_frontend_asset": {
+    "path": "/_next/static/chunks/0ufxwg4w-g-u2.js",
+    "sha256": "8291700e5583b30346f00ce1e534a21f7fcc10d9a52fb1df70176ccd797b2a8e"
+  },
+  "services": [
+    {
+      "health": "healthy",
+      "oom_killed": false,
+      "revision": "0e596846f85ec3dbf87cbc70a581b8902e7a2c0c",
+      "running": true,
+      "service": "backend"
+    },
+    {
+      "health": "healthy",
+      "oom_killed": false,
+      "revision": null,
+      "running": true,
+      "service": "clamav"
+    },
+    {
+      "health": "healthy",
+      "oom_killed": false,
+      "revision": null,
+      "running": true,
+      "service": "db"
+    },
+    {
+      "health": "healthy",
+      "oom_killed": false,
+      "revision": "0e596846f85ec3dbf87cbc70a581b8902e7a2c0c",
+      "running": true,
+      "service": "ecr-worker"
+    },
+    {
+      "health": "healthy",
+      "oom_killed": false,
+      "revision": "0e596846f85ec3dbf87cbc70a581b8902e7a2c0c",
+      "running": true,
+      "service": "email-ai-worker"
+    },
+    {
+      "health": "healthy",
+      "oom_killed": false,
+      "revision": "0e596846f85ec3dbf87cbc70a581b8902e7a2c0c",
+      "running": true,
+      "service": "email-beat"
+    },
+    {
+      "health": "healthy",
+      "oom_killed": false,
+      "revision": "0e596846f85ec3dbf87cbc70a581b8902e7a2c0c",
+      "running": true,
+      "service": "email-worker"
+    },
+    {
+      "health": "healthy",
+      "oom_killed": false,
+      "revision": "0e596846f85ec3dbf87cbc70a581b8902e7a2c0c",
+      "running": true,
+      "service": "extraction-worker"
+    },
+    {
+      "health": null,
+      "oom_killed": false,
+      "revision": "0e596846f85ec3dbf87cbc70a581b8902e7a2c0c",
+      "running": true,
+      "service": "frontend"
+    },
+    {
+      "health": "healthy",
+      "oom_killed": false,
+      "revision": null,
+      "running": true,
+      "service": "metrics-exporter"
+    },
+    {
+      "health": "healthy",
+      "oom_killed": false,
+      "revision": null,
+      "running": true,
+      "service": "minio"
+    },
+    {
+      "health": "healthy",
+      "oom_killed": false,
+      "revision": "0e596846f85ec3dbf87cbc70a581b8902e7a2c0c",
+      "running": true,
+      "service": "my-photos-worker"
+    },
+    {
+      "health": null,
+      "oom_killed": false,
+      "revision": null,
+      "running": true,
+      "service": "nginx"
+    },
+    {
+      "health": "healthy",
+      "oom_killed": false,
+      "revision": null,
+      "running": true,
+      "service": "redis"
+    },
+    {
+      "health": "healthy",
+      "oom_killed": false,
+      "revision": null,
+      "running": true,
+      "service": "redis-broker"
+    },
+    {
+      "health": "healthy",
+      "oom_killed": false,
+      "revision": null,
+      "running": true,
+      "service": "redis-cache"
+    },
+    {
+      "health": "healthy",
+      "oom_killed": false,
+      "revision": null,
+      "running": true,
+      "service": "redis-realtime"
+    },
+    {
+      "health": "healthy",
+      "oom_killed": false,
+      "revision": "0e596846f85ec3dbf87cbc70a581b8902e7a2c0c",
+      "running": true,
+      "service": "verification-worker"
+    },
+    {
+      "health": "healthy",
+      "oom_killed": false,
+      "revision": "0e596846f85ec3dbf87cbc70a581b8902e7a2c0c",
+      "running": true,
+      "service": "visa-ai-worker"
+    },
+    {
+      "health": "healthy",
+      "oom_killed": false,
+      "revision": "0e596846f85ec3dbf87cbc70a581b8902e7a2c0c",
+      "running": true,
+      "service": "worker"
+    }
+  ],
+  "status": "postdeploy_metadata_verified",
+  "technical_disclosure_enabled": "true"
+}

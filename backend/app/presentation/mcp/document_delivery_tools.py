@@ -7,7 +7,7 @@ from typing import Annotated, Any
 from fastapi import FastAPI
 from mcp.server import MCPServer
 from mcp.types import ToolAnnotations
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 from app.application.mcp.document_delivery import document_delivery_operations
 from app.application.mcp.document_delivery_dto import (
@@ -19,7 +19,7 @@ from app.core.config.settings import Settings
 from app.presentation.mcp.document_delivery_snapshots import document_delivery_snapshot
 from app.presentation.mcp.invocation import invoke_operation
 
-DOC_DELIVERY_MODELS = {
+DOC_DELIVERY_MODELS: dict[str, type[BaseModel]] = {
     "prepare_whatsapp_document_delivery": MCPDocumentDeliveryDraft,
     "confirm_whatsapp_document_delivery": MCPDocumentDeliveryConfirmation,
 }

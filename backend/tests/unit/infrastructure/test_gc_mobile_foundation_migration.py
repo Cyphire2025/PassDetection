@@ -110,7 +110,14 @@ def _foundation_constraint_signatures(
     if table_name == "gc_group_access":
         # The 0099 removal marker and its deny-by-default invariant are
         # additive; keep the original applied 0069 migration unchanged.
-        projected = {item for item in projected if item[1] != "ck_gc_group_access_removed_disabled"}
+        projected = {
+            item for item in projected
+            if item[1] not in {
+                "ck_gc_group_access_removed_disabled",
+                # 0130 promotes exact company ownership to the core group.
+                "fk_gc_group_canonical_company",
+            }
+        }
     if table_name == "mobile_push_registrations":
         projected = {item for item in projected if item[1] != "ck_mobile_push_apns_environment"}
     if table_name == "mobile_notifications":
@@ -244,6 +251,9 @@ def test_gc_mobile_migration_matches_orm_tables_and_indexes() -> None:
             item.name: item for item in table_call.args[1:] if isinstance(item, sa.Column)
         }
         model_column_names = set(model_table.c.keys())
+        if table_name == "client_organizations":
+            # The company directory adds optimistic revision control in 0130.
+            model_column_names.discard("revision")
         if table_name == "gc_group_access":
             model_column_names.discard("removed_at")
         if table_name == "mobile_push_registrations":
@@ -298,6 +308,10 @@ def test_gc_mobile_migration_matches_orm_tables_and_indexes() -> None:
                 "ix_mobile_otp_provider_reference",
                 "uq_mobile_otp_pending_phone",
                 "ix_mobile_notification_push_due",
+                # Company directory search indexes are introduced by 0130.
+                "ix_client_org_directory_seek",
+                "ix_client_org_directory_all_seek",
+                "ix_client_org_search_trgm",
             }:
                 continue
             postgres_where = index.dialect_options["postgresql"].get("where")

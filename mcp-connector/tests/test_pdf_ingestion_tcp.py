@@ -17,7 +17,10 @@ from gc_mcp_connector.proxy import RemoteProxy
 async def test_explicit_local_pdf_stage_then_inspect_ingest_retry_and_resume_over_tcp(backend_tcp, tmp_path):
     from app.infrastructure.database.mcp_artifact_models import MCPArtifactModel
     from app.infrastructure.database.models import (
-        AgencyModel, ClientGroupModel, DistributedDocumentModel, DocumentDistributionBatchModel,
+        AgencyModel,
+        ClientGroupModel,
+        DistributedDocumentModel,
+        DocumentDistributionBatchModel,
         PassportSubmissionModel,
     )
     from app.infrastructure.security.upload_security import UploadSecurityService

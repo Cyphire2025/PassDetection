@@ -1,0 +1,169 @@
+{
+  "version": 1,
+  "qualification_date_utc": "2026-10-15",
+  "status": "both_speed_candidates_rejected_existing_runtime_retained",
+  "parser_source_sha256": "be1a1ff805bd6c7f45a62277b1a97099722425398c53e53b8e5e521daccb4f22",
+  "tested_candidate_parser_source_sha256": "52b912fcdd2aaef09f7c2a588d7ba2c15e0084ad83909f81dbed7d9d61d8ccdd",
+  "parser_source": "backend/app/infrastructure/documents/pdf_parser_sandbox.py",
+  "fixture": {
+    "file_count": 7,
+    "content": "Synthetic image visa PDFs with benign padding; no passenger data",
+    "file_bytes_min": 1148166,
+    "file_bytes_max": 1148794
+  },
+  "parser_comparison": {
+    "runs_per_mode": 4,
+    "warm_median_excludes_first_run": true,
+    "baseline_spawn_seconds": [
+      9.0862,
+      7.9176,
+      9.8748,
+      8.0121
+    ],
+    "candidate_forkserver_seconds": [
+      7.9675,
+      6.7111,
+      6.811,
+      6.7028
+    ],
+    "baseline_warm_median_seconds": 8.0121,
+    "candidate_warm_median_seconds": 6.7111,
+    "warm_median_improvement_percent": 16.24,
+    "all_56_classifications_accepted": true,
+    "complete_result_hashes_identical": true,
+    "container_memory_cap_bytes": 1073741824,
+    "container_cpu_limit": 0.5,
+    "baseline_peak_memory_bytes": 329920512,
+    "candidate_peak_memory_bytes": 337444864,
+    "oom_or_memory_limit_events": 0,
+    "minimum_host_available_bytes": 8952385536,
+    "decision": "Reject forkserver: timing improved, but four independent parents retain an additional 125.36 MiB and full API headroom is not qualified; existing spawn parser retained"
+  },
+  "four_parent_idle_comparison": {
+    "scope": "Four independent interpreters importing matcher/parser, each processing two seven-PDF batches sequentially; all four remain alive during idle measurements. Full API application excluded.",
+    "container_memory_cap_bytes": 1073741824,
+    "container_cpu_limit": 0.5,
+    "baseline_initial_idle_memory_bytes": 235466752,
+    "candidate_initial_idle_memory_bytes": 235487232,
+    "baseline_final_idle_memory_bytes": 272658432,
+    "candidate_final_idle_memory_bytes": 404111360,
+    "additional_idle_memory_bytes": 131452928,
+    "additional_idle_memory_mib": 125.36328125,
+    "baseline_peak_memory_bytes": 533975040,
+    "candidate_peak_memory_bytes": 636141568,
+    "baseline_per_parent_cold_warm_seconds": [
+      [
+        8.9484,
+        8.005
+      ],
+      [
+        8.2152,
+        10.1998
+      ],
+      [
+        7.4836,
+        7.7035
+      ],
+      [
+        8.0918,
+        8.5792
+      ]
+    ],
+    "candidate_per_parent_cold_warm_seconds": [
+      [
+        9.3944,
+        6.6251
+      ],
+      [
+        7.2916,
+        6.7988
+      ],
+      [
+        6.6931,
+        6.3131
+      ],
+      [
+        6.5586,
+        6.6027
+      ]
+    ],
+    "all_112_classifications_accepted_with_identical_result_hashes": true,
+    "no_active_parser_children_after_batch": true,
+    "oom_or_memory_limit_events": 0,
+    "minimum_host_available_bytes": 8648421376,
+    "full_api_memory_headroom_qualified": false
+  },
+  "parser_safety": {
+    "fresh_child_pids_and_state_each_batch": true,
+    "parser_child_memory_limit_bytes": 402653184,
+    "oversized_allocation_rejected": true,
+    "per_file_alarm_enforced": true,
+    "parent_hung_child_termination_seconds": 0.2736,
+    "malformed_pdf_results_fail_closed_and_ordered": true,
+    "no_active_parser_children_after_batch": true,
+    "existing_admission_process_count_and_output_limits_unchanged": true
+  },
+  "scan_comparison": {
+    "rounds_per_mode": 6,
+    "mode_order_alternates": true,
+    "sequential_seconds": [
+      1.8171,
+      0.6157,
+      0.5905,
+      0.5988,
+      0.6696,
+      0.6838
+    ],
+    "two_concurrent_seconds": [
+      0.71,
+      0.7859,
+      0.7081,
+      0.7744,
+      0.6336,
+      0.7311
+    ],
+    "sequential_warm_median_seconds": 0.6157,
+    "two_concurrent_warm_median_seconds": 0.7311,
+    "all_malware_and_structure_checks_passed": true,
+    "durable_database_audit_included": false,
+    "clam_memory_cap_bytes": 3221225472,
+    "client_memory_cap_bytes": 536870912,
+    "each_container_cpu_limit": 0.5,
+    "clam_peak_memory_bytes": 1015300096,
+    "client_peak_memory_bytes": 152145920,
+    "oom_or_memory_limit_events": 0,
+    "minimum_host_available_bytes": 8203120640,
+    "decision": "Reject parallel scan change because it did not improve this measured workload; keep sequential scanning"
+  },
+  "postgresql_migration": {
+    "source": "0138_verified_portal_lookup",
+    "intermediate": "0139_passenger_display_name",
+    "target": "0140_document_update_context",
+    "deployment_kind": "document_distribution_updates_v1",
+    "fresh_isolated_synthetic_database_only": true,
+    "lock_timeout_atomic_rollback_and_retry_passed": true,
+    "orm_read_write_and_transaction_rollback_passed": true,
+    "downgrade_and_reupgrade_passed": true,
+    "preexisting_business_rows_and_fields_retained": true,
+    "display_edit_expected_existing_roster_revision_trigger_verified": true,
+    "postgres_peak_memory_bytes": 132079616,
+    "client_peak_memory_bytes": 178200576,
+    "each_container_memory_cap_bytes": 536870912,
+    "each_container_cpu_limit": 0.5,
+    "oom_or_memory_limit_events": 0,
+    "minimum_host_available_bytes": 8980877312
+  },
+  "cleanup": {
+    "all_owned_temporary_containers_networks_and_data_removed": true,
+    "production_services_data_and_queues_changed": false,
+    "messages_sent_or_resent": 0
+  },
+  "limitations": [
+    "Synthetic results do not guarantee exact throughput for real passenger PDFs or the full verification request.",
+    "Scan timings include malware and PDF structure checks, but exclude durable database audit persistence.",
+    "Each test container was capped at 0.5 CPU; production scheduling and scan cache behavior can differ.",
+    "Four-parent forkserver steady idle overhead was 125.36 MiB. The isolated parser/import test excludes the full API, whose 2560 MiB container had prior OOM events; safe production headroom is not qualified, so the optimization was reverted.",
+    "No candidate production activation, provider send, Full CI release or running production readback is established by these results.",
+    "The current release executor requires a reviewed extension for the new additive migration pair and qualified RAM transition before activation."
+  ]
+}

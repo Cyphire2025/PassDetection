@@ -66,7 +66,12 @@ def main() -> None:
                 "--health-retries", "60", STORAGE_IMAGE,
                 "server", "-dir=/data", "-ip=127.0.0.1", "-ip.bind=127.0.0.1",
                 "-filer", "-filer.exposeDirectoryData=false", "-master.telemetry=false",
-                "-volume.max=0", "-master.volumeSizeLimitMB=1024", "-s3",
+                # Each fixture bucket grows seven volumes even for tiny objects.
+                # Eleven occupied buckets need 77 slots: GiB-sized volumes made
+                # auto sizing exhaust a CI runner's slots before pagination.
+                # Keep disk-based sizing and its free-space protection, but use
+                # small volumes for these synthetic, byte-sized payloads.
+                "-volume.max=0", "-master.volumeSizeLimitMB=16", "-s3",
                 "-s3.ip.bind=0.0.0.0", f"-s3.port={port}",
                 "-s3.config=/run/secrets/s3.json", "-s3.iam.config=/run/secrets/s3.json",
                 "-s3.iam=false", "-s3.port.iceberg=0", "-s3.port.lance=0",

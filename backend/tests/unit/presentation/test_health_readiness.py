@@ -137,10 +137,17 @@ class HealthReadinessTests(unittest.IsolatedAsyncioTestCase):
             app_env="development",
             processing_backend="background",
         )
-        with patch(
-            "app.presentation.api.v1.routes.health."
-            "get_ai_priority_coordinator"
-        ) as coordinator:
+        with (
+            patch(
+                "app.presentation.api.v1.routes.health."
+                "get_ai_priority_coordinator"
+            ) as coordinator,
+            patch(
+                "app.presentation.api.v1.routes.health."
+                "runtime_capability_readiness",
+                return_value=_healthy_runtime_snapshot(),
+            ),
+        ):
             coordinator.return_value.snapshot.side_effect = ConnectionError(
                 "redis unavailable"
             )
@@ -185,6 +192,11 @@ class HealthReadinessTests(unittest.IsolatedAsyncioTestCase):
                     },
                     False,
                 ),
+            ),
+            patch(
+                "app.presentation.api.v1.routes.health."
+                "runtime_capability_readiness",
+                return_value=_healthy_runtime_snapshot(),
             ),
         ):
             coordinator.return_value.snapshot.return_value = object()

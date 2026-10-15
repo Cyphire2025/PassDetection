@@ -165,6 +165,9 @@ from app.presentation.api.v1.routes.document_distribution_groups_read import (
 from app.presentation.api.v1.routes.document_distribution_groups_read import (
     router as _groups_read_router,
 )
+from app.presentation.api.v1.routes.document_distribution_manual_upload import (
+    router as _manual_upload_router,
+)
 from app.presentation.api.v1.routes.document_distribution_manual_verification import (
     router as _manual_verification_router,
 )
@@ -344,9 +347,8 @@ from app.presentation.api.v1.routes.document_distribution_verification import (
 from app.presentation.api.v1.routes.document_distribution_verification import (
     verify_documents as verify_documents,
 )
-from app.presentation.api.v1.routes.traveller_welcome import router as _traveller_welcome_router
-from app.presentation.api.v1.routes.document_distribution_manual_upload import router as _manual_upload_router
 from app.presentation.api.v1.routes.document_updates import router as _document_updates_router
+from app.presentation.api.v1.routes.traveller_welcome import router as _traveller_welcome_router
 from app.presentation.api.v1.schemas.document_distribution_schemas import (
     AbortDocumentUploadResponse,
     DeleteDistributionDocumentsRequest,

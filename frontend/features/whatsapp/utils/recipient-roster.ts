@@ -2,17 +2,15 @@ import type {
   WhatsAppRecipient,
   WhatsAppRecipientRosterItem,
 } from "../api/whatsapp.api";
-import { getMessageStatus, isRecipientEligible, welcomeDeliveryBlockReason } from "./recipient-delivery";
+import { getMessageStatus, welcomeDeliveryBlockReason } from "./recipient-delivery";
 
 export type WhatsAppRecipientRosterTab =
   | "all"
   | "sent"
   | "failed"
-  | "ready"
   | "not_sent"
-  | "in_progress"
+  | "delivery_left"
   | "needs_review"
-  | "shared"
   | "rejected"
   | "replaced"
   | "unidentified";
@@ -33,28 +31,48 @@ export function recipientHasFailedMessage(
   );
 }
 
+function welcomeDeliveryIsPending(recipient: WhatsAppRecipient): boolean {
+  const welcome = getMessageStatus(recipient, "welcome");
+  const statuses = [welcome?.status, welcome?.latest_resend_status, recipient.welcome_status];
+  // Canonical welcome confirmation also covers successful earlier resends.
+  return !recipient.welcome_delivered
+    && !statuses.some((status) => status === "delivered" || status === "read")
+    && statuses.some((status) => status === "submitted" || status === "sent");
+}
+
 function rosterItemMatchesFilter(
   item: WhatsAppRecipientRosterItem,
   tab: WhatsAppRecipientRosterTab,
   messageType: string | undefined,
-  sharedPhones: ReadonlySet<string>,
 ): boolean {
   if (tab === "all") return item.kind === "recipient" || (!messageType && item.kind === "rejected");
   if (tab === "rejected") return item.kind === "rejected";
   if (tab === "replaced") return item.kind === "replaced";
   if (tab === "unidentified") return item.kind === "unidentified";
   if (item.kind !== "recipient") return false;
+  if (tab === "delivery_left") {
+    const pendingWelcome = welcomeDeliveryIsPending(item.recipient);
+    if (messageType === "welcome") return pendingWelcome;
+    if (!messageType && pendingWelcome) return true;
+    const statuses = messageType
+      ? [getMessageStatus(item.recipient, messageType)]
+      : item.recipient.message_statuses;
+    // Preserve the existing original-attempt rules for other message types;
+    // repeatable reminders can have a resend from an earlier reminder batch.
+    return statuses.some((status) =>
+      status?.message_type !== "welcome"
+      && (status?.status === "submitted" || status?.status === "sent")
+      && !["queued", "processing", "submitted", "sent", "failed", "delivery_unknown"]
+        .includes(status.latest_resend_status ?? ""));
+  }
   if (messageType) {
     const recipient = item.recipient;
     const status = getMessageStatus(recipient, messageType);
     const statuses = [status?.status, status?.latest_resend_status];
     if (tab === "sent") return Boolean(status?.already_sent || statuses.some((value) => ["submitted", "sent", "delivered", "read"].includes(value ?? "")));
     if (tab === "failed") return statuses.includes("failed") && (messageType !== "group_invite" || !(status?.already_sent || statuses.some((value) => ["submitted", "sent", "delivered", "read"].includes(value ?? ""))));
-    if (tab === "in_progress") return statuses.some((value) => value === "queued" || value === "processing");
     if (tab === "not_sent") return !status || statuses.every((value) => !value || value === "not_sent");
-    if (tab === "ready") return !status?.resend_blocked && !statuses.some((value) => ["queued", "processing", "delivery_unknown"].includes(value ?? "")) && isRecipientEligible(recipient, messageType);
     if (tab === "needs_review") return statuses.includes("delivery_unknown") || Boolean(!status?.already_sent && welcomeDeliveryBlockReason(recipient, messageType));
-    if (tab === "shared") return sharedPhones.has(recipient.normalized_phone_number);
   }
   return tab === "sent" ? recipientHasSentMessage(item.recipient) : recipientHasFailedMessage(item.recipient);
 }
@@ -63,11 +81,10 @@ export function countRecipientRosterItems(
   items: WhatsAppRecipientRosterItem[],
   tab: WhatsAppRecipientRosterTab,
   messageType?: string,
-  sharedPhones: ReadonlySet<string> = new Set(),
 ): number {
   let count = 0;
   for (const item of items) {
-    if (rosterItemMatchesFilter(item, tab, messageType, sharedPhones)) count++;
+    if (rosterItemMatchesFilter(item, tab, messageType)) count++;
   }
   return count;
 }
@@ -76,11 +93,10 @@ export function filterRecipientRosterItems(
   items: WhatsAppRecipientRosterItem[],
   tab: WhatsAppRecipientRosterTab,
   messageType?: string,
-  sharedPhones: ReadonlySet<string> = new Set(),
 ): WhatsAppRecipientRosterItem[] {
   return items
     .map((item, originalIndex) => ({ item, originalIndex }))
-    .filter(({ item }) => rosterItemMatchesFilter(item, tab, messageType, sharedPhones))
+    .filter(({ item }) => rosterItemMatchesFilter(item, tab, messageType))
     .sort(
       (left, right) =>
         left.item.display_order - right.item.display_order

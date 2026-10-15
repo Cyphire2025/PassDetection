@@ -1,0 +1,52 @@
+{
+  "admission": {
+    "connections_in_use": 18,
+    "database_absent": true,
+    "max_connections": 100,
+    "reserved_connections": 3,
+    "role_absent": true,
+    "server_version": "16.14"
+  },
+  "backend_memory_before": "1.586GiB / 2.5GiB",
+  "candidate_release_artifact_qualified": false,
+  "full_ci_qualified": false,
+  "helper": {
+    "helper_address_space_limit_mib": 512,
+    "helper_cpu_seconds_limit": 90,
+    "migration_passed": true,
+    "owned_temporary_sources_removed": true,
+    "passed": true,
+    "probe": {
+      "database": "synthetic_test_database",
+      "durable_failure_retry": true,
+      "external_provider_calls": 0,
+      "impact_and_feed_processed": true,
+      "impact_denied_claim_retry_preserved": true,
+      "max_overflow": 0,
+      "passed": true,
+      "pool_size": 1,
+      "reconciliation_denied_claim_retry_preserved": true,
+      "reconciliation_global_fences": 2,
+      "registered_documents": 3,
+      "registered_people": 3,
+      "source_records": 3,
+      "stale_claim_ignored": true
+    }
+  },
+  "kind": "synthetic_separate_database_shared_postgresql_server",
+  "limitation": "Three synthetic people; separate disposable database on shared PostgreSQL16 server and bounded subprocess within existing backend cap. No external calls, full isolation, load or release artifact qualification.",
+  "maximum_extra_database_connections": 3,
+  "owned_database_and_role_removed": true,
+  "production_app_source_modified": false,
+  "production_service_config_modified": false,
+  "production_tables_modified": false,
+  "source_sha256": {
+    "impact_runtime.py": "503d82777f6df462d26ed1bf96dfa27bafb521d776fcc9e79eb487ea3c9b22ed",
+    "incremental_history.py": "11eea129d2ca74ebe102688c62b4e463b6282c70c3332ab8d14d2007cacc6edf",
+    "runtime.py": "19b9eb2d5dc28c10513f6c1f5dcc79bd70f150dc3ca2776228533d953122ee88",
+    "traveller_identity.py": "5d455e822af659452167538d93d3a3f0e7380ee6e8aa074d87f0d3b642cd7efe",
+    "verify_traveller_worker_pool.py": "5830c1b30122a90697f92685b8c6d19e6717e90d475c20bd4a163c4435d0ba68"
+  },
+  "status": "passed",
+  "version": 1
+}

@@ -43,6 +43,7 @@ async function setup(page: Page, { recovery = true, expireProof = false, rejectS
     const request = route.request();
     const path = new URL(request.url()).pathname;
     const json = (body: unknown, status = 200) => route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
+    if (path === "/api/v1/returning/capabilities" && request.method() === "GET") return json({ enabled: false, code_label: null });
     if (path === `/api/v1/upload-links/token/${token}`) return json(group);
     if (path.endsWith("/status")) return json(draft("contact-draft-e2e"));
     if (request.method() === "PUT" && path === `/api/v1/passports/upload/${token}`) return json({ submission_id: null });

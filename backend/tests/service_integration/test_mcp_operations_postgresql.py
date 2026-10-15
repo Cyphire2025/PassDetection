@@ -14,6 +14,8 @@ from app.application.mcp.authorization import MCPAuthorizationService
 from app.application.mcp.credentials import MCPAuthError
 from app.application.mcp.group_changes import CREATE_GROUP_POLICY, group_creation_operation
 from app.application.mcp.operations import MCPOperationError, MCPOperationService
+from app.domain.mcp_section_permissions import WRITE_TOOL_SECTIONS
+from app.infrastructure.database.gc_mobile_models import ClientOrganizationModel
 from app.infrastructure.database.mcp_models import MCPControlModel, MCPGrantModel
 from app.infrastructure.database.mcp_operation_models import MCPOperationModel
 from app.infrastructure.database.models import (
@@ -36,7 +38,9 @@ pytestmark = [
 
 
 @pytest.fixture
-async def operation_sessions(mcp_sessions):
+async def operation_sessions(mcp_sessions, monkeypatch):
+    for name in ("test.create_agency", "test.other_operation"):
+        monkeypatch.setitem(WRITE_TOOL_SECTIONS, name, frozenset({"all_groups"}))
     # The shared fixture enforces local/CI host and database-name guards. This
     # lane does not create/drop schemas, truncate tables, or touch business data.
     sessions, settings = mcp_sessions
@@ -48,7 +52,7 @@ async def operation_sessions(mcp_sessions):
         assert control is not None
         control.enabled = True
         user, grants, tokens = await seed_identity(
-            session, settings, email=f"operations-{uuid.uuid4()}@example.test"
+            session, settings, enable_write_policy=True, email=f"operations-{uuid.uuid4()}@example.test"
         )
         user_id, grant_ids = user.id, [grant.id for grant in grants]
         await session.commit()
@@ -196,7 +200,7 @@ async def test_concurrent_changed_payload_cannot_reuse_the_winner_receipt(operat
 
 async def test_actual_group_creation_replays_one_group_and_business_audit(operation_sessions):
     sessions, settings, _, _, tokens = operation_sessions
-    agency_id, owner_id = uuid.uuid4(), uuid.uuid4()
+    agency_id, owner_id, company_id = uuid.uuid4(), uuid.uuid4(), uuid.uuid4()
     async with sessions() as session:
         session.add(
             AgencyModel(
@@ -215,11 +219,17 @@ async def test_actual_group_creation_replays_one_group_and_business_audit(operat
                 agency_id=agency_id,
             )
         )
+        session.add(ClientOrganizationModel(
+            id=company_id, agency_id=agency_id, name="Isolated PG client",
+            normalized_name="isolated pg client", status="active",
+        ))
         await session.commit()
     payload = {
         "agency_id": str(agency_id),
         "owner_user_id": str(owner_id),
+        "company_id": str(company_id),
         "name": "Isolated PG group",
+        "collection_settings_confirmed": True,
         "destination": "Japan",
         "travel_date": "2026-10-10",
         "return_date": "2026-10-18",
@@ -242,6 +252,9 @@ async def test_actual_group_creation_replays_one_group_and_business_audit(operat
     results = await asyncio.wait_for(asyncio.gather(*(run(index % 2) for index in range(6))), 15)
     assert all(item == results[0] for item in results)
     async with sessions() as session:
+        assert await session.scalar(
+            select(ClientGroupModel.company_id).where(ClientGroupModel.agency_id == agency_id)
+        ) == company_id
         assert (
             await session.scalar(
                 select(func.count())

@@ -5,6 +5,7 @@ import type { FamilyMember } from "../components/upload-flow.types";
 import type { getUploadFlowSettings } from "./configured-upload";
 import { passportDocumentVerificationGate } from "./passport-document-verification";
 import { hasMissingRequiredFields, hasValidReviewDates } from "./upload-flow-helpers";
+import { isFamilyMemberSubmitted } from "./family-returning";
 
 export type SingleReviewDraft = {
   clientName: string; clientEmail: string; clientPhone: string; reviewFields: Record<string, string>;
@@ -45,16 +46,18 @@ export function validateSingleReview({ submission, settings, draft, canReviewSub
 }
 
 export function validateFamilyReview({ familyMembers, settings, draft, canReviewSubmission, requiresPassportReview }: ReviewPolicy & { familyMembers: FamilyMember[] }): string | null {
+  const pendingMembers = familyMembers.filter((member) => !isFamilyMemberSubmitted(member));
+  if (!pendingMembers.length) return null;
   const { departureCity } = draft;
   const { airportEnabled, uploadConfig } = settings;
   const requiredField = (field: RequiredUploadField) => isUploadFieldRequired(uploadConfig, field);
   const headEmail = familyMembers[0]?.email ?? "";
   const headPhone = familyMembers[0]?.phone ?? "";
   if ((headPhone.trim() && !normalizePhoneNumber(headPhone))
-    || familyMembers.some((member) => member.phone.trim() && !normalizePhoneNumber(member.phone))) {
+    || pendingMembers.some((member) => member.phone.trim() && !normalizePhoneNumber(member.phone))) {
     return PHONE_FORMAT_HELP;
   }
-  const blockedVerification = familyMembers.find((member) => (
+  const blockedVerification = pendingMembers.find((member) => (
     member.submission !== null
     && !canReviewSubmission(member.submission)
   ));
@@ -68,17 +71,17 @@ export function validateFamilyReview({ familyMembers, settings, draft, canReview
   if (!headEmail.trim() || !headPhone.trim()) {
     return "Head of family email and phone number are required.";
   }
-  const missingUpload = familyMembers.find((member) => !member.submission);
+  const missingUpload = pendingMembers.find((member) => !member.submission);
   if (missingUpload) {
     return `Upload passport for ${missingUpload.name || "every family member"} before submitting.`;
   }
-  const invalidReview = familyMembers.find((member) => (
+  const invalidReview = pendingMembers.find((member) => (
     member.submission && requiresPassportReview(member.submission) && (hasMissingRequiredFields(member.reviewFields) || !hasValidReviewDates(member.reviewFields))
   ));
   if (invalidReview) {
     return `Fill all passport fields for ${invalidReview.name}.`;
   }
-  const missingConfiguredField = familyMembers.find((member) => configuredReviewError(settings, member));
+  const missingConfiguredField = pendingMembers.find((member) => configuredReviewError(settings, member));
   if (missingConfiguredField) {
     return `Complete the required group fields for ${missingConfiguredField.name}.`;
   }

@@ -12,6 +12,36 @@
 import type { PassportImageType } from "@/types/passport.types";
 
 export const API_ENDPOINTS = {
+  returning: {
+    capabilities: "/api/v1/returning/capabilities",
+    claims: "/api/v1/returning/claims",
+    otpRequest: "/api/v1/returning/otp/request",
+    otpVerify: "/api/v1/returning/otp/verify",
+    candidates: "/api/v1/returning/candidates",
+    candidate: "/api/v1/returning/candidate",
+    passport: "/api/v1/returning/passport",
+    challenge: "/api/v1/returning/challenge",
+    changeChallenge: "/api/v1/returning/challenge/change",
+    confirm: "/api/v1/returning/confirm",
+    history: "/api/v1/returning/history",
+    complete: "/api/v1/returning/complete",
+    contactRequest: "/api/v1/returning/contact/request",
+    contactVerify: "/api/v1/returning/contact/verify",
+    document: (id: string) => `/api/v1/returning/documents/${encodeURIComponent(id)}`,
+  },
+  companies: {
+    root: "/api/v1/companies",
+    workspace: "/api/v1/companies/workspace",
+    lookup: "/api/v1/companies/lookup",
+    detail: (id: string) => `/api/v1/companies/${encodeURIComponent(id)}`,
+    summary: (id: string) => `/api/v1/companies/${encodeURIComponent(id)}/summary`,
+    groups: (id: string) => `/api/v1/companies/${encodeURIComponent(id)}/groups`,
+    submissions: (id: string) => `/api/v1/companies/${encodeURIComponent(id)}/submissions`,
+    travellers: (id: string) => `/api/v1/companies/${encodeURIComponent(id)}/travellers`,
+    travellerHistory: (id: string, travellerId: string) => `/api/v1/companies/${encodeURIComponent(id)}/travellers/${encodeURIComponent(travellerId)}/history`,
+    assignment: (groupId: string) => `/api/v1/upload-links/${encodeURIComponent(groupId)}/company`,
+    reassignment: (id: string, groupId: string) => `/api/v1/companies/${encodeURIComponent(id)}/reassignments/${encodeURIComponent(groupId)}`,
+  },
   mcp: {
     overview: "/api/v1/admin/mcp",
     readAccess: "/api/v1/mcp/read-access",

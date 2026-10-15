@@ -30,6 +30,10 @@ MAX_STORAGE_CLEANUP_KEYS = 2_000
 MAX_STORAGE_CLEANUP_KEY_LENGTH = 512
 MAX_STORAGE_CLEANUP_ATTEMPTS = 12
 STORAGE_CLEANUP_SOURCES: dict[str, tuple[str, ...]] = {
+    "returning_draft_discard": ("returning-drafts/",),
+    "company_data_export_expiry": ("company-data-exports/",),
+    "traveller_copy_revoked": ("travellers/",),
+    "traveller_profile_withdrawal": ("travellers/",),
     "document_distribution_delete": ("document-distribution/",),
     "document_distribution_replace": (
         "document-distribution/",
@@ -42,6 +46,8 @@ STORAGE_CLEANUP_SOURCES: dict[str, tuple[str, ...]] = {
     "document_verification_staging": ("document-verification-staging/",),
     "untrusted_upload_quarantine": (),
     "passport_submission_delete": (
+        "returning-drafts/",
+        "travellers/",
         # Legacy deployments stored the four canonical submission images in
         # short top-level namespaces.  They remain ownership-bound because
         # keys are read only from the locked submission/crop rows selected for
@@ -531,6 +537,10 @@ async def _execute_storage_cleanup_claim(
         return StorageCleanupResult(claim.job_id, claim.object_count, 0, False)
 
     try:
+        from app.application.travellers.retention import deletable_storage_keys
+        if any(key.startswith("travellers/") for key in keys):
+            async with session_factory() as retention_session:
+                keys = tuple(await deletable_storage_keys(retention_session, keys, agency_id=claim.agency_id))
         deleted_count = await storage_factory().delete_files(list(keys))
         if deleted_count != len(keys):
             raise StorageCleanupIncompleteError

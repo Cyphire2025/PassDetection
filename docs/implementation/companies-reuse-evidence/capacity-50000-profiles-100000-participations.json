@@ -1,0 +1,97 @@
+{
+  "engine": "SQLite 3.53.1",
+  "qualification": "local query-shape test only; NOT production/API/PostgreSQL capacity",
+  "platform": "Windows-10-10.0.26200-SP0",
+  "cpu_logical_count": 32,
+  "python": "3.11.15",
+  "profiles": 50000,
+  "passports": 50000,
+  "participations": 100000,
+  "companies": 250,
+  "groups": 101,
+  "large_group_participations": 700,
+  "concurrent_readers": 4,
+  "duration_seconds": 20.04,
+  "seed_seconds": 10.7,
+  "peak_working_set_bytes": 112754688,
+  "database_bytes": 214933504,
+  "error_count": 0,
+  "measurements": {
+    "company_search": {
+      "requests": 26711,
+      "throughput_per_second": 1333.0,
+      "p50_ms": 1.001,
+      "p95_ms": 2.026,
+      "p99_ms": 2.338,
+      "mean_ms": 0.943
+    },
+    "passport_lookup": {
+      "requests": 26711,
+      "throughput_per_second": 1333.0,
+      "p50_ms": 0.132,
+      "p95_ms": 0.302,
+      "p99_ms": 0.428,
+      "mean_ms": 0.149
+    },
+    "traveller_page": {
+      "requests": 26711,
+      "throughput_per_second": 1333.0,
+      "p50_ms": 1.228,
+      "p95_ms": 2.484,
+      "p99_ms": 2.884,
+      "mean_ms": 1.181
+    },
+    "group_summary": {
+      "requests": 26711,
+      "throughput_per_second": 1333.0,
+      "p50_ms": 0.657,
+      "p95_ms": 1.247,
+      "p99_ms": 1.487,
+      "mean_ms": 0.677
+    }
+  },
+  "query_plans": {
+    "company_search": [
+      [
+        5,
+        0,
+        85,
+        "SEARCH client_organizations USING INDEX ix_client_org_directory_seek (agency_id=? AND status=? AND normalized_name>?)"
+      ]
+    ],
+    "passport_lookup": [
+      [
+        4,
+        0,
+        43,
+        "SEARCH traveller_passports USING INDEX ix_traveller_passport_fingerprint (agency_id=? AND company_id=? AND fingerprint_key_version=? AND number_fingerprint=?)"
+      ]
+    ],
+    "traveller_page": [
+      [
+        4,
+        0,
+        147,
+        "SEARCH traveller_profiles USING COVERING INDEX ix_traveller_profile_directory (agency_id=? AND company_id=? AND status=? AND id>?)"
+      ]
+    ],
+    "group_summary": [
+      [
+        6,
+        0,
+        108,
+        "SEARCH traveller_participations USING COVERING INDEX ix_traveller_participation_groups (agency_id=? AND company_id=? AND group_id=?)"
+      ]
+    ]
+  },
+  "not_tested": [
+    "HTTP/API latency",
+    "PostgreSQL locks/concurrency",
+    "writes under load",
+    "OTP providers",
+    "OCR",
+    "queues",
+    "multi-hour soak",
+    "million-record dataset"
+  ]
+}

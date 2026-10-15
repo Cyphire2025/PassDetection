@@ -27,6 +27,7 @@ if #keys > tonumber(ARGV[1]) then return redis.error_reply('key limit exceeded')
 table.sort(keys)
 local rows={}
 for _,key in ipairs(keys) do
+  if redis.call('MEMORY','USAGE',key) > 4*1024*1024 then return redis.error_reply('value size limit exceeded') end
   local kind=redis.call('TYPE',key).ok
   local values={}
   if kind=='string' then values={redis.call('GET',key)}
@@ -160,6 +161,7 @@ def _retained_override(release: Any, entry: dict, service: str) -> Path:
 def transition_dataset(release: Any, fence: Any, record: dict, service: str) -> None:
     # Imported only at runtime to keep generic target validation independent.
     from release_persistent_resources import (
+        _current_optional,
         _save,
         _verify_replacement,
         cgroup_memory,
@@ -174,7 +176,10 @@ def transition_dataset(release: Any, fence: Any, record: dict, service: str) -> 
     for name, identity in entry["volumes"].items():
         if volume_identity(release, name) != identity:
             raise ReleaseError("Redis retained volume identity changed")
-    current = fence.existing(service)
+    current_reader = getattr(fence, "current_redis", None)
+    current = current_reader(service) if current_reader else _current_optional(release, fence, service)
+    if current is None and entry["stage"] != "redis_starting":
+        raise ReleaseError("Redis process missing outside the recorded replacement stage")
     if entry["stage"] == "complete":
         same_redis_process(current, entry["replacement"])
         _verify_replacement(release, fence, entry, service)
@@ -185,7 +190,7 @@ def transition_dataset(release: Any, fence: Any, record: dict, service: str) -> 
         _runtime(release, current, service, transition["old_maxmemory"])
         used = dict(line.split(":", 1) for line in _cli(release, current, "INFO", "memory").splitlines() if ":" in line)
         if int(used["used_memory"]) + max(8 * MIB, transition["maxmemory"] // 10) > transition["maxmemory"]:
-            raise ReleaseError("Redis dataset lacks headroom; refusing eviction or queue loss")
+            raise ReleaseError(f"Redis dataset lacks headroom ({int(used['used_memory'])} bytes used, {transition['maxmemory']} target); refusing eviction or queue loss")
         measured = cgroup_memory(current)
         if measured["current"] + max(32 * MIB, entry["memory"] // 5) > entry["memory"]:
             raise ReleaseError("Redis dataset transition lacks container headroom")
@@ -221,13 +226,17 @@ def transition_dataset(release: Any, fence: Any, record: dict, service: str) -> 
             raise ReleaseError("Redis did not stop cleanly; writers remain fenced")
         _save(fence, record, service, "redis_starting")
     if entry["stage"] == "redis_starting":
-        current = fence.existing(service)
-        if current["Id"] == original["Id"]:
-            if current["State"].get("Running"):
+        current = current_reader(service) if current_reader else _current_optional(release, fence, service)
+        replacement = getattr(fence, "replace_redis", None)
+        if current is None or current["Id"] == original["Id"] or (replacement and not current["State"].get("Running")):
+            if current is not None and current["State"].get("Running"):
                 raise ReleaseError("Redis original restarted outside its transition")
-            path = _retained_override(release, entry, service)
-            release.run(*release.compose, "-f", str(path), "up", "-d", "--no-deps", "--no-build", "--pull", "never",
-                        "--wait", "--wait-timeout", "180", service, timeout=240)
+            if replacement:
+                replacement(service, entry)
+            else:
+                path = _retained_override(release, entry, service)
+                release.run(*release.compose, "-f", str(path), "up", "-d", "--no-deps", "--no-build", "--pull", "never",
+                            "--wait", "--wait-timeout", "180", service, timeout=240)
         _verify_replacement(release, fence, entry, service)
         current = fence.existing(service)
         if environment(current) != environment(original):
@@ -242,6 +251,9 @@ def transition_dataset(release: Any, fence: Any, record: dict, service: str) -> 
     if entry["stage"] == "redis_verified":
         current = fence.existing(service)
         same_redis_process(current, entry["replacement"])
+        # A crash after the first readback must not turn an intervening data
+        # mutation into a completed transition while writers are still fenced.
+        compare_fingerprints(entry["redis_before"], fingerprint(release, current))
         if service == "redis-cache":
             # Preserve the one-time file, but do not reload stale cache data on
             # subsequent ordinary restarts. Exact source/destination are owned

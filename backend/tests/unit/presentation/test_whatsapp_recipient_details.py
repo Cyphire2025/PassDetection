@@ -185,10 +185,13 @@ def setup_route(monkeypatch):
         "prepare_private_delivery_identity_mutation",
         "suppress_active_replacement_recipients",
         "reconcile_mobile_passenger_access_for_broadcast",
+        "prepare_broadcast_history_refresh",
+        "require_current_broadcast_history_scope",
+        "finish_broadcast_history_refresh",
     ):
         helpers[name] = AsyncMock()
         monkeypatch.setattr(route, name, helpers[name])
-    monkeypatch.setattr(route, "linked_recipient_source_group_ids", AsyncMock(return_value=set()))
+    helpers["prepare_broadcast_history_refresh"].return_value = SimpleNamespace(group_ids=())
     monkeypatch.setattr(
         route, "active_replacement_resolution_id_for_recipient", AsyncMock(return_value=None)
     )
@@ -208,6 +211,7 @@ async def test_route_enforces_identity_policy_then_reconciles_access(setup_route
     helpers["_lock_active_whatsapp_actor"].assert_awaited_once()
     helpers["_prepare_private_recipient_mutation"].assert_awaited_once()
     helpers["reconcile_mobile_passenger_access_for_broadcast"].assert_awaited_once()
+    helpers["finish_broadcast_history_refresh"].assert_awaited_once()
     # Both tenant and active agency predicates are used for mutation scope.
     query = str(session.execute.call_args_list[1].args[0])
     assert "agency_id" in query and "is_active IS true" in query
@@ -240,12 +244,7 @@ async def test_blocked_route_leaves_details_untouched(setup_route, block):
 async def test_linked_source_group_policy_blocks_before_edit(setup_route, monkeypatch):
     row, group, user, session, helpers = setup_route
     source_id = uuid.uuid4()
-    results = session.execute.side_effect
-    # Insert the source-group lock between initial discovery and broadcast lock.
-    session.execute.side_effect = [next(results), MagicMock(), next(results), next(results)]
-    monkeypatch.setattr(
-        route, "linked_recipient_source_group_ids", AsyncMock(return_value={source_id})
-    )
+    helpers["prepare_broadcast_history_refresh"].return_value = SimpleNamespace(group_ids=(source_id,))
     helpers[
         "prepare_private_delivery_identity_mutation"
     ].side_effect = PrivateDeliveryMutationBlocked("Delivery needs review")

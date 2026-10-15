@@ -6,10 +6,12 @@ import hashlib
 import json
 import uuid
 from dataclasses import dataclass
-from typing import Any, BinaryIO, Callable
+from typing import Any, Awaitable, BinaryIO, Callable
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.travellers.export_authority import can_export_snapshot_assets
+from app.application.use_cases.passports.export_changes import export_changes
 from app.application.use_cases.passports.prepare_group_excel import _canonical
 from app.domain.entities.entities import ClientGroup, PassportSubmission, User
 from app.domain.repositories.interfaces import IObjectStorageRepository
@@ -39,6 +41,7 @@ class PreparedImageExport:
     render_arguments: dict[str, Any]
     history_fields: dict[str, Any]
     revision: str
+    authorization_check: Callable[[], Awaitable[bool]] | None = None
 
     async def render(
         self,
@@ -52,9 +55,18 @@ class PreparedImageExport:
             arguments["max_uncompressed_bytes"] = min(
                 maximum_bytes, arguments.get("max_uncompressed_bytes", maximum_bytes)
             )
-        return await (exporter or PassportImageZipExporter()).export_group(
+        if self.authorization_check and not await self.authorization_check():
+            raise ImagePreparationError(409, "One or more retained documents are unavailable. Refresh and retry.")
+        rendered = await (exporter or PassportImageZipExporter()).export_group(
             self.submissions, storage=storage, **arguments
         )
+        try:
+            if self.authorization_check and not await self.authorization_check():
+                raise ImagePreparationError(409, "One or more retained documents became unavailable during export.")
+        except BaseException:
+            rendered[0].close()
+            raise
+        return rendered
 
 
 async def prepare_image_export(
@@ -95,6 +107,10 @@ async def prepare_image_export(
             submissions=current,
             created_by_user_id=support.owner_scope(current_user),
         )
+    async def authorization_check() -> bool:
+        return await can_export_snapshot_assets(session, agency_id=agency_id, group_id=group.id, sources=submissions)
+    if not await authorization_check():
+        raise ImagePreparationError(409, "One or more retained documents are unavailable. Refresh and retry.")
     crops = await support.crop_repository(session).list_for_submissions(
         [row.id for row in submissions]
     )
@@ -110,6 +126,9 @@ async def prepare_image_export(
     }
     history: dict[str, Any] = {}
     if selected_submission_ids is None:
+        changes = export_changes(current, baseline)
+        if export_mode == "incremental":
+            arguments["change_rows"] = changes.rows
         history = {
             "group_id": group.id,
             "agency_id": agency_id,
@@ -121,6 +140,8 @@ async def prepare_image_export(
             "exported_people_snapshot": support.people_snapshot(submissions),
             "created_by_user_id": current_user.id,
             "actor_email": current_user.email,
+            "artifact_metadata": {"submission_revisions": changes.revisions,
+                                  "changes": changes.rows if export_mode == "incremental" else []},
         }
     else:
         arguments["max_uncompressed_bytes"] = selected_maximum_bytes
@@ -148,4 +169,4 @@ async def prepare_image_export(
     revision = hashlib.sha256(
         json.dumps(_canonical(snapshot), sort_keys=True, separators=(",", ":")).encode()
     ).hexdigest()
-    return PreparedImageExport(submissions, arguments, history, revision)
+    return PreparedImageExport(submissions, arguments, history, revision, authorization_check)
