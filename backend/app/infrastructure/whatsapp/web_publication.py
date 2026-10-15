@@ -97,7 +97,10 @@ async def run_whatsapp_send_publication(
                 )
             ).all()
         )
-    from app.infrastructure.whatsapp.tasks import process_whatsapp_broadcast
+    from app.infrastructure.whatsapp.tasks import (
+        process_document_update_broadcast,
+        process_whatsapp_broadcast,
+    )
 
     published = 0
     for identifier in ids:
@@ -106,7 +109,12 @@ async def run_whatsapp_send_publication(
             continue
         failed = False
         try:
-            await publish_whatsapp_task(process_whatsapp_broadcast, payload=payload)
+            if payload.get("message_type") == "document_update":
+                payload.pop("message_type")
+                task = process_document_update_broadcast
+            else:
+                task = process_whatsapp_broadcast
+            await publish_whatsapp_task(task, payload=payload)
         except Exception:
             failed = True
         async with AsyncSessionFactory() as session:

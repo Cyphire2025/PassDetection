@@ -26,7 +26,7 @@ it("offers the affected-passenger filter and exports its current view", () => {
     physicalFileCount: 3,
     assignmentIssues: [],
     selectedDocumentIdSet: new Set(),
-    reviewCounts: { all: 2, assigned: 2, missing: 0, sent: 0, not_sent: 2, multiple_pdfs: 1 },
+    reviewCounts: { all: 2, assigned: 2, missing: 0, sent: 0, not_sent: 2, multiple_pdfs: 1, shared_pdf: 2 },
     reviewFilter: "all",
     searchQuery: "",
     onRequestRemoval: vi.fn(),
@@ -51,4 +51,8 @@ it("offers the affected-passenger filter and exports its current view", () => {
   expect(props.onExport).toHaveBeenCalledOnce();
   expect(props.onRequestRemoval).not.toHaveBeenCalled();
   expect(props.onOpenDelivery).not.toHaveBeenCalled();
+  rerender(<DocumentWorkspaceReviewControls {...props} reviewFilter="shared_pdf" />);
+  fireEvent.click(screen.getByRole("button", { name: "Shared PDF (2)" }));
+  expect(props.onReviewFilterChange).toHaveBeenCalledWith("shared_pdf");
+  expect(screen.getByRole("button", { name: "Export Shared PDF Excel" })).toBeEnabled();
 });

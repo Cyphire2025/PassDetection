@@ -79,6 +79,7 @@ const MessagePreviewDialog = dynamic(
   () => import("./whatsapp-message-preview-dialog").then((module) => module.MessagePreviewDialog),
   { loading: () => <DialogLoadingState label="Loading message editor" /> },
 );
+const DocumentRecipientPanel = dynamic(() => import("@/features/documents/components/document-recipient-panel").then(module => module.DocumentRecipientPanel));
 
 function DialogLoadingState({ label }: { label: string }) {
   return (
@@ -632,6 +633,7 @@ export function RecipientListDialog({
           </div>
         ) : (
           <div className="space-y-4">
+            {section === "documents" && <DocumentRecipientPanel broadcastGroupId={group.id} groups={detail.linked_client_groups ?? []} readOnly={isArchived} />}
             {section === "travellers" && (
               <SourceRosterPanel
                 data={sourceContacts.data}

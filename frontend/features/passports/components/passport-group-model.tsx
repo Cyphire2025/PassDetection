@@ -99,12 +99,12 @@ export function PassportMobileCard({
               checked={selected}
               onChange={onToggle}
               onClick={(event) => event.stopPropagation()}
-              aria-label={`Select ${passport.client_name}`}
+              aria-label={`Select ${passport.display_name || passport.client_name}`}
               className="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
             />
             <div className="min-w-0">
               <h3 className="text-base font-semibold text-slate-900">
-                {passport.client_name}
+                {passport.display_name || passport.client_name}
               </h3>
               <DocumentFollowUpBadge flagged={passport.document_follow_up} />
               <p className="mt-1 break-all text-xs text-slate-500">

@@ -34,7 +34,7 @@ class ProfileTests(unittest.TestCase):
             children = 2 if name == "extraction-worker" else 1
             self.config["services"][name]["command"] = reviewed_process_command(name, concurrency=children)
         self.config["services"]["db"]["command"] = ["postgres", "-c", "max_connections=100"]
-        for name, maximum in {"redis": 128, "redis-broker": 512, "redis-realtime": 128, "redis-cache": 256}.items():
+        for name, maximum in {"redis": 128, "redis-broker": 384, "redis-realtime": 128, "redis-cache": 128}.items():
             self.config["services"][name]["command"] = ["redis-server", "--maxmemory", f"{maximum}mb", "--maxmemory-policy",
                                                        "allkeys-lru" if name == "redis-cache" else "noeviction"]
 
@@ -59,6 +59,10 @@ class ProfileTests(unittest.TestCase):
             self.verify()
 
     def test_worker_memory_reallocation_keeps_host_envelope(self):
+        self.assertEqual(self.metadata["memory_limits_mib"]["worker"], 1024)
+        self.assertEqual(self.metadata["memory_limits_mib"]["frontend"], 256)
+        self.assertEqual(self.metadata["memory_limits_mib"]["redis-broker"], 896)
+        self.assertEqual(self.metadata["memory_limits_mib"]["redis-cache"], 192)
         self.assertEqual(self.metadata["memory_limits_mib"]["extraction-worker"], 512)
         self.assertEqual(self.metadata["memory_limits_mib"]["db"], 896)
         self.assertEqual(sum(self.metadata["memory_limits_mib"].values()), 13888)
@@ -120,6 +124,14 @@ class ProfileTests(unittest.TestCase):
             self.config["services"][name]["command"][2] = "2gb"
             with self.assertRaisesRegex(ValueError, "Redis envelope"):
                 self.verify()
+
+    def test_old_redis_datasets_are_refused_under_smaller_caps(self):
+        for name, maximum in (("redis-broker", "512mb"), ("redis-cache", "256mb")):
+            original = self.config["services"][name]["command"][2]
+            self.config["services"][name]["command"][2] = maximum
+            with self.assertRaisesRegex(ValueError, "Redis envelope"):
+                self.verify()
+            self.config["services"][name]["command"][2] = original
 
     def test_swap_exception_rejects_remote_daemon_nonlinux_or_enabled_swap(self):
         with patch("release_resource_profile.sys.platform", "linux"), patch.object(Path, "stat", return_value=SimpleNamespace(st_mode=0o140600)):

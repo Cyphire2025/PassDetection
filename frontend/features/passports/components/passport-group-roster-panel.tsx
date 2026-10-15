@@ -205,12 +205,12 @@ export function PassportGroupRosterPanel({
                                 checked={selectedPassportIdSet.has(passport.id)}
                                 onChange={() => togglePassport(passport.id)}
                                 onClick={(event) => event.stopPropagation()}
-                                aria-label={`Select ${passport.client_name}`}
+                                aria-label={`Select ${passport.display_name || passport.client_name}`}
                                 className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                               />
                               <div className="min-w-0">
                                 <div className="font-semibold text-slate-900">
-                                  {passport.client_name}
+                                  {passport.display_name || passport.client_name}
                                 </div>
                                 <DocumentFollowUpBadge flagged={passport.document_follow_up} />
                                 <div className="mt-1 break-all text-xs text-slate-500">

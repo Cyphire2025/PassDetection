@@ -636,6 +636,8 @@ class PassportSubmissionModel(Base):
         index=True,
     )
     client_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    # Optional office label; original client_name remains the contact identity.
+    display_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     client_email: Mapped[str | None] = mapped_column(String(255), nullable=True)
     client_phone: Mapped[str | None] = mapped_column(String(32), nullable=True)
     departure_city: Mapped[str | None] = mapped_column(String(120), nullable=True, index=True)

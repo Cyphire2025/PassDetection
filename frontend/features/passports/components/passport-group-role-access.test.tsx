@@ -92,6 +92,7 @@ describe("group action role permissions", () => {
     fireEvent.click(screen.getByRole("button", { name: "Select passenger" }));
     fireEvent.click(screen.getByRole("button", { name: "Open bulk actions for 1 selected submissions" }));
     expect(screen.getByRole("button", { name: "Staff approve all selected (1)" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Edit display name" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Flag for document follow-up (1)" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Clear document follow-up flag (1)" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Delete selected/ })).not.toBeInTheDocument();
@@ -105,6 +106,7 @@ describe("group action role permissions", () => {
     fireEvent.click(screen.getByRole("button", { name: "Select passenger" }));
     fireEvent.click(screen.getByRole("button", { name: "Open bulk actions for 1 selected submissions" }));
     expect(screen.queryByRole("button", { name: /Flag for document follow-up/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Edit display name" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Clear document follow-up flag/ })).not.toBeInTheDocument();
   });
 });

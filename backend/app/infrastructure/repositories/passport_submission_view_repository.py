@@ -40,6 +40,7 @@ class PassportViewProjection:
     updated_at: datetime
     extraction_revision: int
     document_follow_up: bool = False
+    display_name: str | None = None
     staff_metadata: dict[str, Any] | None = None
 
 

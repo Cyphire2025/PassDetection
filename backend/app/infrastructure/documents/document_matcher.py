@@ -1431,7 +1431,7 @@ class DocumentMatcher:
         passenger: PassportSubmission,
         fields: Mapping[str, Any],
     ) -> tuple[tuple[str, ...], ...]:
-        candidates: list[Any] = [passenger.client_name]
+        candidates: list[Any] = [getattr(passenger, "display_name", None), passenger.client_name]
         candidates.extend(self._mapping_values(fields, _FULL_NAME_KEYS))
         given_values = self._mapping_values(fields, _GIVEN_NAME_KEYS) or [""]
         surname_values = self._mapping_values(fields, _SURNAME_KEYS) or [""]

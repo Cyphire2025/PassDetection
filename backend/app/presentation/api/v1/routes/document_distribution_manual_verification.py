@@ -245,9 +245,9 @@ async def manually_verify_document(
             else feedback.reason if feedback else "No passenger match found"
         ),
         matched_passenger_id=matches[0].passenger_id if matches else None,
-        matched_passenger_name=primary.client_name if primary else None,
+        matched_passenger_name=(getattr(primary, "display_name", None) or primary.client_name) if primary else None,
         matched_passenger_ids=[match.passenger_id for match in matches if match.passenger_id],
-        matched_passenger_names=[passenger.client_name for passenger in matched_passengers],
+        matched_passenger_names=[getattr(passenger, "display_name", None) or passenger.client_name for passenger in matched_passengers],
         match_confidence=feedback.confidence if feedback else 0.0,
         match_status=feedback.status if feedback else None,
         match_reason=(

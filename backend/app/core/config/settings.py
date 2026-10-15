@@ -1274,6 +1274,8 @@ class Settings(BaseSettings):
     whatsapp_group_invite_template_name: str = "whatsapp_group_invite_v1"
     whatsapp_group_invite_template_language: str = "en"
     whatsapp_document_template_name: str = "documents_v1"
+    whatsapp_document_update_template_name: str = "pending_v1"
+    whatsapp_document_update_template_language: str = "en"
     whatsapp_qr_template_name: str = "qrcode_v1"
     whatsapp_otp_template_name: str = ""
     whatsapp_otp_template_language: str = "en_US"

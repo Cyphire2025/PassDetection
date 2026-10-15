@@ -33,7 +33,6 @@ from app.infrastructure.database.mcp_whatsapp_media_models import (
 from app.infrastructure.database.models import (
     AgencyModel,
     ClientGroupModel,
-    PassportSubmissionModel,
     UserModel,
     WhatsAppBroadcastGroupModel,
 )
@@ -71,7 +70,9 @@ async def test_additive_upgrade_preserves_rows_and_refuses_loss_of_connection_hi
         async with engine.connect() as connection:
             for table in ("agencies", "users", "client_groups", "passport_submissions"):
                 records = (await connection.execute(text(
-                    f"SELECT row_to_json(record) FROM (SELECT * FROM {table} ORDER BY id) record"
+                    # A new nullable UI label is not part of the retained
+                    # historical business projection being compared here.
+                    f"SELECT to_jsonb(record) - 'display_name' FROM (SELECT * FROM {table} ORDER BY id) record"
                 ))).scalars().all()
                 result[table] = json.dumps(records, sort_keys=True)
         return result
@@ -92,8 +93,14 @@ async def test_additive_upgrade_preserves_rows_and_refuses_loss_of_connection_hi
             group = ClientGroupModel(id=uuid.uuid4(), agency_id=agency.id, name="Retained group", token=uuid.uuid4().hex)
             session.add(group)
             await session.flush()
-            session.add(PassportSubmissionModel(id=uuid.uuid4(), agency_id=agency.id, group_id=group.id,
-                client_name="Retained passport", image_s3_key="synthetic/retained-source", status="confirmed"))
+            # Seed the historical 0113 schema without asking today's ORM to
+            # insert columns introduced by later additive migrations.
+            await session.execute(text("""
+                INSERT INTO passport_submissions
+                    (id, agency_id, group_id, client_name, image_s3_key, status)
+                VALUES (:id, :agency_id, :group_id, 'Retained passport',
+                    'synthetic/retained-source', 'confirmed')
+            """), {"id": uuid.uuid4(), "agency_id": agency.id, "group_id": group.id})
             await session.commit()
             user_id = user.id
         before = await snapshot()

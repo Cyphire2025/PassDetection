@@ -657,3 +657,20 @@ async def send_whatsapp_template(
         ),
         components=components,
     )
+
+
+async def send_whatsapp_document_update_template(
+    *, client: httpx.AsyncClient, settings: Settings, to_number: str,
+    template_name: str, language_code: str, message_content: str,
+) -> str:
+    """The pending update template has one text variable and no document header."""
+    if not template_name.strip() or not language_code.strip() or not message_content.strip():
+        raise WhatsAppCloudApiError(
+            "Document update template requires its frozen name, language and text",
+            code="WHATSAPP_TEMPLATE_PAYLOAD_INVALID",
+        )
+    return await _send_whatsapp_template_payload(
+        client=client, settings=settings, to_number=to_number,
+        template_name=template_name, language_code=language_code,
+        components=[{"type": "body", "parameters": [_text_parameter(message_content)]}],
+    )

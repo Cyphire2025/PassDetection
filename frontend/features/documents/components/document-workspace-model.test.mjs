@@ -72,6 +72,7 @@ test("the review model preserves multi-document and legacy single-document rows"
     sent: 2,
     not_sent: 1,
     multiple_pdfs: 1,
+    shared_pdf: 0,
   });
   assert.deepEqual(model.assignedDocumentIds, [
     "document-1",
@@ -133,6 +134,16 @@ test("multiple PDFs refreshes after reassignment and includes people beyond the 
     ["person-0"],
   );
   assert.equal(createDocumentReviewModel(undefined).counts.multiple_pdfs, 0);
+});
+
+test("shared PDF filter uses server physical sharing independently of multiple PDFs", () => {
+  const model = createDocumentReviewModel({ review_rows: [
+    { passenger_id: "a", passenger_name: "Same", documents: [document("a", "sent")], assigned_pdf_count: 1, shared_pdf_count: 1 },
+    { passenger_id: "b", passenger_name: "Same", documents: [document("b", "not_sent"), document("c", "not_sent")], assigned_pdf_count: 2, shared_pdf_count: 0 },
+  ] });
+  assert.equal(model.counts.shared_pdf, 1);
+  assert.deepEqual(filterDocumentReviewRows(model, "shared_pdf", "same").map(row => row.passenger_id), ["a"]);
+  assert.deepEqual(filterDocumentReviewRows(model, "multiple_pdfs", "").map(row => row.passenger_id), ["b"]);
 });
 
 test("legacy document lists do not count the same document ID twice", () => {

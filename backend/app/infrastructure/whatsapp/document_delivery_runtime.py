@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import logging
+import time
 import uuid
 from contextlib import nullcontext
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 import httpx
 from sqlalchemy import Select, case, select, text, update
@@ -54,6 +56,12 @@ PROVIDER_ATTEMPT_DEADLINE_SECONDS = 35
 # Three explicitly rejected/unreachable attempts plus backoff fit within this
 # transaction-local deadline. Other database transactions keep their normal limit.
 PROVIDER_TRANSACTION_IDLE_TIMEOUT_SECONDS = 120
+# A broadcast is a durable collection of rows, not one nine-minute task. Stop
+# admitting work well before the Celery safety timeout, let active requests
+# settle, and publish a continuation using the same send_batch_id.
+DOCUMENT_DELIVERY_SLICE_SIZE = 25
+DOCUMENT_DELIVERY_SLICE_SECONDS = 180
+DOCUMENT_DELIVERY_STALE_AFTER = timedelta(minutes=11)
 ACCEPTED_STATUSES = frozenset({"submitted", "sent", "delivered", "read"})
 ACCEPTED_STATUS_RANK = {"submitted": 0, "sent": 1, "delivered": 2, "read": 3}
 logger = logging.getLogger(__name__)
@@ -65,6 +73,7 @@ async def _propagate_first_released_document_batch(
     send_batch_id: uuid.UUID,
     agency_id: uuid.UUID,
     group_id: uuid.UUID,
+    delivery_ids: list[uuid.UUID] | None = None,
 ) -> int:
     """Collapse a worker batch into one idempotent mobile invalidation."""
 
@@ -81,6 +90,10 @@ async def _propagate_first_released_document_batch(
                     DocumentWhatsAppDeliveryModel.distributed_document_id.is_not(None),
                     DocumentWhatsAppDeliveryModel.passenger_id.is_not(None),
                     DocumentWhatsAppDeliveryModel.status.in_(ACCEPTED_STATUSES),
+                    *(
+                        [DocumentWhatsAppDeliveryModel.id.in_(delivery_ids)]
+                        if delivery_ids is not None else []
+                    ),
                 )
             )
         ).all()
@@ -109,6 +122,12 @@ async def _propagate_first_released_document_batch(
     }
     if not passenger_ids:
         return 0
+    propagation_key = f"document-delivery-batch:{send_batch_id}"
+    if delivery_ids is not None:
+        # A later slice must invalidate its passengers too. The original batch
+        # key would incorrectly suppress every slice after the first one.
+        released_key = ",".join(sorted(str(value) for value in document_ids))
+        propagation_key += ":" + hashlib.sha256(released_key.encode()).hexdigest()[:24]
     result = await propagate_mobile_passenger_change(
         session,
         agency_id=agency_id,
@@ -117,7 +136,7 @@ async def _propagate_first_released_document_batch(
         actor_user_id=None,
         change_kind="documents",
         reconcile_identities=False,
-        propagation_key=f"document-delivery-batch:{send_batch_id}",
+        propagation_key=propagation_key,
     )
     return result.sync_changes
 
@@ -311,12 +330,15 @@ async def run_document_whatsapp_broadcast(
     _delivery_id: uuid.UUID | None = None,
     _database_gate: asyncio.Semaphore | None = None,
     _client: httpx.AsyncClient | None = None,
-) -> None:
+    _admission_deadline: float | None = None,
+) -> int:
+    """Process one bounded slice; return the safe continuation delay, or zero."""
     parsed_batch_id = uuid.UUID(send_batch_id)
     settings = get_settings()
     timeout = httpx.Timeout(30.0, connect=5.0)
 
     if _delivery_id is None:
+        admission_deadline = time.monotonic() + DOCUMENT_DELIVERY_SLICE_SECONDS
         async with AsyncSessionFactory() as session:
             rows_result = await session.execute(
                 select(
@@ -325,12 +347,20 @@ async def run_document_whatsapp_broadcast(
                     DocumentWhatsAppDeliveryModel.group_id,
                     DocumentWhatsAppDeliveryModel.document_batch_id,
                 )
-                .where(DocumentWhatsAppDeliveryModel.send_batch_id == parsed_batch_id)
-                .order_by(DocumentWhatsAppDeliveryModel.created_at.asc())
+                .where(
+                    DocumentWhatsAppDeliveryModel.send_batch_id == parsed_batch_id,
+                    DocumentWhatsAppDeliveryModel.status.in_(["queued", "processing"]),
+                )
+                .order_by(
+                    (DocumentWhatsAppDeliveryModel.status == "queued").desc(),
+                    DocumentWhatsAppDeliveryModel.created_at.asc(),
+                    DocumentWhatsAppDeliveryModel.id.asc(),
+                )
+                .limit(DOCUMENT_DELIVERY_SLICE_SIZE)
             )
             batch_rows = list(rows_result.all())
             if not batch_rows:
-                return
+                return 0
             source_pairs = {(row.agency_id, row.group_id) for row in batch_rows}
             if len(source_pairs) != 1:
                 raise RuntimeError(
@@ -370,6 +400,7 @@ async def run_document_whatsapp_broadcast(
                         _delivery_id=delivery_id,
                         _database_gate=database_gate,
                         _client=client,
+                        _admission_deadline=admission_deadline,
                     ),
                     concurrency=concurrency,
                 )
@@ -381,9 +412,25 @@ async def run_document_whatsapp_broadcast(
                     send_batch_id=parsed_batch_id,
                     agency_id=agency_id,
                     group_id=group_id,
+                    delivery_ids=[row.id for row in batch_rows],
                 )
                 await session.commit()
-        return
+        async with AsyncSessionFactory() as session:
+            if await session.scalar(select(
+                select(DocumentWhatsAppDeliveryModel.id).where(
+                    DocumentWhatsAppDeliveryModel.send_batch_id == parsed_batch_id,
+                    DocumentWhatsAppDeliveryModel.status == "queued",
+                ).exists()
+            )):
+                return 1
+            if await session.scalar(select(
+                select(DocumentWhatsAppDeliveryModel.id).where(
+                    DocumentWhatsAppDeliveryModel.send_batch_id == parsed_batch_id,
+                    DocumentWhatsAppDeliveryModel.status == "processing",
+                ).exists()
+            )):
+                return 30
+        return 0
 
     delivery_ids = [_delivery_id]
     database_gate = _database_gate if _database_gate is not None else asyncio.Semaphore(1)
@@ -397,6 +444,8 @@ async def run_document_whatsapp_broadcast(
     async with client_context as client:
         for delivery_id in delivery_ids:
             async with database_gate, AsyncSessionFactory() as session:
+                if _admission_deadline is not None and time.monotonic() >= _admission_deadline:
+                    return 1
                 claim_time = datetime.now(tz=UTC)
                 claim_result = await session.execute(
                     update(DocumentWhatsAppDeliveryModel)
@@ -423,6 +472,8 @@ async def run_document_whatsapp_broadcast(
                             DocumentWhatsAppDeliveryModel.id == delivery_id,
                             DocumentWhatsAppDeliveryModel.send_batch_id == parsed_batch_id,
                             DocumentWhatsAppDeliveryModel.status == "processing",
+                            DocumentWhatsAppDeliveryModel.status_updated_at
+                            < claim_time - DOCUMENT_DELIVERY_STALE_AFTER,
                         )
                         .with_for_update()
                     )
@@ -528,10 +579,24 @@ async def run_document_whatsapp_broadcast(
                     break
             if upload_failed or not media_id:
                 continue
+            # PDF bytes are no longer needed once Meta has accepted the media.
+            # Do not retain four full PDFs while siblings wait for the DB gate.
+            del content
 
             # Rebuild and lock the current destination for this PDF. Keep the
             # gate through persistence; sibling uploads need no DB connection.
             async with database_gate, AsyncSessionFactory() as session:
+                if _admission_deadline is not None and time.monotonic() >= _admission_deadline:
+                    # No message request has been made. It is safe to release
+                    # this claim for the next slice, unlike an interrupted send.
+                    await session.execute(update(DocumentWhatsAppDeliveryModel).where(
+                        DocumentWhatsAppDeliveryModel.id == delivery_id,
+                        DocumentWhatsAppDeliveryModel.send_batch_id == parsed_batch_id,
+                        DocumentWhatsAppDeliveryModel.status == "processing",
+                        DocumentWhatsAppDeliveryModel.provider_message_id.is_(None),
+                    ).values(status="queued", status_updated_at=datetime.now(UTC), updated_at=datetime.now(UTC)))
+                    await session.commit()
+                    return 1
                 if session.get_bind().dialect.name == "postgresql":
                     await session.execute(
                         text(
@@ -641,6 +706,12 @@ async def run_document_whatsapp_broadcast(
                     continue
 
                 _source_document, _source_batch = source_row
+                if _admission_deadline is not None and time.monotonic() >= _admission_deadline:
+                    locked_delivery.status = "queued"
+                    locked_delivery.status_updated_at = datetime.now(UTC)
+                    locked_delivery.updated_at = datetime.now(UTC)
+                    await session.commit()
+                    return 1
                 saved_parameters = locked_delivery.template_parameter_values
                 parameters = (
                     document_template_parameters(
@@ -714,6 +785,7 @@ async def run_document_whatsapp_broadcast(
                     "delivery_id=%s status=%s",
                     send_batch_id, delivery_id, locked_delivery.status,
                 )
+    return 0
 
 
 async def mark_document_batch_failed(*, send_batch_id: str, error_message: str) -> None:

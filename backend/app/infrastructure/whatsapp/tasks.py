@@ -13,6 +13,7 @@ from app.infrastructure.whatsapp.document_delivery_runtime import (
     mark_document_batch_failed,
     run_document_whatsapp_broadcast,
 )
+from app.infrastructure.whatsapp.document_update_runtime import run_document_update_broadcast
 from app.infrastructure.whatsapp.qr_delivery_runtime import (
     mark_qr_batch_failed,
     run_qr_whatsapp_broadcast,
@@ -125,7 +126,16 @@ def process_document_whatsapp_broadcast(
     send_batch_id: str,
 ) -> None:
     try:
-        celery_async_runtime.run(run_document_whatsapp_broadcast(send_batch_id=send_batch_id))
+        continuation_delay = celery_async_runtime.run(
+            run_document_whatsapp_broadcast(send_batch_id=send_batch_id)
+        )
+        if continuation_delay:
+            # Publication happens before this late-ack task completes. Broker
+            # uncertainty retries the same batch; row claims and stale windows
+            # suppress duplicate provider calls. Each slice gets a fresh clock.
+            process_document_whatsapp_broadcast.apply_async(
+                kwargs={"send_batch_id": send_batch_id}, countdown=continuation_delay,
+            )
     except Exception as exc:
         logger.error(
             "document_whatsapp_task_failed send_batch_id=%s error_type=%s",
@@ -142,6 +152,24 @@ def process_document_whatsapp_broadcast(
                     ),
                 )
             )
+            raise
+        raise self.retry(exc=exc) from exc
+
+
+@celery_app.task(  # type: ignore[untyped-decorator]
+    bind=True, name="whatsapp.process_document_update_broadcast", queue="whatsapp",
+    max_retries=2, default_retry_delay=10, soft_time_limit=9 * 60, time_limit=10 * 60,
+)
+def process_document_update_broadcast(self: _BoundTask, *, batch_id: str) -> None:
+    try:
+        delay = celery_async_runtime.run(run_document_update_broadcast(batch_id=batch_id))
+        if delay:
+            process_document_update_broadcast.apply_async(kwargs={"batch_id": batch_id}, countdown=delay)
+    except Exception as exc:
+        logger.error("document_update_task_failed batch_id=%s error_type=%s", batch_id, type(exc).__name__)
+        if self.request.retries >= self.max_retries:
+            # The existing durable send intent recovers queued work. Never
+            # downgrade uncertain provider attempts into safe retryable sends.
             raise
         raise self.retry(exc=exc) from exc
 

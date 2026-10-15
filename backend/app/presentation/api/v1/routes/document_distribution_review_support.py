@@ -58,6 +58,7 @@ DocumentAssignmentExportFilter = Literal[
     "sent",
     "not_sent",
     "multiple_pdfs",
+    "shared_pdf",
 ]
 _SENT_DOCUMENT_STATUSES = frozenset({"submitted", "sent", "delivered", "read"})
 
@@ -95,6 +96,8 @@ def _document_assignment_export_rows(
         if review_filter == "not_sent" and not not_sent:
             continue
         if review_filter == "multiple_pdfs" and pdf_count <= 1:
+            continue
+        if review_filter == "shared_pdf" and row.shared_pdf_count == 0:
             continue
 
         export_rows.append(
@@ -240,6 +243,7 @@ def _document_match_roster_snapshot(
                 str(passenger.id),
                 updated_at_snapshot,
                 str(getattr(passenger, "client_name", "") or ""),
+                str(getattr(passenger, "display_name", "") or ""),
                 str(getattr(passenger, "client_phone", "") or ""),
                 str(getattr(passenger, "family_head_phone", "") or ""),
                 json.dumps(
@@ -275,10 +279,16 @@ def _passenger_review_rows(
 
     passenger_ids = {passenger.id for passenger in passengers}
     docs_by_passenger: dict[uuid.UUID, list[DistributedDocumentModel]] = {}
+    passengers_by_file: dict[str, set[uuid.UUID]] = {}
     unmatched: list[DistributedDocumentResponse] = []
     for document in documents:
+        if document.match_status == "superseded":
+            continue
         if document.passenger_id in passenger_ids:
             docs_by_passenger.setdefault(document.passenger_id, []).append(document)
+            if document.match_status == "matched":
+                key = str(getattr(document, "storage_key", "") or document.id)
+                passengers_by_file.setdefault(key, set()).add(document.passenger_id)
         else:
             unmatched.append(responses_by_document[document.id])
 
@@ -294,7 +304,7 @@ def _passenger_review_rows(
         rows.append(
             DocumentPassengerReviewRow(
                 passenger_id=passenger.id,
-                passenger_name=passenger.client_name,
+                passenger_name=getattr(passenger, "display_name", None) or passenger.client_name,
                 passport_number=_passport_number(passenger),
                 departure_city=passenger.departure_city,
                 document=rendered_documents[0] if rendered_documents else None,
@@ -306,6 +316,13 @@ def _passenger_review_rows(
                         if document.match_status == "matched"
                     }
                 ),
+                shared_pdf_count=len({
+                    str(getattr(document, "storage_key", "") or document.id)
+                    for document in passenger_documents
+                    if document.match_status == "matched" and len(passengers_by_file.get(
+                        str(getattr(document, "storage_key", "") or document.id), set()
+                    )) > 1
+                }),
             )
         )
 
@@ -328,6 +345,8 @@ def _physical_file_accounting(
     passenger_ids = {passenger.id for passenger in passengers}
     physical_documents: dict[str, list[DistributedDocumentModel]] = {}
     for document in documents:
+        if document.match_status == "superseded":
+            continue
         storage_identity = str(getattr(document, "storage_key", "") or document.id)
         physical_documents.setdefault(storage_identity, []).append(document)
 

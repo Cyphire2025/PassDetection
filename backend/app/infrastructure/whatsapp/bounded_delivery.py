@@ -26,7 +26,7 @@ def bounded_delivery_concurrency(value: object) -> int:
 
 async def run_bounded_delivery_items(
     items: Sequence[T],
-    handler: Callable[[T], Awaitable[None]],
+    handler: Callable[[T], Awaitable[object]],
     *,
     concurrency: int,
 ) -> None:

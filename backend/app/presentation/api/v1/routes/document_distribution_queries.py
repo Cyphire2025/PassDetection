@@ -53,6 +53,7 @@ async def _all_group_documents(
             DistributedDocumentModel.group_id == group_id,
             DistributedDocumentModel.agency_id == agency_id,
             DistributedDocumentModel.document_type == document_type,
+            DistributedDocumentModel.match_status != "superseded",
         )
         .order_by(
             DistributedDocumentModel.created_at.desc(),

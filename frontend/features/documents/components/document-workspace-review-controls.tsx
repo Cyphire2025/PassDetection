@@ -7,6 +7,7 @@ import {
   Send,
   Trash2,
 } from "lucide-react";
+import type { ReactNode } from "react";
 import { Button } from "@/components/ui";
 import type { DocumentAssignmentIssue } from "@/types/document-distribution.types";
 import type {
@@ -30,6 +31,7 @@ interface DocumentWorkspaceReviewControlsProps {
   savePending: boolean;
   saved: boolean;
   deliveryDisabled: boolean;
+  broadcastActions?: ReactNode;
   exportPending: boolean;
   exportError: boolean;
   hasReviewData: boolean;
@@ -53,6 +55,7 @@ interface DocumentWorkspaceReviewControlsProps {
 const REVIEW_FILTER_OPTIONS: Array<[ReviewFilter, string]> = [
   ["all", "All"],
   ["multiple_pdfs", "Multiple PDFs"],
+  ["shared_pdf", "Shared PDF"],
   ["assigned", "Assigned"],
   ["missing", "Missing"],
   ["sent", "Sent"],
@@ -75,6 +78,7 @@ export function DocumentWorkspaceReviewControls({
   savePending,
   saved,
   deliveryDisabled,
+  broadcastActions,
   exportPending,
   exportError,
   hasReviewData,
@@ -140,7 +144,7 @@ export function DocumentWorkspaceReviewControls({
             <Save className="h-4 w-4" />
             {saved ? "Saved" : "Save List"}
           </Button>
-          <Button
+          {broadcastActions ?? <Button
             type="button"
             variant="secondary"
             disabled={deliveryDisabled}
@@ -148,7 +152,7 @@ export function DocumentWorkspaceReviewControls({
           >
             <Send className="h-4 w-4" />
             Send WhatsApp Broadcast
-          </Button>
+          </Button>}
         </div>
       </div>
 
@@ -261,6 +265,7 @@ export function DocumentWorkspaceReviewControls({
             Each shared PDF counts once per passenger.
           </p>
         )}
+        {reviewFilter === "shared_pdf" && <p className="w-full text-xs text-slate-600">Shows passengers whose PDF is also assigned to another passenger in this document list.</p>}
         {exportError && (
           <p className="w-full text-right text-xs font-medium text-red-700" role="alert">
             Excel export failed. Please try again.

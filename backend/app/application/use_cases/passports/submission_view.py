@@ -297,9 +297,14 @@ def _build_blocks(
     return blocks
 
 
+def _display_name(submission: Any) -> str:
+    return getattr(submission, "display_name", None) or submission.client_name
+
+
 def _matches_search(entry: SubmissionViewEntry, search: str) -> bool:
     submission = entry.submission
     values: list[Any] = [
+        getattr(submission, "display_name", None),
         submission.client_name,
         submission.client_email,
         submission.client_phone,
@@ -335,7 +340,7 @@ def _status_matches(entry: SubmissionViewEntry, submission_filter: str) -> bool:
 
 def _sort_value(entry: SubmissionViewEntry, sort_by: str) -> Any:
     if sort_by == "name":
-        return _normalized_tokens(entry.submission.client_name) or None
+        return _normalized_tokens(_display_name(entry.submission)) or None
     if sort_by == "verification_confidence":
         return entry.verification_confidence
     return entry.submission.updated_at
@@ -351,7 +356,7 @@ def _sort_entries(
     entries = sorted(
         entries,
         key=lambda entry: (
-            _normalized_tokens(entry.submission.client_name),
+            _normalized_tokens(_display_name(entry.submission)),
             str(entry.submission.id),
         ),
     )
@@ -454,7 +459,7 @@ def _expiry_alerts(
         alerts.append(
             ExpiryAlert(
                 submission_id=submission.id,
-                client_name=submission.client_name,
+                client_name=_display_name(submission),
                 client_email=submission.client_email,
                 passport_number=(_field_value(submission, "passport_number") or None),
                 date_of_expiry=expiry.isoformat(),

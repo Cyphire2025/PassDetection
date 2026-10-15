@@ -389,6 +389,8 @@ class WhatsAppMessageLogModel(Base):
     rendered_message: Mapped[str | None] = mapped_column(Text, nullable=True)
     header_parameter_values: Mapped[list[str] | None] = mapped_column(JSONB, nullable=True)
     template_parameter_values: Mapped[list[str] | None] = mapped_column(JSONB, nullable=True)
+    # Frozen scope for text-only document updates; never changes document send status.
+    document_update_context: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
     is_explicit_resend: Mapped[bool] = mapped_column(
         Boolean,
         default=False,

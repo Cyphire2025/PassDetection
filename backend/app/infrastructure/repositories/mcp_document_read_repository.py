@@ -45,7 +45,8 @@ class MCPDocumentReadRepository:
                   document.created_at, document.updated_at, operational.label("assigned_to_operational_passenger")]
         if include_extracted_identifiers:
             fields.extend([document.extracted_name, document.extracted_passport_number, document.extracted_reference])
-        statement = select(*fields).where(document.group_id == group_id, document.agency_id == agency_id)
+        statement = select(*fields).where(document.group_id == group_id, document.agency_id == agency_id,
+                                         document.match_status != "superseded")
         if document_type is not None:
             statement = statement.where(document.document_type == document_type)
         return await self._page(statement, document, cutoff, after, size)

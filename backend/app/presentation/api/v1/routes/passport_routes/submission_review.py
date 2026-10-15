@@ -200,7 +200,7 @@ async def get_passport(
 @router.post(
     "/{submission_id}/client-submit",
     response_model=PassportSubmissionResponse,
-    response_model_exclude={"document_follow_up"},
+    response_model_exclude={"document_follow_up", "display_name"},
     status_code=status.HTTP_200_OK,
     summary="Submit client-reviewed passport fields (Public)",
 )

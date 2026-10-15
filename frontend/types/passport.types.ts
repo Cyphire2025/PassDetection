@@ -150,6 +150,7 @@ export interface PassportConfidenceScore {
 }
 
 export interface PassportSubmission extends TimestampedEntity {
+  display_name?: string | null;
   document_follow_up?: boolean;
   id: string;
   group_id: string;

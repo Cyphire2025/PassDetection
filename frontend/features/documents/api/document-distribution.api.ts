@@ -11,6 +11,7 @@ import type {
   DocumentVerificationResult,
   SendDocumentBroadcastResult,
   VerifiedDistributedDocument,
+  ManualDocumentReplacement,
 } from "@/types/document-distribution.types";
 import {
   createDocumentStagingManifest,
@@ -38,7 +39,8 @@ export type DocumentAssignmentExportFilter =
   | "missing"
   | "sent"
   | "not_sent"
-  | "multiple_pdfs";
+  | "multiple_pdfs"
+  | "shared_pdf";
 
 export const documentDistributionApi = {
   listGroups: async (search?: string, signal?: AbortSignal): Promise<DocumentDistributionGroup[]> => {
@@ -288,6 +290,16 @@ export const documentDistributionApi = {
     return data;
   },
 
+  manualUploadPassengerDocument: async (groupId: string, documentType: DistributionDocumentType,
+    passengerId: string, file: File, mode: "add" | "replace", replacements: ManualDocumentReplacement[]): Promise<DocumentBatchReview> => {
+    const body = new FormData();
+    body.append("file", file);
+    body.append("mode", mode);
+    body.append("replacement_documents", JSON.stringify(replacements));
+    return (await apiClient.post<DocumentBatchReview>(API_ENDPOINTS.documents.manualUpload(groupId, documentType, passengerId),
+      body, { headers: { "Content-Type": "multipart/form-data" }, timeout: 60_000 })).data;
+  },
+
   deleteDocuments: async (
     groupId: string,
     documentType: DistributionDocumentType,
@@ -324,10 +336,11 @@ export const documentDistributionApi = {
     groupId: string,
     documentType: DistributionDocumentType,
     signal?: AbortSignal,
+    broadcastGroupId?: string,
   ): Promise<DocumentDeliveryPreview> => {
     const { data } = await apiClient.get<DocumentDeliveryPreview>(
       API_ENDPOINTS.documents.whatsappPreview(groupId, documentType),
-      { signal },
+      { signal, params: broadcastGroupId ? { broadcast_group_id: broadcastGroupId } : undefined },
     );
     return data;
   },
@@ -339,6 +352,7 @@ export const documentDistributionApi = {
     messageContent1: string,
     messageContent2: string,
     previewToken: string,
+    broadcastGroupId?: string,
   ): Promise<SendDocumentBroadcastResult> => {
     const { data } = await apiClient.post<SendDocumentBroadcastResult>(
       API_ENDPOINTS.documents.sendWhatsApp(batchId),
@@ -348,6 +362,7 @@ export const documentDistributionApi = {
         message_content_1: messageContent1,
         message_content_2: messageContent2,
         preview_token: previewToken,
+        broadcast_group_id: broadcastGroupId,
       },
     );
     return data;

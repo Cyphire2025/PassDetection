@@ -9,7 +9,9 @@ from app.presentation.api.v1.routes import (
     document_distribution,
     document_distribution_delivery_support,
     document_distribution_manual_verification,
+    document_distribution_manual_upload,
     document_distribution_review_support,
+    document_updates,
     traveller_welcome,
 )
 
@@ -62,6 +64,9 @@ _EXPECTED_ROUTES = [
         "/groups/{group_id}/whatsapp-deliveries/tracking",
         "get_document_delivery_tracking",
     ),
+    (("POST",), "/groups/{group_id}/{document_type}/passengers/{passenger_id}/manual-upload", "manually_upload_passenger_document"),
+    (("GET",), "/groups/{group_id}/{document_type}/update-preview", "preview_update"),
+    (("POST",), "/groups/{group_id}/{document_type}/send-update", "send_update"),
 ]
 
 _FACADE_NAMES = {
@@ -125,6 +130,10 @@ def test_document_distribution_route_order_and_names_remain_stable() -> None:
     for route in document_distribution.router.routes:
         if route.name == "manually_verify_document":
             assert route.endpoint is document_distribution_manual_verification.manually_verify_document
+        elif route.name == "manually_upload_passenger_document":
+            assert route.endpoint is document_distribution_manual_upload.manually_upload_passenger_document
+        elif route.name in {"preview_update", "send_update"}:
+            assert route.endpoint is getattr(document_updates, route.name)
         elif route.name in {"preview_traveller_welcomes", "send_traveller_welcomes"}:
             assert route.endpoint is getattr(traveller_welcome, route.name)
             assert inspect.unwrap(route.endpoint).__module__ == traveller_welcome.__name__

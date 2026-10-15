@@ -82,6 +82,7 @@ async def lock_document_export_source(
                     DistributedDocumentModel.group_id == group.id,
                     DistributedDocumentModel.agency_id == group.agency_id,
                     DistributedDocumentModel.document_type == document_type,
+                    DistributedDocumentModel.match_status != "superseded",
                 )
                 .order_by(DistributedDocumentModel.id)
                 .limit(MAX_DOCUMENT_ASSIGNMENTS + 1)

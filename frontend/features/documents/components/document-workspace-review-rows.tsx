@@ -20,9 +20,11 @@ interface DocumentWorkspaceReviewRowsProps {
   showRowActions: boolean;
   removalPending: boolean;
   reuploadPending: boolean;
+  allowResend?: boolean;
   searchQuery: string;
   onToggleRowDocuments: (documentIds: string[], selected: boolean) => void;
   onReupload: (passengerId: string, file: File) => void;
+  onManualUpload?: (row: DocumentPassengerReviewRow, mode: "add" | "replace") => void;
   onRemoveAssignment: (documentId: string) => void;
   onResend: (documentId: string) => void;
 }
@@ -36,9 +38,11 @@ export function DocumentWorkspaceReviewRows({
   showRowActions,
   removalPending,
   reuploadPending,
+  allowResend = true,
   searchQuery,
   onToggleRowDocuments,
   onReupload,
+  onManualUpload,
   onRemoveAssignment,
   onResend,
 }: DocumentWorkspaceReviewRowsProps) {
@@ -72,6 +76,8 @@ export function DocumentWorkspaceReviewRows({
                   type="checkbox"
                   className="h-4 w-4 rounded border-slate-300"
                   aria-label={`No document available for ${row.passenger_name}`}
+                  checked={false}
+                  readOnly
                   disabled
                 />
               )}
@@ -86,6 +92,7 @@ export function DocumentWorkspaceReviewRows({
                   {pdfCount} {pdfCount === 1 ? "PDF" : "PDFs"} assigned
                 </Badge>
               )}
+              {(row.shared_pdf_count ?? 0) > 0 && <Badge variant="outline" className="mt-2 whitespace-nowrap">Shared PDF</Badge>}
             </td>
             <td className="break-words px-3 py-4 align-top text-slate-700">
               {row.passport_number || "Not set"}
@@ -163,7 +170,7 @@ export function DocumentWorkspaceReviewRows({
                         status={document.delivery_status}
                         sentTo={document.sent_to}
                         sentAt={document.last_sent_at}
-                        canResend={document.can_resend}
+                        canResend={allowResend && document.can_resend}
                         onResend={() => onResend(document.id)}
                       />
                     </div>
@@ -181,6 +188,7 @@ export function DocumentWorkspaceReviewRows({
                   documentType={documentType}
                   pending={reuploadPending || removalPending}
                   onReupload={(file) => onReupload(row.passenger_id, file)}
+                  onManualUpload={onManualUpload}
                   onRemoveAssignment={onRemoveAssignment}
                 />
               </td>

@@ -26,8 +26,8 @@ services:
     cpus: "4.0"
     environment: *kvm4-process-budget
   worker:
-    mem_limit: 384m
-    memswap_limit: 384m
+    mem_limit: 1024m
+    memswap_limit: 1024m
     environment: *kvm4-process-budget
     command: [sh, -c, "exec celery -A app.infrastructure.processing.celery_app:celery_app worker --hostname=general@%h --loglevel=INFO --concurrency=1 -Q passport_ocr,whatsapp"]
   email-worker:
@@ -84,14 +84,29 @@ services:
     mem_limit: 320m
     memswap_limit: 320m
   redis-broker:
-    mem_limit: 1152m
-    memswap_limit: 1152m
+    mem_limit: 896m
+    memswap_limit: 896m
+    # Retain room for Redis allocator overhead and AOF copy-on-write.
+    command: >-
+      redis-server
+      --requirepass ${REDIS_BROKER_PASSWORD:-${REDIS_PASSWORD}}
+      --appendonly yes
+      --appendfsync everysec
+      --maxmemory 384mb
+      --maxmemory-policy noeviction
   redis-realtime:
     mem_limit: 192m
     memswap_limit: 192m
   redis-cache:
-    mem_limit: 320m
-    memswap_limit: 320m
+    mem_limit: 192m
+    memswap_limit: 192m
+    command: >-
+      redis-server
+      --requirepass ${REDIS_CACHE_PASSWORD:-${REDIS_PASSWORD}}
+      --save ""
+      --appendonly no
+      --maxmemory 128mb
+      --maxmemory-policy allkeys-lru
   clamav:
     mem_limit: 3072m
     memswap_limit: 3072m
@@ -105,8 +120,8 @@ services:
     mem_limit: 256m
     memswap_limit: 256m
   frontend:
-    mem_limit: 512m
-    memswap_limit: 512m
+    mem_limit: 256m
+    memswap_limit: 256m
   nginx:
     mem_limit: 128m
   metrics-exporter:

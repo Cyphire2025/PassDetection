@@ -279,6 +279,8 @@ export const API_ENDPOINTS = {
     requestContactOtp: (id: string) => `/api/v1/passports/${encodeURIComponent(id)}/contact-otp/request`,
     verifyContactOtp: (id: string) => `/api/v1/passports/${encodeURIComponent(id)}/contact-otp/verify`,
     clientDetails: (id: string) => `/api/v1/passports/${id}/client-details`,
+    displayName: (groupId: string, id: string) =>
+      `/api/v1/passports/groups/${encodeURIComponent(groupId)}/submissions/${encodeURIComponent(id)}/display-name`,
     reextract: (id: string) => `/api/v1/passports/${id}/reextract`,
     cancelProcessing: (id: string) => `/api/v1/passports/${id}/cancel-processing`,
   },
@@ -296,6 +298,8 @@ export const API_ENDPOINTS = {
       `/api/v1/document-distribution/groups/${groupId}/${documentType}/uploads/${batchId}/abort`,
     reupload: (groupId: string, documentType: string, passengerId: string) =>
       `/api/v1/document-distribution/groups/${groupId}/${documentType}/passengers/${passengerId}/reupload`,
+    manualUpload: (groupId: string, documentType: string, passengerId: string) =>
+      `/api/v1/document-distribution/groups/${groupId}/${documentType}/passengers/${passengerId}/manual-upload`,
     deleteDocuments: (groupId: string, documentType: string) =>
       `/api/v1/document-distribution/groups/${groupId}/${documentType}/documents/delete`,
     unassignDocuments: (groupId: string, documentType: string) =>

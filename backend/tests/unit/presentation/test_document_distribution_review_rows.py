@@ -139,6 +139,9 @@ def test_multiple_pdf_count_uses_physical_files_and_passenger_ids_and_updates_af
     assert [(row.passenger_id, row.assigned_pdf_count) for row in rows] == [
         (first.id, 2), (second.id, 1)
     ]
+    assert [row.shared_pdf_count for row in rows] == [1, 1]
+    shared = _document_assignment_export_rows(rows, review_filter="shared_pdf", search_query="")
+    assert len(shared) == 2
     exported = _document_assignment_export_rows(
         rows, review_filter="multiple_pdfs", search_query="  SAME "
     )
@@ -158,6 +161,25 @@ def test_multiple_pdf_count_uses_physical_files_and_passenger_ids_and_updates_af
     # The existing review continues to expose every ledger row for its existing actions.
     assert len(updated_rows[0].documents) == 2
     assert len(updated_rows[1].documents) == 3
+
+
+def test_shared_pdf_uses_distinct_passengers_and_ignores_history_and_filename_collisions() -> None:
+    first = _passenger(passenger_id=uuid.uuid4(), name="Same Name")
+    second = _passenger(passenger_id=uuid.uuid4(), name="Same Name")
+    documents = [
+        _document(document_id=uuid.uuid4(), passenger_id=first.id, storage_key="combined.pdf"),
+        _document(document_id=uuid.uuid4(), passenger_id=first.id, storage_key="combined.pdf"),
+        _document(document_id=uuid.uuid4(), passenger_id=second.id, storage_key="other-copy.pdf"),
+        _document(document_id=uuid.uuid4(), passenger_id=second.id, storage_key="combined.pdf", status="superseded"),
+        _document(document_id=uuid.uuid4(), passenger_id=uuid.uuid4(), storage_key="combined.pdf"),
+    ]
+    responses = {document.id: _response(document_id=document.id, filename="same.pdf", source="manual")
+                 for document in documents}
+    rows, _, _ = _passenger_review_rows(passengers=[first, second], documents=documents,
+        responses_by_document=responses)
+    assert [row.shared_pdf_count for row in rows] == [0, 0]
+    assert [len(row.documents) for row in rows] == [2, 1]
+    assert _document_assignment_export_rows(rows, review_filter="shared_pdf", search_query="") == []
 
 
 def test_physical_file_accounting_distinguishes_files_from_unique_passengers() -> None:

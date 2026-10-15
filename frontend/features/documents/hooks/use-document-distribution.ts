@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type {
   AbortDocumentUploadResult,
   DistributionDocumentType,
+  ManualDocumentReplacement,
 } from "@/types/document-distribution.types";
 import { documentDistributionApi } from "../api/document-distribution.api";
 import type { DocumentAssignmentExportFilter } from "../api/document-distribution.api";
@@ -169,6 +170,21 @@ export function useDeleteDistributionDocuments(groupId: string, documentType: Di
   });
 }
 
+export function useManualPassengerDocumentUpload(groupId: string, documentType: DistributionDocumentType) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ passengerId, file, mode, replacements }: { passengerId: string; file: File; mode: "add" | "replace"; replacements: ManualDocumentReplacement[] }) =>
+      documentDistributionApi.manualUploadPassengerDocument(groupId, documentType, passengerId, file, mode, replacements),
+    onSuccess: data => queryClient.setQueryData(documentKeys.review(groupId, documentType), data),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: documentKeys.groups() });
+      queryClient.invalidateQueries({ queryKey: documentKeys.review(groupId, documentType) });
+      queryClient.invalidateQueries({ queryKey: documentKeys.deliveryPreview(groupId, documentType) });
+      queryClient.invalidateQueries({ queryKey: ["document-update-preview", groupId] });
+    },
+  });
+}
+
 export function useUnassignDistributionDocuments(groupId: string, documentType: DistributionDocumentType) {
   const queryClient = useQueryClient();
 
@@ -199,10 +215,11 @@ export function useDocumentDeliveryPreview(
   groupId: string,
   documentType: DistributionDocumentType,
   enabled: boolean,
+  broadcastGroupId?: string,
 ) {
   return useQuery({
-    queryKey: documentKeys.deliveryPreview(groupId, documentType),
-    queryFn: ({ signal }) => documentDistributionApi.previewWhatsAppDelivery(groupId, documentType, signal),
+    queryKey: [...documentKeys.deliveryPreview(groupId, documentType), broadcastGroupId ?? "all"],
+    queryFn: ({ signal }) => documentDistributionApi.previewWhatsAppDelivery(groupId, documentType, signal, broadcastGroupId),
     enabled: Boolean(groupId && documentType && enabled),
     staleTime: 0,
     refetchOnMount: "always",
@@ -216,6 +233,7 @@ export function useDocumentDeliveryPreview(
 export function useSendDocumentWhatsAppBroadcast(
   groupId: string,
   documentType: DistributionDocumentType,
+  broadcastGroupId?: string,
 ) {
   const queryClient = useQueryClient();
   return useMutation({
@@ -241,6 +259,7 @@ export function useSendDocumentWhatsAppBroadcast(
         messageContent1,
         messageContent2,
         previewToken,
+        broadcastGroupId,
       ),
     onSettled: () => {
       // A timeout may follow a successful queue operation; recheck before retrying.

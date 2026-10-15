@@ -95,6 +95,8 @@ class DocumentPassengerReviewRow(BaseModel):
     documents: list[DistributedDocumentResponse] = Field(default_factory=list)
     # Distinct stored PDFs with a matched assignment, not ledger/match rows.
     assigned_pdf_count: int | None = Field(default=None, ge=0)
+    # PDFs also assigned to another distinct passenger in this lane.
+    shared_pdf_count: int = Field(default=0, ge=0)
 
 
 class DocumentBatchResponse(BaseModel):
@@ -199,6 +201,7 @@ class DocumentDeliveryPreviewResponse(BaseModel):
 
 
 class SendDocumentBroadcastRequest(BaseModel):
+    broadcast_group_id: uuid.UUID | None = None
     preview_token: str | None = Field(
         default=None, min_length=64, max_length=64, pattern=r"^[0-9a-f]{64}$",
     )

@@ -31,6 +31,7 @@ _ROUTE_SIGNATURES = (
         "bulk_staff_approve_passport_submissions",
     ),
     (("POST",), "/groups/{group_id}/bulk-document-follow-up", "bulk_document_follow_up"),
+    (("PATCH",), "/groups/{group_id}/submissions/{submission_id}/display-name", "update_passport_display_name"),
     (("GET",), "", "list_passports"),
     (("GET",), "/groups/{group_id}/export-history", "list_passport_group_export_history"),
     (

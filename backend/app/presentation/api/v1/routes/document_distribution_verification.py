@@ -249,11 +249,11 @@ async def verify_documents(
                 accepted=is_uploadable,
                 reason=rejection_reason,
                 matched_passenger_id=primary_match.passenger_id if primary_match else None,
-                matched_passenger_name=primary_passenger.client_name if primary_passenger else None,
+                matched_passenger_name=(getattr(primary_passenger, "display_name", None) or primary_passenger.client_name) if primary_passenger else None,
                 matched_passenger_ids=[
                     match.passenger_id for match in matches if match.passenger_id
                 ],
-                matched_passenger_names=[passenger.client_name for passenger in matched_passengers],
+                matched_passenger_names=[getattr(passenger, "display_name", None) or passenger.client_name for passenger in matched_passengers],
                 match_confidence=feedback_match.confidence if feedback_match else 0.0,
                 match_status=feedback_match.status if feedback_match else None,
                 match_reason=(

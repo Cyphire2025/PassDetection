@@ -3,8 +3,8 @@
   "profile": "kvm4",
   "compose_overlay": "docker-compose.kvm4.yml",
   "owner": "repository-maintainer",
-  "qualification_status": "qualified",
-  "qualification_scope": "historical_exact_image_component_and_lifecycle_qualification_plus_20260929_isolated_source_overlay_extraction_and_postgres_resource_delta",
+  "qualification_status": "candidate_pending_final_application_and_lifecycle_checks",
+  "qualification_scope": "historical_qualification_plus_20261015_installed_image_isolated_redis_and_frontend_donor_pressure_checks_pending_exact_release",
   "host_reserve_mib": 2048,
   "observed_host_physical_mib": 15992,
   "steady_container_ceiling_mib": 13888,
@@ -14,7 +14,7 @@
   "my_photos_provider_requirement": "all_disabled_and_no_pending_jobs_until_separate_enabled_path_qualification",
   "memory_limits_mib": {
     "backend": 2560,
-    "worker": 384,
+    "worker": 1024,
     "email-worker": 384,
     "email-ai-worker": 384,
     "my-photos-worker": 384,
@@ -25,12 +25,12 @@
     "email-beat": 256,
     "db": 896,
     "redis": 320,
-    "redis-broker": 1152,
+    "redis-broker": 896,
     "redis-realtime": 192,
-    "redis-cache": 320,
+    "redis-cache": 192,
     "clamav": 3072,
     "minio": 768,
-    "frontend": 512,
+    "frontend": 256,
     "nginx": 128,
     "metrics-exporter": 128
   },
@@ -41,6 +41,7 @@
     "storage-copy": 256
   },
   "evidence": {
+    "document_delivery_rebalance": "docs/remediation/document-delivery-rebalance-evidence.json",
     "persistent_service_memory": "docs/remediation/persistent-service-memory-evidence.json",
     "postgres_memory": "docs/remediation/postgres-memory-evidence.json",
     "native_image_baseline": "docs/remediation/native-memory-baseline-evidence.json",
@@ -53,6 +54,8 @@
     "final_image_policy": "docs/remediation/final-image-disposition-evidence.json"
   },
   "limitations": [
+    "The 20261015 donor probes used installed images and synthetic data, not final-release qualification; activation remains blocked pending final application and lifecycle checks",
+    "Broker dataset allowance falls from 512 to 384 MiB and evictable cache from 256 to 128 MiB; broker remains noeviction with AOF persistence",
     "Single physical host; no host high availability claim",
     "Two children consume interactive extraction; other background consumers retain one child",
     "External AI latency and capacity are not measured by provider-free synthetic probes",

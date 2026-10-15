@@ -348,6 +348,7 @@ async def test_batch_coordination_allows_four_child_upload_windows_to_overlap(
         _client: object,
         _source_snapshot: object | None = None,
         _database_gate: asyncio.Semaphore | None = None,
+        _admission_deadline: float | None = None,
     ) -> None:
         del send_batch_id
         nonlocal active, peak

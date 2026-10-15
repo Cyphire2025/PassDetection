@@ -1,5 +1,6 @@
 "use client";
 import { DocumentThumbnailCacheProvider } from "./document-thumbnail-cache-provider";
+import { PassportDisplayNameDialog } from "./passport-display-name-dialog";
 import { PassportGroupDialogs } from "./passport-group-dialogs";
 import { PassportGroupHeaderPanel } from "./passport-group-header-panel";
 import { PassportGroupImportPanel } from "./passport-group-import-panel";
@@ -19,6 +20,10 @@ export function PassportGroupDetail({ groupId }: { groupId: string }) {
         <PassportGroupSelectionToolbar {...controller} />
         <PassportGroupRosterPanel {...controller} />
         <PassportGroupDialogs {...controller} />
+        {controller.displayNameEditorId && controller.canEditDisplayName && (
+          <PassportDisplayNameDialog key={controller.displayNameEditorId} id={controller.displayNameEditorId} groupId={groupId}
+            onClose={() => controller.setDisplayNameEditorId(null)} />
+        )}
       </div>
     </DocumentThumbnailCacheProvider>
   );

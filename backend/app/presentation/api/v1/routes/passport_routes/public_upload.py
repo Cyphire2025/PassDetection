@@ -130,7 +130,7 @@ async def prepare_public_upload_file(
 @router.post(
     "/upload/{token}",
     response_model=PassportSubmissionResponse,
-    response_model_exclude={"document_follow_up"},
+    response_model_exclude={"document_follow_up", "display_name"},
     status_code=status.HTTP_201_CREATED,
     summary="Submit a passport image using a secure token (Public)",
 )
@@ -328,7 +328,7 @@ async def reconcile_passport_upload(
 @router.get(
     "/upload/{token}/{submission_id}/status",
     response_model=PassportSubmissionResponse,
-    response_model_exclude={"document_follow_up"},
+    response_model_exclude={"document_follow_up", "display_name"},
     status_code=status.HTTP_200_OK,
     summary="Poll passport extraction status for a public upload",
 )
@@ -384,7 +384,7 @@ async def get_upload_passport_status(
 @router.post(
     "/upload/{token}/{submission_id}/scan-again",
     response_model=PassportSubmissionResponse,
-    response_model_exclude={"document_follow_up"},
+    response_model_exclude={"document_follow_up", "display_name"},
     status_code=status.HTTP_200_OK,
     summary="Rerun fallback MRZ extraction for a public upload",
 )

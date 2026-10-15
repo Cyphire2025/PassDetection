@@ -1,0 +1,52 @@
+{
+  "run_id": "document-rebalance-4d0e334235674f9387c4a49427214b55",
+  "date_utc": "2026-10-15T19:35:53.476083+00:00",
+  "script": "scripts/qa/qualify_document_delivery_rebalance.py",
+  "initial_host_available_gib": 8.60,
+  "final_host_available_gib": 8.53,
+  "production_changes": false,
+  "network": "none",
+  "cpu_ceiling_each": 0.5,
+  "containers_sequential": true,
+  "cleanup": "Each temporary container removed in finally after exact unique ownership-label and network-mode verification",
+  "rows": [
+    {
+      "service": "redis-broker",
+      "image": "sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99",
+      "cap_mib": 896,
+      "maxmemory_mib": 384,
+      "filled_used_memory_mib": 359.13,
+      "rewrite_observed": true,
+      "rewrite_overwrites": 1024,
+      "memory": {"running": true, "peak_mib": 378.25, "events": {"low": "0", "high": "0", "max": "0", "oom": "0", "oom_kill": "0", "oom_group_kill": "0"}},
+      "result": "passed"
+    },
+    {
+      "service": "redis-cache",
+      "image": "sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99",
+      "cap_mib": 192,
+      "maxmemory_mib": 128,
+      "filled_used_memory_mib": 121.21,
+      "rewrite_observed": false,
+      "rewrite_overwrites": 0,
+      "memory": {"running": true, "peak_mib": 125.79, "events": {"low": "0", "high": "0", "max": "0", "oom": "0", "oom_kill": "0", "oom_group_kill": "0"}},
+      "result": "passed"
+    },
+    {
+      "service": "frontend",
+      "image": "sha256:c9b4a8f47bd5d7e110997096068210261daeaa94ba96ec6dfd268b9462edf121",
+      "cap_mib": 256,
+      "requests": 81,
+      "concurrency": 8,
+      "memory": {"running": true, "peak_mib": 117.16, "events": {"low": "0", "high": "0", "max": "0", "oom": "0", "oom_kill": "0", "oom_group_kill": "0"}},
+      "result": "passed"
+    }
+  ],
+  "limitations": [
+    "Current installed service images; not a final application release qualification.",
+    "Redis fill and rewrite use synthetic keys, not production queues.",
+    "AOF rewrite overlaps 1024 updates, not worst-case full-dataset copy-on-write; broker cap still exceeds two maxmemory datasets plus 128 MiB.",
+    "Frontend tests public login rendering only, not every authenticated page or a long soak.",
+    "Future sustained workload and allocator fragmentation may need larger budgets."
+  ]
+}

@@ -67,6 +67,7 @@ async def _build_document_delivery_preview(
     group: ClientGroupModel,
     batch: DocumentDistributionBatchModel,
     passengers: list[PassportSubmission],
+    broadcast_group_id: uuid.UUID | None = None,
 ) -> DocumentDeliveryPreviewResponse:
     message_content_1, message_content_2 = default_document_message_content(batch.document_type)
     sources = await linked_welcome_sources(session, group=group)
@@ -74,6 +75,10 @@ async def _build_document_delivery_preview(
     destinations = {row.passenger_id: row for row in await load_traveller_destinations(
         session, agency_id=group.agency_id, group_id=group.id,
     )}
+    if broadcast_group_id is not None:
+        passengers = [passenger for passenger in passengers
+            if passenger.id in destinations
+            and destinations[passenger.id].broadcast_group_id == broadcast_group_id]
     documents_result = await session.execute(
         select(DistributedDocumentModel, DocumentDistributionBatchModel.status)
         .join(
@@ -84,7 +89,7 @@ async def _build_document_delivery_preview(
             DistributedDocumentModel.group_id == group.id,
             DistributedDocumentModel.agency_id == group.agency_id,
             DistributedDocumentModel.document_type == batch.document_type,
-            DistributedDocumentModel.match_status != "duplicate_document",
+            DistributedDocumentModel.match_status.not_in(("duplicate_document", "superseded")),
             DocumentDistributionBatchModel.group_id == group.id,
             DocumentDistributionBatchModel.agency_id == group.agency_id,
             DocumentDistributionBatchModel.document_type == batch.document_type,
@@ -181,7 +186,7 @@ async def _build_document_delivery_preview(
             else:
                 summary.blocked += 1
             preview_rows.append(DocumentDeliveryPreviewRecipient(
-                passenger_id=passenger.id, passenger_name=passenger.client_name,
+                passenger_id=passenger.id, passenger_name=getattr(passenger, "display_name", None) or passenger.client_name,
                 passport_number=_passport_number(passenger),
                 document_id=document.id,
                 document_filename=document.original_filename,

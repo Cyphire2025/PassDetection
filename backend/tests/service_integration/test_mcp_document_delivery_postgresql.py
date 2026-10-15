@@ -54,7 +54,7 @@ async def test_duplicate_confirmation_and_revocation_wait_on_original_provider_b
         await connection.execute(text(f'CREATE DATABASE "{name}"'))
     try:
         process = await asyncio.create_subprocess_exec(sys.executable, "-m", "alembic", "upgrade",
-            "0128_mcp_document_delivery", cwd=Path(__file__).resolve().parents[2],
+            "head", cwd=Path(__file__).resolve().parents[2],
             env={**os.environ, "POSTGRES_DB": name}, stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.STDOUT)
         output, _ = await asyncio.wait_for(process.communicate(), 100)

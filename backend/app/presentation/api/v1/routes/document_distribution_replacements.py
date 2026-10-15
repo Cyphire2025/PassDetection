@@ -151,6 +151,7 @@ async def apply_filename_replacements(
             DistributedDocumentModel.agency_id == agency_id,
             DistributedDocumentModel.group_id == group_id,
             DistributedDocumentModel.document_type == document_type,
+            DistributedDocumentModel.match_status != "superseded",
         )
         .order_by(DistributedDocumentModel.id)
         .limit(MAX_DISTRIBUTION_ASSIGNMENT_ROWS_PER_SCOPE + 1)

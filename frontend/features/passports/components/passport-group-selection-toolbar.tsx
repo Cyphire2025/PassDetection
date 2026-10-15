@@ -18,9 +18,12 @@ import {
   MAX_SELECTED_IMAGE_DOWNLOAD,
 } from "./passport-group-bindings";
 import { DocumentFollowUpActions } from "./passport-document-follow-up";
+import { PassportDisplayNameAction } from "./passport-display-name-action";
 import type { PassportGroupController } from "./use-passport-group-controller";
 export function PassportGroupSelectionToolbar({
   documentFollowUp,
+  canEditDisplayName,
+  setDisplayNameEditorId,
   search,
   setSearch,
   setPage,
@@ -63,6 +66,8 @@ export function PassportGroupSelectionToolbar({
 }: Pick<
   PassportGroupController,
   | "documentFollowUp"
+  | "canEditDisplayName"
+  | "setDisplayNameEditorId"
   | "search"
   | "setSearch"
   | "setPage"
@@ -267,6 +272,8 @@ export function PassportGroupSelectionToolbar({
                   className="absolute right-0 top-11 z-40 w-64 overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-xl"
                 >
                   <DocumentFollowUpActions followUp={documentFollowUp} selectedCount={selectedPassports.length} />
+                  <PassportDisplayNameAction canEdit={canEditDisplayName} selectedIds={selectedPassports}
+                    onEdit={(id) => { setIsBulkActionsMenuOpen(false); setDisplayNameEditorId(id); }} />
                   {canBulkStaffApprove && !includeDeleted && (
                     <button
                       type="button"

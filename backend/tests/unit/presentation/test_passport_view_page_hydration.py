@@ -43,7 +43,6 @@ async def test_projection_omits_raw_documents_and_page_query_retains_staff_scope
     assert not selected & {
         "image_s3_key",
         "mrz_raw",
-        "staff_metadata",
         "confidence_score",
         "extraction_conflicts",
     }

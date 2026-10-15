@@ -488,6 +488,7 @@ class PassportSubmissionResponse(BaseModel):
     group_id: uuid.UUID
     agency_id: uuid.UUID
     client_name: str
+    display_name: str | None = None
     client_email: str | None = None
     client_phone: str | None = None
     departure_city: str | None = None

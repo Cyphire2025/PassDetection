@@ -24,7 +24,9 @@ import {
   WhatsAppActivityInline,
   useWhatsAppActivityTracker,
 } from "@/features/whatsapp/components/whatsapp-activity-tracker";
-import type { DocumentVerificationResult } from "@/types/document-distribution.types";
+import type { DocumentPassengerReviewRow, DocumentVerificationResult } from "@/types/document-distribution.types";
+import { DocumentBroadcastActions } from "./document-broadcast-actions";
+import { ManualPassengerDocumentDialog } from "./manual-passenger-document-dialog";
 import {
   useAbortDistributionUploads,
   useDeleteDistributionDocuments,
@@ -33,6 +35,7 @@ import {
   useDocumentReview,
   useExportDocumentAssignments,
   useReuploadPassengerDocument,
+  useManualPassengerDocumentUpload,
   useSaveDocumentBatch,
   useSendDocumentWhatsAppBroadcast,
   useUnassignDistributionDocuments,
@@ -157,6 +160,7 @@ export function DocumentWorkspace({
   const [deliveryMessageContent1, setDeliveryMessageContent1] = useState<string | null>(null);
   const [deliveryMessageContent2, setDeliveryMessageContent2] = useState<string | null>(null);
   const [deliveryFeedback, setDeliveryFeedback] = useState<string | null>(null);
+  const [manualUploadTarget, setManualUploadTarget] = useState<{ row: DocumentPassengerReviewRow; mode: "add" | "replace" } | null>(null);
   const { data: groups = [] } = useDocumentGroups();
   const group = groups.find((item) => item.group_id === groupId);
   const review = useDocumentReview(groupId, documentType);
@@ -178,6 +182,7 @@ export function DocumentWorkspace({
   const upload = useUploadDistributionDocuments(groupId, documentType);
   const abortUploads = useAbortDistributionUploads(groupId, documentType);
   const reupload = useReuploadPassengerDocument(groupId, documentType);
+  const manualUpload = useManualPassengerDocumentUpload(groupId, documentType);
   const deleteDocuments = useDeleteDistributionDocuments(groupId, documentType);
   const unassignDocuments = useUnassignDistributionDocuments(groupId, documentType);
   const save = useSaveDocumentBatch(groupId, documentType);
@@ -196,6 +201,7 @@ export function DocumentWorkspace({
     upload.isPending ||
     abortUploads.isPending ||
     reupload.isPending ||
+    manualUpload.isPending ||
     deleteDocuments.isPending ||
     unassignDocuments.isPending ||
     save.isPending ||
@@ -311,6 +317,7 @@ export function DocumentWorkspace({
       setVerification(recovered?.verification ?? null);
       setStagingManifest(recovered?.manifest ?? null);
       setSelectedFiles([]);
+      setManualUploadTarget(null);
       replaceManualReviewCandidates([]);
       restoreManualUpload();
       resetVerification();
@@ -330,6 +337,7 @@ export function DocumentWorkspace({
       setProgressDetail(null);
       setProgress(0);
       setPhase("idle");
+      setManualUploadTarget(null);
     };
     window.addEventListener(SENSITIVE_STATE_RESET_EVENT, abortSensitiveWork);
     const unsubscribeSessionResets = subscribeToSessionResets(abortSensitiveWork);
@@ -643,6 +651,10 @@ export function DocumentWorkspace({
               savePending={save.isPending}
               saved={review.data?.status === "saved"}
               deliveryDisabled={!review.data?.batch_id || review.data.status !== "saved"}
+              broadcastActions={<DocumentBroadcastActions groupId={groupId} documentType={documentType} documentsDisabled={!review.data?.batch_id || review.data.status !== "saved"} onSendDocuments={() => {
+                sendDocuments.reset(); setDeliveryDocumentIds(null); setDeliveryResendDocumentIds([]);
+                setDeliveryMessageContent1(null); setDeliveryMessageContent2(null); setDeliveryFeedback(null); setIsSendPreviewOpen(true);
+              }} />}
               exportPending={exportAssignments.isPending}
               exportError={exportAssignments.isError && !isDownloadCancelled(exportAssignments.error)}
               hasReviewData={Boolean(review.data)}
@@ -748,7 +760,8 @@ export function DocumentWorkspace({
                   documentType={documentType}
                   showRowActions={showRowActions}
                   removalPending={removalPending}
-                  reuploadPending={reupload.isPending}
+                  reuploadPending={reupload.isPending || manualUpload.isPending}
+                  onManualUpload={(row, mode) => { manualUpload.reset(); setManualUploadTarget({ row, mode }); }}
                   searchQuery={reviewSearchQuery}
                   onToggleRowDocuments={(documentIds, selected) =>
                     setSelectedDocumentIds((current) =>
@@ -868,6 +881,8 @@ export function DocumentWorkspace({
           {deliveryFeedback}
         </div>
       )}
+
+      {manualUploadTarget && <ManualPassengerDocumentDialog key={`${manualUploadTarget.row.passenger_id}:${manualUploadTarget.mode}`} row={manualUploadTarget.row} mode={manualUploadTarget.mode} pending={manualUpload.isPending} error={manualUpload.error?.message ?? null} onClose={() => { if (!manualUpload.isPending) setManualUploadTarget(null); }} onUpload={(file, replacements) => manualUpload.mutate({ passengerId: manualUploadTarget.row.passenger_id, file, mode: manualUploadTarget.mode, replacements }, { onSuccess: () => setManualUploadTarget(null) })} />}
 
       {isSendPreviewOpen && (
         <DocumentDeliveryPreviewDialog

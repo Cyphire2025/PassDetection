@@ -96,6 +96,13 @@ export interface DocumentPassengerReviewRow {
   documents: DistributedDocument[];
   /** Distinct matched stored PDFs, including shared PDFs only once per passenger. */
   assigned_pdf_count?: number | null;
+  /** Distinct PDFs in this row also assigned to another passenger in this lane. */
+  shared_pdf_count?: number;
+}
+
+export interface ManualDocumentReplacement {
+  id: string;
+  updated_at: string;
 }
 
 export interface DocumentBatchReview {

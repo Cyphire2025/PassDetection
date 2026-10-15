@@ -121,6 +121,7 @@ async def unassign_distribution_documents(
             DistributedDocumentModel.agency_id == group.agency_id,
             DistributedDocumentModel.document_type == document_type,
             DistributedDocumentModel.passenger_id.is_not(None),
+            DistributedDocumentModel.match_status != "superseded",
         )
         .with_for_update()
     )
@@ -288,6 +289,7 @@ async def delete_distribution_documents(
             DistributedDocumentModel.document_type == document_type,
         )
         .order_by(DistributedDocumentModel.id)
+        .where(DistributedDocumentModel.match_status != "superseded")
         .with_for_update()
         .execution_options(populate_existing=True)
     )

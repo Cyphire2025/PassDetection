@@ -1,7 +1,8 @@
 """Apply measured resource limits without discarding persistent or volatile data.
 
-Only the guarded release calls this module. Redis is paused and resized in place;
-it is never restarted. PostgreSQL/ClamAV may be recreated against the identical
+Only the guarded release calls this module. Redis is normally resized in place;
+two reviewed dataset reductions use an explicit retained-volume transition.
+PostgreSQL/ClamAV may be recreated against the identical
 retained volumes after a verified archive. Checkpoints precede each mutation and
 an interrupted operation leaves application writers fenced until explicit retry.
 """
@@ -13,6 +14,7 @@ import re
 from pathlib import Path
 from typing import Any
 
+from release_redis_dataset_transition import reviewed_transition, transition_dataset
 from release_resource_fence import PERSISTENT, mounts
 from release_traveller_whatsapp import ReleaseError
 from verify_deployment_resource_budget import _memory_bytes
@@ -138,10 +140,18 @@ def _target(release: Any, fence: Any, config: dict[str, Any], service: str) -> d
         raise ReleaseError(f"{service}: explicit positive memory and CPU caps are required")
     command = spec.get("command") or image["Config"].get("Cmd")
     entrypoint = spec.get("entrypoint") or image["Config"].get("Entrypoint")
-    if service in REDIS and (image["Id"] != original["Image"]
-                             or command != original["Config"].get("Cmd")
-                             or entrypoint != original["Config"].get("Entrypoint")):
-        raise ReleaseError(f"{service}: preserving volatile Redis data requires the same image and command")
+    transition = None
+    if service in REDIS:
+        if command != original["Config"].get("Cmd"):
+            transition = reviewed_transition(service, original["Config"].get("Cmd"), command, memory)
+        if (image["Id"] != original["Image"] or entrypoint != original["Config"].get("Entrypoint")
+                or (command != original["Config"].get("Cmd") and transition is None)):
+            raise ReleaseError(f"{service}: preserving volatile Redis data requires the same image and command")
+        if transition is not None and (not reference.startswith("redis:7-alpine@sha256:")
+                or len(current) != 1 or current[0][1:] != ("/data", True)
+                or {**environment(image), **spec.get("environment", {})} != environment(original)
+                or _memory_bytes(spec.get("memswap_limit")) != memory):
+            raise ReleaseError("Redis dataset transition requires unchanged identity, /data and no swap")
     if service == "db":
         old_env = environment(original)
         candidate = {**environment(image), **spec.get("environment", {})}
@@ -156,6 +166,7 @@ def _target(release: Any, fence: Any, config: dict[str, Any], service: str) -> d
             "memory": memory, "memory_swap": _memory_bytes(spec.get("memswap_limit", memory * 2)),
             "nano_cpus": cpu, "command": command, "entrypoint": entrypoint,
             "volumes": {name: volume_identity(release, name) for name, _, _ in current},
+            **({"redis_dataset_transition": transition} if transition is not None else {}),
             "stage": "prepared"}
 
 
@@ -317,7 +328,9 @@ def _apply_record(release: Any, fence: Any, record: dict[str, Any]) -> None:
         raise ReleaseError("Persistent resource checkpoint is incomplete")
     for service in ORDER:
         fence.assert_stopped()
-        if service in REDIS:
+        if record["persistent"][service].get("redis_dataset_transition"):
+            transition_dataset(release, fence, record, service)
+        elif service in REDIS:
             _resize_redis(release, fence, record, service)
         else:
             _recreate(release, fence, record, service)

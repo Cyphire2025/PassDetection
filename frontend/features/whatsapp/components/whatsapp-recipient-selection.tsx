@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-export type RecipientWorkspaceSection = "recipients" | "travellers" | "add" | "details";
+export type RecipientWorkspaceSection = "recipients" | "travellers" | "documents" | "add" | "details";
 
 export function RecipientWorkspaceNavigation({
   section, onChange, recipientCount, pendingCount, readOnly = false, sourceContactCount,
@@ -19,6 +19,7 @@ export function RecipientWorkspaceNavigation({
       {([
         ["travellers", "Travellers", sourceContactCount ?? null],
         ["recipients", "Recipient list", recipientCount],
+        ["documents", "Documents", null],
         ["add", "Add recipients", pendingCount || null],
         ["details", "Broadcast details", null],
       ] as const).filter(([id]) => (!readOnly || id !== "add") && (id !== "travellers" || sourceContactCount !== undefined)).map(([id, label, count]) => (

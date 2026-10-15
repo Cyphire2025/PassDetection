@@ -573,6 +573,7 @@ async def test_source_mutation_waits_until_provider_window_is_recorded() -> None
     session_contexts = [
         _async_session_context(claim_session),
         _async_session_context(initial_session),
+        _async_session_context(AsyncMock()),
         _async_session_context(provider_session),
     ]
 
@@ -592,6 +593,14 @@ async def test_source_mutation_waits_until_provider_window_is_recorded() -> None
         patch(
             "app.infrastructure.whatsapp.document_delivery_runtime.get_settings",
             return_value=SimpleNamespace(whatsapp_phone_number_id="test-provider-account"),
+        ),
+        patch(
+            "app.infrastructure.whatsapp.document_delivery_runtime.upload_mcp_document_media",
+            new=AsyncMock(return_value=(False, None, None)),
+        ),
+        patch(
+            "app.infrastructure.whatsapp.document_delivery_runtime.authorize_mcp_document_dispatch",
+            new=AsyncMock(return_value=(None, None)),
         ),
         patch(
             "app.infrastructure.whatsapp.document_delivery_runtime.upload_whatsapp_document",

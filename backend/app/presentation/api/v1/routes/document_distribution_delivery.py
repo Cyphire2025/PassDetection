@@ -66,6 +66,7 @@ router = APIRouter()
 async def preview_document_whatsapp_broadcast(
     group_id: uuid.UUID,
     document_type: str,
+    broadcast_group_id: uuid.UUID | None = None,
     current_user: User = Depends(get_current_active_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> DocumentDeliveryPreviewResponse:
@@ -100,6 +101,7 @@ async def preview_document_whatsapp_broadcast(
         group=group,
         batch=batch,
         passengers=passengers,
+        broadcast_group_id=broadcast_group_id,
     )
 
 
@@ -199,6 +201,7 @@ async def queue_document_whatsapp_broadcast(
         group=group,
         batch=batch,
         passengers=passengers,
+        broadcast_group_id=payload.broadcast_group_id,
     )
     if payload.preview_token is not None and not hmac.compare_digest(
         payload.preview_token, preview.preview_token or "",

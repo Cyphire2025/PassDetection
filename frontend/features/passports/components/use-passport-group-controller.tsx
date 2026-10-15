@@ -216,6 +216,7 @@ export function usePassportGroupController({ groupId }: { groupId: string }) {
     useState(false);
   const [isBulkApprovalConfirmationOpen, setIsBulkApprovalConfirmationOpen] =
     useState(false);
+  const [displayNameEditorId, setDisplayNameEditorId] = useState<string | null>(null);
   const [passportImportFiles, setPassportImportFiles] = useState<File[]>([]);
   const [passportImportPreview, setPassportImportPreview] =
     useState<PassportDocumentImportPreview | null>(null);
@@ -607,6 +608,9 @@ export function usePassportGroupController({ groupId }: { groupId: string }) {
 
   return {
     documentFollowUp,
+    displayNameEditorId,
+    setDisplayNameEditorId,
+    canEditDisplayName: documentFollowUp.canManage && groupDetails?.group_status !== "deleted",
     actionsMenuButtonRef,
     actionsMenuPopupRef,
     actionsMenuPosition,

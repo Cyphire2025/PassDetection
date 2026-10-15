@@ -7,7 +7,7 @@ import type {
   DocumentVerificationResult,
 } from "@/types/document-distribution.types";
 
-export type ReviewFilter = "all" | "assigned" | "missing" | "sent" | "not_sent" | "multiple_pdfs";
+export type ReviewFilter = "all" | "assigned" | "missing" | "sent" | "not_sent" | "multiple_pdfs" | "shared_pdf";
 
 export interface DocumentReviewCounts {
   all: number;
@@ -16,12 +16,14 @@ export interface DocumentReviewCounts {
   sent: number;
   not_sent: number;
   multiple_pdfs: number;
+  shared_pdf: number;
 }
 
 export interface DocumentReviewModel {
   rows: DocumentPassengerReviewRow[];
   documentsByPassengerId: ReadonlyMap<string, DistributedDocument[]>;
   pdfCountsByPassengerId: ReadonlyMap<string, number>;
+  sharedPdfPassengerIds: ReadonlySet<string>;
   counts: DocumentReviewCounts;
   assignmentIssues: DocumentAssignmentIssue[];
   assignedDocumentIds: string[];
@@ -47,7 +49,8 @@ const EMPTY_REVIEW_MODEL: DocumentReviewModel = {
   rows: [],
   documentsByPassengerId: new Map(),
   pdfCountsByPassengerId: new Map(),
-  counts: { all: 0, assigned: 0, missing: 0, sent: 0, not_sent: 0, multiple_pdfs: 0 },
+  sharedPdfPassengerIds: new Set(),
+  counts: { all: 0, assigned: 0, missing: 0, sent: 0, not_sent: 0, multiple_pdfs: 0, shared_pdf: 0 },
   assignmentIssues: [],
   assignedDocumentIds: [],
   assignedDocumentIdSet: new Set(),
@@ -75,6 +78,7 @@ export function createDocumentReviewModel(
 
   const documentsByPassengerId = new Map<string, DistributedDocument[]>();
   const pdfCountsByPassengerId = new Map<string, number>();
+  const sharedPdfPassengerIds = new Set<string>();
   const assignedDocumentIds: string[] = [];
   const assignedPassengerIds = new Set<string>();
   const sentPassengerIds = new Set<string>();
@@ -83,6 +87,7 @@ export function createDocumentReviewModel(
   for (const row of review.review_rows) {
     const documents = reviewRowDocuments(row);
     documentsByPassengerId.set(row.passenger_id, documents);
+    if ((row.shared_pdf_count ?? 0) > 0) sharedPdfPassengerIds.add(row.passenger_id);
     // The server groups shared physical PDFs by storage identity. Older responses
     // only expose assignment IDs, so preserve their single-document compatibility.
     pdfCountsByPassengerId.set(
@@ -130,6 +135,7 @@ export function createDocumentReviewModel(
     rows: review.review_rows,
     documentsByPassengerId,
     pdfCountsByPassengerId,
+    sharedPdfPassengerIds,
     counts: {
       all: review.review_rows.length,
       assigned: assignedPassengerIds.size,
@@ -137,6 +143,7 @@ export function createDocumentReviewModel(
       sent: sentPassengerIds.size,
       not_sent: notSentPassengerIds.size,
       multiple_pdfs: Array.from(pdfCountsByPassengerId.values()).filter((count) => count > 1).length,
+      shared_pdf: sharedPdfPassengerIds.size,
     },
     assignmentIssues,
     assignedDocumentIds,
@@ -168,6 +175,7 @@ export function filterDocumentReviewRows(
     if (filter === "sent") return model.sentPassengerIds.has(row.passenger_id);
     if (filter === "not_sent") return model.notSentPassengerIds.has(row.passenger_id);
     if (filter === "multiple_pdfs") return (model.pdfCountsByPassengerId.get(row.passenger_id) ?? 0) > 1;
+    if (filter === "shared_pdf") return model.sharedPdfPassengerIds.has(row.passenger_id);
     return true;
   });
 }

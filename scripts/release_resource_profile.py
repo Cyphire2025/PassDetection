@@ -82,7 +82,7 @@ def validate_profile(config: dict[str, Any], metadata: dict[str, Any], *, activa
             raise ValueError(f"{name}: must retain its reviewed queues with exactly {children} children")
     if services["db"].get("command") != ["postgres", "-c", "max_connections=100"]:
         raise ValueError("PostgreSQL settings differ from the qualified connection/query memory envelope")
-    for name, maximum_mib in {"redis": 128, "redis-broker": 512, "redis-realtime": 128, "redis-cache": 256}.items():
+    for name, maximum_mib in {"redis": 128, "redis-broker": 384, "redis-realtime": 128, "redis-cache": 128}.items():
         command = services[name].get("command")
         tokens = shlex.split(command) if isinstance(command, str) else command
         if not isinstance(tokens, list) or not tokens or tokens[0] != "redis-server" or tokens.count("--maxmemory") != 1:

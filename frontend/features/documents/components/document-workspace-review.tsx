@@ -240,6 +240,7 @@ type DocumentRowActionMenuProps = {
   documentType: DistributionDocumentType;
   pending: boolean;
   onReupload: (file: File) => void;
+  onManualUpload?: (row: DocumentPassengerReviewRow, mode: "add" | "replace") => void;
   onRemoveAssignment: (documentId: string) => void;
 };
 
@@ -249,6 +250,7 @@ export function DocumentRowActionMenu({
   documentType,
   pending,
   onReupload,
+  onManualUpload,
   onRemoveAssignment,
 }: DocumentRowActionMenuProps) {
   const [open, setOpen] = useState(false);
@@ -341,11 +343,17 @@ export function DocumentRowActionMenu({
             type="button"
             role="menuitem"
             className="flex w-full items-center gap-2 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-            onClick={() => inputRef.current?.click()}
+            onClick={() => {
+              if (onManualUpload) { setOpen(false); onManualUpload(row, documents.length ? "replace" : "add"); }
+              else inputRef.current?.click();
+            }}
           >
             <RefreshCw className="h-4 w-4" />
-            Add another document
+            {onManualUpload ? documents.length ? "Replace document" : "Upload document" : "Add another document"}
           </button>
+          {onManualUpload && documents.length > 0 && <button type="button" role="menuitem" className="flex w-full items-center gap-2 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50" onClick={() => { setOpen(false); onManualUpload(row, "add"); }}>
+            <RefreshCw className="h-4 w-4" />Add another document
+          </button>}
           {documents.length > 0 && <div className="my-1 border-t border-slate-100" />}
           {documents.map((document) => (
             <button
@@ -368,7 +376,7 @@ export function DocumentRowActionMenu({
             </button>
           ))}
           <div className="border-t border-slate-100 px-3 py-2 text-xs text-slate-500">
-            Upload one more {label} PDF without removing saved documents.
+            {onManualUpload ? `Assign a ${label} PDF directly to this passenger and save.` : `Upload one more ${label} PDF without removing saved documents.`}
           </div>
         </div>,
         document.body,

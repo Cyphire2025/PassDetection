@@ -111,6 +111,7 @@ async def list_document_groups(
                 *document_agency_scope(DistributedDocumentModel.agency_id, current_user),
                 DistributedDocumentModel.group_id.in_([group.id for group in groups]),
                 DistributedDocumentModel.document_type.in_(tuple(DOCUMENT_TYPES)),
+                DistributedDocumentModel.match_status != "superseded",
                 PassportSubmissionModel.group_id == DistributedDocumentModel.group_id,
                 PassportSubmissionModel.status.in_(_submitted_statuses()),
                 operational_roster_member(),
@@ -248,7 +249,7 @@ async def export_document_assignments(
     group_id: uuid.UUID,
     document_type: str,
     review_filter: Annotated[
-        Literal["all", "assigned", "missing", "sent", "not_sent", "multiple_pdfs"],
+        Literal["all", "assigned", "missing", "sent", "not_sent", "multiple_pdfs", "shared_pdf"],
         Query(alias="filter"),
     ] = "all",
     search: Annotated[str, Query(max_length=200)] = "",
@@ -268,6 +269,7 @@ async def export_document_assignments(
         "sent": "Sent",
         "not_sent": "Not sent",
         "multiple_pdfs": "Multiple PDFs",
+        "shared_pdf": "Shared PDF",
     }
     rows = _document_assignment_export_rows(
         review.review_rows,

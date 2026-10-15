@@ -4,6 +4,7 @@ export type WhatsAppTemplateKey =
   | "reminder"
   | "group_invite"
   | "document"
+  | "document_update"
   | "qr"
   | "otp";
 
