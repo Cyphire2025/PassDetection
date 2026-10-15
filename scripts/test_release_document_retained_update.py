@@ -62,6 +62,7 @@ class DocumentRelease(unittest.TestCase):
         release.stop, release.migrate, release.activate_candidates, release.hold_candidates = Mock(), Mock(), Mock(), Mock()
         with patch('release_document_retained_update.bound_original', side_effect=lambda row: row), \
              patch('release_document_retained_update.wait_for_idle'), \
+             patch('release_document_retained_update.resources.preflight_fenced'), \
              patch('release_document_retained_update.resources.apply', side_effect=ValueError('resource_blocked')), \
              self.assertRaisesRegex(ValueError, 'resource_blocked'):
             release.transition(release.record['candidates'])
@@ -69,7 +70,7 @@ class DocumentRelease(unittest.TestCase):
         release.activate_candidates.assert_not_called()
         release.hold_candidates.assert_called_once()
 
-    def test_cutover_order_is_migration_resources_activation(self):
+    def test_cutover_order_is_preflight_migration_resources_activation(self):
         release = fixture()
         sequence = []
         release.stop = Mock()
@@ -77,9 +78,38 @@ class DocumentRelease(unittest.TestCase):
         release.activate_candidates = lambda: sequence.append('activate')
         with patch('release_document_retained_update.bound_original', side_effect=lambda row: row), \
              patch('release_document_retained_update.wait_for_idle'), \
+             patch('release_document_retained_update.resources.preflight_fenced', side_effect=lambda _: sequence.append('preflight')), \
              patch('release_document_retained_update.resources.apply', side_effect=lambda _: sequence.append('resources')):
             release.transition(release.record['candidates'])
-        self.assertEqual(sequence, ['migrate', 'resources', 'activate'])
+        self.assertEqual(sequence, ['preflight', 'migrate', 'resources', 'activate'])
+
+    def test_fenced_inventory_failure_prevents_migration(self):
+        release = fixture()
+        release.stop, release.migrate, release.activate_candidates, release.hold_candidates = Mock(), Mock(), Mock(), Mock()
+        with patch('release_document_retained_update.bound_original', side_effect=lambda row: row), \
+             patch('release_document_retained_update.wait_for_idle'), \
+             patch('release_document_retained_update.resources.preflight_fenced', side_effect=ValueError('key_inventory')), \
+             patch('release_document_retained_update.resources.apply') as apply, \
+             self.assertRaisesRegex(ValueError, 'key_inventory'):
+            release.transition(release.record['candidates'])
+        release.migrate.assert_not_called()
+        apply.assert_not_called()
+        release.activate_candidates.assert_not_called()
+        release.hold_candidates.assert_called_once()
+
+    def test_unverified_resume_rechecks_only_before_target_schema(self):
+        for schema in (SOURCE, TARGET):
+            with self.subTest(schema=schema):
+                release = fixture()
+                release.record.pop('database_validation')
+                release.stop, release.fence_candidate = Mock(), Mock()
+                release.migrate, release.activate_candidates = Mock(), Mock()
+                release.schema = Mock(return_value=schema)
+                with patch('release_document_retained_update.bound_original', side_effect=lambda row: row), \
+                     patch('release_document_retained_update.resources.preflight_fenced') as preflight, \
+                     patch('release_document_retained_update.resources.apply'):
+                    release.recover()
+                self.assertEqual(preflight.call_count, 1 if schema == SOURCE else 0)
 
     def test_resume_finishes_resources_before_full_infrastructure_fence(self):
         release = fixture()
@@ -88,9 +118,11 @@ class DocumentRelease(unittest.TestCase):
         release.migrate = lambda: sequence.append('verify_migration')
         release.activate_candidates = lambda: sequence.append('activate')
         with patch('release_document_retained_update.bound_original', side_effect=lambda row: row), \
+             patch('release_document_retained_update.resources.preflight_fenced') as preflight, \
              patch('release_document_retained_update.resources.apply', side_effect=lambda _: sequence.append('resources')):
             release.recover()
         self.assertEqual(sequence, ['resources', 'verify_migration', 'resources', 'activate'])
+        preflight.assert_not_called()
 
     def test_missing_evidence_blocks_resume_before_any_stop(self):
         release = fixture()

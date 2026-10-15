@@ -1,0 +1,341 @@
+{
+  "observed_date_local": "2026-10-16",
+  "revision": "644176c9b52d09634d0f006201c4387294bae526",
+  "mode": "fast",
+  "full_ci_qualified": false,
+  "phase": "complete",
+  "public_status": "ready",
+  "schema": "0140_document_update_context",
+  "all_prior_resources_retained": true,
+  "services": {
+    "backend": {
+      "health": "healthy",
+      "memory_mib": 2560,
+      "oom": false,
+      "restarts": 0,
+      "running": true,
+      "swap_limit_mib": 2560
+    },
+    "clamav": {
+      "health": "healthy",
+      "memory_mib": 3072,
+      "oom": false,
+      "restarts": 0,
+      "running": true,
+      "swap_limit_mib": 3072
+    },
+    "db": {
+      "health": "healthy",
+      "memory_mib": 896,
+      "oom": false,
+      "restarts": 0,
+      "running": true,
+      "swap_limit_mib": 896
+    },
+    "ecr-worker": {
+      "health": "healthy",
+      "memory_mib": 640,
+      "oom": false,
+      "restarts": 0,
+      "running": true,
+      "swap_limit_mib": 640
+    },
+    "email-ai-worker": {
+      "health": "healthy",
+      "memory_mib": 384,
+      "oom": false,
+      "restarts": 0,
+      "running": true,
+      "swap_limit_mib": 384
+    },
+    "email-beat": {
+      "health": "healthy",
+      "memory_mib": 256,
+      "oom": false,
+      "restarts": 0,
+      "running": true,
+      "swap_limit_mib": 256
+    },
+    "email-worker": {
+      "health": "healthy",
+      "memory_mib": 384,
+      "oom": false,
+      "restarts": 0,
+      "running": true,
+      "swap_limit_mib": 384
+    },
+    "extraction-worker": {
+      "health": "healthy",
+      "memory_mib": 512,
+      "oom": false,
+      "restarts": 0,
+      "running": true,
+      "swap_limit_mib": 512
+    },
+    "frontend": {
+      "health": null,
+      "memory_mib": 256,
+      "oom": false,
+      "restarts": 0,
+      "running": true,
+      "swap_limit_mib": 256
+    },
+    "metrics-exporter": {
+      "health": "healthy",
+      "memory_mib": 128,
+      "oom": false,
+      "restarts": 0,
+      "running": true,
+      "swap_limit_mib": 256
+    },
+    "minio": {
+      "health": "healthy",
+      "memory_mib": 768,
+      "oom": false,
+      "restarts": 0,
+      "running": true,
+      "swap_limit_mib": 768
+    },
+    "my-photos-worker": {
+      "health": "healthy",
+      "memory_mib": 384,
+      "oom": false,
+      "restarts": 0,
+      "running": true,
+      "swap_limit_mib": 384
+    },
+    "nginx": {
+      "health": null,
+      "memory_mib": 128,
+      "oom": false,
+      "restarts": 0,
+      "running": true,
+      "swap_limit_mib": 256
+    },
+    "redis": {
+      "health": "healthy",
+      "memory_mib": 320,
+      "oom": false,
+      "restarts": 0,
+      "running": true,
+      "swap_limit_mib": 320
+    },
+    "redis-broker": {
+      "health": "healthy",
+      "memory_mib": 896,
+      "oom": false,
+      "restarts": 0,
+      "running": true,
+      "swap_limit_mib": 896
+    },
+    "redis-cache": {
+      "health": "healthy",
+      "memory_mib": 192,
+      "oom": false,
+      "restarts": 0,
+      "running": true,
+      "swap_limit_mib": 192
+    },
+    "redis-realtime": {
+      "health": "healthy",
+      "memory_mib": 192,
+      "oom": false,
+      "restarts": 0,
+      "running": true,
+      "swap_limit_mib": 192
+    },
+    "verification-worker": {
+      "health": "healthy",
+      "memory_mib": 384,
+      "oom": false,
+      "restarts": 0,
+      "running": true,
+      "swap_limit_mib": 384
+    },
+    "visa-ai-worker": {
+      "health": "healthy",
+      "memory_mib": 512,
+      "oom": false,
+      "restarts": 0,
+      "running": true,
+      "swap_limit_mib": 512
+    },
+    "worker": {
+      "health": "healthy",
+      "memory_mib": 1024,
+      "oom": false,
+      "restarts": 0,
+      "running": true,
+      "swap_limit_mib": 1024
+    }
+  },
+  "host": {
+    "MemAvailable": "9542144 kB",
+    "MemTotal": "16376020 kB",
+    "SwapTotal": "0 kB"
+  },
+  "redis_runtime": {
+    "redis-broker": {
+      "appendfsync": "everysec",
+      "appendonly": "yes",
+      "maxmemory": "402653184",
+      "maxmemory-policy": "noeviction"
+    },
+    "redis-cache": {
+      "appendfsync": "everysec",
+      "appendonly": "no",
+      "maxmemory": "134217728",
+      "maxmemory-policy": "allkeys-lru"
+    }
+  },
+  "qualification": {
+    "frontend_pressure": true,
+    "oom_free": true,
+    "redis_aof_rewrite": true,
+    "redis_dataset_preservation": true,
+    "sender_bounded_batches": true
+  },
+  "sender_exact_image_probe": {
+    "backend_image": "sha256:bf5f3d1c3103ff2d95ff37f000dbd6bbb47b151dd1878c455280f2ac663409d5",
+    "cap_mib": 1024,
+    "celery_parent_imported": true,
+    "isolated_network": true,
+    "limitations": [
+      "Synthetic storage and provider; no external HTTP or delivery latency qualification."
+    ],
+    "memory": {
+      "events": {
+        "high": "0",
+        "low": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_group_kill": "0",
+        "oom_kill": "0"
+      },
+      "peak_bytes": 474742784
+    },
+    "mock_sends": 698,
+    "mock_uploads": 698,
+    "outcomes": {
+      "delivery_unknown": 1,
+      "submitted": 699
+    },
+    "passed": true,
+    "pdf_buffer_bytes_each": 26214400,
+    "peak_upload_concurrency": 4,
+    "postgres_image": "sha256:e013e867e712fec275706a6c51c966f0bb0c93cfa8f51000f85a15f9865a28cb",
+    "provider_calls": 0,
+    "rows": 700,
+    "slices": [
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      23
+    ],
+    "worker_children": 1
+  },
+  "delivery_state": {
+    "before": {
+      "schema": "0138_verified_portal_lookup",
+      "count": 1315,
+      "attempts": 1315,
+      "newest_created": "2026-10-15T15:34:41.22177+00:00",
+      "unknown": 22,
+      "unknown_digest": "3e28424e1327a6503a0d99f8359b956b"
+    },
+    "after": {
+      "schema": "0140_document_update_context",
+      "count": 1315,
+      "attempts": 1315,
+      "newest_created": "2026-10-15T15:34:41.22177+00:00",
+      "unknown": 22,
+      "unknown_digest": "3e28424e1327a6503a0d99f8359b956b"
+    },
+    "unchanged_except_schema": true,
+    "external_provider_calls_from_qualification": 0,
+    "documents_or_update_messages_sent_by_operator": 0
+  },
+  "live_browser_checks": {
+    "visa_counts": {
+      "all": 703,
+      "assigned": 615,
+      "missing": 88,
+      "sent": 597,
+      "not_sent": 18
+    },
+    "international_onward_counts": {
+      "all": 703,
+      "assigned": 700,
+      "missing": 3,
+      "sent": 696,
+      "not_sent": 4,
+      "shared_pdf_passengers": 49
+    },
+    "broadcast_choices": [
+      "Send documents",
+      "Inform / update"
+    ],
+    "visa_update_default": {
+      "without_confirmed_document_send": 106,
+      "selected_eligible": 102,
+      "blocked_missing_linked_opted_in_contact": 4
+    },
+    "recipient_documents": [
+      "Visa",
+      "International Onward",
+      "International Return",
+      "Domestic Onward",
+      "Domestic Return"
+    ],
+    "recipient_empty_document_action": "Upload document",
+    "recipient_assigned_document_actions": [
+      "Replace document",
+      "Add another document",
+      "Remove assignment"
+    ],
+    "single_selected_passenger_action": "Edit display name",
+    "production_mutations_for_ui_verification": false
+  },
+  "deployment_recoveries": [
+    {
+      "condition": "Controlled worker stop/start reset historical Docker restart count from 1 to 0; original cutover guard required equality.",
+      "recovery": "Separate audited comparison baseline for the exact cleanly restarted original process; original receipts, images and preserved-resource checks retained."
+    },
+    {
+      "condition": "Broker had approximately 188000 small keys, exceeding the original 20000-key inventory bound. This was not host RAM exhaustion.",
+      "recovery": "Bounded isolated installed-image qualification of 250000 keys passed before audited forward recovery with a 250000 broker bound; cache bound remained 20000. Values, absolute expiry and retained volumes were verified.",
+      "evidence": "redis-large-inventory-evidence.json"
+    }
+  ],
+  "limitations": [
+    "Fast VPS deployment is not Full CI qualification.",
+    "Sender load probe used synthetic storage and provider responses; no real WhatsApp send was performed.",
+    "Meta pending_v1 template availability/approval could not be independently confirmed with the available read permission.",
+    "Live browser checks opened controls and previews but did not change passenger names, upload PDFs or send messages.",
+    "Later permanent release-tool fixes are separate from the deployed application revision."
+  ]
+}

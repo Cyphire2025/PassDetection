@@ -4,6 +4,7 @@ from __future__ import annotations
 import re
 import shutil
 import sys
+from contextlib import contextmanager
 from functools import partial
 from pathlib import Path
 from typing import Any
@@ -27,6 +28,12 @@ from release_companies_runtime import (
 )
 from release_document_distribution_contract import CHAIN, SOURCE, TARGET
 from release_document_distribution_policy import validate_additive_source
+from release_document_resume_baseline import (
+    capture_background_resume,
+    capture_background_source,
+    fence_baseline,
+    verify_background_stopped,
+)
 from release_mcp_contract import require_source_contract
 from release_mcp_database import MCPDatabaseRelease, ReleaseBindings, digest_json
 from release_retained_update import (
@@ -102,6 +109,20 @@ class DocumentRetainedUpdate(RetainedUpdate):
         verify_rehearsal(self.directory, self.record)
         return images
 
+    @contextmanager
+    def background_quiescence(self):
+        controlled = self.mode == 'fast' and self.record.get('additive_release', True)
+        if controlled:
+            capture_background_source(self)
+        with super().background_quiescence():
+            try:
+                yield
+            finally:
+                if controlled:
+                    verify_background_stopped(self)
+        if controlled:
+            capture_background_resume(self)
+
     def rehearse_fast_migration(self) -> None:
         from release_document_fast import read_rehearsal
         receipt = self.directory / 'fast-document-migration-rehearsal.json'
@@ -142,7 +163,8 @@ class DocumentRetainedUpdate(RetainedUpdate):
         live, candidates = self.record['live'], self.record['candidates']
         require(set(candidates) == ACTIVE, 'incomplete_candidate_inventory')
         for name in ACTIVE:
-            clean_stop(bound_original(live[name]), live[name])
+            current = bound_original(live[name])
+            clean_stop(current, fence_baseline(self, name, current))
             require(not bound_original(candidates[name])['State']['Running'], 'candidate_writer_running')
         for helper in self.record.get('migration_helpers', []):
             require(not bound_migration_helper(helper)['State']['Running'], 'migration_helper_still_running')
@@ -303,6 +325,7 @@ class DocumentRetainedUpdate(RetainedUpdate):
             self.event('cutover-starting')
             for name in ('nginx', 'backend', 'frontend'):
                 self.stop(bound_original(live[name]))
+            resources.preflight_fenced(self)
             self.migrate()
             resources.apply(self)
             self.activate_candidates()
@@ -341,6 +364,8 @@ class DocumentRetainedUpdate(RetainedUpdate):
         try:
             if self.record.get('database_validation') is not None:
                 resources.apply(self)
+            elif self.schema() != TARGET:
+                resources.preflight_fenced(self)
             self.migrate()
             resources.apply(self)
             self.activate_candidates()

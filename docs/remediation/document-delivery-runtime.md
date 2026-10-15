@@ -1,4 +1,36 @@
-# Document delivery runtime and memory candidate
+# Document delivery runtime and memory evidence
+
+## Production result, 16 October 2026
+
+Revision `644176c9b52d09634d0f006201c4387294bae526` completed the explicitly
+authorized Fast VPS deployment. Public readiness reported that exact revision and
+schema `0140_document_update_context`; all 20 services were running, every configured
+health check was healthy, and the new application and Redis containers had no OOM
+or restart events. Actual limits were read back as worker 1024 MiB, frontend 256 MiB,
+broker 896 MiB, and cache 192 MiB. This is Fast evidence, not Full CI qualification.
+
+Two release-tool issues interrupted cutover: a controlled restart reset a historical
+Docker restart count, and the broker's roughly 188,000 small keys exceeded the
+original 20,000-key preservation bound. Audited forward recovery retained the
+original receipts, images, containers and volumes. A separate isolated 250,000-key
+proof passed before increasing the broker inventory bound; cache remained at 20,000.
+Database and Redis preservation checks passed before application activation.
+The permanent tool fixes record a separate controlled-restart baseline and check
+actual Redis inventory/headroom before cutover, with a second check before DDL.
+
+The before/after Bluechip delivery state is unchanged apart from schema: 1,315 rows,
+1,315 attempts, the same latest creation timestamp and the same 22 uncertain rows.
+No documents or update messages were sent by the operator. Live browser checks
+confirmed both broadcast choices, shared-PDF filtering, recipient document
+management in all five sections, upload/replace menus and display-name editing.
+Real Meta delivery remains untested, and template approval could not be independently
+verified using the available read permission. Sanitized production evidence is in
+`document-delivery-production-20261016.json`.
+
+The sections below preserve the earlier candidate measurements and their limits.
+Later release-tool fixes are separate from the application revision deployed above.
+
+## Candidate resource profile
 
 The candidate raises the shared sending/legacy OCR worker from 384 to 1024 MiB.
 It retains one worker child and the same four bounded concurrent document uploads.
@@ -142,8 +174,9 @@ changes remain rejected. The exception requires identical image, authentication,
 persistence and eviction policy; fenced application writers; retained exact /data
 volume; a clean SAVE/stop; and logical value plus absolute-expiry readback after
 replacement. Strings, lists, sets, hashes and sorted sets are supported. Other
-types, more than 16 databases/20000 keys, values using more than 4 MiB, or insufficient
-dataset/container headroom fail closed. Cache's one-time RDB is preserved under an
+types, more than 16 databases, more than 250,000 broker keys or 20,000 cache keys,
+values using more than 4 MiB, or insufficient dataset/container headroom fail
+closed. Cache's one-time RDB is preserved under an
 archive filename after verification so ordinary later restarts cannot load stale
 cache from that snapshot. Checkpoint recovery never creates an empty replacement
 volume, and a later retry of a completed transition allows legitimate new writes.
@@ -158,6 +191,28 @@ OOM occurred. Earlier higher-fill cache fixtures were refused by the unchanged
 lifecycle preservation was exercised with a small mixed-type dataset; the larger
 359 MiB AOF rewrite pressure test remains separate. Sanitized results and candidate
 source hashes are in `redis-dataset-transition-evidence.json`.
+
+A later isolated broker probe qualified the entire 250,000-key bound, using
+249,993 synthetic 256-byte strings plus seven mixed-type/cross-database keys. It
+completed fingerprinting, SAVE, replacement on the same volume, interrupted
+replacement recovery and absolute-TTL/value comparison in 77.294 seconds. The
+replacement peaked at 368.16 MiB under its 896 MiB cap with zero reported OOMs;
+the operator Python process peaked at 299.37 MiB. All synthetic resources were
+removed and no provider calls occurred. Exact inputs and measurements are in
+`redis-large-inventory-evidence.json`. This tests the existing fingerprint and
+retention algorithm with an in-process broker key-bound override, not a different
+production dataset or an exact-image qualification of later release code. The
+192 MiB cache retains its earlier 20,000-key bound.
+
+Fresh document release preparation now checks the actual Redis inventory and
+headroom before staging or cutover. It reads every supported logical value using
+the existing bounded fingerprint routine, checks per-value size and database/key
+limits, and measures dataset/cgroup headroom both before and after that read.
+Only a small summary is recorded; this observation does not replace the fenced
+preservation baseline. Both Redis services are checked again after all writers
+stop and before database migration. Target-schema recovery skips this original-
+configuration preflight and follows its recorded Redis transition stages instead.
+Neither preflight saves snapshots, changes limits nor stops Redis.
 
 The candidate now wires `document_distribution_updates_v1` into a dedicated
 `DocumentRetainedUpdate` path. The existing signed-CI dispatcher selects its Full

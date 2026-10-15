@@ -131,6 +131,9 @@ class FastDocumentTests(unittest.TestCase):
         release.build_fast_images = lambda: (paused('build') or release.record['image_ids'])
         release.rehearse_fast_migration = lambda: paused('rehearse')
         with patch('release_retained_update.wait_for_idle'), \
+             patch('release_document_retained_update.capture_background_source'), \
+             patch('release_document_retained_update.capture_background_resume'), \
+             patch('release_document_retained_update.verify_background_stopped'), \
              patch('release_document_fast.verify_images', return_value=release.record['image_ids']), \
              patch('release_document_fast.verify_rehearsal'):
             release.candidate_images()
@@ -151,6 +154,9 @@ class FastDocumentTests(unittest.TestCase):
             raise ValueError('rehearsal_failed')
         release.rehearse_fast_migration = rehearsal
         with patch('release_retained_update.wait_for_idle'), \
+             patch('release_document_retained_update.capture_background_source'), \
+             patch('release_document_retained_update.capture_background_resume'), \
+             patch('release_document_retained_update.verify_background_stopped'), \
              patch('release_document_fast.verify_images', return_value=release.record['image_ids']), \
              self.assertRaisesRegex(ValueError, 'builder_still_running_workers_not_resumed'):
             release.candidate_images()

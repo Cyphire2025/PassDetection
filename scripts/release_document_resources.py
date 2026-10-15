@@ -20,8 +20,12 @@ from mcp_direct_build import command
 from mcp_direct_containers import clone_payload
 from mcp_direct_release import bound_original
 from mcp_direct_state import private_json
-from release_persistent_resources import volume_identity
-from release_redis_dataset_transition import reviewed_transition, transition_dataset
+from release_persistent_resources import same_redis_process, volume_identity
+from release_redis_dataset_transition import (
+    preflight_dataset,
+    reviewed_transition,
+    transition_dataset,
+)
 from release_retained_update import require
 
 MIB = 1024**2
@@ -36,6 +40,7 @@ CHECKS = {"sender_bounded_batches": True, "frontend_pressure": True,
 QUALIFIED_SOURCES = (
     "scripts/release_document_resources.py", "scripts/release_document_resource_binding.py",
     "scripts/release_document_retained_update.py", "scripts/release_document_distribution_policy.py",
+    "scripts/release_document_resume_baseline.py",
     "scripts/release_document_fast.py", "scripts/qa/qualify_document_migration.py",
     "scripts/release_document_distribution_contract.py", "scripts/release_resource_profile.py",
     "scripts/release_redis_dataset_transition.py", "scripts/release_persistent_resources.py",
@@ -268,8 +273,25 @@ def prepare(release) -> None:
                  "redis_dataset_transition": transition, "stage": "prepared"}
         redis_payload(release, service, entry)
         entry["volumes"] = {item["Name"]: volume_identity(adapter, item["Name"]) for item in old["Mounts"]}
+        entry["admission_preflight"] = preflight_dataset(adapter, old, service, transition, entry["memory"])
         persistent[service] = entry
     release.event("document-resources-prepared", resource_qualification=receipt, persistent=persistent)
+
+
+def preflight_fenced(release) -> None:
+    """Recheck live inventory before DDL; never replay old limits after migration."""
+    release.assert_writer_fence()
+    entries = release.record.get("persistent", {})
+    require(set(entries) == set(DATASETS) and all(entry.get("stage") == "prepared" for entry in entries.values()),
+            "prepared_redis_inventory_required_before_migration")
+    adapter, readings = RetainedRedis(release), {}
+    for service, entry in entries.items():
+        current = bound_original(entry["original"])
+        same_redis_process(current, entry["original"])
+        for name, identity in entry["volumes"].items():
+            require(volume_identity(adapter, name) == identity, "redis_preflight_volume_identity_changed")
+        readings[service] = preflight_dataset(adapter, current, service, entry["redis_dataset_transition"], entry["memory"])
+    release.event("document-resources-preflight-verified", resource_preflight=readings)
 
 
 def apply(release) -> None:

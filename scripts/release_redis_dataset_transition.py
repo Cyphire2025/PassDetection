@@ -18,12 +18,15 @@ from verify_deployment_resource_budget import _memory_bytes
 MIB = 1024**2
 LIMITS = {"redis-broker": (512 * MIB, 384 * MIB, 896 * MIB),
           "redis-cache": (256 * MIB, 128 * MIB, 192 * MIB)}
-MAX_KEYS = 20_000
+# The 896 MiB broker passed a complete 250,000-key preservation/recovery probe.
+# The smaller cache retains its independently qualified inventory bound.
+MAX_KEYS = 250_000
+CACHE_MAX_KEYS = 20_000
 # Values never leave Redis. Hashes include canonical type/value encoding;
 # absolute expiry is tracked separately so legitimate expiry is permitted.
 FINGERPRINT_LUA = r"""
 local keys=redis.call('KEYS','*')
-if #keys > tonumber(ARGV[1]) then return redis.error_reply('key limit exceeded') end
+if #keys > tonumber(ARGV[1]) then return redis.error_reply('Redis key inventory exceeds remaining qualified limit '..ARGV[1]) end
 table.sort(keys)
 local rows={}
 for _,key in ipairs(keys) do
@@ -88,15 +91,24 @@ def _config(release: Any, container: dict, name: str) -> str:
     return lines[1]
 
 
+def key_limit(container: dict) -> int:
+    service = container.get("Config", {}).get("Labels", {}).get("com.docker.compose.service")
+    return MAX_KEYS if service == "redis-broker" else CACHE_MAX_KEYS
+
+
 def fingerprint(release: Any, container: dict) -> dict:
     databases = int(_config(release, container, "databases"))
     if not 1 <= databases <= 16:
         raise ReleaseError("Redis transition supports at most 16 databases")
     rows, now = {}, 0
+    maximum = key_limit(container)
     for database in range(databases):
-        if int(_cli(release, container, "DBSIZE", database=database)) > MAX_KEYS - len(rows):
-            raise ReleaseError("Redis transition key inventory exceeds 20000")
-        payload = json.loads(_cli(release, container, "EVAL", FINGERPRINT_LUA, "0", str(MAX_KEYS - len(rows)), database=database))
+        count = int(_cli(release, container, "DBSIZE", database=database))
+        if count > maximum - len(rows):
+            raise ReleaseError(f"Redis transition key inventory exceeds the qualified {maximum:,}-key limit "
+                               f"({len(rows) + count:,} keys observed through database {database}); "
+                               "refusing to continue outside qualification")
+        payload = json.loads(_cli(release, container, "EVAL", FINGERPRINT_LUA, "0", str(maximum - len(rows)), database=database))
         now = max(now, int(payload["now_ms"]))
         for key_hash, value_hash, expiry in payload["rows"]:
             key = f"{database}:{key_hash}"
@@ -137,6 +149,39 @@ def _snapshot_hash(release: Any, identifier: str, path: str) -> str:
     if not re.fullmatch(r"[0-9a-f]{64}", value):
         raise ReleaseError("Redis snapshot hash is invalid")
     return value
+
+
+def admission(release: Any, container: dict, service: str, transition: dict, memory: int) -> dict:
+    """Read-only admission, shared by early preflight and fenced replacement."""
+    from release_persistent_resources import cgroup_memory
+
+    _runtime(release, container, service, transition["old_maxmemory"])
+    used = dict(line.split(":", 1) for line in _cli(release, container, "INFO", "memory").splitlines() if ":" in line)
+    if int(used["used_memory"]) + max(8 * MIB, transition["maxmemory"] // 10) > transition["maxmemory"]:
+        raise ReleaseError(f"Redis dataset lacks headroom ({int(used['used_memory'])} bytes used, {transition['maxmemory']} target); refusing eviction or queue loss")
+    measured = cgroup_memory(container)
+    if measured["current"] + max(32 * MIB, memory // 5) > memory:
+        raise ReleaseError("Redis dataset transition lacks container headroom")
+    return {"used_memory": int(used["used_memory"]), "container_memory": measured}
+
+
+def preflight_dataset(release: Any, container: dict, service: str, transition: dict, memory: int) -> dict:
+    """Validate all supported values without saving, stopping or changing Redis.
+
+    This live observation is not the preservation baseline: application writes
+    may continue, so the same admission is repeated under the writer fence.
+    Only bounded counts and resource readings are retained in the receipt.
+    """
+    before = admission(release, container, service, transition, memory)
+    inventory = fingerprint(release, container)
+    after = admission(release, container, service, transition, memory)
+    if any(after["container_memory"][name] != before["container_memory"][name] for name in ("oom", "oom_kill")):
+        raise ReleaseError("Redis OOM counters changed during inventory preflight")
+    return {"container_id": container["Id"], "image_id": container["Image"],
+            "key_count": len(inventory["rows"]), "max_keys": key_limit(container),
+            "databases": inventory["databases"], "observed_at_ms": inventory["now_ms"],
+            "container_memory_before": before["container_memory"],
+            "target_maxmemory": transition["maxmemory"], "target_container_memory": memory, **after}
 
 
 def _retained_override(release: Any, entry: dict, service: str) -> Path:
@@ -187,14 +232,7 @@ def transition_dataset(release: Any, fence: Any, record: dict, service: str) -> 
         return
     if entry["stage"] == "prepared":
         same_redis_process(current, original)
-        _runtime(release, current, service, transition["old_maxmemory"])
-        used = dict(line.split(":", 1) for line in _cli(release, current, "INFO", "memory").splitlines() if ":" in line)
-        if int(used["used_memory"]) + max(8 * MIB, transition["maxmemory"] // 10) > transition["maxmemory"]:
-            raise ReleaseError(f"Redis dataset lacks headroom ({int(used['used_memory'])} bytes used, {transition['maxmemory']} target); refusing eviction or queue loss")
-        measured = cgroup_memory(current)
-        if measured["current"] + max(32 * MIB, entry["memory"] // 5) > entry["memory"]:
-            raise ReleaseError("Redis dataset transition lacks container headroom")
-        entry["memory_before"] = measured
+        entry["memory_before"] = admission(release, current, service, transition, entry["memory"])["container_memory"]
         entry["redis_before"] = fingerprint(release, current)
         if not re.fullmatch(r"[0-9a-f]{40}", release.revision):
             raise ReleaseError("Redis archive requires an exact release revision")
