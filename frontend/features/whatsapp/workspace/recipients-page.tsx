@@ -111,7 +111,7 @@ export function BroadcastRecipientsPage() {
         </Button>
       </div>
       <div
-        className={`grid items-start gap-5 ${details.length ? "xl:grid-cols-[minmax(0,1fr)_330px]" : ""}`}
+        className={`grid items-start gap-6 ${details.length ? styles.withDetails : ""}`}
       >
         <section className={styles.surface}>
           <div className="space-y-4 p-5">

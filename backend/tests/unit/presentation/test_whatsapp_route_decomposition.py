@@ -28,6 +28,9 @@ _EXPECTED_ROUTES = [
     (("GET",), "/groups/{group_id}/messages", "list_broadcast_messages"),
     (("GET",), "/groups/{group_id}/messages/{message_id}", "get_broadcast_message"),
     (("GET",), "/groups/{group_id}/messages/{message_id}/recipients", "list_message_recipients"),
+    (("GET",), "/groups/{group_id}/message-types", "list_message_types"),
+    (("GET",), "/groups/{group_id}/message-types/{message_type}/versions", "list_type_versions"),
+    (("GET",), "/groups/{group_id}/message-types/{message_type}/recipients", "list_type_recipients"),
     (("POST",), "/groups/{group_id}/recipients/{recipient_id}/resend-update", "resend_saved_update"),
     (("GET",), "/groups/{group_id}/passenger-links", "broadcast_passenger_links"),
     (("GET",), "/groups/{group_id}/recipient-roster", "get_broadcast_recipient_roster"),
@@ -194,7 +197,7 @@ def test_whatsapp_route_order_and_names_remain_stable() -> None:
             assert whatsapp.send_broadcast_message is whatsapp_send.send_broadcast_message
             assert route.endpoint.__module__ == whatsapp.__name__ + "_send_intents"
             assert inspect.getclosurevars(route.endpoint).nonlocals["queue"] is whatsapp_send.queue_broadcast_message
-        elif route.name in {"message_catalog", "get_broadcast_message", "list_broadcast_messages", "list_message_recipients", "broadcast_passenger_links", "resend_saved_update"}:
+        elif route.name in {"message_catalog", "get_broadcast_message", "list_broadcast_messages", "list_message_recipients", "broadcast_passenger_links", "resend_saved_update", "list_message_types", "list_type_versions", "list_type_recipients"}:
             # New workspace routes live in their modules; the legacy facade only
             # promises the public imports which existed before this workspace.
             module = importlib.import_module(route.endpoint.__module__)

@@ -29,6 +29,7 @@ from app.presentation.api.v1.routes.whatsapp_rejected_contacts import (
 from app.presentation.api.v1.routes.whatsapp_resend import router as _resend_router
 from app.presentation.api.v1.routes.whatsapp_send import router as _send_router
 from app.presentation.api.v1.routes.whatsapp_source_groups import router as _source_groups_router
+from app.presentation.api.v1.routes.whatsapp_type_history import router as _type_history_router
 from app.presentation.api.v1.routes.whatsapp_update_resend import router as _update_resend_router
 from app.presentation.api.v1.routes.whatsapp_webhook import router as _webhook_router
 from app.presentation.api.v1.routes.whatsapp_workspace_passengers import (
@@ -41,6 +42,7 @@ router.include_router(_contact_import_router)
 router.include_router(_source_groups_router)
 router.include_router(_groups_read_router)
 router.include_router(_history_router)
+router.include_router(_type_history_router)
 router.include_router(_update_resend_router)
 router.include_router(_passengers_router)
 router.include_router(_recipient_roster_router)

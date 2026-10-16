@@ -33,8 +33,73 @@ export interface PageResult<T> {
   offset: number;
   limit: number;
 }
+export interface MessageTypeSummary {
+  message_type: string;
+  counts: HistoryCounts;
+  never_attempted: number;
+  send_count: number;
+  version_count: number;
+  legacy_record_count: number;
+  total_attempts: number;
+  accepted_attempts: number;
+  last_sent_at: string | null;
+}
+export interface MessageTypeVersion extends HistoryEntry {
+  version_number: number | null;
+}
+export interface MessageTypeRecipient {
+  recipient_id: string;
+  name: string | null;
+  phone_number: string;
+  status: string;
+  message_id: string | null;
+  message_log_id: string | null;
+  updated_at: string | null;
+  error_message: string | null;
+}
 
 export const historyApi = {
+  types: async (groupId: string, signal?: AbortSignal) => {
+    return (
+      await apiClient.get<MessageTypeSummary[]>(
+        `${API_ENDPOINTS.whatsapp.group(groupId)}/message-types`,
+        { signal },
+      )
+    ).data;
+  },
+  versions: async (
+    groupId: string,
+    messageType: string,
+    params: { q: string; offset: number; limit: number },
+    signal?: AbortSignal,
+  ) => {
+    return (
+      await apiClient.get<PageResult<MessageTypeVersion>>(
+        `${API_ENDPOINTS.whatsapp.group(groupId)}/message-types/${encodeURIComponent(messageType)}/versions`,
+        { params, signal },
+      )
+    ).data;
+  },
+  typeRecipients: async (
+    groupId: string,
+    messageType: string,
+    params: {
+      status_filter: HistoryFilter;
+      q: string;
+      offset: number;
+      limit: number;
+    },
+    signal?: AbortSignal,
+  ) => {
+    return (
+      await apiClient.get<
+        PageResult<MessageTypeRecipient> & { counts: HistoryCounts }
+      >(
+        `${API_ENDPOINTS.whatsapp.group(groupId)}/message-types/${encodeURIComponent(messageType)}/recipients`,
+        { params, signal },
+      )
+    ).data;
+  },
   entry: async (groupId: string, messageId: string, signal?: AbortSignal) => {
     const { data } = await apiClient.get<HistoryEntry>(
       `${API_ENDPOINTS.whatsapp.group(groupId)}/messages/${encodeURIComponent(messageId)}`,

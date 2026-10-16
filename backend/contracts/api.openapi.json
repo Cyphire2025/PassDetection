@@ -18124,6 +18124,282 @@
         "title": "MessageHistoryRecipientPage",
         "type": "object"
       },
+      "MessageTypeRecipient": {
+        "properties": {
+          "error_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Message"
+          },
+          "message_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message Id"
+          },
+          "message_log_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message Log Id"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "phone_number": {
+            "title": "Phone Number",
+            "type": "string"
+          },
+          "recipient_id": {
+            "format": "uuid",
+            "title": "Recipient Id",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          }
+        },
+        "required": [
+          "recipient_id",
+          "name",
+          "phone_number",
+          "status",
+          "message_id",
+          "message_log_id",
+          "updated_at",
+          "error_message"
+        ],
+        "title": "MessageTypeRecipient",
+        "type": "object"
+      },
+      "MessageTypeRecipientPage": {
+        "properties": {
+          "counts": {
+            "$ref": "#/components/schemas/MessageHistoryCounts"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/MessageTypeRecipient"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "offset",
+          "limit",
+          "counts"
+        ],
+        "title": "MessageTypeRecipientPage",
+        "type": "object"
+      },
+      "MessageTypeSummary": {
+        "properties": {
+          "accepted_attempts": {
+            "title": "Accepted Attempts",
+            "type": "integer"
+          },
+          "counts": {
+            "$ref": "#/components/schemas/MessageHistoryCounts"
+          },
+          "last_sent_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Sent At"
+          },
+          "legacy_record_count": {
+            "title": "Legacy Record Count",
+            "type": "integer"
+          },
+          "message_type": {
+            "title": "Message Type",
+            "type": "string"
+          },
+          "never_attempted": {
+            "title": "Never Attempted",
+            "type": "integer"
+          },
+          "send_count": {
+            "title": "Send Count",
+            "type": "integer"
+          },
+          "total_attempts": {
+            "title": "Total Attempts",
+            "type": "integer"
+          },
+          "version_count": {
+            "title": "Version Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "message_type",
+          "counts",
+          "never_attempted",
+          "send_count",
+          "version_count",
+          "legacy_record_count",
+          "total_attempts",
+          "accepted_attempts",
+          "last_sent_at"
+        ],
+        "title": "MessageTypeSummary",
+        "type": "object"
+      },
+      "MessageTypeVersion": {
+        "properties": {
+          "counts": {
+            "$ref": "#/components/schemas/MessageHistoryCounts"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "message_preview": {
+            "title": "Message Preview",
+            "type": "string"
+          },
+          "message_type": {
+            "title": "Message Type",
+            "type": "string"
+          },
+          "rendered_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rendered Message"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "version_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Version Number"
+          }
+        },
+        "required": [
+          "id",
+          "message_type",
+          "message_preview",
+          "created_at",
+          "updated_at",
+          "counts",
+          "version_number"
+        ],
+        "title": "MessageTypeVersion",
+        "type": "object"
+      },
+      "MessageTypeVersionPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/MessageTypeVersion"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "offset",
+          "limit"
+        ],
+        "title": "MessageTypeVersionPage",
+        "type": "object"
+      },
       "MobileActivationRequest": {
         "properties": {
           "activation_token": {
@@ -213292,6 +213568,1126 @@
           "WhatsApp"
         ],
         "x-cookie-csrf": "Trusted Origin or Referer is required for cookies when no Bearer header is supplied"
+      }
+    },
+    "/api/v1/whatsapp/groups/{group_id}/message-types": {
+      "get": {
+        "operationId": "list_message_types_api_v1_whatsapp_groups__group_id__message_types_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MessageTypeSummary"
+                  },
+                  "title": "Response List Message Types Api V1 Whatsapp Groups  Group Id  Message Types Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "BAD_REQUEST",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "AUTHENTICATION_ERROR",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "AUTHORIZATION_ERROR",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "NOT_FOUND",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "405": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "METHOD_NOT_ALLOWED",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "408": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "REQUEST_TIMEOUT",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "CONFLICT",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "GONE",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "PAYLOAD_TOO_LARGE",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "415": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "UNSUPPORTED_MEDIA_TYPE",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "REQUEST_VALIDATION_ERROR",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "RATE_LIMIT_EXCEEDED",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "INTERNAL_SERVER_ERROR",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "BAD_GATEWAY",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "DEPENDENCY_UNAVAILABLE",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "GATEWAY_TIMEOUT",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "DashboardAccessCookie": []
+          }
+        ],
+        "summary": "List Message Types",
+        "tags": [
+          "WhatsApp"
+        ]
+      }
+    },
+    "/api/v1/whatsapp/groups/{group_id}/message-types/{message_type}/recipients": {
+      "get": {
+        "operationId": "list_type_recipients_api_v1_whatsapp_groups__group_id__message_types__message_type__recipients_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "message_type",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-z][a-z0-9_]{0,63}$",
+              "title": "Message Type",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status_filter",
+            "required": false,
+            "schema": {
+              "default": "all",
+              "enum": [
+                "all",
+                "sent",
+                "not_sent",
+                "delivery_left",
+                "failed"
+              ],
+              "title": "Status Filter",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "default": "",
+              "maxLength": 120,
+              "title": "Q",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageTypeRecipientPage"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "BAD_REQUEST",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "AUTHENTICATION_ERROR",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "AUTHORIZATION_ERROR",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "NOT_FOUND",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "405": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "METHOD_NOT_ALLOWED",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "408": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "REQUEST_TIMEOUT",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "CONFLICT",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "GONE",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "PAYLOAD_TOO_LARGE",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "415": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "UNSUPPORTED_MEDIA_TYPE",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "REQUEST_VALIDATION_ERROR",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "RATE_LIMIT_EXCEEDED",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "INTERNAL_SERVER_ERROR",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "BAD_GATEWAY",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "DEPENDENCY_UNAVAILABLE",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "GATEWAY_TIMEOUT",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "DashboardAccessCookie": []
+          }
+        ],
+        "summary": "List Type Recipients",
+        "tags": [
+          "WhatsApp"
+        ]
+      }
+    },
+    "/api/v1/whatsapp/groups/{group_id}/message-types/{message_type}/versions": {
+      "get": {
+        "operationId": "list_type_versions_api_v1_whatsapp_groups__group_id__message_types__message_type__versions_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "message_type",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-z][a-z0-9_]{0,63}$",
+              "title": "Message Type",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "default": "",
+              "maxLength": 120,
+              "title": "Q",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 25,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageTypeVersionPage"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "BAD_REQUEST",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "AUTHENTICATION_ERROR",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "AUTHORIZATION_ERROR",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "NOT_FOUND",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "405": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "METHOD_NOT_ALLOWED",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "408": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "REQUEST_TIMEOUT",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "CONFLICT",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "GONE",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "PAYLOAD_TOO_LARGE",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "415": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "UNSUPPORTED_MEDIA_TYPE",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "REQUEST_VALIDATION_ERROR",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "RATE_LIMIT_EXCEEDED",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "INTERNAL_SERVER_ERROR",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "BAD_GATEWAY",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "DEPENDENCY_UNAVAILABLE",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            },
+            "description": "GATEWAY_TIMEOUT",
+            "headers": {
+              "X-Request-ID": {
+                "description": "Request correlation identifier; never an authentication credential",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "DashboardAccessCookie": []
+          }
+        ],
+        "summary": "List Type Versions",
+        "tags": [
+          "WhatsApp"
+        ]
       }
     },
     "/api/v1/whatsapp/groups/{group_id}/messages": {

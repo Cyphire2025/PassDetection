@@ -23,8 +23,9 @@ def history_status(stale_cutoff: datetime) -> Any:
     )
 
 
-def history_predicates(stale_cutoff: datetime) -> dict[str, Any]:
-    status = history_status(stale_cutoff)
+def history_predicates(stale_cutoff: datetime, status: Any = None) -> dict[str, Any]:
+    if status is None:
+        status = history_status(stale_cutoff)
     return {
         "sent": status.in_(WHATSAPP_ACCEPTED_STATUSES),
         "not_sent": status.in_(ACTIVE),
@@ -35,12 +36,12 @@ def history_predicates(stale_cutoff: datetime) -> dict[str, Any]:
     }
 
 
-def history_aggregates(stale_cutoff: datetime) -> tuple[Any, ...]:
+def history_aggregates(stale_cutoff: datetime, status: Any = None) -> tuple[Any, ...]:
     return (
         func.count().label("all"),
         *(
             func.count().filter(predicate).label(name)
-            for name, predicate in history_predicates(stale_cutoff).items()
+            for name, predicate in history_predicates(stale_cutoff, status).items()
         ),
     )
 

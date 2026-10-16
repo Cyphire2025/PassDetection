@@ -11,8 +11,46 @@
   position: sticky;
   top: 16px;
   align-self: start;
-  max-height: calc(100dvh - 160px);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: clamp(440px, calc(100dvh - 344px), 820px);
+  max-height: calc(100dvh - 100px);
+  min-width: 0;
+  padding: 4px 10px 10px 2px;
+}
+.detailStack {
+  display: grid;
+  grid-auto-rows: minmax(0, 1fr);
+  flex: 1;
+  min-height: 0;
+  gap: 16px;
+}
+.detailStack[data-many="true"] {
+  grid-auto-rows: 320px;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  padding-right: 8px;
+}
+.detailCard {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
+}
+.detailBody {
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  padding: 20px;
+}
+@media (min-width: 1280px) {
+  .withDetails {
+    grid-template-columns: minmax(0, 1fr) clamp(360px, 35%, 440px);
+  }
 }
 @keyframes workspace-enter {
   from {
@@ -32,10 +70,17 @@
 :global([data-reduce-motion="true"]) .enter {
   animation: none;
 }
-@media (max-width: 1100px) {
+@media (max-width: 1279px) {
   .detailRail {
     position: static;
+    height: auto;
     max-height: none;
+    padding-right: 0;
+  }
+  .detailStack,
+  .detailStack[data-many="true"] {
+    grid-auto-rows: min(460px, 70dvh);
     overflow: visible;
+    padding-right: 0;
   }
 }

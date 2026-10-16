@@ -80,23 +80,22 @@ export function RecipientDetailsRail({
   onClose: (key: string) => void;
 }) {
   return (
-    <aside
-      aria-label="Open recipient details"
-      className={`${styles.detailRail} space-y-4`}
-    >
-      <div className="flex items-center justify-between text-xs text-slate-500">
+    <aside aria-label="Open recipient details" className={styles.detailRail}>
+      <div className="flex flex-wrap items-center justify-between gap-2 px-1 text-xs text-slate-500">
         <span>{people.length} details open</span>
         <span>Open another to compare</span>
       </div>
-      {people.map((person) => (
-        <RecipientDetailCard
-          key={person.key}
-          person={person}
-          groupId={groupId}
-          disabled={disabled}
-          onClose={() => onClose(person.key)}
-        />
-      ))}
+      <div className={styles.detailStack} data-many={people.length > 2}>
+        {people.map((person) => (
+          <RecipientDetailCard
+            key={person.key}
+            person={person}
+            groupId={groupId}
+            disabled={disabled}
+            onClose={() => onClose(person.key)}
+          />
+        ))}
+      </div>
     </aside>
   );
 }
@@ -120,9 +119,9 @@ function RecipientDetailCard({
   return (
     <section
       aria-label={`Details for ${person.name}`}
-      className={`${styles.surface} ${styles.enter} overflow-hidden`}
+      className={`${styles.surface} ${styles.enter} ${styles.detailCard}`}
     >
-      <header className="flex items-start justify-between gap-2 border-b border-slate-100 p-4">
+      <header className="flex shrink-0 items-start justify-between gap-3 border-b border-slate-100 px-5 py-4">
         <div className="min-w-0">
           <h3 className="break-words text-sm font-semibold text-slate-900">
             {person.name}
@@ -141,7 +140,12 @@ function RecipientDetailCard({
           <X className="h-4 w-4" />
         </Button>
       </header>
-      <div className="space-y-4 p-4">
+      <div
+        className={`${styles.detailBody} space-y-4 focus-visible:outline-blue-500`}
+        role="region"
+        aria-label={`Detail fields for ${person.name}`}
+        tabIndex={0}
+      >
         {person.recipient.is_source_managed && (
           <p className="text-xs leading-5 text-slate-500">
             These details are maintained in the linked source group.
