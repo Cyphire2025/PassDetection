@@ -35,7 +35,7 @@ async def load_group_update_audience(
     session: AsyncSession, *, agency_id: uuid.UUID, group_id: uuid.UUID,
     filters: GroupUpdateFilters, lock: bool = False,
 ) -> list[GroupUpdateContact]:
-    """Only active, opted-in, linked roster contacts enter this text audience.
+    """Combine completed group submissions and active linked broadcast contacts.
 
     Imported records do not establish submission/phone verification. A completed
     collection uses its authoritative phone even when the Excel number differs.
@@ -85,28 +85,31 @@ async def load_group_update_audience(
     )
     recipients_by_id = {row.id: row for row in recipients if row.merged_into_recipient_id is None}
     submissions_by_id = {row.id: row for row in submissions}
+    recipients_by_phone: dict[str, WhatsAppBroadcastRecipientModel] = {}
+    for recipient in sorted(recipients_by_id.values(), key=lambda row: (str(row.broadcast_group_id), str(row.id))):
+        recipients_by_phone.setdefault(recipient.normalized_phone_number, recipient)
     contacts: dict[str, GroupUpdateContact] = {}
     for match in matches:
         sources = sorted((recipients_by_id[rid] for rid in match.recipient_ids
                           if rid in recipients_by_id),
                          key=lambda row: (str(row.broadcast_group_id), str(row.id)))
-        if not sources:
-            continue  # Unmatched submissions are not broadcast members.
         submitted = [submissions_by_id[sid] for sid in match.submission_ids
                      if sid in submissions_by_id and has_public_collection_contact(submissions_by_id[sid])]
         ambiguous = match.status == "needs_review" or bool(match.duplicate_submission_ids)
-        if submitted and not ambiguous:
+        if submitted and not match.duplicate_submission_ids:
             for passenger in submitted:
                 phone = authoritative_submission_phone(passenger)
+                matched_recipient = sources[0] if sources and not ambiguous else recipients_by_phone.get(phone or "")
                 key = f"submission:{passenger.id}"
                 contacts[key] = GroupUpdateContact(
                     audience_key=key, name=passenger.display_name or passenger.client_name,
-                    recipient_id=sources[0].id, broadcast_group_id=sources[0].broadcast_group_id,
+                    recipient_id=matched_recipient.id if matched_recipient else None,
+                    broadcast_group_id=matched_recipient.broadcast_group_id if matched_recipient else broadcasts[0],
                     passenger_id=passenger.id, phone_number=phone, phone_source="submitted",
                     submission_status="submitted",
                     reason=None if phone else "The submitted WhatsApp number needs review. No imported-number fallback is used.",
                 )
-        else:
+        if not submitted or ambiguous:
             for recipient in sources:
                 phone = normalize_whatsapp_phone(recipient.normalized_phone_number)
                 key = f"recipient:{recipient.id}"
@@ -119,6 +122,9 @@ async def load_group_update_audience(
                     reason="Review the submission match before sending." if ambiguous else
                     None if phone else "The imported WhatsApp number is invalid.",
                 )
+    represented_recipients = {row.recipient_id for row in contacts.values() if row.submission_status == "submitted"}
+    contacts = {key: row for key, row in contacts.items()
+                if row.submission_status == "submitted" or row.recipient_id not in represented_recipients}
     documents_statement = select(DistributedDocumentModel).where(
         DistributedDocumentModel.agency_id == agency_id,
         DistributedDocumentModel.group_id == group_id,

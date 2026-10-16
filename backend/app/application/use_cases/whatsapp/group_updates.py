@@ -31,7 +31,7 @@ class GroupUpdateFilters:
 class GroupUpdateContact:
     audience_key: str
     name: str
-    recipient_id: uuid.UUID
+    recipient_id: uuid.UUID | None
     broadcast_group_id: uuid.UUID
     passenger_id: uuid.UUID | None
     phone_number: str | None

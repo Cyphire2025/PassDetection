@@ -10,7 +10,7 @@ export interface GroupUpdateAudience {
 export interface GroupUpdateRecipient {
   audience_key: string;
   name: string;
-  recipient_id: string;
+  recipient_id: string | null;
   broadcast_group_id: string;
   passenger_id: string | null;
   phone_number: string | null;

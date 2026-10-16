@@ -18,6 +18,7 @@ from app.infrastructure.database.models import WhatsAppMessageLogModel
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.database.whatsapp_send_intent_models import WhatsAppSendIntentModel
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
+from app.infrastructure.whatsapp.group_update_contacts import ensure_group_update_recipient
 from app.presentation.api.v1.routes.document_distribution_scope import (
     _get_authorized_group,
     _lock_active_document_scope,
@@ -81,6 +82,15 @@ async def send_group_update(
     rows = [row for row in preview.recipients if row.audience_key in selected]
     if len(rows) != len(selected) or any(not row.eligible for row in rows):
         raise HTTPException(409, "Some selected contacts are no longer eligible. Refresh the preview.")
+    for row in rows:
+        if row.recipient_id is None and row.phone_number:
+            try:
+                row.recipient_id = await ensure_group_update_recipient(
+                    session, agency_id=group.agency_id, broadcast_id=row.broadcast_group_id,
+                    name=row.name, phone=row.phone_number,
+                )
+            except ValueError as exc:
+                raise HTTPException(409, str(exc)) from exc
     phones = defaultdict(list)
     for row in rows:
         phones[row.phone_number].append(row)

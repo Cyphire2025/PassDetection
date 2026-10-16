@@ -10,7 +10,7 @@ export function GroupUpdateAudienceFields({ audience, disabled, onChange }: {
 }) {
   const id = useId();
   const selectClass = "mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-3 text-sm disabled:opacity-50";
-  return <MessageComposerSection title="Choose your audience" description="Use either filter or combine both. Only people in this group’s active, opted-in WhatsApp broadcasts are included.">
+  return <MessageComposerSection title="Choose your audience" description="Use either filter or combine both. Include completed group submissions and contacts from the group’s active WhatsApp broadcasts.">
     <div className="grid gap-5 sm:grid-cols-2">
       <div><label htmlFor={`${id}-submission`} className="text-sm font-semibold">Submission status</label>
         <select id={`${id}-submission`} className={selectClass} value={audience.submission_status} disabled={disabled} onChange={event => onChange({ ...audience, submission_status: event.target.value as GroupUpdateAudience["submission_status"] })}>

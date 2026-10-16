@@ -15197,9 +15197,16 @@
             "title": "Reason"
           },
           "recipient_id": {
-            "format": "uuid",
-            "title": "Recipient Id",
-            "type": "string"
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recipient Id"
           },
           "submission_status": {
             "enum": [

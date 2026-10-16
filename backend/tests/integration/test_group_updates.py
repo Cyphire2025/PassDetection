@@ -234,3 +234,61 @@ async def test_ambiguous_match_is_excluded_instead_of_using_an_imported_fallback
     ambiguous = [row for row in data["recipients"] if row["submission_status"] == "needs_review"]
     assert len(ambiguous) == 2
     assert all(not row["eligible"] for row in ambiguous)
+
+
+async def unmatched_completed(fixture, phone="+919444555666"):
+    passenger = PassportSubmissionModel(
+        id=uuid.uuid4(), agency_id=fixture.agency.id, group_id=fixture.group.id,
+        client_name="Submitted without Excel contact", client_phone=phone,
+        client_reviewed_at=datetime.now(UTC), staff_metadata={"staff_code": "NO-EXCEL-ROW"},
+        image_s3_key="test/direct", status="staff_approved",
+    )
+    fixture.session.add(passenger)
+    await fixture.session.commit()
+    return passenger
+
+
+async def test_completed_submission_without_excel_contact_previews_and_sends_own_phone_once(group_update):
+    passenger = await unmatched_completed(group_update)
+    data = await preview(group_update, submission_status="submitted", document_status="pending")
+    row = next(row for row in data["recipients"] if row["passenger_id"] == str(passenger.id))
+    assert row["eligible"] and row["phone_number"] == passenger.client_phone
+    assert row["phone_source"] == "submitted" and row["recipient_id"] is None
+    # Preview never adds a broadcast contact or queues anything.
+    assert len(list((await group_update.session.scalars(select(WhatsAppBroadcastRecipientModel))).all())) == 4
+    payload = {**request_for(data), "audience_keys": [row["audience_key"]]}
+    assert (await queue(group_update, payload)).json()["queued_count"] == 1
+    await queue(group_update, payload)
+    assert len(list((await group_update.session.scalars(select(WhatsAppBroadcastRecipientModel))).all())) == 5
+    new_rows = (await preview(group_update))["recipients"]
+    assert len([item for item in new_rows if item["phone_number"] == passenger.client_phone]) == 1
+    batch = await group_update.session.scalar(select(WhatsAppMessageLogModel.batch_id))
+    await document_update_runtime.run_document_update_broadcast(batch_id=str(batch))
+    await document_update_runtime.run_document_update_broadcast(batch_id=str(batch))
+    group_update.provider.assert_awaited_once()
+    assert group_update.provider.await_args.kwargs["to_number"] == passenger.client_phone
+
+
+async def test_unmatched_completed_submission_respects_document_filter_and_current_phone(group_update):
+    passenger = await unmatched_completed(group_update)
+    group_update.passengers.append(passenger)
+    await document(group_update, 3, status="sent")
+    pending = await preview(group_update, document_status="pending")
+    assert str(passenger.id) not in {row["passenger_id"] for row in pending["recipients"]}
+    sent = await preview(group_update, document_status="sent")
+    payload = request_for(sent)
+    await queue(group_update, payload)
+    passenger.client_phone = "+919444555667"
+    await group_update.session.commit()
+    batch = await group_update.session.scalar(select(WhatsAppMessageLogModel.batch_id))
+    await document_update_runtime.run_document_update_broadcast(batch_id=str(batch))
+    group_update.provider.assert_not_awaited()
+    assert await group_update.session.scalar(select(WhatsAppMessageLogModel.status)) == "skipped"
+
+
+async def test_unmatched_completed_submission_without_valid_phone_is_visible_but_blocked(group_update):
+    passenger = await unmatched_completed(group_update, phone=None)
+    rows = (await preview(group_update, submission_status="submitted"))["recipients"]
+    row = next(row for row in rows if row["passenger_id"] == str(passenger.id))
+    assert not row["eligible"] and row["phone_number"] is None
+    group_update.publish.assert_not_awaited()
