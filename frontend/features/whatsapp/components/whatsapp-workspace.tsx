@@ -69,6 +69,10 @@ const RecipientListDialog = dynamic(
   () => import("./whatsapp-recipient-dialog").then((module) => module.RecipientListDialog),
   { loading: () => <DialogLoadingState label="Loading recipient list" /> },
 );
+const BroadcastUpdateDialog = dynamic(
+  () => import("./whatsapp-broadcast-update-dialog").then((module) => module.BroadcastUpdateDialog),
+  { loading: () => <DialogLoadingState label="Loading update preview" /> },
+);
 
 type MessageTarget = {
   group: WhatsAppBroadcastGroup;
@@ -118,6 +122,7 @@ export function WhatsAppPage() {
   const [deleteTarget, setDeleteTarget] =
     useState<WhatsAppBroadcastGroup | null>(null);
   const [archiveTarget, setArchiveTarget] = useState<WhatsAppBroadcastGroup | null>(null);
+  const [updateTarget, setUpdateTarget] = useState<WhatsAppBroadcastGroup | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [messageTarget, setMessageTarget] = useState<MessageTarget | null>(
     null,
@@ -184,6 +189,7 @@ export function WhatsAppPage() {
         onPassportLink={() => openMessagePreview(group, "passport_link")}
         onReminder={() => openMessagePreview(group, "reminder")}
         onGroupInvite={() => openMessagePreview(group, "group_invite")}
+        onUpdate={() => { setOpenMenuKey(null); setUpdateTarget(group); }}
         onArchive={() => {
           setActionError(null);
           setOpenMenuKey(null);
@@ -394,6 +400,8 @@ export function WhatsAppPage() {
         />
       )}
 
+      {updateTarget && <BroadcastUpdateDialog key={updateTarget.id} group={updateTarget} onClose={() => setUpdateTarget(null)} />}
+
       {recipientListGroup && (
         <RecipientListDialog
           key={recipientListGroup.id}
@@ -460,6 +468,7 @@ function ActionMenu({
   onPassportLink,
   onReminder,
   onGroupInvite,
+  onUpdate,
   onArchive,
   onRestore,
   onDelete,
@@ -475,6 +484,7 @@ function ActionMenu({
   onPassportLink: () => void;
   onReminder: () => void;
   onGroupInvite: () => void;
+  onUpdate: () => void;
   onArchive: () => void;
   onRestore: () => void;
   onDelete: () => void;
@@ -508,7 +518,7 @@ function ActionMenu({
           const rect = buttonRef.current?.getBoundingClientRect();
           if (rect) {
             const menuWidth = 240;
-            const menuHeight = group.is_archived ? 152 : 296;
+            const menuHeight = group.is_archived ? 152 : 344;
             const top =
               rect.bottom + 8 + menuHeight > window.innerHeight
                 ? Math.max(8, rect.top - menuHeight - 8)
@@ -536,7 +546,7 @@ function ActionMenu({
         createPortal(
           <div
             ref={menuRef}
-            className="fixed z-[70] w-60 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl"
+            className="fixed z-[70] max-h-[calc(100dvh-16px)] w-60 overflow-y-auto rounded-xl border border-slate-200 bg-white shadow-xl"
             style={{ left: menuPosition.left, top: menuPosition.top }}
           >
             <button
@@ -592,6 +602,9 @@ function ActionMenu({
             </button>
             <button type="button" className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50" disabled={isSending || group.recipient_count === 0} title={group.recipient_count === 0 ? "Add a valid recipient before sending" : undefined} onClick={onGroupInvite}>
               <Send className="h-4 w-4" /> Send group invite
+            </button>
+            <button type="button" className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50" disabled={isSending || isMutating} onClick={onUpdate}>
+              <Send className="h-4 w-4" /> Send update
             </button>
             <button
               type="button"

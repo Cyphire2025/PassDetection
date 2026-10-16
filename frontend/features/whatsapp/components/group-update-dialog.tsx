@@ -11,8 +11,8 @@ import { GroupUpdateAudienceFields, GroupUpdateRecipientRow } from "./group-upda
 import { MessageComposerSection } from "./whatsapp-message-composer-ui";
 import { parseWhatsAppBoldSegments } from "../utils/whatsapp-formatting";
 
-export function GroupUpdateDialog({ groupId, groupName, onClose }: {
-  groupId: string; groupName: string; onClose: () => void;
+export function GroupUpdateDialog({ groupId, groupName, broadcastGroupId, onClose }: {
+  groupId: string; groupName: string; broadcastGroupId?: string; onClose: () => void;
 }) {
   const titleId = useId();
   const textId = useId();
@@ -38,10 +38,11 @@ export function GroupUpdateDialog({ groupId, groupName, onClose }: {
     },
   });
   const handleKeyDown = useModalKeyboardBoundary({ dialogRef, isOpen: true, canClose: !send.isPending, onClose });
-  const rows = preview.data?.recipients ?? [];
+  const rows = (preview.data?.recipients ?? []).filter(row => !broadcastGroupId || row.broadcast_group_id === broadcastGroupId);
   const eligible = rows.filter(row => row.eligible);
+  const previousUpdates = rows.filter(row => row.latest_update_status !== null).length;
   const selectedKeys = selected === null ? null : new Set(selected);
-  const chosen = eligible.filter(row => selectedKeys === null || selectedKeys.has(row.audience_key));
+  const chosen = eligible.filter(row => selectedKeys === null ? row.latest_update_status === null : selectedKeys.has(row.audience_key));
   const chosenKeys = new Set(chosen.map(row => row.audience_key));
   const numbers = new Set(chosen.map(row => row.phone_number)).size;
   const normalizedSearch = search.trim().toLowerCase();
@@ -83,7 +84,8 @@ export function GroupUpdateDialog({ groupId, groupName, onClose }: {
           </div>
         </div>
         <MessageComposerSection title="Review recipients" description="A shared WhatsApp number receives this update once. Contacts with ambiguous matches or an earlier update still in progress are excluded.">
-          <div className="flex flex-wrap items-center justify-between gap-3"><p aria-live="polite" className="text-sm font-semibold">{preview.isFetching ? "Updating audience…" : `${chosen.length} people · ${numbers} WhatsApp messages`}</p><Button variant="secondary" disabled={locked || preview.isFetching || !eligible.length} onClick={() => setSelected(chosen.length === eligible.length ? [] : null)}>{chosen.length === eligible.length && eligible.length ? "Clear selection" : "Select all eligible"}</Button></div>
+          <div className="flex flex-wrap items-center justify-between gap-3"><p aria-live="polite" className="text-sm font-semibold">{preview.isFetching ? "Updating audience…" : `${chosen.length} people · ${numbers} WhatsApp messages`}</p><Button variant="secondary" disabled={locked || preview.isFetching || !eligible.length} onClick={() => setSelected(chosen.length === eligible.length ? [] : eligible.map(row => row.audience_key))}>{chosen.length === eligible.length && eligible.length ? "Clear selection" : previousUpdates ? "Select all eligible, including previous updates" : "Select all eligible"}</Button></div>
+          {previousUpdates > 0 ? <p className="rounded-lg bg-blue-50 p-3 text-sm text-blue-900">{previousUpdates} {previousUpdates === 1 ? "person has" : "people have"} an earlier update attempt and {previousUpdates === 1 ? "is" : "are"} not selected automatically. Their latest results are shown below. Select them explicitly only if you want to send another update.</p> : null}
           <input aria-label="Search update recipients" value={search} onChange={event => setSearch(event.target.value)} className="w-full rounded-lg border border-slate-300 p-3 text-sm" placeholder="Search name or WhatsApp number" />
           <div className="max-h-80 overflow-auto rounded-lg border border-slate-200">
             {visible.map(row => <GroupUpdateRecipientRow key={row.audience_key} row={row} selected={chosenKeys.has(row.audience_key)} disabled={locked || preview.isFetching} showDocuments={audience.document_status !== "all"} onChange={checked => { setSelected(checked ? [...chosenKeys, row.audience_key] : [...chosenKeys].filter(key => key !== row.audience_key)); }} />)}

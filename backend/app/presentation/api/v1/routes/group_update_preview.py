@@ -34,28 +34,40 @@ async def build_group_update_preview(
     logs = await session.stream(select(
         WhatsAppMessageLogModel.id, WhatsAppMessageLogModel.normalized_phone_number,
         WhatsAppMessageLogModel.status, WhatsAppMessageLogModel.status_updated_at,
+        WhatsAppMessageLogModel.document_update_context,
     ).where(
         WhatsAppMessageLogModel.agency_id == group.agency_id,
         WhatsAppMessageLogModel.message_type == "document_update",
         WhatsAppMessageLogModel.document_update_context["group_id"].as_string() == str(group.id),
     ).order_by(WhatsAppMessageLogModel.created_at.desc(), WhatsAppMessageLogModel.id.desc())
       .execution_options(yield_per=500))
-    latest: dict[str | None, tuple[str, str, datetime]] = {}
+    latest: dict[str, tuple[int, str, str, datetime]] = {}
     active = set()
-    async for log_id, phone, status, at in logs:
-        latest.setdefault(phone, (str(log_id), status, at))
+    rank = 0
+    async for log_id, phone, status, at, context in logs:
+        # Legacy distribution updates carry passenger IDs; group updates also
+        # carry audience keys. Preserve history when the submitted phone changes.
+        keys = {f"phone:{phone}"} if phone else set()
+        keys.update((context or {}).get("audience_keys", []))
+        keys.update(f"submission:{identifier}" for identifier in (context or {}).get("passenger_ids", []))
+        for key in keys:
+            latest.setdefault(key, (rank, str(log_id), status, at))
         if status in ACTIVE:
-            active.add(phone)
+            active.update(keys)
+        rank += 1
     rows = []
     for contact in contacts:
         reason = contact.reason
-        if contact.phone_number in active:
+        keys = {contact.audience_key}
+        if contact.phone_number:
+            keys.add(f"phone:{contact.phone_number}")
+        if keys & active:
             reason = "An earlier update to this number is queued, in progress or has an unknown outcome."
-        previous = latest.get(contact.phone_number)
+        previous = min((latest[key] for key in keys if key in latest), key=lambda record: record[0], default=None)
         rows.append(GroupUpdateRecipient(
             **{**asdict(contact), "reason": reason}, eligible=reason is None,
-            latest_update_status=previous[1] if previous else None,
-            latest_update_at=previous[2] if previous else None,
+            latest_update_status=previous[2] if previous else None,
+            latest_update_at=previous[3] if previous else None,
         ))
     template = await configured_template_name(session, "document_update")
     language = template_language("document_update")
@@ -70,6 +82,6 @@ async def build_group_update_preview(
             "group": group.id, "agency": group.agency_id, "audience": audience.model_dump(),
             "template": template, "language": language,
             "rows": [row.model_dump(mode="json") for row in rows],
-            "latest": sorted((phone or "", *record) for phone, record in latest.items()),
+            "latest": sorted((key, *record) for key, record in latest.items()),
         }),
     )

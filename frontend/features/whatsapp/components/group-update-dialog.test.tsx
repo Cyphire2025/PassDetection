@@ -16,9 +16,9 @@ const initial: GroupUpdatePreview = {
     eligible: i !== 3, reason: i === 3 ? "Review the submitted contact." : null, latest_update_status: null, latest_update_at: null,
   })),
 };
-function mount() {
+function mount(broadcastGroupId?: string) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
-  return render(<QueryClientProvider client={client}><GroupUpdateDialog groupId="trip" groupName="Test trip" onClose={vi.fn()} /></QueryClientProvider>);
+  return render(<QueryClientProvider client={client}><GroupUpdateDialog groupId="trip" groupName="Test trip" broadcastGroupId={broadcastGroupId} onClose={vi.fn()} /></QueryClientProvider>);
 }
 beforeEach(() => {
   vi.clearAllMocks();
@@ -92,4 +92,55 @@ it("document distribution opens document sending directly without an update opti
   fireEvent.click(screen.getByRole("button", { name: "Send WhatsApp Broadcast" }));
   expect(open).toHaveBeenCalledOnce();
   expect(screen.queryByText("Inform / update")).not.toBeInTheDocument();
+});
+
+it("keeps all 84 earlier update attempts unchecked when opening, changing filters or refreshing", async () => {
+  const statuses = ["read", "delivered", "sent", "submitted", "failed", "delivery_unknown", "queued", "processing"];
+  const recipients = Array.from({ length: 88 }, (_, index) => ({
+    ...initial.recipients[0], audience_key: `person:${index}`, name: `Person ${index}`,
+    phone_number: `+91900000${String(index).padStart(4, "0")}`, latest_update_status: index < 84 ? statuses[index % statuses.length] : null,
+    eligible: index >= 84 || !["delivery_unknown", "queued", "processing"].includes(statuses[index % statuses.length]),
+  }));
+  vi.mocked(groupUpdatesApi.preview).mockImplementation(async (_id, audience) => ({ ...initial, audience, recipients }));
+  mount();
+  await screen.findByText("4 people · 4 WhatsApp messages");
+  expect(screen.getByText(/84 people have an earlier update attempt/)).toBeInTheDocument();
+  for (let index = 0; index < 84; index++) expect(screen.getByRole("checkbox", { name: `Select Person ${index}` })).not.toBeChecked();
+  expect(screen.getByRole("checkbox", { name: "Select Person 84" })).toBeChecked();
+  fireEvent.change(screen.getByLabelText("Submission status"), { target: { value: "submitted" } });
+  fireEvent.change(screen.getByLabelText("Document delivery"), { target: { value: "pending" } });
+  await screen.findByText("4 people · 4 WhatsApp messages");
+  fireEvent.click(screen.getByRole("button", { name: "Refresh preview" }));
+  await screen.findByText("4 people · 4 WhatsApp messages");
+  expect(screen.getByRole("checkbox", { name: "Select Person 0" })).not.toBeChecked();
+  expect(groupUpdatesApi.send).not.toHaveBeenCalled();
+});
+
+it("allows an explicit selection of earlier completed or failed updates without auto-selecting them", async () => {
+  const recipients = initial.recipients.map((row, index) => ({ ...row, latest_update_status: index === 0 ? "read" : index === 1 ? "failed" : null }));
+  vi.mocked(groupUpdatesApi.preview).mockImplementation(async (_id, audience) => ({ ...initial, audience, recipients }));
+  vi.mocked(groupUpdatesApi.send).mockResolvedValue({ request_id: "request", queued_count: 2, passenger_count: 3, message: "Queued explicitly." });
+  mount();
+  await screen.findByText("1 people · 1 WhatsApp messages");
+  expect(screen.getByRole("checkbox", { name: "Select Submitted person" })).not.toBeChecked();
+  fireEvent.click(screen.getByRole("button", { name: "Select all eligible, including previous updates" }));
+  expect(screen.getByRole("checkbox", { name: "Select Submitted person" })).toBeChecked();
+  expect(screen.getByRole("checkbox", { name: "Select Imported contact" })).toBeChecked();
+  fireEvent.change(screen.getByLabelText("Your update message"), { target: { value: "A different update." } });
+  fireEvent.click(screen.getByRole("button", { name: "Send update to 2" }));
+  await screen.findByText("Queued explicitly.");
+  expect(groupUpdatesApi.send).toHaveBeenCalledWith("trip", expect.objectContaining({ audience_keys: ["contact:0", "contact:1", "contact:2"] }));
+});
+
+it("keeps other broadcasts out of the preview and send selection", async () => {
+  const recipients = initial.recipients.map((row, index) => ({ ...row, broadcast_group_id: index === 0 ? "chosen" : "another" }));
+  vi.mocked(groupUpdatesApi.preview).mockImplementation(async (_id, audience) => ({ ...initial, audience, recipients }));
+  vi.mocked(groupUpdatesApi.send).mockResolvedValue({ request_id: "request", queued_count: 1, passenger_count: 1, message: "Queued for this broadcast." });
+  mount("chosen");
+  await screen.findByText("1 people · 1 WhatsApp messages");
+  expect(screen.queryByRole("checkbox", { name: "Select Imported contact" })).not.toBeInTheDocument();
+  fireEvent.change(screen.getByLabelText("Your update message"), { target: { value: "Update." } });
+  fireEvent.click(screen.getByRole("button", { name: "Send update to 1" }));
+  await screen.findByText("Queued for this broadcast.");
+  expect(groupUpdatesApi.send).toHaveBeenCalledWith("trip", expect.objectContaining({ audience_keys: ["contact:0"] }));
 });

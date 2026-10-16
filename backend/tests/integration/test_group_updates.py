@@ -100,6 +100,34 @@ async def test_submitted_uses_completed_number_and_missing_uses_excel(group_upda
     assert missing[0]["phone_source"] == "imported"
 
 
+@pytest.mark.parametrize("status", ["read", "failed", "delivery_unknown"])
+@pytest.mark.parametrize("legacy", [True, False])
+async def test_previous_update_history_survives_a_phone_change(group_update, status, legacy):
+    passenger = group_update.passengers[0]
+    context = {"group_id": str(group_update.group.id), "document_type": "visa"}
+    if legacy:
+        context["passenger_ids"] = [str(passenger.id)]
+    else:
+        context["audience_keys"] = [f"submission:{passenger.id}"]
+    group_update.session.add(WhatsAppMessageLogModel(
+        id=uuid.uuid4(), agency_id=group_update.agency.id,
+        broadcast_group_id=group_update.broadcast.id, recipient_id=group_update.recipients[0].id,
+        normalized_phone_number=passenger.client_phone, message_type="document_update", status=status,
+        status_updated_at=datetime.now(UTC), template_name="pending_v1", template_language="en",
+        rendered_message="Earlier update", document_update_context=context,
+    ))
+    passenger.client_phone = "+919555666777"
+    await group_update.session.commit()
+    data = await preview(group_update)
+    row = next(row for row in data["recipients"] if row["passenger_id"] == str(passenger.id))
+    assert row["phone_number"] == "+919555666777"
+    assert row["latest_update_status"] == status
+    assert row["eligible"] is (status != "delivery_unknown")
+    assert all(row["latest_update_status"] is None for row in data["recipients"] if row["passenger_id"] != str(passenger.id))
+    group_update.provider.assert_not_awaited()
+    group_update.publish.assert_not_awaited()
+
+
 @pytest.mark.parametrize("lane", ["visa", "flight_ticket", "flight_ticket_arrival", "flight_ticket_domestic", "flight_ticket_domestic_arrival"])
 @pytest.mark.parametrize("accepted", ["submitted", "sent", "delivered", "read"])
 async def test_filters_intersect_and_failed_unknown_missing_partial_remain_pending(group_update, lane, accepted):
