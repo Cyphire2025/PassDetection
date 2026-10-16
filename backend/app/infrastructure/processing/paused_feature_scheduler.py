@@ -24,7 +24,8 @@ def active_platform_schedule(schedule: Mapping[str, Any]) -> dict[str, Any]:
     return active
 
 
-class PausedFeatureScheduler(PersistentScheduler):
+# Celery does not publish type information for its scheduler base class.
+class PausedFeatureScheduler(PersistentScheduler):  # type: ignore[misc]
     def setup_schedule(self) -> None:
         # PersistentScheduler.merge_inplace removes obsolete periodic entries
         # from its own schedule store. Queued jobs in Redis are never touched.
