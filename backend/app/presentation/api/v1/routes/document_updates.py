@@ -12,6 +12,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.use_cases.whatsapp.document_updates import render_document_update
+from app.application.use_cases.whatsapp.template_text import normalize_template_text
 from app.domain.entities.entities import User
 from app.domain.value_objects.travel_document_taxonomy import MOBILE_PERSONAL_DOCUMENT_TYPES
 from app.infrastructure.database.models import WhatsAppMessageLogModel
@@ -75,7 +76,7 @@ async def send_update(
     )
     if group.deleted_at is not None or group.status in {"archived", "deleted"}:
         raise HTTPException(409, "Restore the group before sending updates.")
-    content = payload.message_content.strip()
+    content = normalize_template_text(payload.message_content)
     if not content:
         raise HTTPException(422, "Enter the update message.")
     key = fingerprint(["document_update", str(payload.request_id)])

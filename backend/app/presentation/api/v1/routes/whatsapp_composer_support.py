@@ -27,6 +27,7 @@ from app.application.use_cases.whatsapp.message_templates import (
     validate_group_invite_link,
     validate_template_parameters,
 )
+from app.application.use_cases.whatsapp.template_text import normalize_template_text
 from app.core.config.settings import Settings
 from app.infrastructure.database.models import (
     WhatsAppBroadcastGroupModel,
@@ -72,7 +73,7 @@ def _resolve_message_content(
 ) -> str:
     if value is None:
         return default_message_content(message_type, group_name=group_name)
-    return value.strip()
+    return normalize_template_text(value) if message_type == "reminder" else value.strip()
 
 
 def _resolve_send_message_content(

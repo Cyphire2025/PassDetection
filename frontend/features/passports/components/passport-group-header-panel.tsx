@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import { CompanyGroupReturnLink } from "@/features/companies/components/company-group-return-link";
 import {
   WorkspaceHeaderContext,
@@ -17,6 +18,7 @@ import {
 } from "lucide-react";
 import { createPortal } from "react-dom";
 import type { PassportGroupController } from "./use-passport-group-controller";
+import { GroupUpdateMenuItem, GroupUpdatePreview } from "./passport-group-update-action";
 export function PassportGroupHeaderPanel({
   importInputRef,
   setImportMessage,
@@ -67,8 +69,10 @@ export function PassportGroupHeaderPanel({
   | "passportSaveMutation"
   | "exportMutation"
 >) {
+  const [updateOpen, setUpdateOpen] = useState(false);
   return (
     <>
+      <GroupUpdatePreview open={updateOpen} group={groupDetails} onClose={() => setUpdateOpen(false)} />
       <input
         ref={importInputRef}
         type="file"
@@ -172,7 +176,7 @@ export function PassportGroupHeaderPanel({
                     actionsMenuButtonRef.current?.getBoundingClientRect();
                   if (!rect) return;
                   const menuWidth = 256;
-                  const menuHeight = 224;
+                  const menuHeight = 272;
                   const top =
                     rect.bottom + 8 + menuHeight > window.innerHeight
                       ? Math.max(8, rect.top - menuHeight - 8)
@@ -204,6 +208,7 @@ export function PassportGroupHeaderPanel({
                       top: actionsMenuPosition.top,
                     }}
                   >
+                    <GroupUpdateMenuItem groupDetails={groupDetails} includeDeleted={includeDeleted} onSelect={() => { setIsActionsMenuOpen(false); setUpdateOpen(true); }} />
                     <button
                       type="button"
                       role="menuitem"

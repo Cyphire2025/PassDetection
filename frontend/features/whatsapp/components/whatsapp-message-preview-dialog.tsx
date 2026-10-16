@@ -947,6 +947,7 @@ function StandardMessagePreviewDialog({
                   Enter the message text before sending.
                 </span>
               )}
+              {messageType === "reminder" ? <p className="mt-2 text-xs text-slate-500">Line breaks and extra spaces in your editable text become single spaces. Review the formatted message before sending.</p> : null}
               {bulkMode && messageContent !== null && <button type="button" className="mt-2 text-xs font-semibold text-blue-700 hover:underline" onClick={() => setMessageContent(null)}>Use each recipient’s saved wording</button>}
             </div>
         </MessageComposerSection>

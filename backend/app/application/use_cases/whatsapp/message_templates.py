@@ -7,6 +7,8 @@ from collections.abc import Sequence
 from typing import Literal
 from urllib.parse import urlsplit
 
+from app.application.use_cases.whatsapp.template_text import normalize_template_text
+
 WhatsAppMessageType = Literal["welcome", "passport_link", "reminder", "group_invite"]
 
 STATIC_TEMPLATE_HEADER = "Dear Delegates"
@@ -139,7 +141,7 @@ def render_message(
             "URGENT REMINDER !!\n\n"
             "Dear Delegates\n\n"
             "Greetings from Global Connect Travels\n\n"
-            f"{message_content}\n\n"
+            f"{normalize_template_text(message_content)}\n\n"
             "Regards,\n"
             "Team Global Connect Travels"
         )
@@ -175,7 +177,7 @@ def template_parameters(
     if message_type == "welcome":
         return [message_content]
     if message_type == "reminder":
-        return [message_content]
+        return [normalize_template_text(message_content)]
     return [
         passport_intro if passport_intro is not None else passport_link_intro(group_name),
         passport_link or "",

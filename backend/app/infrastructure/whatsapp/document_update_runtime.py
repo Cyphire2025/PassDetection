@@ -40,6 +40,9 @@ async def _source_decision(
 ) -> tuple[str, str | None]:
     """Lock authoritative sources before the message row/provider window."""
     context = log.document_update_context
+    if isinstance(context, dict) and "audience_version" in context:
+        from app.infrastructure.whatsapp.group_update_dispatch import group_update_source_decision
+        return await group_update_source_decision(session, log)
     try:
         if (
             not isinstance(context, dict)

@@ -17,6 +17,7 @@ from app.application.use_cases.whatsapp.message_templates import (
 from app.application.use_cases.whatsapp.qr_templates import (
     validate_qr_template_parameters,
 )
+from app.application.use_cases.whatsapp.template_text import normalize_template_text
 from app.core.config.settings import Settings
 
 logger = logging.getLogger(__name__)
@@ -619,6 +620,9 @@ async def send_whatsapp_template(
     header_parameters: list[str] | None = None,
     language_code: str | None = None,
 ) -> str:
+    if message_type == "reminder":
+        # Also protects an explicitly retried historical snapshot. Never creates a retry.
+        parameters = [normalize_template_text(value) for value in parameters]
     try:
         validate_template_parameters(
             message_type=message_type,
@@ -664,6 +668,7 @@ async def send_whatsapp_document_update_template(
     template_name: str, language_code: str, message_content: str,
 ) -> str:
     """The pending update template has one text variable and no document header."""
+    message_content = normalize_template_text(message_content)
     if not template_name.strip() or not language_code.strip() or not message_content.strip():
         raise WhatsAppCloudApiError(
             "Document update template requires its frozen name, language and text",

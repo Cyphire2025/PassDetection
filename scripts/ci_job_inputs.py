@@ -46,6 +46,9 @@ FRONTEND_BACKEND_INPUTS = frozenset({
     "backend/app/presentation/api/v1/routes/document_updates.py",
     "backend/app/presentation/api/v1/routes/document_update_preview.py",
     "backend/app/presentation/api/v1/schemas/document_update_schemas.py",
+    "backend/app/presentation/api/v1/routes/group_updates.py",
+    "backend/app/presentation/api/v1/routes/group_update_preview.py",
+    "backend/app/presentation/api/v1/schemas/group_update_schemas.py",
     "backend/app/presentation/api/v1/schemas/document_distribution_schemas.py",
     "backend/app/presentation/api/v1/routes/passport_routes/display_name.py",
 })
