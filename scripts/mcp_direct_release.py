@@ -21,6 +21,7 @@ from mcp_direct_memory import capture as capture_memory
 from mcp_direct_memory import compare as compare_memory
 from mcp_direct_memory import require_zero
 from mcp_direct_state import ROOT, WORKERS, DirectState, fingerprint, private_json
+from release_pdf_checking_profile import LABEL, PAUSED, PROFILE
 from release_traveller_whatsapp import release_lock
 
 IDLE_PROBE = """
@@ -78,10 +79,20 @@ def _idle_timeout(deadline: float | None, maximum: int) -> int:
     return min(maximum, remaining)
 
 
-def require_idle(containers: dict, *, deadline: float | None = None) -> dict:
+def require_idle(containers: dict, *, deadline: float | None = None,
+                 workers: dict[str, str] | None = None) -> dict:
+    selected = WORKERS if workers is None else workers
+    if (not selected or any(WORKERS.get(name) != prefix for name, prefix in selected.items())
+            or not (WORKERS.keys() - selected.keys()) <= PAUSED):
+        raise BuildError("unreviewed_worker_idle_inventory")
+    for name in WORKERS.keys() - selected.keys():
+        current = bound_original(containers[name], timeout=_idle_timeout(deadline, 60))
+        if (current['State']['Running'] or current['Config']['Labels'].get(LABEL) != PROFILE
+                or current['HostConfig'].get('RestartPolicy', {}).get('Name') != 'no'):
+            raise BuildError("paused_worker_must_be_stopped_and_bound")
     nodes = [
         f"{prefix}@{containers[name]['Config']['Hostname']}"
-        for name, prefix in WORKERS.items()
+        for name, prefix in selected.items()
     ]
     backend = bound_original(containers["backend"], timeout=_idle_timeout(deadline, 60))
     if not backend["State"]["Running"]:
@@ -118,12 +129,13 @@ def require_idle(containers: dict, *, deadline: float | None = None) -> dict:
     return result
 
 
-def wait_for_idle(containers: dict) -> dict:
+def wait_for_idle(containers: dict, *, workers: dict[str, str] | None = None) -> dict:
     """Allow active work to drain within 150 seconds; never retry missing evidence."""
     deadline = time.monotonic() + 150
     while time.monotonic() < deadline:
         try:
-            result = require_idle(containers, deadline=deadline)
+            result = (require_idle(containers, deadline=deadline) if workers is None
+                      else require_idle(containers, deadline=deadline, workers=workers))
         except BuildError as error:
             if str(error) != "workers_busy_wait_before_build":
                 raise

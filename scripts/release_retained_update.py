@@ -28,10 +28,11 @@ from mcp_direct_activate import clean_stop
 from mcp_direct_build import GIB, BuildError, RetainedBuild, command, contract_digest
 from mcp_direct_containers import LocalDocker, clone_payload
 from mcp_direct_release import bound_original, wait_for_idle
-from mcp_direct_state import APPLICATION, INFRASTRUCTURE, WORKERS, fingerprint, private_json
+from mcp_direct_state import APPLICATION, INFRASTRUCTURE, WORKERS, private_json
 from release_artifacts import verify_manifest
 from release_code_update import COMPATIBILITY_PATHS, environment, task_contract, validate_readiness
 from release_manifest import load_release_manifest
+import release_pdf_checking_profile as pdf_profile
 from release_traveller_whatsapp import ReleaseError, release_lock
 
 ROOT = Path('/opt/GlobalConnectsDashboard')
@@ -76,14 +77,19 @@ def wait_full_readiness(probe: Callable[[], dict], revision: str) -> None:
     raise ValueError('full_readiness_did_not_stabilize')
 
 
-def select_live(rows: list[dict], root: Path = ROOT, *, schema: str = SCHEMA) -> dict[str, dict]:
+def select_live(rows: list[dict], root: Path = ROOT, *, schema: str = SCHEMA,
+                paused_services: frozenset[str] = frozenset()) -> dict[str, dict]:
+    require(paused_services <= pdf_profile.PAUSED, 'unreviewed_paused_services')
     root = PurePosixPath(root.as_posix())
     selected = {}
     for row in rows:
         labels = row.get('Config', {}).get('Labels') or {}
         name = labels.get('com.docker.compose.service')
         require(name in SERVICES and name not in selected, 'ambiguous_running_service_inventory')
-        require(row.get('State', {}).get('Running') is True, 'live_service_not_running')
+        require(row.get('State', {}).get('Running') is True or name in paused_services
+                and labels.get(pdf_profile.LABEL) == pdf_profile.PROFILE
+                and row.get('HostConfig', {}).get('RestartPolicy', {}).get('Name') == 'no',
+                'live_service_not_running')
         work = PurePosixPath(labels.get('com.docker.compose.project.working_dir', ''))
         require(work.is_absolute() and '..' not in work.parts and (work == root or work.is_relative_to(root / 'tmp')),
                 'live_working_directory_outside_root')
@@ -207,6 +213,7 @@ class RetainedUpdate:
         self.directory = source.parent
         self.client = LocalDocker()
         self.record = {}
+        self.pause_email_and_photos = False
         self.project = 'retained-' + revision[:12] + '-' + uuid.uuid4().hex[:8]
 
     def event(self, phase: str, **values) -> None:
@@ -217,6 +224,17 @@ class RetainedUpdate:
     def rows(self, *, all: bool = False) -> list[dict]:
         ids = command('docker', 'ps', '-aq' if all else '-q', '--no-trunc').split()
         return json.loads(command('docker', 'inspect', *ids, timeout=120)) if ids else []
+
+    def paused_services(self) -> frozenset[str]:
+        return pdf_profile.PAUSED if getattr(self, 'pause_email_and_photos', False) else frozenset()
+
+    def idle_workers(self, live: dict) -> dict:
+        paused = self.paused_services()
+        if not paused:
+            return wait_for_idle(live)
+        selected = {name: prefix for name, prefix in WORKERS.items()
+                    if name not in paused or live[name]['State']['Running']}
+        return wait_for_idle(live, workers=selected)
 
     def schema(self) -> str:
         row = bound_original(self.record['live']['db'])
@@ -304,6 +322,7 @@ class RetainedUpdate:
             self.client.start(row['Id'])
 
     def wait_health(self, rows: dict) -> None:
+        rows = {name: row for name, row in rows.items() if name not in self.paused_services()}
         for _ in range(120):
             current = {name: bound_original(row) for name, row in rows.items()}
             if all(row['State'].get('Running') and (
@@ -345,9 +364,15 @@ walk(root);if(!found)throw Error('revision asset absent');console.log(JSON.strin
         self.retention()
 
     def candidate_environment(self, original: dict) -> dict[str, str]:
-        return runtime_environment(original, self.revision, schema=self.candidate_schema)
+        result = runtime_environment(original, self.revision, schema=self.candidate_schema)
+        name = original['Config']['Labels']['com.docker.compose.service']
+        if self.paused_services() and name not in {'frontend', 'nginx'}:
+            result.update(pdf_profile.DISABLED)
+        return result
 
     def create_candidate(self, original: dict, options: dict) -> str:
+        if self.paused_services():
+            return pdf_profile.create_candidate(self.client, original, options)
         return self.client.create_clone(original, **options)
 
     def stage(self, images: dict) -> dict:
@@ -389,7 +414,7 @@ walk(root);if(!found)throw Error('revision asset absent');console.log(JSON.strin
         # Stop scheduler first, prove workers idle, then free a bounded build budget.
         self.stop(live['email-beat'])
         try:
-            wait_for_idle(live)
+            self.idle_workers(live)
             for name in WORKERS: self.stop(live[name])
             yield
         finally:
@@ -397,7 +422,8 @@ walk(root);if(!found)throw Error('revision asset absent');console.log(JSON.strin
             running = self.rows()
             require(not any(row['Id'] not in self.record['inventory'] for row in running),
                     'builder_still_running_workers_not_resumed')
-            for name in (*WORKERS, 'email-beat'): self.start(live[name])
+            for name in (*WORKERS, 'email-beat'):
+                if live[name]['State']['Running']: self.start(live[name])
 
     def build_fast_images(self) -> dict:
         live = self.record['live']
@@ -420,7 +446,8 @@ walk(root);if(!found)throw Error('revision asset absent');console.log(JSON.strin
         require({row['Id'] for row in self.rows()} <= {row['Id'] for row in self.record['live'].values()},
                 'unexpected_running_container_blocks_recovery')
         for name in ('backend', 'frontend', *WORKERS, 'email-beat'):
-            self.start(self.record['live'][name])
+            if self.record['live'][name]['State']['Running']:
+                self.start(self.record['live'][name])
         self.proof({name: self.record['live'][name] for name in APPLICATION}, self.record['previous_revision'], public=False)
         self.start(self.record['live']['nginx'])
         self.proof(self.record['live'], self.record['previous_revision'], public=True)
@@ -428,20 +455,24 @@ walk(root);if(!found)throw Error('revision asset absent');console.log(JSON.strin
 
     def run(self) -> None:
         require(not list(self.directory.glob('*-prepared.private.json')), 'existing_attempt_requires_receipt_review')
-        live = select_live(self.rows(), schema=self.candidate_schema)
+        running = self.rows()
+        inventory = pdf_profile.live_inventory(running, self.rows(all=True)) if self.paused_services() else running
+        live = select_live(inventory, schema=self.candidate_schema, paused_services=self.paused_services())
         previous = environment(live['backend'])['APP_REVISION']
         self.compatibility(previous)
         self.current_main()
-        total = sum(row['HostConfig']['Memory'] for row in live.values())
+        total = sum(row['HostConfig']['Memory'] for row in running)
         require(all(type(row['HostConfig']['Memory']) is int and row['HostConfig']['Memory'] > 0
                     for row in live.values()) and total + 2 * GIB <= int(command('docker', 'info', '--format', '{{.MemTotal}}')),
                 'steady_capacity_exceeds_host_reserve')
         require(not Path('/proc/swaps').read_text().splitlines()[1:], 'swap_must_remain_disabled')
+        profile_budget = pdf_profile.planned_budget(live, int(command('docker', 'info', '--format', '{{.MemTotal}}'))) if self.paused_services() else None
         self.record = {'revision': self.revision, 'mode': self.mode, 'schema': self.candidate_schema, 'project': self.project,
                        'source': str(self.source), 'previous_revision': previous, 'live': live,
                        'inventory': {row['Id']: row for row in self.rows(all=True)},
                        'images_before': command('docker', 'image', 'ls', '-q', '--no-trunc').split(),
-                       'volumes_before': command('docker', 'volume', 'ls', '-q').split()}
+                       'volumes_before': command('docker', 'volume', 'ls', '-q').split(),
+                       'pause_email_and_photos': bool(self.paused_services()), 'runtime_profile_budget': profile_budget}
         self.event('prepared')
         require(self.schema() == self.candidate_schema, 'same_schema_required_no_migration_permitted')
         self.proof(live, previous, public=True)
@@ -466,7 +497,7 @@ walk(root);if(!found)throw Error('revision asset absent');console.log(JSON.strin
             # take down the website before a replacement can safely start.
             self.event('precutover-draining')
             self.stop(bound_original(live['email-beat']))
-            self.event('precutover-workers-idle', worker_idle=wait_for_idle(live))
+            self.event('precutover-workers-idle', worker_idle=self.idle_workers(live))
             for name in WORKERS:
                 self.stop(bound_original(live[name]))
             self.event('cutover-starting')
@@ -475,12 +506,17 @@ walk(root);if(!found)throw Error('revision asset absent');console.log(JSON.strin
             require({row['Id'] for row in self.rows()} == {live[name]['Id'] for name in INFRASTRUCTURE},
                     'writers_not_fenced')
             require(self.schema() == self.candidate_schema, 'same_schema_required_before_start')
-            for name in ('backend', 'frontend', *WORKERS, 'email-beat'): self.start(candidates[name])
+            for name in ('backend', 'frontend', *WORKERS, 'email-beat'):
+                if name not in self.paused_services(): self.start(candidates[name])
             self.proof({name: candidates[name] for name in APPLICATION}, self.revision, public=False)
             self.start(candidates['nginx'])
             self.proof(candidates, self.revision, public=True)
-            require({row['Id'] for row in self.rows()} == {row['Id'] for row in candidates.values()}
+            require({row['Id'] for row in self.rows()} == {row['Id'] for name, row in candidates.items() if name not in self.paused_services()}
                     | {live[name]['Id'] for name in INFRASTRUCTURE}, 'unexpected_running_container')
+            if self.paused_services():
+                for name in self.paused_services():
+                    require(not bound_original(candidates[name])['State']['Running'], 'paused_worker_started')
+                pdf_profile.planned_budget({**live, **candidates}, int(command('docker', 'info', '--format', '{{.MemTotal}}')))
             self.retention()
             self.event('complete', all_prior_resources_retained=True, automatic_downgrade=False)
         except BaseException:
@@ -510,9 +546,12 @@ def main() -> int:
     parser.add_argument('--mode', choices=('full', 'fast'), required=True)
     parser.add_argument('--manifest', type=Path)
     parser.add_argument('--recover-receipt', type=Path)
+    parser.add_argument('--pause-email-and-photos', action='store_true',
+                        help='Pause three feature workers and allocate 3584 MiB to the backend; retain the shared scheduler')
     args = parser.parse_args()
     os.umask(0o077)
     release = release_for_source(Path(__file__).resolve().parents[1], args.revision, args.mode, args.manifest)
+    release.pause_email_and_photos = args.pause_email_and_photos
     def interrupted(signum, frame):
         raise ValueError('release_interrupted')
     signal.signal(signal.SIGTERM, interrupted)
@@ -523,7 +562,9 @@ def main() -> int:
             release.record = json.loads(args.recover_receipt.read_text())
             require(release.record.get('source') == str(release.source)
                     and release.record.get('revision') == release.revision
-                    and release.record.get('mode') == release.mode, 'recovery_receipt_binding_changed')
+                    and release.record.get('mode') == release.mode
+                    and release.record.get('pause_email_and_photos', False) == args.pause_email_and_photos,
+                    'recovery_receipt_binding_changed')
             release.recover()
         else:
             release.run()

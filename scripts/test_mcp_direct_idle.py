@@ -158,6 +158,23 @@ class WorkerIdleTests(unittest.TestCase):
             require_idle(containers, deadline=150)
         bind.assert_not_called()
 
+    def test_custom_idle_inventory_cannot_omit_a_running_paused_feature_worker(self):
+        containers, _ = evidence()
+        from release_pdf_checking_profile import LABEL, PAUSED, PROFILE
+        for name in PAUSED:
+            containers[name].update(State={'Running': True}, HostConfig={'RestartPolicy': {'Name': 'no'}})
+            containers[name]['Config']['Labels'] = {LABEL: PROFILE}
+        selected = {name: prefix for name, prefix in WORKERS.items() if name not in PAUSED}
+        with patch('mcp_direct_release.bound_original', side_effect=lambda row, **_kw: row), \
+                patch('mcp_direct_release.command') as command, \
+                self.assertRaisesRegex(BuildError, 'paused_worker_must_be_stopped_and_bound'):
+            require_idle(containers, workers=selected)
+        command.assert_not_called()
+
+    def test_custom_idle_inventory_cannot_omit_core_workers(self):
+        with self.assertRaisesRegex(BuildError, 'unreviewed_worker_idle_inventory'):
+            require_idle({}, workers={'worker': WORKERS['worker']})
+
 
 if __name__ == "__main__":
     unittest.main()

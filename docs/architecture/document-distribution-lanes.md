@@ -46,8 +46,8 @@ an explicit discard confirmation.
 
 ```text
 browser selection
-  -> bounded 16-file / 8 MiB verification chunks, one HTTP chunk at a time
-  -> isolated, deployment-bounded PDF parsing and OCR
+  -> bounded 16-file / 16 MiB verification chunks, one HTTP chunk at a time
+  -> up to eight isolated PDF parser processes, with eight process slots shared deployment-wide
   -> strict structural Visa/flight classification
   -> deterministic, group-scoped passenger matching
   -> encrypted staging receipt bound to actor, group, lane, roster and chunk
@@ -55,10 +55,14 @@ browser selection
   -> bounded server-side object copy and one database transaction
 ```
 
-The 16-file cap halves request/process-start overhead for small-PDF batches
-compared with the former 8-file cap. The independent 8 MiB byte cap,
-single-request admission, two isolated parser workers, retry envelope, and
-sequential commit order remain unchanged.
+Distribution verification requests up to eight parser processes. Other parser
+callers retain their two-process default. Redis leases reserve each process
+slot atomically before spawning, release the exact owned slots, and expire
+after a crash. Unsuffixed leases from older releases block weighted admission
+until they drain, preserving the shared ceiling during a rolling update.
+Temporary parser saturation returns a retryable response. The independent
+16 MiB byte target, 16-file ceiling, single-request browser concurrency,
+per-process memory limits and sequential commit order bound the larger check.
 
 ## Accuracy and safety invariants
 
@@ -153,6 +157,41 @@ existing adaptive polling; receipt updates continue every ten seconds for up to
 thirty minutes from the tracked start, with manual refresh available afterwards.
 This activity UI and read-only API update requires backend and frontend deployment,
 with no worker restart or database migration.
+
+## Temporary PDF checking resource profile (17 October 2026)
+
+The retained same-schema Fast release accepts `--pause-email-and-photos`.
+This explicit profile keeps `email-worker`, `email-ai-worker`, and
+`my-photos-worker` stopped with restart policy `no`, retaining their containers,
+queues and volumes. It disables email producers/features in the new backend
+process environments and retains existing disabled My Photos providers. It
+does not stop `email-beat`: that container is the shared platform scheduler
+for document lifecycle and mobile notification work as well as email work.
+
+The backend receives 3584 MiB instead of 2560 MiB, with the same hard memory
+and memory-plus-swap ceiling. Other serving limits are unchanged. The active
+container ceilings total 13760 MiB, against 15992 MiB physical RAM and a fixed
+2048 MiB host reserve. The paused worker ceilings total 1152 MiB; they must
+not be restarted while the backend uses the larger allocation without a new
+resource-budget check. Subsequent retained releases must use the same flag
+while this profile is active; omitting it fails the exact inventory check.
+
+Eight is a maximum, not a mandatory PDF process count. Admission reads the
+backend's cgroup-v2 memory charge and host MemAvailable, reserving 256 MiB
+inside the available checking budget, the 2 GiB host reserve, serialization
+space, and an estimated 192 MiB per checker. During parsing, less than 160 MiB
+of remaining checking headroom terminates and joins the disposable pool; a
+bounded retry halves its concurrency. All attempts share at most 90 seconds,
+each file retains its own safety deadline, and global Redis leases count the
+actual number of processes. If even one checker cannot fit, the whole chunk
+returns retryable capacity exhaustion (HTTP 503), rather than saving PDF
+rejections. Existing client retries are finite; persistent exhaustion still
+surfaces a resumable error. This reduces OOM risk without claiming that a
+shared application cgroup can never exhaust memory under arbitrary workloads.
+
+The resource receipt and original runtime snapshots are retained privately
+with the release. Recovery restores the original serving state and allocation;
+it does not delete queued work or restore an older database over current data.
 
 ## Lane migration release order
 

@@ -379,6 +379,8 @@ class DocumentRetainedUpdate(RetainedUpdate):
         require(len(backend) == 1, 'ambiguous_running_backend')
         current = environment(backend[0]).get('EXPECTED_DATABASE_SCHEMA_REVISION')
         require(current in {SOURCE, TARGET}, 'unsupported_live_schema_environment')
+        require(not self.paused_services() or current == TARGET,
+                'pdf_resource_profile_requires_installed_document_schema')
         if current == TARGET:
             self.additive = False
             self.record['additive_release'] = False

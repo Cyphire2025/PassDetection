@@ -1,0 +1,227 @@
+{
+  "version": 1,
+  "date": "2026-10-17",
+  "kind": "provider_free_isolated_installed_backend_image_with_candidate_source",
+  "backend_base_image": "sha256:6d9a999839bd85d899e6f3957de0f30fb92dd01ac521eff6c50e162a14d66aa3",
+  "memory_limit_mib": 3584,
+  "maximum_parser_processes": 8,
+  "source_sha256": {
+    "backend/app/infrastructure/documents/pdf_parser_sandbox.py": "8986ae28ef2002c86b03cefa56fd9f522725739c8fab75a09d46021e80eabbdb",
+    "backend/app/infrastructure/documents/pdf_parser_memory.py": "3d0102003368643d6e9f3ce17ac32caeaa37f4752d0ca715e8d878e40aa132f7",
+    "backend/app/infrastructure/documents/document_matcher.py": "c717e97763161300a53adebc9b1992ecb2cbe7d65c0d62f21075e5aa382cdb9e",
+    "backend/app/infrastructure/documents/distribution_capacity.py": "5d23dcf8287b750663961f58719a591ec95ac21d5e41bf134d05485f77ebd0c7"
+  },
+  "redis_weighted_admission": "passed; actual Lua, expiry, owned release, legacy overlap guard",
+  "outcomes": [
+    {
+      "workers": 8,
+      "baseline_mib": 1664,
+      "exit_code": 0,
+      "oom_killed": false,
+      "memory_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0"
+      },
+      "peak_memory_mib": 2744.31,
+      "host_occupied_peak_gib": 8.073,
+      "records": [
+        {
+          "event": "start",
+          "workers": 8,
+          "baseline_mib": 1666.98,
+          "synthetic": true,
+          "network": "disabled"
+        },
+        {
+          "kind": "embedded-text",
+          "workers": 8,
+          "files": 64,
+          "accepted_with_correct_identity": 64,
+          "seconds": 5.367,
+          "pdfs_per_minute": 715.47,
+          "peak_memory_mib": 2091.47,
+          "max_parser_children": 8,
+          "rejection_reasons": {}
+        },
+        {
+          "kind": "two-page-scan",
+          "workers": 8,
+          "files": 64,
+          "accepted_with_correct_identity": 64,
+          "seconds": 17.491,
+          "pdfs_per_minute": 219.54,
+          "peak_memory_mib": 2743.56,
+          "max_parser_children": 8,
+          "rejection_reasons": {}
+        }
+      ]
+    },
+    {
+      "workers": 8,
+      "baseline_mib": 2304,
+      "exit_code": 0,
+      "oom_killed": false,
+      "memory_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0"
+      },
+      "peak_memory_mib": 3000.36,
+      "host_occupied_peak_gib": 8.255,
+      "records": [
+        {
+          "event": "start",
+          "workers": 8,
+          "baseline_mib": 2308.19,
+          "synthetic": true,
+          "network": "disabled"
+        },
+        {
+          "kind": "embedded-text",
+          "workers": 8,
+          "files": 64,
+          "accepted_with_correct_identity": 64,
+          "seconds": 3.488,
+          "pdfs_per_minute": 1101.04,
+          "peak_memory_mib": 2579.09,
+          "max_parser_children": 5,
+          "rejection_reasons": {}
+        },
+        {
+          "kind": "two-page-scan",
+          "workers": 8,
+          "files": 64,
+          "accepted_with_correct_identity": 64,
+          "seconds": 15.067,
+          "pdfs_per_minute": 254.86,
+          "peak_memory_mib": 2999.92,
+          "max_parser_children": 5,
+          "rejection_reasons": {}
+        }
+      ]
+    },
+    {
+      "workers": 8,
+      "baseline_mib": 3000,
+      "exit_code": 0,
+      "oom_killed": false,
+      "memory_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0"
+      },
+      "peak_memory_mib": 3175.77,
+      "host_occupied_peak_gib": 8.468,
+      "records": [
+        {
+          "event": "start",
+          "workers": 8,
+          "baseline_mib": 3005.72,
+          "synthetic": true,
+          "network": "disabled"
+        },
+        {
+          "kind": "embedded-text",
+          "workers": 8,
+          "files": 64,
+          "accepted_with_correct_identity": 64,
+          "seconds": 2.802,
+          "pdfs_per_minute": 1370.53,
+          "peak_memory_mib": 3068.91,
+          "max_parser_children": 1,
+          "rejection_reasons": {}
+        },
+        {
+          "kind": "two-page-scan",
+          "workers": 8,
+          "files": 64,
+          "accepted_with_correct_identity": 64,
+          "seconds": 39.003,
+          "pdfs_per_minute": 98.45,
+          "peak_memory_mib": 3173.48,
+          "max_parser_children": 1,
+          "rejection_reasons": {}
+        }
+      ]
+    },
+    {
+      "workers": 8,
+      "baseline_mib": 3200,
+      "exit_code": 0,
+      "oom_killed": false,
+      "memory_events": {
+        "low": "0",
+        "high": "0",
+        "max": "0",
+        "oom": "0",
+        "oom_kill": "0",
+        "oom_group_kill": "0"
+      },
+      "peak_memory_mib": 3206.49,
+      "host_occupied_peak_gib": 8.315,
+      "records": [
+        {
+          "event": "start",
+          "workers": 8,
+          "baseline_mib": 3205.97,
+          "synthetic": true,
+          "network": "disabled"
+        },
+        {
+          "kind": "embedded-text",
+          "workers": 8,
+          "files": 64,
+          "accepted_with_correct_identity": 0,
+          "seconds": 0.014,
+          "pdfs_per_minute": 274036.15,
+          "peak_memory_mib": 3205.97,
+          "max_parser_children": 0,
+          "rejection_reasons": {
+            "PDF parser capacity is temporarily exhausted": 64
+          }
+        },
+        {
+          "kind": "two-page-scan",
+          "workers": 8,
+          "files": 64,
+          "accepted_with_correct_identity": 0,
+          "seconds": 0.001,
+          "pdfs_per_minute": 7069870.2,
+          "peak_memory_mib": 3206.23,
+          "max_parser_children": 0,
+          "rejection_reasons": {
+            "PDF parser capacity is temporarily exhausted": 64
+          }
+        }
+      ]
+    }
+  ],
+  "owned_containers_removed": true,
+  "production_changed_by_probe": false,
+  "planned_serving_limits_mib": 13760,
+  "host_physical_mib": 15992,
+  "host_reserve_mib": 2048,
+  "paused_services": [
+    "email-worker",
+    "email-ai-worker",
+    "my-photos-worker"
+  ],
+  "shared_scheduler": "retained",
+  "limitations": [
+    "Synthetic embedded-text and two-page scanned visa PDFs; no production documents, provider calls, credentials, data mounts or external network.",
+    "Memory ballast simulates existing backend residency; this is not a simultaneous all-service maximum or long production soak.",
+    "192 MiB per checker is an admission estimate, not an absolute per-task peak guarantee.",
+    "Persistent pressure returns retryable capacity exhaustion; client retries are finite and the user may need to retry.",
+    "Sixteen checkers were not enabled or benchmarked."
+  ]
+}

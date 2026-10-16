@@ -24,6 +24,10 @@ from redis import Redis
 
 from app.core.config.settings import get_settings
 from app.core.logging.logger import get_logger
+from app.infrastructure.documents.pdf_parser_memory import (
+    affordable_processes,
+    memory_under_pressure,
+)
 
 PdfClassificationJob: TypeAlias = tuple[int, str, bytes, str]
 PdfClassificationPayload: TypeAlias = dict[str, str | bool | None]
@@ -32,12 +36,13 @@ MAX_PDF_BATCH_PARSE_SECONDS = 20.0
 MAX_PDF_FILE_PARSE_SECONDS = 10.0
 MAX_PDF_SCALED_BATCH_SECONDS = 90.0
 MAX_PDF_BATCH_TEXT_CHARS = 12_000_000
-MAX_PDF_PARSER_PROCESSES = 2
+DEFAULT_PDF_PARSER_PROCESSES = 2
+MAX_PDF_PARSER_PROCESSES = 8
 MAX_PDF_PARSER_TASKS_PER_CHILD = 250
 PDF_PARSER_MEMORY_BYTES = 384 * 1024 * 1024
 PDF_PARSER_ADMISSION_WAIT_SECONDS = 0.25
 MAX_PROCESS_LOCAL_PDF_BATCHES = 1
-MAX_DEPLOYMENT_PDF_BATCHES = 2
+MAX_DEPLOYMENT_PDF_PROCESSES = 8
 PDF_BATCH_LEASE_KEY = "global-connect:pdf-parser:batch-leases:v1"
 PDF_BATCH_LEASE_GRACE_MS = 15_000
 PDF_BATCH_LEASE_MIN_MS = 30_000
@@ -50,11 +55,22 @@ _ACQUIRE_PDF_BATCH_LEASE_LUA = """
 local redis_time = redis.call('TIME')
 local now_ms = (tonumber(redis_time[1]) * 1000) + math.floor(tonumber(redis_time[2]) / 1000)
 redis.call('ZREMRANGEBYSCORE', KEYS[1], '-inf', now_ms)
-if redis.call('ZCARD', KEYS[1]) >= tonumber(ARGV[2]) then
+local members = redis.call('ZRANGE', KEYS[1], 0, -1)
+-- Old releases reserve one unsuffixed member per batch. Drain those leases
+-- before admitting weighted work, so a rolling release cannot undercount it.
+for _, member in ipairs(members) do
+  if not string.find(member, ':', 1, true) then
+    return 0
+  end
+end
+local slots = tonumber(ARGV[4])
+if redis.call('ZCARD', KEYS[1]) + slots > tonumber(ARGV[2]) then
   return 0
 end
 local expires_at_ms = now_ms + tonumber(ARGV[3])
-redis.call('ZADD', KEYS[1], expires_at_ms, ARGV[1])
+for slot = 1, slots do
+  redis.call('ZADD', KEYS[1], expires_at_ms, ARGV[1] .. ':' .. slot)
+end
 local latest = redis.call('ZRANGE', KEYS[1], -1, -1, 'WITHSCORES')
 if latest[2] then
   redis.call('PEXPIREAT', KEYS[1], math.floor(tonumber(latest[2])) + 1000)
@@ -63,7 +79,10 @@ return 1
 """
 
 _RELEASE_PDF_BATCH_LEASE_LUA = """
-local removed = redis.call('ZREM', KEYS[1], ARGV[1])
+local removed = 0
+for slot = 1, tonumber(ARGV[2]) do
+  removed = removed + redis.call('ZREM', KEYS[1], ARGV[1] .. ':' .. slot)
+end
 local latest = redis.call('ZRANGE', KEYS[1], -1, -1, 'WITHSCORES')
 if latest[2] then
   redis.call('PEXPIREAT', KEYS[1], math.floor(tonumber(latest[2])) + 1000)
@@ -78,10 +97,15 @@ class _PdfBatchLeaseUnavailable(RuntimeError):
     """The production-wide parser admission store could not be reached safely."""
 
 
+class _PdfMemoryPressure(RuntimeError):
+    """Stop only disposable PDF children before exhausting the API cgroup."""
+
+
 @dataclass(slots=True)
 class _PdfBatchLease:
     client: Any
     token: str
+    process_count: int
     released: bool = False
 
     def release(self) -> None:
@@ -96,6 +120,7 @@ class _PdfBatchLease:
                 1,
                 PDF_BATCH_LEASE_KEY,
                 self.token,
+                str(self.process_count),
             )
         except Exception:
             # Never expose the random lease member or Redis connection details.
@@ -131,8 +156,9 @@ def _pdf_batch_lease_ms(batch_timeout_seconds: float) -> int:
 def _acquire_global_pdf_batch_lease(
     *,
     batch_timeout_seconds: float,
+    process_count: int = DEFAULT_PDF_PARSER_PROCESSES,
 ) -> _PdfBatchLease | None:
-    """Atomically prune expired leases and acquire one deployment-wide slot."""
+    """Reserve each parser process atomically within the deployment ceiling."""
 
     token = uuid.uuid4().hex
     try:
@@ -142,8 +168,9 @@ def _acquire_global_pdf_batch_lease(
             1,
             PDF_BATCH_LEASE_KEY,
             token,
-            str(MAX_DEPLOYMENT_PDF_BATCHES),
+            str(MAX_DEPLOYMENT_PDF_PROCESSES),
             str(_pdf_batch_lease_ms(batch_timeout_seconds)),
+            str(process_count),
         )
         admitted = int(cast(Any, result))
     except Exception as exc:
@@ -152,13 +179,27 @@ def _acquire_global_pdf_batch_lease(
         return None
     if admitted != 1:
         raise _PdfBatchLeaseUnavailable
-    return _PdfBatchLease(client=client, token=token)
+    return _PdfBatchLease(client=client, token=token, process_count=process_count)
 
 
-def bounded_pdf_batch_timeout_seconds(job_count: int) -> float:
+def _validate_parser_processes(parser_processes: int) -> None:
+    if (
+        isinstance(parser_processes, bool)
+        or not isinstance(parser_processes, int)
+        or not 1 <= parser_processes <= MAX_PDF_PARSER_PROCESSES
+    ):
+        raise ValueError(f"PDF parser processes must be between 1 and {MAX_PDF_PARSER_PROCESSES}")
+
+
+def bounded_pdf_batch_timeout_seconds(
+    job_count: int,
+    *,
+    parser_processes: int = DEFAULT_PDF_PARSER_PROCESSES,
+) -> float:
     """Budget all bounded workers without crossing the request timeout envelope."""
 
-    waves = math.ceil(max(1, job_count) / MAX_PDF_PARSER_PROCESSES)
+    _validate_parser_processes(parser_processes)
+    waves = math.ceil(max(1, job_count) / parser_processes)
     worst_case_seconds = waves * MAX_PDF_FILE_PARSE_SECONDS + 5.0
     return min(
         MAX_PDF_SCALED_BATCH_SECONDS,
@@ -178,7 +219,7 @@ def _configure_parser_process(max_batch_seconds: float) -> None:
     """Apply defense-in-depth process limits where the OS supports them."""
 
     # Tesseract may otherwise create multiple OpenMP threads inside each of the
-    # two isolated parser processes. Keeping one OCR thread per child avoids CPU
+    # isolated parser processes. Keeping one OCR thread per child avoids CPU
     # oversubscription and makes bulk latency predictable under load.
     os.environ.setdefault("OMP_THREAD_LIMIT", "1")
     try:
@@ -289,6 +330,7 @@ def classify_pdf_batch_isolated(
     *,
     batch_timeout_seconds: float = MAX_PDF_BATCH_PARSE_SECONDS,
     per_file_timeout_seconds: float = MAX_PDF_FILE_PARSE_SECONDS,
+    parser_processes: int = DEFAULT_PDF_PARSER_PROCESSES,
 ) -> list[PdfClassificationPayload]:
     """Classify a request batch with hard process and output budgets.
 
@@ -297,6 +339,7 @@ def classify_pdf_batch_isolated(
     closed without attempting in-process parsing.
     """
 
+    _validate_parser_processes(parser_processes)
     if not jobs:
         return []
     if batch_timeout_seconds <= 0 or per_file_timeout_seconds <= 0:
@@ -317,32 +360,69 @@ def classify_pdf_batch_isolated(
         ]
     global_lease: _PdfBatchLease | None = None
     try:
-        if _production_global_pdf_batch_lease_required():
-            try:
-                global_lease = _acquire_global_pdf_batch_lease(
-                    batch_timeout_seconds=effective_batch_timeout_seconds,
+        production = _production_global_pdf_batch_lease_required()
+        source_bytes = sum(len(content) for _filename, content, _expected_type in jobs)
+        requested = min(parser_processes, len(jobs))
+        # Adaptive retries share one cumulative deadline. Only the distribution
+        # override may extend its initial eight-process wave budget, up to the
+        # existing 90-second ceiling, when it has to run with fewer processes.
+        adaptive = (
+            parser_processes > DEFAULT_PDF_PARSER_PROCESSES
+            and effective_batch_timeout_seconds >= MAX_PDF_BATCH_PARSE_SECONDS
+        )
+        deadline = time.monotonic() + (
+            MAX_PDF_SCALED_BATCH_SECONDS if adaptive else effective_batch_timeout_seconds
+        )
+        while requested > 0:
+            process_count = affordable_processes(requested, source_bytes, required=production)
+            remaining = deadline - time.monotonic()
+            if process_count < 1 or remaining <= 0:
+                break
+            timeout = min(
+                remaining,
+                max(
+                    effective_batch_timeout_seconds,
+                    bounded_pdf_batch_timeout_seconds(len(jobs), parser_processes=process_count),
                 )
-            except _PdfBatchLeaseUnavailable:
+                if adaptive
+                else effective_batch_timeout_seconds,
+            )
+            if production:
+                try:
+                    global_lease = _acquire_global_pdf_batch_lease(
+                        batch_timeout_seconds=timeout,
+                        process_count=process_count,
+                    )
+                except _PdfBatchLeaseUnavailable:
+                    return [
+                        _failed_payload(filename, "PDF parser service is temporarily unavailable")
+                        for filename, _content, _expected_type in jobs
+                    ]
+                if global_lease is None:
+                    break
+            try:
+                return _classify_pdf_batch_admitted(
+                    jobs,
+                    batch_timeout_seconds=timeout,
+                    per_file_timeout_seconds=per_file_timeout_seconds,
+                    parser_processes=process_count,
+                )
+            except _PdfMemoryPressure:
+                logger.warning("pdf_parser_memory_backoff", parser_processes=process_count)
+                requested = process_count // 2
+            except Exception:
                 return [
                     _failed_payload(filename, "PDF parser service is temporarily unavailable")
                     for filename, _content, _expected_type in jobs
                 ]
-            if global_lease is None:
-                return [
-                    _failed_payload(filename, "PDF parser capacity is temporarily exhausted")
-                    for filename, _content, _expected_type in jobs
-                ]
-        try:
-            return _classify_pdf_batch_admitted(
-                jobs,
-                batch_timeout_seconds=effective_batch_timeout_seconds,
-                per_file_timeout_seconds=per_file_timeout_seconds,
-            )
-        except Exception:
-            return [
-                _failed_payload(filename, "PDF parser service is temporarily unavailable")
-                for filename, _content, _expected_type in jobs
-            ]
+            finally:
+                if global_lease is not None:
+                    global_lease.release()
+                    global_lease = None
+        return [
+            _failed_payload(filename, "PDF parser capacity is temporarily exhausted")
+            for filename, _content, _expected_type in jobs
+        ]
     finally:
         try:
             if global_lease is not None:
@@ -356,6 +436,7 @@ def _classify_pdf_batch_admitted(
     *,
     batch_timeout_seconds: float,
     per_file_timeout_seconds: float,
+    parser_processes: int = DEFAULT_PDF_PARSER_PROCESSES,
 ) -> list[PdfClassificationPayload]:
     """Run one batch after the process-local admission slot is acquired."""
 
@@ -367,11 +448,13 @@ def _classify_pdf_batch_admitted(
     pending: dict[int, AsyncResult[tuple[int, PdfClassificationPayload]]] = {}
     deadline = time.monotonic() + batch_timeout_seconds
     total_text_chars = 0
-    process_count = min(MAX_PDF_PARSER_PROCESSES, len(jobs))
+    process_count = min(parser_processes, len(jobs))
     context = multiprocessing.get_context("spawn")
     pool = None
 
     try:
+        if memory_under_pressure():
+            raise _PdfMemoryPressure
         pool = context.Pool(
             processes=process_count,
             initializer=_configure_parser_process,
@@ -400,6 +483,8 @@ def _classify_pdf_batch_admitted(
             active_pool.close()
 
         while pending and time.monotonic() < deadline:
+            if memory_under_pressure():
+                raise _PdfMemoryPressure
             made_progress = False
             for requested_index, async_result in tuple(pending.items()):
                 if not async_result.ready():

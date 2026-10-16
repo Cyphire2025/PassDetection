@@ -424,11 +424,9 @@ async def test_verify_binds_staging_receipt_to_exact_upload_and_chunk(
             )
         ],
     )
+    classify = MagicMock(return_value=[_classification()])
     set_route_dependency(
-        monkeypatch,
-        document_distribution,
-        "classify_documents_bounded",
-        lambda *_args, **_kwargs: [_classification()],
+        monkeypatch, document_distribution, "classify_documents_bounded", classify,
     )
     stage = AsyncMock(return_value=["opaque-receipt"])
     set_route_dependency(monkeypatch, document_distribution, "stage_verified_documents", stage)
@@ -444,6 +442,7 @@ async def test_verify_binds_staging_receipt_to_exact_upload_and_chunk(
     )
 
     assert result.files[0].staging_receipt == "opaque-receipt"
+    assert classify.call_args.kwargs["parser_processes"] == 8
     assert stage.await_args.kwargs["upload_id"] == upload_id
     assert stage.await_args.kwargs["chunk_id"] == chunk_id
 

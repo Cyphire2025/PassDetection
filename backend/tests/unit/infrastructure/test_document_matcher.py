@@ -666,14 +666,15 @@ def test_malaysia_airlines_electronic_ticket_receipt_is_a_ticket() -> None:
     assert DocumentMatcher()._detect_type(text) == "flight_ticket"
 
 
-def test_image_only_pdf_uses_bounded_ocr_fallback(monkeypatch) -> None:
+@pytest.mark.parametrize("empty_text", ["", "\n", "\n \t\n"])
+def test_image_only_pdf_uses_bounded_ocr_fallback(monkeypatch, empty_text) -> None:
     matcher = DocumentMatcher()
     reads = 0
 
     def read_image_only_pdf(_content: bytes):
         nonlocal reads
         reads += 1
-        return document_matcher_module._PdfTextRead("", True)
+        return document_matcher_module._PdfTextRead(empty_text, True)
 
     monkeypatch.setattr(matcher, "_read_pdf_text_with_pypdf", read_image_only_pdf)
     monkeypatch.setattr(

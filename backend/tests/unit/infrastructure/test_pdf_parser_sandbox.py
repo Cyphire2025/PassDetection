@@ -14,6 +14,16 @@ from app.infrastructure.documents.document_matcher import (
 )
 
 
+@pytest.fixture(autouse=True)
+def isolated_memory_budget(monkeypatch):
+    # Parser correctness tests are independent of the CI runner's cgroup size.
+    # Actual Linux memory accounting is exercised in test_pdf_parser_memory.
+    monkeypatch.setattr(
+        pdf_parser_sandbox, "affordable_processes", lambda requested, *_args, **_kwargs: requested
+    )
+    monkeypatch.setattr(pdf_parser_sandbox, "memory_under_pressure", lambda: False)
+
+
 def _blank_pdf() -> bytes:
     writer = PdfWriter()
     writer.add_blank_page(width=72, height=72)
@@ -94,7 +104,8 @@ def test_global_lease_acquire_and_release_use_one_stable_opaque_member(monkeypat
     acquire_call = redis.calls[0]
     assert acquire_call[2] == pdf_parser_sandbox.PDF_BATCH_LEASE_KEY
     assert acquire_call[3] == "a" * 32
-    assert acquire_call[4] == "2"
+    assert acquire_call[4] == "8"
+    assert acquire_call[6] == "2"
     assert 0 < int(acquire_call[5]) <= pdf_parser_sandbox.PDF_BATCH_LEASE_MAX_MS
     assert "ZREMRANGEBYSCORE" in str(acquire_call[0])
     assert "ZCARD" in str(acquire_call[0])
@@ -106,6 +117,7 @@ def test_global_lease_acquire_and_release_use_one_stable_opaque_member(monkeypat
     assert len(redis.calls) == 2
     release_call = redis.calls[1]
     assert release_call[3] == "a" * 32
+    assert release_call[4] == "2"
     assert "ZREM" in str(release_call[0])
     assert pdf_parser_sandbox.MAX_PROCESS_LOCAL_PDF_BATCHES == 1
 
@@ -269,6 +281,57 @@ def test_pool_creation_failure_is_truthfully_retryable(monkeypatch) -> None:
     assert results[0]["reason"] == "PDF parser service is temporarily unavailable"
 
 
+def test_memory_backoff_releases_global_slots_and_retries_with_fewer_workers(monkeypatch) -> None:
+    redis = _FakeLeaseRedis()
+    monkeypatch.setattr(pdf_parser_sandbox, "_pdf_batch_redis_client", lambda: redis)
+    monkeypatch.setattr(
+        pdf_parser_sandbox, "_production_global_pdf_batch_lease_required", lambda: True
+    )
+    calls = []
+    expected = [{"accepted": True}]
+
+    def run(_jobs, **kwargs):
+        calls.append(kwargs["parser_processes"])
+        if len(calls) < 3:
+            raise pdf_parser_sandbox._PdfMemoryPressure
+        return expected
+
+    monkeypatch.setattr(pdf_parser_sandbox, "_classify_pdf_batch_admitted", run)
+    result = pdf_parser_sandbox.classify_pdf_batch_isolated(
+        [(f"{index}.pdf", b"synthetic", "visa") for index in range(16)],
+        parser_processes=8,
+    )
+    assert result == expected
+    assert calls == [8, 4, 2]
+    assert [int(redis.calls[index][6]) for index in [0, 2, 4]] == calls
+    assert [int(redis.calls[index][4]) for index in [1, 3, 5]] == calls
+
+
+def test_insufficient_memory_returns_retryable_capacity_without_spawning(monkeypatch) -> None:
+    monkeypatch.setattr(pdf_parser_sandbox, "affordable_processes", lambda *_args, **_kwargs: 0)
+    with patch.object(pdf_parser_sandbox, "_classify_pdf_batch_admitted") as run:
+        result = pdf_parser_sandbox.classify_pdf_batch_isolated(
+            [("visa.pdf", b"synthetic", "visa")], parser_processes=8
+        )
+    run.assert_not_called()
+    assert result[0]["reason"] == "PDF parser capacity is temporarily exhausted"
+
+
+def test_memory_pressure_terminates_and_joins_children_before_retry(monkeypatch) -> None:
+    pool = _FakePool(lambda _args: _NeverReadyResult())
+    _install_fake_pool(monkeypatch, pool)
+    states = iter([False, True])
+    monkeypatch.setattr(pdf_parser_sandbox, "memory_under_pressure", lambda: next(states))
+    with pytest.raises(pdf_parser_sandbox._PdfMemoryPressure):
+        pdf_parser_sandbox._classify_pdf_batch_admitted(
+            [("visa.pdf", b"synthetic", "visa")],
+            batch_timeout_seconds=20,
+            per_file_timeout_seconds=10,
+        )
+    assert pool.terminated is True
+    assert pool.joined is True
+
+
 class _NeverReadyResult:
     def ready(self) -> bool:
         return False
@@ -332,19 +395,100 @@ def test_hard_cumulative_timeout_terminates_unfinished_pool(monkeypatch) -> None
     assert "budget" in str(results[0]["reason"])
 
 
-def test_submission_window_is_bounded_to_worker_count(monkeypatch) -> None:
+@pytest.mark.parametrize("parser_processes", [2, 8])
+def test_submission_window_is_bounded_to_worker_count(monkeypatch, parser_processes) -> None:
     pool = _FakePool(lambda _args: _NeverReadyResult())
     _install_fake_pool(monkeypatch, pool)
 
     results = pdf_parser_sandbox.classify_pdf_batch_isolated(
         [(f"{index}.pdf", _blank_pdf(), "visa") for index in range(20)],
         batch_timeout_seconds=0.01,
+        parser_processes=parser_processes,
     )
 
-    assert pool.submitted_indices == [0, 1]
+    assert pool.submitted_indices == list(range(parser_processes))
     assert pool.terminated is True
     assert len(results) == 20
     assert all(result["accepted"] is False for result in results)
+
+
+def test_distribution_reserves_eight_global_process_slots_before_spawning(monkeypatch) -> None:
+    redis = _FakeLeaseRedis()
+    monkeypatch.setattr(pdf_parser_sandbox, "_pdf_batch_redis_client", lambda: redis)
+    monkeypatch.setattr(
+        pdf_parser_sandbox, "_production_global_pdf_batch_lease_required", lambda: True
+    )
+    calls = []
+
+    def admitted(jobs, **kwargs):
+        calls.append(kwargs)
+        return []
+
+    monkeypatch.setattr(pdf_parser_sandbox, "_classify_pdf_batch_admitted", admitted)
+    pdf_parser_sandbox.classify_pdf_batch_isolated(
+        [(f"{index}.pdf", b"synthetic", "visa") for index in range(16)],
+        parser_processes=8,
+    )
+
+    assert redis.calls[0][4] == "8"
+    assert redis.calls[0][6] == "8"
+    assert calls[0]["parser_processes"] == 8
+    assert redis.calls[1][4] == "8"
+
+
+def test_short_distribution_batch_reserves_only_the_processes_it_can_use(monkeypatch) -> None:
+    redis = _FakeLeaseRedis()
+    monkeypatch.setattr(pdf_parser_sandbox, "_pdf_batch_redis_client", lambda: redis)
+    monkeypatch.setattr(
+        pdf_parser_sandbox, "_production_global_pdf_batch_lease_required", lambda: True
+    )
+    monkeypatch.setattr(
+        pdf_parser_sandbox, "_classify_pdf_batch_admitted", lambda *args, **kwargs: []
+    )
+
+    pdf_parser_sandbox.classify_pdf_batch_isolated(
+        [("one.pdf", b"synthetic", "visa")],
+        parser_processes=8,
+    )
+
+    assert redis.calls[0][6] == "1"
+    assert redis.calls[1][4] == "1"
+
+
+@pytest.mark.parametrize("parser_processes", [0, 9, True, 1.5])
+def test_invalid_parallelism_is_rejected_before_starting_processes(parser_processes) -> None:
+    with pytest.raises(ValueError, match="parser processes"):
+        pdf_parser_sandbox.classify_pdf_batch_isolated([], parser_processes=parser_processes)
+
+
+def test_distribution_timeout_uses_its_actual_number_of_workers() -> None:
+    assert pdf_parser_sandbox.bounded_pdf_batch_timeout_seconds(16, parser_processes=8) == 25
+    assert pdf_parser_sandbox.bounded_pdf_batch_timeout_seconds(16) == 85
+    assert pdf_parser_sandbox.bounded_pdf_batch_timeout_seconds(1_500, parser_processes=8) == 90
+
+
+@pytest.mark.parametrize(
+    "reason",
+    [
+        "PDF parser capacity is temporarily exhausted",
+        "PDF parser service is temporarily unavailable",
+    ],
+)
+def test_temporary_parser_capacity_is_retryable_instead_of_rejecting_pdfs(
+    monkeypatch, reason
+) -> None:
+    monkeypatch.setattr(
+        pdf_parser_sandbox,
+        "classify_pdf_batch_isolated",
+        lambda jobs, **kwargs: [pdf_parser_sandbox._failed_payload(jobs[0][0], reason)],
+    )
+    with pytest.raises(document_matcher.DocumentParserUnavailableError, match="temporarily busy"):
+        classify_documents_bounded(
+            DocumentMatcher(),
+            [("visa.pdf", b"synthetic", "visa")],
+            isolate_pdf_parsing=True,
+            parser_processes=8,
+        )
 
 
 def test_output_budget_terminates_remaining_work(monkeypatch) -> None:

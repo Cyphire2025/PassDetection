@@ -14,6 +14,9 @@ from app.domain.entities.entities import User
 from app.domain.exceptions.exceptions import StorageError
 from app.domain.value_objects.travel_document_taxonomy import DOCUMENT_TYPES
 from app.infrastructure.database.session import get_db_session
+from app.infrastructure.documents.distribution_capacity import (
+    DOCUMENT_DISTRIBUTION_PARSER_PROCESSES,
+)
 from app.infrastructure.documents.distribution_ingestion import automatic_passenger_matches
 from app.infrastructure.documents.document_matcher import (
     DocumentMatcher,
@@ -136,7 +139,10 @@ async def verify_documents(
             matcher,
             [(upload.filename, upload.content, document_type) for upload in uploads],
             isolate_pdf_parsing=True,
-            batch_timeout_seconds=bounded_pdf_batch_timeout_seconds(len(uploads)),
+            batch_timeout_seconds=bounded_pdf_batch_timeout_seconds(
+                len(uploads), parser_processes=DOCUMENT_DISTRIBUTION_PARSER_PROCESSES,
+            ),
+            parser_processes=DOCUMENT_DISTRIBUTION_PARSER_PROCESSES,
             reject_common_unsupported_format=False,
         )
     except DocumentParserUnavailableError as exc:

@@ -7,6 +7,7 @@ from typing import Final
 
 MAX_DISTRIBUTION_ASSIGNMENT_ROWS_PER_BATCH: Final[int] = 3_000
 MAX_DISTRIBUTION_ASSIGNMENT_ROWS_PER_SCOPE: Final[int] = 3_000
+DOCUMENT_DISTRIBUTION_PARSER_PROCESSES: Final[int] = 8
 
 
 class DocumentDistributionCapacityError(ValueError):

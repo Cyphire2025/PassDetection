@@ -129,15 +129,20 @@ test("verification uses the largest file chunk inside the bounded OCR envelope",
   assert.deepEqual(session.chunks.map((chunk) => chunk.length), [16, 14]);
 });
 
-test("verification keeps the 8 MiB byte cap when PDFs are larger", () => {
+test("verification keeps the 16 MiB byte target when PDFs are larger", () => {
   let nextId = 0;
   const fiveMiB = 5 * 1024 * 1024;
   const session = createDocumentVerificationSession(
-    pdfFiles(2, fiveMiB),
+    pdfFiles(4, fiveMiB),
     () => `verify-bytes-${nextId++}`,
   );
 
-  assert.deepEqual(session.chunks.map((chunk) => chunk.length), [1, 1]);
+  assert.deepEqual(session.chunks.map((chunk) => chunk.length), [3, 1]);
+});
+
+test("a verification chunk can feed eight two-MiB PDFs to the parser workers", () => {
+  const session = createDocumentVerificationSession(pdfFiles(9, 2 * 1024 * 1024));
+  assert.deepEqual(session.chunks.map((chunk) => chunk.length), [8, 1]);
 });
 
 test("verification can process chunks sequentially, preserves order, and reports committed files", async () => {

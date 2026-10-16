@@ -18,6 +18,7 @@ from release_retained_update import (
 )
 from release_code_update import CORE_CAPABILITIES
 from mcp_direct_build import BuildError
+import release_pdf_checking_profile as pdf_profile
 from release_deploy import current_main_revision, deployment_command
 
 SHA = 'a' * 40
@@ -431,6 +432,45 @@ class Contracts(unittest.TestCase):
         release.fence_candidate = stop
         release.start = start
         return release, live, candidates, running, events
+
+    def test_pdf_profile_keeps_shared_scheduler_but_never_starts_paused_candidates(self):
+        release, live, candidates, running, events = self.transition_fixture()
+        release.pause_email_and_photos = True
+        for name in pdf_profile.PAUSED:
+            candidates[name]['State']['Running'] = False
+        with patch('release_retained_update.bound_original', side_effect=lambda row: row), \
+                patch('release_retained_update.wait_for_idle') as idle, \
+                patch('release_retained_update.command', return_value=str(15992 * 1024**2)), \
+                patch.object(pdf_profile, 'planned_budget'):
+            release.transition(candidates)
+        self.assertEqual(set(running), {row['Id'] for name, row in candidates.items()
+                                       if name not in pdf_profile.PAUSED}
+                         | {live[name]['Id'] for name in INFRASTRUCTURE})
+        self.assertIn('start:candidate-email-beat', events)
+        self.assertFalse(any('start:candidate-' + name in events for name in pdf_profile.PAUSED))
+        self.assertEqual(idle.call_args.kwargs['workers'], WORKERS)
+
+    def test_pdf_profile_repeat_release_only_probes_running_workers(self):
+        release, live, _, _, _ = self.transition_fixture()
+        release.pause_email_and_photos = True
+        for name in pdf_profile.PAUSED:
+            live[name]['State']['Running'] = False
+        with patch('release_retained_update.wait_for_idle') as idle:
+            release.idle_workers(live)
+        self.assertEqual(set(idle.call_args.kwargs['workers']), set(WORKERS) - pdf_profile.PAUSED)
+
+    def test_pdf_profile_failure_restores_original_all_feature_runtime(self):
+        release, live, candidates, running, events = self.transition_fixture()
+        release.pause_email_and_photos = True
+        def proof(rows, revision, *, public):
+            if revision == NEXT: raise ValueError('injected')
+        release.proof = proof
+        with patch('release_retained_update.bound_original', side_effect=lambda row: row), \
+                patch('release_retained_update.wait_for_idle'):
+            with self.assertRaisesRegex(ValueError, 'injected'):
+                release.transition(candidates)
+        self.assertEqual(set(running), {row['Id'] for row in live.values()})
+        self.assertEqual(events[-1], 'recovered-originals')
 
     def test_failed_or_oom_candidate_is_fenced_without_requiring_clean_exit(self):
         for state in ({'Running': False, 'ExitCode': 1, 'OOMKilled': False},

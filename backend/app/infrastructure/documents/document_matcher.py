@@ -240,6 +240,7 @@ def classify_documents_bounded(
     *,
     isolate_pdf_parsing: bool,
     batch_timeout_seconds: float | None = None,
+    parser_processes: int | None = None,
     reject_common_unsupported_format: bool = False,
 ) -> list[ClassifiedDocument]:
     """Reuse exact duplicates within one request while preserving every input row.
@@ -265,6 +266,7 @@ def classify_documents_bounded(
         unique_jobs,
         isolate_pdf_parsing=isolate_pdf_parsing,
         batch_timeout_seconds=batch_timeout_seconds,
+        parser_processes=parser_processes,
     )
     classifications = [unique_results[index] for index in positions]
     if reject_common_unsupported_format:
@@ -278,6 +280,7 @@ def _classify_unique_documents(
     *,
     isolate_pdf_parsing: bool,
     batch_timeout_seconds: float | None = None,
+    parser_processes: int | None = None,
     reject_common_unsupported_format: bool = False,
 ) -> list[ClassifiedDocument]:
     """Classify a request batch, isolating untrusted parsing when requested.
@@ -309,18 +312,23 @@ def _classify_unique_documents(
         classify_pdf_batch_isolated,
     )
 
-    payloads = (
-        classify_pdf_batch_isolated(jobs)
-        if batch_timeout_seconds is None
-        else classify_pdf_batch_isolated(
-            jobs,
-            batch_timeout_seconds=batch_timeout_seconds,
-        )
-    )
-    if any(payload.get("reason") == PDF_OCR_RETRY_REASON for payload in payloads):
+    parser_options: dict[str, Any] = {}
+    if batch_timeout_seconds is not None:
+        parser_options["batch_timeout_seconds"] = batch_timeout_seconds
+    if parser_processes is not None:
+        parser_options["parser_processes"] = parser_processes
+    payloads = classify_pdf_batch_isolated(jobs, **parser_options)
+    retryable_reasons = {PDF_OCR_RETRY_REASON}
+    if parser_processes is not None:
+        retryable_reasons.update({
+            "PDF parser capacity is temporarily exhausted",
+            "PDF parser service is temporarily unavailable",
+        })
+    if any(payload.get("reason") in retryable_reasons for payload in payloads):
         # Verification is read-only at this point. Retry the complete immutable
-        # chunk instead of permanently misclassifying a real image-only travel
-        # document as an unknown PDF after temporary OCR contention.
+        # chunk instead of rejecting valid PDFs after temporary parser or OCR
+        # contention. Callers without an explicit worker override retain their
+        # existing capacity-failure behaviour.
         raise DocumentParserUnavailableError(
             "PDF verification is temporarily busy; retry the upload"
         )
@@ -863,7 +871,7 @@ class DocumentMatcher:
     def _pdf_text(self, content: bytes) -> str:
         read = self._read_pdf_text_with_pypdf(content)
         self._last_pdf_safety_passed = read.safe_for_ocr
-        if read.text or not read.safe_for_ocr:
+        if read.text.strip() or not read.safe_for_ocr:
             return read.text
         return self._ocr_validated_image_only_pdf(content)
 
@@ -871,7 +879,7 @@ class DocumentMatcher:
         """OCR a bounded image-only PDF after repeating all active-content checks."""
 
         read = self._read_pdf_text_with_pypdf(content)
-        if read.text or not read.safe_for_ocr:
+        if read.text.strip() or not read.safe_for_ocr:
             return ""
         return self._ocr_validated_image_only_pdf(content)
 
