@@ -15014,6 +15014,109 @@
         "title": "GroupReuseConfigResponse",
         "type": "object"
       },
+      "GroupUpdateAttempt": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "document_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Type"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "phone_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone Number"
+          },
+          "provider_message_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider Message Id"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "status_updated_at": {
+            "format": "date-time",
+            "title": "Status Updated At",
+            "type": "string"
+          },
+          "template_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Template Name"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "phone_number",
+          "created_at",
+          "status_updated_at",
+          "message",
+          "error",
+          "template_name",
+          "provider_message_id",
+          "document_type"
+        ],
+        "title": "GroupUpdateAttempt",
+        "type": "object"
+      },
       "GroupUpdateAudience": {
         "additionalProperties": false,
         "properties": {
@@ -15127,6 +15230,34 @@
             "title": "Eligible",
             "type": "boolean"
           },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "imported_details": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Imported Details",
+            "type": "object"
+          },
+          "latest_update": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/GroupUpdateAttempt"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "latest_update_at": {
             "anyOf": [
               {
@@ -15165,6 +15296,17 @@
               }
             ],
             "title": "Passenger Id"
+          },
+          "passport_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Passport Number"
           },
           "phone_number": {
             "anyOf": [
@@ -15216,6 +15358,11 @@
             ],
             "title": "Submission Status",
             "type": "string"
+          },
+          "update_attempt_count": {
+            "default": 0,
+            "title": "Update Attempt Count",
+            "type": "integer"
           }
         },
         "required": [

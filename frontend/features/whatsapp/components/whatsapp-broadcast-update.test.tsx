@@ -38,8 +38,8 @@ it.each([0, 1])("opens Send update from the broadcast menu on surface %s without
   mount();
   fireEvent.click((await screen.findAllByRole("button", { name: "Open actions for Bluechip October" }))[surface]);
   fireEvent.click(screen.getByRole("button", { name: "Send update" }));
-  await screen.findByLabelText("Submission status");
-  expect(screen.getByRole("dialog", { name: "Send update — Bluechip October" })).toBeInTheDocument();
+  await screen.findByRole("group", { name: "Document submission" });
+  expect(screen.getByRole("dialog", { name: "Preview Update Message" })).toBeInTheDocument();
   await waitFor(() => expect(groupUpdatesApi.preview).toHaveBeenCalledWith("trip", expect.any(Object), expect.any(AbortSignal)));
   expect(whatsappApi.group).toHaveBeenCalledWith("broadcast", expect.any(AbortSignal));
   expect(groupUpdatesApi.send).not.toHaveBeenCalled();

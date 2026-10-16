@@ -1,5 +1,6 @@
 """Fresh preview of the combined submission and document delivery filters."""
 
+from collections import Counter
 from dataclasses import asdict
 from datetime import datetime
 
@@ -17,6 +18,7 @@ from app.infrastructure.whatsapp.template_settings import (
 )
 from app.presentation.api.v1.routes.document_update_preview import fingerprint
 from app.presentation.api.v1.schemas.group_update_schemas import (
+    GroupUpdateAttempt,
     GroupUpdateAudience,
     GroupUpdatePreview,
     GroupUpdateRecipient,
@@ -35,6 +37,9 @@ async def build_group_update_preview(
         WhatsAppMessageLogModel.id, WhatsAppMessageLogModel.normalized_phone_number,
         WhatsAppMessageLogModel.status, WhatsAppMessageLogModel.status_updated_at,
         WhatsAppMessageLogModel.document_update_context,
+        WhatsAppMessageLogModel.created_at, WhatsAppMessageLogModel.rendered_message,
+        WhatsAppMessageLogModel.error_message, WhatsAppMessageLogModel.template_name,
+        WhatsAppMessageLogModel.provider_message_id,
     ).where(
         WhatsAppMessageLogModel.agency_id == group.agency_id,
         WhatsAppMessageLogModel.message_type == "document_update",
@@ -43,8 +48,10 @@ async def build_group_update_preview(
       .execution_options(yield_per=500))
     latest: dict[str, tuple[int, str, str, datetime]] = {}
     active = set()
+    details: dict[str, GroupUpdateAttempt] = {}
+    attempts: Counter[str] = Counter()
     rank = 0
-    async for log_id, phone, status, at, context in logs:
+    async for log_id, phone, status, at, context, created_at, message, error, template, provider_id in logs:
         # Legacy distribution updates carry passenger IDs; group updates also
         # carry audience keys. Preserve history when the submitted phone changes.
         keys = {f"phone:{phone}"} if phone else set()
@@ -52,6 +59,13 @@ async def build_group_update_preview(
         keys.update(f"submission:{identifier}" for identifier in (context or {}).get("passenger_ids", []))
         for key in keys:
             latest.setdefault(key, (rank, str(log_id), status, at))
+            attempts[key] += 1
+        details[str(log_id)] = GroupUpdateAttempt(
+            id=log_id, status=status, phone_number=phone, created_at=created_at,
+            status_updated_at=at, message=message, error=error,
+            template_name=template, provider_message_id=provider_id,
+            document_type=(context or {}).get("document_type"),
+        )
         if status in ACTIVE:
             active.update(keys)
         rank += 1
@@ -68,6 +82,8 @@ async def build_group_update_preview(
             **{**asdict(contact), "reason": reason}, eligible=reason is None,
             latest_update_status=previous[2] if previous else None,
             latest_update_at=previous[3] if previous else None,
+            latest_update=details[previous[1]] if previous else None,
+            update_attempt_count=max((attempts[key] for key in keys), default=0),
         ))
     template = await configured_template_name(session, "document_update")
     language = template_language("document_update")

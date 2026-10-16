@@ -28,10 +28,10 @@ export function MessageComposerSection({ title, description, children }: {
 export function MessageDeliveryPreview({
   preview, previewIsCurrent, previewFailed, messageType, headerImagePreview, headerImageId, children,
 }: {
-  preview: WhatsAppPreviewResponse | null;
+  preview: Pick<WhatsAppPreviewResponse, "recipient_name" | "rendered_message" | "template_name"> | null;
   previewIsCurrent: boolean;
   previewFailed: boolean;
-  messageType: WhatsAppMessageType;
+  messageType: WhatsAppMessageType | "document_update";
   headerImagePreview: string | null;
   headerImageId: string | null;
   children?: ReactNode;
@@ -59,7 +59,7 @@ export function MessageDeliveryPreview({
             <div className="relative m-1.5 aspect-[16/10] overflow-hidden rounded-lg bg-white">
               <Image src={headerImagePreview} alt={`Selected ${formatMessageType(messageType)} image header`} fill unoptimized className="object-contain" />
             </div>
-          ) : messageType !== "reminder" ? (
+          ) : messageType !== "reminder" && messageType !== "document_update" ? (
             <div className="m-1.5 flex min-h-32 flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-slate-300 bg-white/75 px-5 py-5 text-center">
               <ImageIcon className="h-6 w-6 text-slate-400" aria-hidden="true" />
               <p className="text-xs font-medium text-slate-600">{headerImageId ? "Saved message image" : "Your header image will appear here"}</p>

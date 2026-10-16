@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import uuid
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Literal
 
 from app.domain.value_objects.travel_document_taxonomy import MOBILE_PERSONAL_DOCUMENT_TYPES
@@ -40,6 +40,9 @@ class GroupUpdateContact:
     document_count: int = 0
     confirmed_count: int = 0
     reason: str | None = None
+    passport_number: str | None = None
+    email: str | None = None
+    imported_details: dict[str, str] = field(default_factory=dict)
 
     @property
     def documents_sent(self) -> bool:

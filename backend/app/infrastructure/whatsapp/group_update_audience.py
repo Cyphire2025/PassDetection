@@ -101,12 +101,16 @@ async def load_group_update_audience(
                 phone = authoritative_submission_phone(passenger)
                 matched_recipient = sources[0] if sources and not ambiguous else recipients_by_phone.get(phone or "")
                 key = f"submission:{passenger.id}"
+                passport = (passenger.confirmed_fields or {}).get("passport_number") or (passenger.extracted_fields or {}).get("passport_number")
                 contacts[key] = GroupUpdateContact(
                     audience_key=key, name=passenger.display_name or passenger.client_name,
                     recipient_id=matched_recipient.id if matched_recipient else None,
                     broadcast_group_id=matched_recipient.broadcast_group_id if matched_recipient else broadcasts[0],
                     passenger_id=passenger.id, phone_number=phone, phone_source="submitted",
                     submission_status="submitted",
+                    passport_number=passport if isinstance(passport, str) else None,
+                    email=passenger.client_email,
+                    imported_details=dict(matched_recipient.imported_fields or {}) if matched_recipient else {},
                     reason=None if phone else "The submitted WhatsApp number needs review. No imported-number fallback is used.",
                 )
         if not submitted or ambiguous:
@@ -119,6 +123,7 @@ async def load_group_update_audience(
                     passenger_id=match.submission_ids[0] if not ambiguous and len(match.submission_ids) == 1 else None,
                     phone_number=phone, phone_source="imported",
                     submission_status="needs_review" if ambiguous else "not_submitted",
+                    imported_details=dict(recipient.imported_fields or {}),
                     reason="Review the submission match before sending." if ambiguous else
                     None if phone else "The imported WhatsApp number is invalid.",
                 )

@@ -79,6 +79,7 @@ const MessagePreviewDialog = dynamic(
   () => import("./whatsapp-message-preview-dialog").then((module) => module.MessagePreviewDialog),
   { loading: () => <DialogLoadingState label="Loading message editor" /> },
 );
+const GroupUpdateDeliveryPanel = dynamic(() => import("./group-update-delivery-panel").then(module => module.GroupUpdateDeliveryPanel));
 const DocumentRecipientPanel = dynamic(() => import("@/features/documents/components/document-recipient-panel").then(module => module.DocumentRecipientPanel));
 
 function DialogLoadingState({ label }: { label: string }) {
@@ -434,6 +435,7 @@ export function RecipientListDialog({
           "passport_link",
           "group_invite",
           "reminder",
+          "document_update",
           ...(recipientRoster?.items.flatMap((item) =>
             item.kind === "recipient"
               ? item.recipient.message_statuses.map(
@@ -829,7 +831,8 @@ export function RecipientListDialog({
               </div>
             </section>
             )}
-            {section === "recipients" && (
+            {section === "recipients" && selectedMessageType === "document_update" && <GroupUpdateDeliveryPanel group={group} groups={detail.linked_client_groups ?? []} messageTypes={messageTypes} onMessageTypeChange={(type) => { setSelectedMessageType(type); clearSelection(); changeDeliveryFilter("all"); }} readOnly={isArchived} />}
+            {section === "recipients" && selectedMessageType !== "document_update" && (
             <div className="space-y-4">
             <section className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
               {bulkOutcome && <RecipientBulkOutcome response={bulkOutcome} recipients={allRecipients} onDismiss={() => setBulkOutcome(null)} />}
@@ -1138,7 +1141,7 @@ export function RecipientListDialog({
           </div>
         )}
         </div>
-        {section === "recipients" && !isArchived && <DeliverySelectionBar selectedCount={selectedRecipients.length} hiddenCount={hiddenSelectedCount} messageType={selectedMessageType} onClear={clearSelection} onReview={openBulkComposer} disabled={selectionLocked} />}
+        {section === "recipients" && selectedMessageType !== "document_update" && !isArchived && <DeliverySelectionBar selectedCount={selectedRecipients.length} hiddenCount={hiddenSelectedCount} messageType={selectedMessageType} onClear={clearSelection} onReview={openBulkComposer} disabled={selectionLocked} />}
         </DialogFrame>
       )}
 

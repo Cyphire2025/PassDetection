@@ -22,6 +22,23 @@ export interface GroupUpdateRecipient {
   reason: string | null;
   latest_update_status: string | null;
   latest_update_at: string | null;
+  passport_number?: string | null;
+  email?: string | null;
+  imported_details?: Record<string, string>;
+  latest_update?: GroupUpdateAttempt | null;
+  update_attempt_count?: number;
+}
+export interface GroupUpdateAttempt {
+  id: string;
+  status: string;
+  phone_number: string | null;
+  created_at: string;
+  status_updated_at: string;
+  message: string | null;
+  error: string | null;
+  template_name: string | null;
+  provider_message_id: string | null;
+  document_type: string | null;
 }
 export interface GroupUpdatePreview {
   group_id: string;

@@ -21,6 +21,19 @@ class GroupUpdateAudience(BaseModel):
         return self
 
 
+class GroupUpdateAttempt(BaseModel):
+    id: uuid.UUID
+    status: str
+    phone_number: str | None
+    created_at: datetime
+    status_updated_at: datetime
+    message: str | None
+    error: str | None
+    template_name: str | None
+    provider_message_id: str | None
+    document_type: str | None
+
+
 class GroupUpdateRecipient(BaseModel):
     audience_key: str
     name: str
@@ -36,6 +49,11 @@ class GroupUpdateRecipient(BaseModel):
     reason: str | None
     latest_update_status: str | None = None
     latest_update_at: datetime | None = None
+    passport_number: str | None = None
+    email: str | None = None
+    imported_details: dict[str, str] = Field(default_factory=dict)
+    latest_update: GroupUpdateAttempt | None = None
+    update_attempt_count: int = 0
 
 
 class GroupUpdatePreview(BaseModel):

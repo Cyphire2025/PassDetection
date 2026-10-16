@@ -26,7 +26,7 @@ export function deliveryFilterLabel(filter: WhatsAppRecipientRosterTab) {
     ?? filter;
 }
 
-export function DeliveryToolbar({ messageTypes, messageType, onMessageTypeChange, filter, onFilterChange, counts, disabled, refreshing, onRefresh }: {
+export function DeliveryToolbar({ messageTypes, messageType, onMessageTypeChange, filter, onFilterChange, counts, disabled, refreshing, onRefresh, showContactFilters = true }: {
   messageTypes: string[];
   messageType: string;
   onMessageTypeChange: (type: string) => void;
@@ -36,6 +36,7 @@ export function DeliveryToolbar({ messageTypes, messageType, onMessageTypeChange
   disabled: boolean;
   refreshing: boolean;
   onRefresh: () => void;
+  showContactFilters?: boolean;
 }) {
   const contactFilter = CONTACT_FILTERS.some(({ id }) => id === filter);
   return <div className="space-y-4">
@@ -58,10 +59,10 @@ export function DeliveryToolbar({ messageTypes, messageType, onMessageTypeChange
       </div>
     </div>
     <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Recipient delivery filters">
-      {DELIVERY_FILTERS.map(({ id, label }) => <button key={id} type="button" aria-pressed={filter === id} disabled={disabled} onClick={() => onFilterChange(id)} className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-50 ${filter === id ? "border-blue-600 bg-blue-600 text-white" : "border-slate-200 bg-white text-slate-600 hover:border-blue-200 hover:bg-blue-50"}`}>
+      {DELIVERY_FILTERS.map(({ id, label }) => <button key={id} type="button" aria-label={`${label} ${counts[id].toLocaleString()}`} aria-pressed={filter === id} disabled={disabled} onClick={() => onFilterChange(id)} className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-50 ${filter === id ? "border-blue-600 bg-blue-600 text-white" : "border-slate-200 bg-white text-slate-600 hover:border-blue-200 hover:bg-blue-50"}`}>
         {label}<span className={`rounded px-1.5 py-0.5 tabular-nums ${filter === id ? "bg-white/20" : "bg-slate-100 text-slate-500"}`}>{counts[id].toLocaleString()}</span>
       </button>)}
-      <label className="sm:ml-auto"><span className="sr-only">Contact records requiring attention</span><select aria-label="Contact records requiring attention" value={contactFilter ? filter : ""} disabled={disabled} onChange={(event) => onFilterChange((event.target.value || "all") as WhatsAppRecipientRosterTab)} className={`h-9 max-w-full rounded-lg border bg-white px-2 text-xs ${contactFilter ? "border-amber-400 text-amber-800" : "border-slate-200 text-slate-600"}`}>
+      <label className={showContactFilters ? "sm:ml-auto" : "hidden"}><span className="sr-only">Contact records requiring attention</span><select aria-label="Contact records requiring attention" value={contactFilter ? filter : ""} disabled={disabled} onChange={(event) => onFilterChange((event.target.value || "all") as WhatsAppRecipientRosterTab)} className={`h-9 max-w-full rounded-lg border bg-white px-2 text-xs ${contactFilter ? "border-amber-400 text-amber-800" : "border-slate-200 text-slate-600"}`}>
         <option value="">Contact records</option>
         {CONTACT_FILTERS.map(({ id, label }) => <option key={id} value={id}>{label} ({counts[id]})</option>)}
       </select></label>

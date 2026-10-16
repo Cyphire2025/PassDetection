@@ -33,16 +33,16 @@ it("opens with both audiences combined, shows phone sources and counts shared nu
   expect(screen.getByRole("checkbox", { name: "Select Imported contact" })).toBeChecked();
   expect(screen.getByRole("checkbox", { name: "Select Needs review" })).toBeDisabled();
   expect(screen.getByText(/Imported broadcast number · Not submitted/)).toBeInTheDocument();
-  expect(screen.getByLabelText("Document type")).toBeDisabled();
-  expect(screen.getByRole("button", { name: "Send update to 2" })).toBeDisabled();
+  expect(screen.getByLabelText("Document type")).toBeEnabled();
+  expect(screen.getByRole("button", { name: "Send individually to 2" })).toBeDisabled();
 });
 
 it("combines filters, supports every flight lane and resets selection on audience change", async () => {
   mount();
   await screen.findByText("3 people · 2 WhatsApp messages");
-  fireEvent.click(screen.getByRole("button", { name: "Clear selection" }));
-  fireEvent.change(screen.getByLabelText("Submission status"), { target: { value: "not_submitted" } });
-  fireEvent.change(screen.getByLabelText("Document delivery"), { target: { value: "pending" } });
+  fireEvent.click(screen.getByRole("button", { name: "Clear" }));
+  fireEvent.click(screen.getByRole("radio", { name: "Document submission: Not submitted" }));
+  fireEvent.click(screen.getByRole("radio", { name: "Document distribution: Pending" }));
   expect(screen.getByLabelText("Document type")).toBeEnabled();
   for (const lane of ["flight_ticket", "flight_ticket_arrival", "flight_ticket_domestic", "flight_ticket_domestic_arrival"]) {
     fireEvent.change(screen.getByLabelText("Document type"), { target: { value: lane } });
@@ -55,11 +55,11 @@ it("previews normalized paragraphs and sends only the selected people", async ()
   vi.mocked(groupUpdatesApi.send).mockResolvedValue({ request_id: "request", queued_count: 1, passenger_count: 1, message: "Queued one update." });
   mount();
   await screen.findByText("3 people · 2 WhatsApp messages");
-  fireEvent.click(screen.getByRole("button", { name: "Clear selection" }));
+  fireEvent.click(screen.getByRole("button", { name: "Clear" }));
   fireEvent.click(screen.getByRole("checkbox", { name: "Select Imported contact" }));
   fireEvent.change(screen.getByLabelText("Your update message"), { target: { value: "Please\n\nsubmit\tyour documents." } });
-  expect(screen.getByTestId("group-update-message-preview")).toHaveTextContent("Please submit your documents.");
-  fireEvent.click(screen.getByRole("button", { name: "Send update to 1" }));
+  expect(screen.getByTestId("whatsapp-message-preview")).toHaveTextContent("Please submit your documents.");
+  fireEvent.click(screen.getByRole("button", { name: "Send individually to 1" }));
   await screen.findByText("Queued one update.");
   expect(groupUpdatesApi.send).toHaveBeenCalledWith("trip", expect.objectContaining({ audience_keys: ["contact:1"], message_content: "Please submit your documents.", preview_token: initial.preview_token }));
 });
@@ -69,9 +69,9 @@ it("freezes the exact request after a network uncertainty and retries without a 
   mount();
   await screen.findByText("3 people · 2 WhatsApp messages");
   fireEvent.change(screen.getByLabelText("Your update message"), { target: { value: "Please wait." } });
-  fireEvent.click(screen.getByRole("button", { name: "Send update to 2" }));
+  fireEvent.click(screen.getByRole("button", { name: "Send individually to 2" }));
   const retry = await screen.findByRole("button", { name: "Retry same request" });
-  expect(screen.getByLabelText("Submission status")).toBeDisabled();
+  expect(screen.getByRole("radio", { name: "Document submission: All" })).toBeDisabled();
   expect(screen.getByLabelText("Your update message")).toBeDisabled();
   fireEvent.click(retry);
   await screen.findByText("Already queued.");
@@ -82,7 +82,7 @@ it("blocks sending while the audience is still loading", async () => {
   vi.mocked(groupUpdatesApi.preview).mockImplementation(() => new Promise(() => {}));
   mount();
   fireEvent.change(screen.getByLabelText("Your update message"), { target: { value: "Wait." } });
-  expect(screen.getByRole("button", { name: "Send update to 0" })).toBeDisabled();
+  expect(screen.getByRole("button", { name: "Send individually to 0" })).toBeDisabled();
   expect(groupUpdatesApi.send).not.toHaveBeenCalled();
 });
 
@@ -104,11 +104,12 @@ it("keeps all 84 earlier update attempts unchecked when opening, changing filter
   vi.mocked(groupUpdatesApi.preview).mockImplementation(async (_id, audience) => ({ ...initial, audience, recipients }));
   mount();
   await screen.findByText("4 people · 4 WhatsApp messages");
-  expect(screen.getByText(/84 people have an earlier update attempt/)).toBeInTheDocument();
-  for (let index = 0; index < 84; index++) expect(screen.getByRole("checkbox", { name: `Select Person ${index}` })).not.toBeChecked();
+  expect(screen.getByText(/84 earlier update attempts saved/)).toBeInTheDocument();
+  for (const box of screen.getAllByRole("checkbox")) expect(box).not.toBeChecked();
+  fireEvent.click(screen.getByRole("button", { name: "Next" }));
   expect(screen.getByRole("checkbox", { name: "Select Person 84" })).toBeChecked();
-  fireEvent.change(screen.getByLabelText("Submission status"), { target: { value: "submitted" } });
-  fireEvent.change(screen.getByLabelText("Document delivery"), { target: { value: "pending" } });
+  fireEvent.click(screen.getByRole("radio", { name: "Document submission: Submitted" }));
+  fireEvent.click(screen.getByRole("radio", { name: "Document distribution: Pending" }));
   await screen.findByText("4 people · 4 WhatsApp messages");
   fireEvent.click(screen.getByRole("button", { name: "Refresh preview" }));
   await screen.findByText("4 people · 4 WhatsApp messages");
@@ -123,11 +124,11 @@ it("allows an explicit selection of earlier completed or failed updates without 
   mount();
   await screen.findByText("1 people · 1 WhatsApp messages");
   expect(screen.getByRole("checkbox", { name: "Select Submitted person" })).not.toBeChecked();
-  fireEvent.click(screen.getByRole("button", { name: "Select all eligible, including previous updates" }));
+  fireEvent.click(screen.getByRole("button", { name: "Select all" }));
   expect(screen.getByRole("checkbox", { name: "Select Submitted person" })).toBeChecked();
   expect(screen.getByRole("checkbox", { name: "Select Imported contact" })).toBeChecked();
   fireEvent.change(screen.getByLabelText("Your update message"), { target: { value: "A different update." } });
-  fireEvent.click(screen.getByRole("button", { name: "Send update to 2" }));
+  fireEvent.click(screen.getByRole("button", { name: "Send individually to 2" }));
   await screen.findByText("Queued explicitly.");
   expect(groupUpdatesApi.send).toHaveBeenCalledWith("trip", expect.objectContaining({ audience_keys: ["contact:0", "contact:1", "contact:2"] }));
 });
@@ -140,7 +141,7 @@ it("keeps other broadcasts out of the preview and send selection", async () => {
   await screen.findByText("1 people · 1 WhatsApp messages");
   expect(screen.queryByRole("checkbox", { name: "Select Imported contact" })).not.toBeInTheDocument();
   fireEvent.change(screen.getByLabelText("Your update message"), { target: { value: "Update." } });
-  fireEvent.click(screen.getByRole("button", { name: "Send update to 1" }));
+  fireEvent.click(screen.getByRole("button", { name: "Send individually to 1" }));
   await screen.findByText("Queued for this broadcast.");
   expect(groupUpdatesApi.send).toHaveBeenCalledWith("trip", expect.objectContaining({ audience_keys: ["contact:0"] }));
 });

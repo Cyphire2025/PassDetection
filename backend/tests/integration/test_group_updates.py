@@ -100,6 +100,43 @@ async def test_submitted_uses_completed_number_and_missing_uses_excel(group_upda
     assert missing[0]["phone_source"] == "imported"
 
 
+async def test_preview_includes_saved_update_and_identifying_details_without_mutation(group_update):
+    passenger = group_update.passengers[0]
+    passenger.confirmed_fields = {"passport_number": "P1234567"}
+    passenger.client_email = "traveller@example.test"
+    group_update.recipients[0].imported_fields = {"staff_code": "EMP0", "region": "South"}
+    previous_phone = passenger.client_phone
+    identifier = uuid.uuid4()
+    group_update.session.add(WhatsAppMessageLogModel(
+        id=identifier, agency_id=group_update.agency.id, broadcast_group_id=group_update.broadcast.id,
+        recipient_id=group_update.recipients[0].id, normalized_phone_number=previous_phone,
+        message_type="document_update", status="failed", status_updated_at=datetime.now(UTC),
+        template_name="pending_v1", template_language="en", provider_message_id="wamid.saved",
+        rendered_message="Dear Delegates\nYour visa is being processed.", error_message="131049: Provider declined delivery",
+        document_update_context={"group_id": str(group_update.group.id), "document_type": "visa", "passenger_ids": [str(passenger.id)]},
+    ))
+    passenger.client_phone = "+919555666777"
+    await group_update.session.commit()
+    data = await preview(group_update)
+    row = next(row for row in data["recipients"] if row["passenger_id"] == str(passenger.id))
+    assert row["passport_number"] == "P1234567"
+    assert row["email"] == "traveller@example.test"
+    assert row["imported_details"]["region"] == "South"
+    assert row["phone_number"] == "+919555666777"
+    assert row["latest_update"]["phone_number"] == previous_phone
+    assert row["latest_update"]["id"] == str(identifier)
+    assert row["latest_update"]["error"] == "131049: Provider declined delivery"
+    assert row["latest_update"]["message"] == "Dear Delegates\nYour visa is being processed."
+    assert row["latest_update"]["provider_message_id"] == "wamid.saved"
+    assert row["latest_update"]["created_at"]
+    assert row["update_attempt_count"] == 1
+    untouched = next(row for row in data["recipients"] if row["passenger_id"] == str(group_update.passengers[1].id))
+    assert untouched["latest_update"] is None and untouched["update_attempt_count"] == 0
+    assert not group_update.session.new and not group_update.session.dirty
+    group_update.provider.assert_not_awaited()
+    group_update.publish.assert_not_awaited()
+
+
 @pytest.mark.parametrize("status", ["read", "failed", "delivery_unknown"])
 @pytest.mark.parametrize("legacy", [True, False])
 async def test_previous_update_history_survives_a_phone_change(group_update, status, legacy):
