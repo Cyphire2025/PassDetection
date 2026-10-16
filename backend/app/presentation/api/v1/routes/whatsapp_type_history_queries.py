@@ -32,6 +32,7 @@ def preferred_type_attempts(group_id: uuid.UUID, agency_id: uuid.UUID, cutoff: d
     Delivery/read receipts take precedence over provider acceptance alone.
     """
     status = history_status(cutoff)
+    message_type = canonical_history_type()
     priority = case(
         (status == "read", 4),
         (status == "delivered", 3),
@@ -41,7 +42,7 @@ def preferred_type_attempts(group_id: uuid.UUID, agency_id: uuid.UUID, cutoff: d
     ranked = (
         select(
             Log.recipient_id,
-            canonical_history_type().label("message_type"),
+            message_type.label("message_type"),
             Log.id.label("message_log_id"),
             func.coalesce(Log.batch_id, Log.id).label("message_id"),
             status.label("status"),
@@ -49,7 +50,7 @@ def preferred_type_attempts(group_id: uuid.UUID, agency_id: uuid.UUID, cutoff: d
             Log.error_message,
             func.row_number()
             .over(
-                partition_by=(canonical_history_type(), Log.recipient_id),
+                partition_by=(message_type, Log.recipient_id),
                 order_by=(priority.desc(), Log.created_at.desc(), Log.id.desc()),
             )
             .label("position"),
@@ -91,9 +92,12 @@ def type_recipient_scope(
 
 
 def type_send_statistics(group_id: uuid.UUID, agency_id: uuid.UUID) -> Any:
+    # Reuse the expression so SELECT/GROUP BY share bind parameters. PostgreSQL
+    # treats equivalent CASE expressions with different placeholders as distinct.
+    message_type = canonical_history_type()
     return (
         select(
-            canonical_history_type().label("message_type"),
+            message_type.label("message_type"),
             func.count(func.distinct(func.coalesce(Log.batch_id, Log.id))).label("send_count"),
             func.count(func.distinct(Log.batch_id)).label("version_count"),
             func.count().filter(Log.batch_id.is_(None)).label("legacy_record_count"),
@@ -104,7 +108,7 @@ def type_send_statistics(group_id: uuid.UUID, agency_id: uuid.UUID) -> Any:
             func.max(Log.created_at).label("last_sent_at"),
         )
         .where(Log.broadcast_group_id == group_id, Log.agency_id == agency_id)
-        .group_by(canonical_history_type())
+        .group_by(message_type)
     )
 
 
@@ -129,10 +133,11 @@ def numbered_type_versions(
     group_id: uuid.UUID, agency_id: uuid.UUID, message_type: str, cutoff: datetime
 ) -> Any:
     identity = func.coalesce(Log.batch_id, Log.id)
+    canonical_type = canonical_history_type()
     grouped = (
         select(
             identity.label("id"),
-            canonical_history_type().label("message_type"),
+            canonical_type.label("message_type"),
             func.max(Log.rendered_message).label("message_preview"),
             func.min(Log.created_at).label("created_at"),
             func.max(Log.status_updated_at).label("updated_at"),
@@ -142,9 +147,9 @@ def numbered_type_versions(
         .where(
             Log.broadcast_group_id == group_id,
             Log.agency_id == agency_id,
-            canonical_history_type() == message_type,
+            canonical_type == message_type,
         )
-        .group_by(identity, canonical_history_type())
+        .group_by(identity, canonical_type)
         .subquery()
     )
     # Legacy records without a batch cannot establish a historical send boundary.

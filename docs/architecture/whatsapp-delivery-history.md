@@ -66,6 +66,8 @@ scrolling. Existing reduced-motion preferences apply to card entry animations.
   aliases, filtering, stable numbering, legacy boundaries and agency isolation.
 - `backend/tests/integration/test_whatsapp_workspace.py`: existing per-send report,
   immutable destination and historical resend contracts.
+- `backend/tests/service_integration/test_whatsapp_type_history_postgresql.py`:
+  parameterized grouping and numbered repeat sends on isolated PostgreSQL schemas.
 - `frontend/e2e/whatsapp-delivery-types.spec.ts`: browser navigation, three repeatable
   type histories, overall filters/number correction, independent card scrolling at
   two desktop heights and mobile overflow. Synthetic API fixtures make no live
