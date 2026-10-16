@@ -95,9 +95,9 @@ async function openUpdates() {
   await screen.findByRole("region", { name: "Update message delivery" });
 }
 
-it("offers Update message in the real recipient dropdown and shows current results from legacy updates", async () => {
+it("offers Trip update in the real recipient dropdown and shows current results from legacy updates", async () => {
   await openUpdates();
-  expect(screen.getByRole("option", { name: "Update message" })).toBeInTheDocument();
+  expect(screen.getByRole("option", { name: "Trip update" })).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "Sent 2" })).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "Failed 1" })).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "Not Sent 1" })).toBeInTheDocument();

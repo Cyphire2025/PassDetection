@@ -4,12 +4,11 @@ import dynamic from "next/dynamic";
 import { MessageCircle } from "lucide-react";
 import {
   WorkspacePageHeader,
-  WorkspaceSummaryStrip,
 } from "@/components/shared/workspace-ui";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const WhatsAppWorkspace = dynamic(
-  () => import("./whatsapp-workspace").then((module) => module.WhatsAppPage),
+  () => import("../workspace/broadcast-index").then((module) => module.BroadcastIndex),
   { loading: () => <WhatsAppWorkspaceLoading /> },
 );
 
@@ -26,11 +25,6 @@ function WhatsAppWorkspaceLoading() {
         icon={MessageCircle}
         accent="emerald"
       />
-      <WorkspaceSummaryStrip label="Loading WhatsApp operating summary">
-        {Array.from({ length: 4 }).map((_, index) => (
-          <Skeleton key={index} className="h-[72px] rounded-none" />
-        ))}
-      </WorkspaceSummaryStrip>
       <Skeleton className="h-14 w-full rounded-xl" />
       <Skeleton className="h-80 w-full rounded-xl" />
     </div>

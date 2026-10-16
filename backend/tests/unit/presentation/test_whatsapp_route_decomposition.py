@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ast
+import importlib
 import inspect
 
 from app.presentation.api.v1.routes import (
@@ -24,6 +25,11 @@ _EXPECTED_ROUTES = [
     (("GET",), "/groups/{group_id}/source-contacts", "get_broadcast_source_contacts"),
     (("GET",), "/groups", "list_broadcast_groups"),
     (("GET",), "/groups/{group_id}", "get_broadcast_group"),
+    (("GET",), "/groups/{group_id}/messages", "list_broadcast_messages"),
+    (("GET",), "/groups/{group_id}/messages/{message_id}", "get_broadcast_message"),
+    (("GET",), "/groups/{group_id}/messages/{message_id}/recipients", "list_message_recipients"),
+    (("POST",), "/groups/{group_id}/recipients/{recipient_id}/resend-update", "resend_saved_update"),
+    (("GET",), "/groups/{group_id}/passenger-links", "broadcast_passenger_links"),
     (("GET",), "/groups/{group_id}/recipient-roster", "get_broadcast_recipient_roster"),
     (("POST",), "/groups/{group_id}/export", "export_broadcast_filter"),
     (("GET",), "/groups/{group_id}/rejected-contacts", "list_broadcast_rejected_contacts"),
@@ -34,6 +40,7 @@ _EXPECTED_ROUTES = [
     ),
     (("POST",), "/groups/{group_id}/welcome-media", "upload_welcome_media"),
     (("POST",), "/groups/{group_id}/preview", "preview_broadcast_message"),
+    (("GET",), "/message-catalog", "message_catalog"),
     (("POST",), "/groups", "create_broadcast_group"),
     (("PATCH",), "/groups/{group_id}", "update_broadcast_group"),
     (("POST",), "/groups/{group_id}/recipients", "add_broadcast_recipients"),
@@ -187,6 +194,11 @@ def test_whatsapp_route_order_and_names_remain_stable() -> None:
             assert whatsapp.send_broadcast_message is whatsapp_send.send_broadcast_message
             assert route.endpoint.__module__ == whatsapp.__name__ + "_send_intents"
             assert inspect.getclosurevars(route.endpoint).nonlocals["queue"] is whatsapp_send.queue_broadcast_message
+        elif route.name in {"message_catalog", "get_broadcast_message", "list_broadcast_messages", "list_message_recipients", "broadcast_passenger_links", "resend_saved_update"}:
+            # New workspace routes live in their modules; the legacy facade only
+            # promises the public imports which existed before this workspace.
+            module = importlib.import_module(route.endpoint.__module__)
+            assert route.endpoint is getattr(module, route.name)
         else:
             assert route.endpoint is getattr(whatsapp, route.name)
         assert route.endpoint.__module__.startswith(whatsapp.__name__ + "_")

@@ -92,6 +92,8 @@ def add_frozen_broadcast_logs(
                 rendered_message=rendered,
                 header_parameter_values=headers,
                 template_parameter_values=parameters,
+                document_update_context={"passport_link_repeat": True}
+                if body.include_previous_recipients else None,
                 is_explicit_resend=False,
                 created_at=now,
             )
@@ -179,3 +181,9 @@ async def release_stale_broadcast_claims(
         )
         .execution_options(synchronize_session=False)
     )
+
+
+def send_suppression_statuses(message_type: str, suppress_unknown_reminders: bool, include_previous_recipients: bool) -> frozenset[str]:
+    if include_previous_recipients:
+        return frozenset({"queued", "processing", "delivery_unknown", "stalled"})
+    return broadcast_suppression_statuses(message_type, suppress_unknown_reminders)

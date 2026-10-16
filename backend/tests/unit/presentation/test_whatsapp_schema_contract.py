@@ -83,6 +83,11 @@ def test_whatsapp_route_reexports_reviewed_schema_contracts() -> None:
             message_type = schema["properties"]["message_type"]
             assert message_type["pattern"] == "^(welcome|passport_link|reminder|group_invite)$"
             message_type["pattern"] = "^(welcome|passport_link|reminder)$"
+            for field in ("include_previous_recipients",):
+                schema["properties"].pop(field)
+            if name == "WhatsAppResendRequest":
+                for field in ("source_message_log_id", "request_id"):
+                    schema["properties"].pop(field)
         if name in {
             "WhatsAppSendRequest", "WhatsAppResendRequest", "WhatsAppPreviewRequest", "WhatsAppPreviewResponse",
         }:

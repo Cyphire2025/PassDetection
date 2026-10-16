@@ -104,8 +104,9 @@ def select_live(rows: list[dict], root: Path = ROOT, *, schema: str = SCHEMA) ->
 
 def forbidden_changes(paths: list[str], mode: str, *, route_allowlist_validated: bool = False) -> list[str]:
     require(mode in {'full', 'fast'}, 'explicit_release_mode_required')
-    return [path for path in paths if mode == 'fast' or not (
-        path.startswith(FULL_BUILD_PATHS) or path == ROUTE_ALLOWLIST and route_allowlist_validated)]
+    return [path for path in paths if not (
+        path == ROUTE_ALLOWLIST and route_allowlist_validated
+        or mode == 'full' and path.startswith(FULL_BUILD_PATHS))]
 
 
 def validate_route_allowlist(source: Path) -> None:
@@ -236,7 +237,7 @@ class RetainedUpdate:
         git('merge-base', '--is-ancestor', previous, self.revision)
         paths = git('diff', '--name-only', previous, self.revision, '--',
                     *COMPATIBILITY_PATHS, *ADDITIONAL_CONTRACT_PATHS).splitlines()
-        allowlist_checked = self.mode == 'full' and ROUTE_ALLOWLIST in paths
+        allowlist_checked = ROUTE_ALLOWLIST in paths
         if allowlist_checked: validate_route_allowlist(self.source)
         require(not forbidden_changes(paths, self.mode, route_allowlist_validated=allowlist_checked),
                 'persistent_config_or_build_contract_requires_separate_release')

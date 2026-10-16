@@ -68,7 +68,7 @@ async function setup(page: Page) {
     if (path === "/api/v1/whatsapp/groups/new-broadcast/source-contacts") return json(route, {
       sources: [{ id: sourceId, name: sourceName, import_only: true }],
       total_contacts: 5, unique_phone_count: 2, shared_phone_count: 1, needs_attention_count: 2,
-      contacts: contacts.map(contact => ({ ...contact, source_group_id: sourceId, source_group_name: sourceName, source_import_only: true, recipient_id: contact.issue ? null : "recipient-0" })),
+      contacts: contacts.map(contact => ({ ...contact, source_group_id: sourceId, source_group_name: sourceName, source_import_only: true, recipient_id: contact.issue ? null : group.recipients.find((person) => person.normalized_phone_number === contact.normalized_phone_number)?.id ?? null })),
     });
     if (path === "/api/v1/whatsapp/groups/from-client-group" && request.method() === "POST") {
       requests.push(request.postDataJSON());
@@ -87,7 +87,7 @@ for (const viewport of [{ name: "desktop", width: 1440, height: 1080 }, { name: 
     const state = await setup(page);
     await page.setViewportSize(viewport);
     await page.goto("/whatsapp");
-    await page.getByRole("button", { name: "Create Broadcast", exact: true }).first().click();
+    await page.getByRole("button", { name: "Create broadcast", exact: true }).first().click();
     const dialog = page.getByRole("dialog", { name: "Create WhatsApp Broadcast Group" });
     await dialog.getByRole("radio", { name: "Create from existing group" }).check();
     await dialog.getByRole("combobox", { name: "Existing group" }).selectOption(sourceId);
@@ -116,13 +116,12 @@ for (const viewport of [{ name: "desktop", width: 1440, height: 1080 }, { name: 
       recipient_opt_in_confirmed: true, support_contacts: [{ name: "Travel Support", phone_number: "+919900001299" }],
     });
     expect(state.requests[0]).not.toHaveProperty("contacts");
-    await page.getByRole("button", { name: `Open actions for ${sourceName}` }).filter({ visible: true }).click();
-    await page.getByRole("button", { name: "Recipient List", exact: true }).click();
-    const recipientDialog = page.getByRole("dialog", { name: `Recipients — ${sourceName}` });
-    await recipientDialog.getByRole("button", { name: /^Travellers/ }).click();
-    await expect(recipientDialog.getByText("Meera Kapoor", { exact: true })).toBeVisible();
-    await expect(recipientDialog.getByText("Invalid Phone Traveller", { exact: true })).toBeVisible();
-    await expect(recipientDialog.getByText("Missing Phone Traveller", { exact: true })).toBeVisible();
+    await page.getByRole("link", { name: `Open ${sourceName}` }).click();
+    await page.getByRole("link", { name: "Recipients", exact: true }).click();
+    await expect(page.getByText("Meera Kapoor", { exact: true })).toBeVisible();
+    await page.getByRole("button", { name: /^Contact issues/ }).click();
+    await expect(page.getByText("Invalid Phone Traveller", { exact: true })).toBeVisible();
+    await expect(page.getByText("Missing Phone Traveller", { exact: true })).toBeVisible();
     await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.screenshot({ path: testInfo.outputPath(`retained-travellers-${viewport.name}.png`), fullPage: true, animations: "disabled" });
     expect(state.unexpectedMutations).toEqual([]);
@@ -133,7 +132,7 @@ for (const viewport of [{ name: "desktop", width: 1440, height: 1080 }, { name: 
 test("switching to an empty source clears the previous recipients and blocks creation", async ({ page }) => {
   const state = await setup(page);
   await page.goto("/whatsapp");
-  await page.getByRole("button", { name: "Create Broadcast", exact: true }).first().click();
+  await page.getByRole("button", { name: "Create broadcast", exact: true }).first().click();
   const dialog = page.getByRole("dialog", { name: "Create WhatsApp Broadcast Group" });
   await dialog.getByRole("radio", { name: "Create from existing group" }).check();
   await dialog.getByRole("combobox", { name: "Existing group" }).selectOption(sourceId);
@@ -149,7 +148,7 @@ test("reopening the source picker discovers a new group without reloading the pa
   const state = await setup(page);
   await page.goto("/whatsapp");
   const openDialog = async () => {
-    await page.getByRole("button", { name: "Create Broadcast", exact: true }).first().click();
+    await page.getByRole("button", { name: "Create broadcast", exact: true }).first().click();
     const dialog = page.getByRole("dialog", { name: "Create WhatsApp Broadcast Group" });
     await dialog.getByRole("radio", { name: "Create from existing group" }).check();
     return dialog;

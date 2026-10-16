@@ -224,9 +224,12 @@ class WhatsAppSendRequest(BaseModel):
     support_contact_ids: list[uuid.UUID] | None = Field(default=None, max_length=1)
     audience: Literal["all", "not_submitted"] = "all"
     audience_client_group_id: uuid.UUID | None = None
+    include_previous_recipients: bool = False
 
     @model_validator(mode="after")
     def validate_audience(self) -> WhatsAppSendRequest:
+        if self.include_previous_recipients and self.message_type != "passport_link":
+            raise ValueError("Previous recipients can be included only in a new passport-link message")
         if self.message_type != "reminder" and (
             self.audience != "all" or self.audience_client_group_id is not None
         ):
@@ -237,6 +240,9 @@ class WhatsAppSendRequest(BaseModel):
 
 
 class WhatsAppResendRequest(WhatsAppSendRequest):
+    source_message_log_id: uuid.UUID | None = None
+    request_id: uuid.UUID | None = None
+
     @model_validator(mode="after")
     def validate_resend_audience(self) -> WhatsAppResendRequest:
         if self.audience != "all" or self.audience_client_group_id is not None:

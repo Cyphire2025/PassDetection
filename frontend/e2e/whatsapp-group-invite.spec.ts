@@ -1,5 +1,6 @@
 import { expect, test, type Page, type Route } from "@playwright/test";
 import sharp from "sharp";
+import { catalog } from "./support/whatsapp-workspace-fixture";
 import type { WhatsAppBroadcastGroupDetail, WhatsAppMessageDraft } from "../features/whatsapp/api/whatsapp.api";
 
 const inviteLink = "https://chat.whatsapp.com/AbCdEfGhIjKlMnOpQrStUv?mode=ac_t";
@@ -68,6 +69,10 @@ async function mockInviteApi(page: Page, loseFirstSend = false) {
       activity_id: "invite-batch", kind: "broadcast", title: "Group invite broadcast", context_label: group.name, source_group_id: group.id, document_type: null,
       total: 2, queued: 2, sent: 0, failed: 0, delivery_unknown: 0, started_at: "2026-09-20T09:00:00Z", updated_at: "2026-09-20T09:00:00Z",
     });
+    if (path.endsWith("/message-catalog")) return json(route, catalog);
+    if (path.endsWith("/messages")) return json(route, { items: [], total: 0, offset: 0, limit: 25 });
+    if (path.endsWith("/messages/invite-batch")) return json(route, { id: "invite-batch", message_type: "group_invite", message_preview: "Saved group invitation", created_at: "2026-09-20T09:00:00Z", updated_at: "2026-09-20T09:00:00Z", counts: { all: 2, sent: 0, not_sent: 2, delivery_left: 0, failed: 0 } });
+    if (path.endsWith("/messages/invite-batch/recipients")) return json(route, { items: [], total: 0, offset: 0, limit: 50, counts: { all: 2, sent: 0, not_sent: 2, delivery_left: 0, failed: 0 } });
     if (request.method() === "GET") return json(route, []);
     unexpectedMutations.push(`${request.method()} ${path}`);
     return json(route, { detail: "Unexpected API request in isolated invite test." }, 400);
@@ -77,87 +82,67 @@ async function mockInviteApi(page: Page, loseFirstSend = false) {
 
 for (const viewport of [{ name: "desktop", width: 1440, height: 1080 }, { name: "mobile", width: 390, height: 844 }]) {
   test(`staff can queue an image group invite without a previous welcome on ${viewport.name}`, async ({ page }, testInfo) => {
-    test.setTimeout(90_000);
     const api = await mockInviteApi(page);
     const pageErrors: string[] = [];
     page.on("pageerror", (error) => pageErrors.push(error.message));
     await page.setViewportSize(viewport);
-    await page.goto("/whatsapp");
-    await page.getByRole("button", { name: "Open actions for September delegates" }).filter({ visible: true }).click();
-    await page.getByRole("button", { name: "Send group invite", exact: true }).click();
-    const dialog = page.getByRole("dialog", { name: "Send Group Invite" });
-    await expect(dialog).toBeVisible();
-    const messageInput = dialog.getByRole("textbox", { name: "Invitation message", exact: true });
-    const linkInput = dialog.getByRole("textbox", { name: "WhatsApp group invite link", exact: true });
-    const sendButton = dialog.getByRole("button", { name: /^Send individually to/ });
-    await expect(sendButton).toBeDisabled();
+    await page.goto("/whatsapp/invite-broadcast");
+    await page.getByRole("button", { name: /^Group invitation Invite recipients/ }).click();
+    const messageInput = page.getByRole("textbox", { name: "Invitation message", exact: true });
+    const linkInput = page.getByRole("textbox", { name: "WhatsApp group invite link", exact: true });
+    const reviewButton = page.getByRole("button", { name: "Review message", exact: true });
+    await expect(reviewButton).toBeDisabled();
     await messageInput.fill("Join our September delegates group for the final travel schedule.");
     await linkInput.fill("https://example.com/not-a-whatsapp-group");
-    await expect(sendButton).toBeDisabled();
+    await expect(reviewButton).toBeDisabled();
     await linkInput.fill(inviteLink);
-    const preview = dialog.getByTestId("whatsapp-message-preview");
+    const preview = page.getByTestId("broadcast-message-preview");
     await expect(preview).toHaveText(renderedMessage("Join our September delegates group for the final travel schedule.", inviteLink));
-    await expect(sendButton).toBeDisabled();
-    const imageInput = dialog.locator('input[type="file"]');
-    await expect(imageInput).toHaveCount(1);
+    await expect(reviewButton).toBeDisabled();
     const imageBytes = await sharp({ create: { width: 640, height: 360, channels: 3, background: { r: 30, g: 140, b: 170 } } }).png().toBuffer();
-    await imageInput.setInputFiles({ name: "invite.png", mimeType: "image/png", buffer: imageBytes });
-    await expect(dialog.getByRole("img", { name: "Selected Group invite image header" })).toBeVisible();
-    await expect.poll(() => dialog.getByRole("img", { name: "Selected Group invite image header" }).evaluate((image: HTMLImageElement) => image.naturalWidth)).toBe(640);
-    await expect(sendButton).toBeEnabled();
-    await expect(dialog).not.toContainText("Passport upload link");
-    await expect(dialog).not.toContainText("Welcome must be delivered");
-    await expect(dialog).not.toContainText("Welcome delivery must be confirmed first");
-    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-    const screenshot = testInfo.outputPath(`whatsapp-group-invite-${viewport.name}.png`);
-    await page.screenshot({ path: screenshot, animations: "disabled", fullPage: true });
-    await testInfo.attach(`Group invite composer — ${viewport.name}`, { path: screenshot, contentType: "image/png" });
-    await preview.scrollIntoViewIfNeeded();
-    await expect(preview).toBeVisible();
-    await expect(sendButton).toBeVisible();
-    if (viewport.name === "mobile") {
-      const previewScreenshot = testInfo.outputPath("whatsapp-group-invite-mobile-preview.png");
-      await page.screenshot({ path: previewScreenshot, animations: "disabled", fullPage: true });
-      await testInfo.attach("Mobile invitation preview", { path: previewScreenshot, contentType: "image/png" });
-    }
-    await sendButton.click();
-    await expect(dialog).toHaveCount(0);
+    await page.getByLabel("Header image", { exact: true }).setInputFiles({ name: "invite.png", mimeType: "image/png", buffer: imageBytes });
+    await expect(page.getByRole("img", { name: "Message header", exact: true })).toBeVisible();
+    await expect.poll(() => page.getByRole("img", { name: "Message header", exact: true }).evaluate((image: HTMLImageElement) => image.naturalWidth)).toBe(640);
+    await expect(reviewButton).toBeEnabled();
+    await expect(page.getByText("Welcome must be delivered", { exact: true })).toHaveCount(0);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    await page.screenshot({ path: testInfo.outputPath(`whatsapp-group-invite-${viewport.name}.png`), animations: "disabled", fullPage: true });
+    await reviewButton.click();
+    await page.getByRole("dialog").getByRole("button", { name: "Send 2 messages", exact: true }).click();
+    await expect(page).toHaveURL(/history\?message=invite-batch/);
     expect(api.sends).toHaveLength(1);
     expect(api.sendKeys[0]).toMatch(/^[0-9a-f-]{36}$/);
     expect(api.sends[0]).toMatchObject({ message_type: "group_invite", message_content: "Join our September delegates group for the final travel schedule.", group_invite_link: inviteLink, header_image_id: "uploaded-invite-photo" });
+    expect(api.sends[0]).not.toHaveProperty("recipient_id");
     expect(api.uploads).toHaveLength(1);
     expect(api.uploads[0]).toContain("multipart/form-data");
-    expect(api.previews.at(-1)).toMatchObject({ message_type: "group_invite", group_invite_link: inviteLink });
     expect(api.unexpectedMutations).toEqual([]);
     expect(pageErrors).toEqual([]);
   });
 }
 
 test("a lost group-invite receipt survives page reload with the same key, body and uploaded image", async ({ page }) => {
-  test.setTimeout(90_000);
   const api = await mockInviteApi(page, true);
   const imageBytes = await sharp({ create: { width: 64, height: 64, channels: 3, background: { r: 30, g: 140, b: 170 } } }).png().toBuffer();
   const openReviewedInvite = async () => {
-    await page.getByRole("button", { name: "Open actions for September delegates" }).filter({ visible: true }).click();
-    await page.getByRole("button", { name: "Send group invite", exact: true }).click();
-    const dialog = page.getByRole("dialog", { name: "Send Group Invite" });
-    await dialog.getByRole("textbox", { name: "Invitation message", exact: true }).fill(inviteMessage);
-    await dialog.getByRole("textbox", { name: "WhatsApp group invite link", exact: true }).fill(inviteLink);
-    await dialog.locator('input[type="file"]').setInputFiles({ name: "invite.png", mimeType: "image/png", buffer: imageBytes });
-    const send = dialog.getByRole("button", { name: /^Send individually to/ });
-    await expect(send).toBeEnabled();
-    return { dialog, send };
+    await page.getByRole("button", { name: /^Group invitation Invite recipients/ }).click();
+    await page.getByRole("textbox", { name: "Invitation message", exact: true }).fill(inviteMessage);
+    await page.getByRole("textbox", { name: "WhatsApp group invite link", exact: true }).fill(inviteLink);
+    await page.getByLabel("Header image", { exact: true }).setInputFiles({ name: "invite.png", mimeType: "image/png", buffer: imageBytes });
+    const review = page.getByRole("button", { name: "Review message", exact: true });
+    await expect(review).toBeEnabled();
+    await review.click();
+    return page.getByRole("dialog");
   };
-  await page.goto("/whatsapp");
+  await page.goto("/whatsapp/invite-broadcast");
   const first = await openReviewedInvite();
-  await first.send.click();
+  await first.getByRole("button", { name: "Send 2 messages", exact: true }).click();
   await expect.poll(() => api.sends.length).toBe(1);
-  await expect(first.dialog.getByRole("alert")).toBeVisible();
-  await expect(first.send).toBeEnabled();
+  await expect(first.getByRole("alert")).toBeVisible();
   await page.reload();
   const recovered = await openReviewedInvite();
-  await recovered.send.click();
-  await expect(recovered.dialog).toHaveCount(0);
+  await recovered.getByRole("button", { name: "Send 2 messages", exact: true }).click();
+  await expect(page).toHaveURL(/history\?message=invite-batch/);
   expect(api.sends).toHaveLength(2);
   expect(api.sends[1]).toEqual(api.sends[0]);
   expect(api.sendKeys[0]).toMatch(/^[0-9a-f-]{36}$/);

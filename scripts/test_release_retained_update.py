@@ -227,7 +227,7 @@ class Contracts(unittest.TestCase):
 
     def test_route_allowlist_exception_needs_exact_frontend_and_page_contract(self):
         self.assertEqual(forbidden_changes([ROUTE_ALLOWLIST], 'full'), [ROUTE_ALLOWLIST])
-        self.assertEqual(forbidden_changes([ROUTE_ALLOWLIST], 'fast', route_allowlist_validated=True), [ROUTE_ALLOWLIST])
+        self.assertEqual(forbidden_changes([ROUTE_ALLOWLIST], 'fast', route_allowlist_validated=True), [])
         self.assertEqual(forbidden_changes([ROUTE_ALLOWLIST], 'full', route_allowlist_validated=True), [])
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

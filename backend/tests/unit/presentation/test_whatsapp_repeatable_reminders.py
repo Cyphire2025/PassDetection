@@ -84,7 +84,7 @@ async def broadcast(db_session, monkeypatch, test_settings):
     monkeypatch.setitem(
         sys.modules,
         "app.infrastructure.whatsapp.tasks",
-        SimpleNamespace(process_whatsapp_broadcast=object()),
+        SimpleNamespace(process_whatsapp_broadcast=object(), process_document_update_broadcast=object()),
     )
     group = WhatsAppBroadcastGroupModel(
         id=uuid.uuid4(),

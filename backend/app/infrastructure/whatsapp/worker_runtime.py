@@ -118,7 +118,7 @@ async def _set_message_state(
         WhatsAppRecipientMessageStateModel.message_type == log.message_type,
     ]
     if submitted:
-        if log.message_type == "reminder":
+        if log.message_type in {"reminder", "passport_link"}:
             # An earlier reminder completing late must not consume a newer
             # deliberate reminder's claim or move its delivery timestamps.
             predicates.append(WhatsAppRecipientMessageStateModel.batch_id == expected_batch_id)
@@ -190,7 +190,7 @@ async def _load_sendable_recipient(
     if log.message_type == "passport_link":
         phone_blocks = await message_phone_blocking_statuses(
             session, [recipient], message_type="passport_link", current_log=log,
-            include_accepted=not log.is_explicit_resend,
+            include_accepted=not (log.is_explicit_resend or (getattr(log, "document_update_context", None) or {}).get("passport_link_repeat") is True),
         )
         if recipient.id in phone_blocks:
             return None, passport_link_block_message(phone_blocks[recipient.id])

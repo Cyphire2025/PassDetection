@@ -50,8 +50,8 @@ from app.presentation.api.v1.routes.whatsapp_roster_support import (
 from app.presentation.api.v1.routes.whatsapp_send_intents import register_send_http_route
 from app.presentation.api.v1.routes.whatsapp_send_support import (
     add_frozen_broadcast_logs,
-    broadcast_suppression_statuses,
     release_stale_broadcast_claims,
+    send_suppression_statuses,
     unclaimed_delivery_counts,
 )
 from app.presentation.api.v1.routes.whatsapp_shared import (
@@ -250,11 +250,12 @@ async def queue_broadcast_message(
         support_contact_ids=merged_body.support_contact_ids,
         audience=merged_body.audience,
         audience_client_group_id=merged_body.audience_client_group_id,
+        include_previous_recipients=body.include_previous_recipients,
     )
     batch_id = uuid.uuid4()
     now = datetime.now(tz=UTC)
     stale_cutoff = now - WHATSAPP_STALE_CLAIM_AGE
-    suppressed_statuses = broadcast_suppression_statuses(message_type, suppress_unknown_reminders)
+    suppressed_statuses = send_suppression_statuses(message_type, suppress_unknown_reminders, body.include_previous_recipients)
     if suppress_unknown_reminders:
         recorded_states = await session.scalars(
             select(WhatsAppRecipientMessageStateModel.status)
@@ -278,7 +279,7 @@ async def queue_broadcast_message(
     )
 
     active_explicit_reminder_ids = (
-        await _active_explicit_reminder_recipient_ids(session, recipients)
+        await _active_explicit_reminder_recipient_ids(session, recipients, message_type)
         if message_type == "reminder"
         else set()
     )
@@ -299,7 +300,7 @@ async def queue_broadcast_message(
     invite_blocks = (
         await group_invite_blocking_statuses(session, recipients)
         if message_type == "group_invite"
-        else await message_phone_blocking_statuses(session, recipients, message_type=message_type)
+        else await message_phone_blocking_statuses(session, recipients, message_type=message_type, include_accepted=not body.include_previous_recipients)
         if message_type == "passport_link"
         else {}
     )

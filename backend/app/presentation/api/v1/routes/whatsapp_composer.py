@@ -67,7 +67,6 @@ from app.presentation.dependencies.csrf import require_cookie_csrf
 
 router = APIRouter()
 
-
 @router.post(
     "/groups/{group_id}/welcome-media",
     response_model=WhatsAppWelcomeMediaResponse,
@@ -325,6 +324,7 @@ async def preview_broadcast_message(
             session,
             recipients=recipients,
             message_type=message_type,
+            include_previous_recipients=body.include_previous_recipients,
         )
     template_name = await configured_template_name(session, message_type)
     preview_response = WhatsAppPreviewResponse(

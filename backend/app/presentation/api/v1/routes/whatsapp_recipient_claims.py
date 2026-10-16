@@ -53,7 +53,7 @@ async def claim_broadcast_recipient_rows(
                     "submitted_at": None,
                     "status_updated_at": now,
                     "updated_at": now,
-                    **({"provider_status_at": None} if message_type == "reminder" else {}),
+                    "provider_status_at": None,
                 },
                 where=or_(
                     ~WhatsAppRecipientMessageStateModel.status.in_(suppressed_statuses),

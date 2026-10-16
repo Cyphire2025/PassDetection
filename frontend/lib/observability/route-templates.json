@@ -73,5 +73,10 @@
   "/upload-links",
   "/upload/[token]",
   "/whatsapp",
+  "/whatsapp/[broadcastId]",
+  "/whatsapp/[broadcastId]/details",
+  "/whatsapp/[broadcastId]/documents",
+  "/whatsapp/[broadcastId]/history",
+  "/whatsapp/[broadcastId]/recipients",
   "unknown"
 ]

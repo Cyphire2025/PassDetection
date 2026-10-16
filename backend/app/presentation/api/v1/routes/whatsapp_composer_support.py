@@ -502,4 +502,5 @@ def _merge_composer_snapshot(
         support_contact_ids=body.support_contact_ids,
         audience=body.audience,
         audience_client_group_id=body.audience_client_group_id,
+        include_previous_recipients=body.include_previous_recipients,
     )
