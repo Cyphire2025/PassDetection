@@ -138,7 +138,9 @@ def _provider_configuration_ready(settings: Settings) -> bool:
     return True
 
 
-def _scheduler_heartbeat_exists(settings: Settings) -> bool:
+def _scheduler_heartbeat_exists(
+    settings: Settings, *, heartbeat_key: str = EMAIL_SCHEDULER_HEARTBEAT_KEY,
+) -> bool:
     timeout = settings.processing_worker_ping_timeout_seconds
     client = Redis.from_url(
         settings.redis.broker_url,
@@ -147,7 +149,7 @@ def _scheduler_heartbeat_exists(settings: Settings) -> bool:
         decode_responses=True,
     )
     try:
-        return bool(client.get(EMAIL_SCHEDULER_HEARTBEAT_KEY))
+        return bool(client.get(heartbeat_key))
     except Exception:
         return False
     finally:

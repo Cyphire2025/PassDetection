@@ -170,6 +170,9 @@ for document lifecycle and mobile notification work as well as email work.
 Its dedicated `PausedFeatureScheduler` excludes periodic email/My Photos
 entries before merging the persistent Beat schedule, so stopped feature queues
 do not accumulate newly scheduled jobs. Existing queued jobs are preserved.
+The scheduler's container healthcheck switches to the executed platform
+heartbeat when email is disabled; an expired email-worker heartbeat is not a
+dependency of the paused profile. Missing platform heartbeats still fail health.
 
 The backend receives 3584 MiB instead of 2560 MiB, with the same hard memory
 and memory-plus-swap ceiling. Other serving limits are unchanged. The active
