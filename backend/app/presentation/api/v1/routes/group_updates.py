@@ -25,11 +25,12 @@ from app.presentation.api.v1.routes.document_distribution_scope import (
 )
 from app.presentation.api.v1.routes.document_update_preview import fingerprint
 from app.presentation.api.v1.routes.group_update_preview import build_group_update_preview
-from app.presentation.api.v1.schemas.document_update_schemas import SendDocumentUpdateResponse
 from app.presentation.api.v1.schemas.group_update_schemas import (
     GroupUpdateAudience,
+    GroupUpdateBatch,
     GroupUpdatePreview,
     SendGroupUpdateRequest,
+    SendGroupUpdateResponse,
 )
 from app.presentation.dependencies.auth import get_current_active_user
 from app.presentation.dependencies.csrf import require_cookie_csrf
@@ -47,13 +48,13 @@ async def preview_group_update(
     return await build_group_update_preview(session, group=group, audience=audience)
 
 
-@router.post("/groups/{group_id}/updates/send", response_model=SendDocumentUpdateResponse,
+@router.post("/groups/{group_id}/updates/send", response_model=SendGroupUpdateResponse,
              dependencies=[Depends(require_cookie_csrf)])
 async def send_group_update(
     group_id: uuid.UUID, payload: SendGroupUpdateRequest,
     current_user: User = Depends(get_current_active_user),
     session: AsyncSession = Depends(get_db_session),
-) -> SendDocumentUpdateResponse:
+) -> SendGroupUpdateResponse:
     group = await _get_authorized_group(group_id, current_user=current_user, session=session)
     _, group = await _lock_active_document_scope(
         session, current_user=current_user, group_id=group.id, agency_id=group.agency_id,
@@ -72,7 +73,7 @@ async def send_group_update(
     if existing:
         if existing.request_hash != request_hash:
             raise HTTPException(409, "This request already has different details. Refresh the preview.")
-        return SendDocumentUpdateResponse.model_validate(existing.initial_response)
+        return SendGroupUpdateResponse.model_validate(existing.initial_response)
     preview = await build_group_update_preview(session, group=group, audience=payload.audience, lock=True)
     if not hmac.compare_digest(payload.preview_token, preview.preview_token):
         raise HTTPException(409, "The audience or delivery status changed. Refresh the preview before sending.")
@@ -94,18 +95,20 @@ async def send_group_update(
     phones = defaultdict(list)
     for row in rows:
         phones[row.phone_number].append(row)
-    response = SendDocumentUpdateResponse(
-        request_id=payload.request_id, queued_count=len(phones), passenger_count=len(rows),
-        message=f"Queued {len(phones)} update messages for {len(rows)} people.",
-    )
     by_broadcast = defaultdict(list)
     for phone, associated in sorted(phones.items()):
         representative = min(associated, key=lambda row: (str(row.broadcast_group_id), str(row.recipient_id)))
         by_broadcast[representative.broadcast_group_id].append((phone, representative, associated))
+    batches = [GroupUpdateBatch(batch_id=uuid.uuid4(), broadcast_group_id=broadcast_id, queued_count=len(targets))
+               for broadcast_id, targets in sorted(by_broadcast.items(), key=lambda pair: str(pair[0]))]
+    response = SendGroupUpdateResponse(
+        request_id=payload.request_id, queued_count=len(phones), passenger_count=len(rows),
+        message=f"Queued {len(phones)} update messages for {len(rows)} people.", batches=batches,
+    )
     intent_ids = []
     now = datetime.now(UTC)
     for index, (broadcast_id, targets) in enumerate(sorted(by_broadcast.items(), key=lambda pair: str(pair[0]))):
-        batch_id = uuid.uuid4()
+        batch_id = batches[index].batch_id
         for phone, representative, associated in targets:
             session.add(WhatsAppMessageLogModel(
                 id=uuid.uuid4(), batch_id=batch_id, agency_id=group.agency_id,

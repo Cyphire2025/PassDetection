@@ -28,12 +28,65 @@ beforeEach(() => {
     latest_update_status: status, latest_update_at: status ? "2026-10-16T06:00:00Z" : null, update_attempt_count: status ? 1 : 0,
     latest_update: status ? { id: `attempt:${i}`, status, phone_number: i === 1 ? "+918888888888" : `+91999999999${i}`, created_at: "2026-10-16T05:00:00Z", status_updated_at: "2026-10-16T06:00:00Z", message: "Dear Delegates\nYour visa is being processed.", error: status === "failed" ? "131049: Provider declined delivery" : null, template_name: "pending_v1", provider_message_id: "wamid.saved", document_type: "visa" } : null,
   }));
+  rows[2].submission_status = "not_submitted";
+  rows[2].phone_source = "imported";
+  rows[2].passenger_id = null;
+  rows[2].document_count = 0;
+  rows[0].confirmed_count = 1;
+  rows[5].confirmed_count = 1;
   vi.mocked(whatsappApi.group).mockResolvedValue(group);
   vi.mocked(whatsappApi.recipientRoster).mockResolvedValue({ items: [], counts: { all: 0, sent: 0, failed: 0, rejected: 0, replaced: 0, unidentified: 0 } });
   vi.spyOn(whatsappSourceGroupsApi, "groupContacts").mockResolvedValue({ sources: [], contacts: [], total_contacts: 0, unique_phone_count: 0, shared_phone_count: 0, needs_attention_count: 0 });
   vi.mocked(groupUpdatesApi.preview).mockImplementation(async (groupId, audience) => ({ group_id: groupId, audience, recipients: rows, can_send: true, preview_token: "a".repeat(64), template_name: "pending_v1", template_language: "en", configuration_error: null }));
 });
-afterEach(() => { cleanup(); vi.restoreAllMocks(); });
+
+it.each([
+  ["All", "All", 6], ["All", "Sent", 2], ["All", "Pending", 4],
+  ["Submitted", "All", 5], ["Submitted", "Sent", 2], ["Submitted", "Pending", 3],
+  ["Not submitted", "All", 1], ["Not submitted", "Sent", 0], ["Not submitted", "Pending", 1],
+])("combines submission %s and distribution %s with matching delivery counts", async (submission, distribution, count) => {
+  await openUpdates();
+  fireEvent.click(screen.getByRole("radio", { name: `Document submission: ${submission}` }));
+  fireEvent.click(screen.getByRole("radio", { name: `Document distribution: ${distribution}` }));
+  expect(screen.getByRole("button", { name: `All ${count}` })).toBeInTheDocument();
+  expect(within(screen.getByRole("region", { name: "Update message delivery" })).getAllByRole("row")).toHaveLength(Number(count) + 1);
+  expect(groupUpdatesApi.send).not.toHaveBeenCalled();
+});
+
+it("intersects document audience, delivery failure and search without losing historical details", async () => {
+  await openUpdates();
+  fireEvent.click(screen.getByRole("radio", { name: "Document submission: Submitted" }));
+  fireEvent.click(screen.getByRole("radio", { name: "Document distribution: Pending" }));
+  expect(screen.getByRole("button", { name: "All 3" })).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Sent 0" })).toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: "Failed 1" }));
+  fireEvent.change(screen.getByRole("searchbox", { name: "Search update delivery" }), { target: { value: "P1234561" } });
+  const region = screen.getByRole("region", { name: "Update message delivery" });
+  expect(within(region).getByText("Traveller 1")).toBeInTheDocument();
+  expect(within(region).queryByText("Traveller 0")).not.toBeInTheDocument();
+  expect(screen.getByText(/with a saved update attempt/)).toHaveTextContent("1 with a saved update attempt");
+  fireEvent.click(within(region).getByText("View recipient & update details"));
+  expect(await within(region).findByText("+918888888888")).toBeInTheDocument();
+  expect(within(region).getByText("Dear Delegates Your visa is being processed.")).toBeInTheDocument();
+  expect(groupUpdatesApi.send).not.toHaveBeenCalled();
+});
+
+it("filters document distribution independently for all four flight sections", async () => {
+  vi.mocked(groupUpdatesApi.preview).mockImplementation(async (groupId, audience) => ({
+    group_id: groupId, audience, can_send: true, preview_token: "a".repeat(64), template_name: "pending_v1", template_language: "en", configuration_error: null,
+    recipients: rows.map((row, index) => ({ ...row, confirmed_count: audience.document_type === "visa" ? row.confirmed_count : index === 1 ? row.document_count : 0 })),
+  }));
+  await openUpdates();
+  fireEvent.click(screen.getByRole("radio", { name: "Document distribution: Sent" }));
+  for (const lane of ["flight_ticket", "flight_ticket_arrival", "flight_ticket_domestic", "flight_ticket_domestic_arrival"]) {
+    fireEvent.change(screen.getByLabelText("Document type"), { target: { value: lane } });
+    expect(await screen.findByRole("button", { name: "All 1" })).toBeInTheDocument();
+    expect(within(screen.getByRole("region", { name: "Update message delivery" })).getByText("Traveller 1")).toBeInTheDocument();
+    expect(groupUpdatesApi.preview).toHaveBeenCalledWith("trip", { submission_status: "all", document_status: "all", document_type: lane }, expect.any(AbortSignal));
+  }
+  expect(groupUpdatesApi.send).not.toHaveBeenCalled();
+});
+afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
 async function openUpdates() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
@@ -85,4 +138,24 @@ it("supports exact result filtering and excludes other broadcasts", async () => 
   fireEvent.change(screen.getByLabelText("Message type"), { target: { value: "welcome" } });
   expect(screen.queryByRole("region", { name: "Update message delivery" })).not.toBeInTheDocument();
   expect(screen.getByRole("option", { name: "Welcome message" })).toBeInTheDocument();
+});
+
+it("exports only the recipients matching the combined document and update filters", async () => {
+  const blobs: Blob[] = [];
+  vi.stubGlobal("URL", class extends URL {
+    static createObjectURL(blob: Blob) { blobs.push(blob); return "blob:filtered-updates"; }
+    static revokeObjectURL() {}
+  });
+  vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+  await openUpdates();
+  fireEvent.click(screen.getByRole("radio", { name: "Document submission: Submitted" }));
+  fireEvent.click(screen.getByRole("radio", { name: "Document distribution: Pending" }));
+  fireEvent.click(screen.getByRole("button", { name: "Failed 1" }));
+  fireEvent.click(screen.getByRole("button", { name: "Export CSV" }));
+  const csv = await new Promise<string>(resolve => {
+    const reader = new FileReader(); reader.onload = () => resolve(String(reader.result)); reader.readAsText(blobs[0]);
+  });
+  expect(csv).toContain("Traveller 1");
+  for (const index of [0, 2, 3, 4, 5]) expect(csv).not.toContain(`Traveller ${index}`);
+  expect(groupUpdatesApi.send).not.toHaveBeenCalled();
 });

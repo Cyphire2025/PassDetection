@@ -6,7 +6,7 @@ import type { WhatsAppMessageType } from "../api/whatsapp.api";
 import styles from "./whatsapp-broadcast-motion.module.css";
 
 export type BroadcastMotionState = "submitting" | "sending" | "complete" | "attention" | "reconnecting";
-type BroadcastMotionMessageType = WhatsAppMessageType | "document";
+type BroadcastMotionMessageType = WhatsAppMessageType | "document" | "document_update";
 
 /** Illustrative dispatch activity. Counts and delivery outcomes belong to the caller. */
 export function WhatsAppBroadcastMotion({

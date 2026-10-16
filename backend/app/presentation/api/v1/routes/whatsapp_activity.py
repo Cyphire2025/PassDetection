@@ -55,6 +55,7 @@ _BROADCAST_TITLES = {
     "passport_link": "Passport link broadcast",
     "reminder": "Reminder broadcast",
     "group_invite": "WhatsApp group invite broadcast",
+    "document_update": "Update message broadcast",
 }
 
 
@@ -302,7 +303,8 @@ def _broadcast_failures_statement(*, batch_id: uuid.UUID, current_user: User) ->
     statement = (
         select(
             WhatsAppBroadcastRecipientModel.name.label("recipient_name"),
-            WhatsAppBroadcastRecipientModel.normalized_phone_number.label("phone_number"),
+            func.coalesce(WhatsAppMessageLogModel.normalized_phone_number,
+                          WhatsAppBroadcastRecipientModel.normalized_phone_number).label("phone_number"),
             WhatsAppMessageLogModel.error_message.label("error_message"),
         )
         .join(

@@ -26,6 +26,9 @@ from app.infrastructure.database.models import (
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
 )
+from app.infrastructure.repositories.passport_whatsapp_comparison_cache import (
+    PassportWhatsAppComparisonCache,
+)
 from app.infrastructure.repositories.passport_whatsapp_matching_repository import (
     load_unresolved_passport_whatsapp_match_context,
 )
@@ -34,6 +37,7 @@ from app.infrastructure.repositories.passport_whatsapp_matching_repository impor
 async def load_group_update_audience(
     session: AsyncSession, *, agency_id: uuid.UUID, group_id: uuid.UUID,
     filters: GroupUpdateFilters, lock: bool = False,
+    comparison_cache: PassportWhatsAppComparisonCache | None = None,
 ) -> list[GroupUpdateContact]:
     """Combine completed group submissions and active linked broadcast contacts.
 
@@ -82,6 +86,7 @@ async def load_group_update_audience(
                                   .with_for_update().execution_options(populate_existing=True))
     _, recipients, submissions, matches = await load_unresolved_passport_whatsapp_match_context(
         session, group_id=group_id, agency_id=agency_id, broadcast_group_ids=broadcasts,
+        comparison_cache=comparison_cache,
     )
     recipients_by_id = {row.id: row for row in recipients if row.merged_into_recipient_id is None}
     submissions_by_id = {row.id: row for row in submissions}

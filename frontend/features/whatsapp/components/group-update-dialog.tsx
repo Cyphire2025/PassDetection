@@ -13,6 +13,7 @@ import { GroupUpdateAudienceFields } from "./group-update-audience";
 import { GroupUpdateRecipientPicker } from "./group-update-recipient-picker";
 import { MessageComposerSection, MessageDeliveryPreview } from "./whatsapp-message-composer-ui";
 import { DialogFrame, ErrorBanner } from "./whatsapp-dialog-ui";
+import { useWhatsAppActivityTracker } from "./whatsapp-activity-tracker";
 
 export function GroupUpdateDialog({ groupId, groupName, broadcastGroupId, onClose }: {
   groupId: string; groupName: string; broadcastGroupId?: string; onClose: () => void;
@@ -20,6 +21,7 @@ export function GroupUpdateDialog({ groupId, groupName, broadcastGroupId, onClos
   const textId = useId();
   const recipientId = useId();
   const queryClient = useQueryClient();
+  const { registerActivity } = useWhatsAppActivityTracker();
   const [audience, setAudience] = useState<GroupUpdateAudience>({ submission_status: "all", document_status: "all", document_type: "visa" });
   const allAudience = useGroupUpdateAudience(groupId, audience.document_type);
   const preview = useQuery({
@@ -34,7 +36,14 @@ export function GroupUpdateDialog({ groupId, groupName, broadcastGroupId, onClos
   const [submittedRequest, setSubmittedRequest] = useState<GroupUpdateRequest | null>(null);
   const send = useMutation({
     mutationFn: (request: GroupUpdateRequest) => groupUpdatesApi.send(groupId, request),
-    onSuccess: () => { void queryClient.invalidateQueries({ queryKey: ["group-update-preview", groupId] }); },
+    onSuccess: result => {
+      for (const batch of result.batches ?? []) registerActivity({
+        id: batch.batch_id, kind: "broadcast", messageType: "document_update", startedAt: Date.now(),
+        title: "Update message broadcast", contextLabel: groupName, sourceGroupId: batch.broadcast_group_id,
+        documentType: null, total: batch.queued_count, queued: batch.queued_count, sent: 0, failed: 0, deliveryUnknown: 0,
+      });
+      void queryClient.invalidateQueries({ queryKey: ["group-update-preview", groupId] });
+    },
     onError: (error: ApiError) => { if ([400, 403, 404, 409, 422].includes(error.status ?? 0)) setSubmittedRequest(null); },
   });
   const rows = (preview.data?.recipients ?? []).filter(row => !broadcastGroupId || row.broadcast_group_id === broadcastGroupId);

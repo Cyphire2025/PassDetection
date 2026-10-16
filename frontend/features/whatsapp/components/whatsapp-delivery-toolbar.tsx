@@ -1,6 +1,7 @@
 "use client";
 
 import { RotateCw } from "lucide-react";
+import type { ReactNode } from "react";
 import { Button } from "@/components/ui";
 import { formatMessageType } from "../utils/message-types";
 import type { WhatsAppRecipientRosterTab } from "../utils/recipient-roster";
@@ -26,7 +27,7 @@ export function deliveryFilterLabel(filter: WhatsAppRecipientRosterTab) {
     ?? filter;
 }
 
-export function DeliveryToolbar({ messageTypes, messageType, onMessageTypeChange, filter, onFilterChange, counts, disabled, refreshing, onRefresh, showContactFilters = true }: {
+export function DeliveryToolbar({ messageTypes, messageType, onMessageTypeChange, filter, onFilterChange, counts, disabled, refreshing, onRefresh, showContactFilters = true, children }: {
   messageTypes: string[];
   messageType: string;
   onMessageTypeChange: (type: string) => void;
@@ -37,6 +38,7 @@ export function DeliveryToolbar({ messageTypes, messageType, onMessageTypeChange
   refreshing: boolean;
   onRefresh: () => void;
   showContactFilters?: boolean;
+  children?: ReactNode;
 }) {
   const contactFilter = CONTACT_FILTERS.some(({ id }) => id === filter);
   return <div className="space-y-4">
@@ -58,6 +60,7 @@ export function DeliveryToolbar({ messageTypes, messageType, onMessageTypeChange
         {messageType === "group_invite" && <p className="mt-1">Previously sent invites are excluded from retries, including when the template changes.</p>}
       </div>
     </div>
+    {children}
     <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Recipient delivery filters">
       {DELIVERY_FILTERS.map(({ id, label }) => <button key={id} type="button" aria-label={`${label} ${counts[id].toLocaleString()}`} aria-pressed={filter === id} disabled={disabled} onClick={() => onFilterChange(id)} className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-50 ${filter === id ? "border-blue-600 bg-blue-600 text-white" : "border-slate-200 bg-white text-slate-600 hover:border-blue-200 hover:bg-blue-50"}`}>
         {label}<span className={`rounded px-1.5 py-0.5 tabular-nums ${filter === id ? "bg-white/20" : "bg-slate-100 text-slate-500"}`}>{counts[id].toLocaleString()}</span>

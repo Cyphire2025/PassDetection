@@ -7,6 +7,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from app.application.use_cases.whatsapp.group_updates import GroupUpdateFilters
+from app.presentation.api.v1.schemas.document_update_schemas import SendDocumentUpdateResponse
 
 
 class GroupUpdateAudience(BaseModel):
@@ -74,3 +75,13 @@ class SendGroupUpdateRequest(BaseModel):
     audience: GroupUpdateAudience
     audience_keys: list[str] = Field(min_length=1, max_length=1500)
     message_content: str = Field(min_length=1, max_length=600)
+
+
+class GroupUpdateBatch(BaseModel):
+    batch_id: uuid.UUID
+    broadcast_group_id: uuid.UUID
+    queued_count: int
+
+
+class SendGroupUpdateResponse(SendDocumentUpdateResponse):
+    batches: list[GroupUpdateBatch] = Field(default_factory=list)

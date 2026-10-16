@@ -35,6 +35,9 @@ from app.infrastructure.database.models import (
     WhatsAppBroadcastGroupModel,
     WhatsAppBroadcastRecipientModel,
 )
+from app.infrastructure.repositories.passport_whatsapp_comparison_cache import (
+    PassportWhatsAppComparisonCache,
+)
 
 TARGETED_MATCH_CLUSTER_LIMIT = 64
 _TARGETED_MATCH_TOKEN_LIMIT = 256
@@ -494,6 +497,7 @@ async def load_unresolved_passport_whatsapp_match_context(
     group_id: uuid.UUID,
     agency_id: uuid.UUID,
     broadcast_group_ids: list[uuid.UUID] | tuple[uuid.UUID, ...] | None = None,
+    comparison_cache: PassportWhatsAppComparisonCache | None = None,
 ) -> tuple[
     dict[uuid.UUID, str],
     list[WhatsAppBroadcastRecipientModel],
@@ -595,9 +599,17 @@ async def load_unresolved_passport_whatsapp_match_context(
     ]
     # Large configurable rosters must not monopolize the API event loop. Only
     # materialized comparison values cross this boundary, never the async session.
-    rows, _counts = await asyncio.to_thread(
-        compare_group_submissions,
-        recipient_values,
-        submission_values,
-    )
+    if comparison_cache is None:
+        rows, _counts = await asyncio.to_thread(
+            compare_group_submissions,
+            recipient_values,
+            submission_values,
+        )
+    else:
+        rows = await comparison_cache.compare(
+            agency_id=agency_id,
+            group_id=group_id,
+            recipients=recipient_values,
+            submissions=submission_values,
+        )
     return linked_broadcasts, recipient_models, submission_models, rows

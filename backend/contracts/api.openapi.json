@@ -15149,6 +15149,31 @@
         "title": "GroupUpdateAudience",
         "type": "object"
       },
+      "GroupUpdateBatch": {
+        "properties": {
+          "batch_id": {
+            "format": "uuid",
+            "title": "Batch Id",
+            "type": "string"
+          },
+          "broadcast_group_id": {
+            "format": "uuid",
+            "title": "Broadcast Group Id",
+            "type": "string"
+          },
+          "queued_count": {
+            "title": "Queued Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "batch_id",
+          "broadcast_group_id",
+          "queued_count"
+        ],
+        "title": "GroupUpdateBatch",
+        "type": "object"
+      },
       "GroupUpdatePreview": {
         "properties": {
           "audience": {
@@ -31395,6 +31420,42 @@
           "message_content"
         ],
         "title": "SendGroupUpdateRequest",
+        "type": "object"
+      },
+      "SendGroupUpdateResponse": {
+        "properties": {
+          "batches": {
+            "items": {
+              "$ref": "#/components/schemas/GroupUpdateBatch"
+            },
+            "title": "Batches",
+            "type": "array"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "passenger_count": {
+            "title": "Passenger Count",
+            "type": "integer"
+          },
+          "queued_count": {
+            "title": "Queued Count",
+            "type": "integer"
+          },
+          "request_id": {
+            "format": "uuid",
+            "title": "Request Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id",
+          "queued_count",
+          "passenger_count",
+          "message"
+        ],
+        "title": "SendGroupUpdateResponse",
         "type": "object"
       },
       "SendQrBroadcastRequest": {
@@ -76438,7 +76499,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SendDocumentUpdateResponse"
+                  "$ref": "#/components/schemas/SendGroupUpdateResponse"
                 }
               }
             },

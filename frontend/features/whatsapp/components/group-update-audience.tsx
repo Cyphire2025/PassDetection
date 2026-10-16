@@ -22,13 +22,14 @@ function AudienceChoices({ title, description, value, choices, disabled, onChang
   </fieldset>;
 }
 
-export function GroupUpdateAudienceFields({ audience, rows, loading, disabled, onChange }: {
-  audience: GroupUpdateAudience; rows: GroupUpdateRecipient[]; loading: boolean; disabled: boolean; onChange: (value: GroupUpdateAudience) => void;
+export function GroupUpdateAudienceFields({ audience, rows, loading, disabled, onChange, mode = "send" }: {
+  audience: GroupUpdateAudience; rows: GroupUpdateRecipient[]; loading: boolean; disabled: boolean; onChange: (value: GroupUpdateAudience) => void; mode?: "send" | "review";
 }) {
   const id = useId();
   const count = (change: Partial<GroupUpdateAudience>) => rows.filter(row => updateAudienceMatches(row, { ...audience, ...change })).length;
-  return <section aria-label="Choose your audience" className="space-y-3">
-    <div className="flex flex-wrap items-baseline justify-between gap-2"><h3 className="text-sm font-semibold text-slate-900">Choose your audience</h3><p className="text-xs text-slate-500">Both boxes apply together. Counts show matching travellers.</p></div>
+  const heading = mode === "review" ? "Filter recipients" : "Choose your audience";
+  return <section aria-label={heading} className="space-y-3">
+    <div className="flex flex-wrap items-baseline justify-between gap-2"><h3 className="text-sm font-semibold text-slate-900">{heading}</h3><p className="text-xs text-slate-500">Both boxes apply together.{mode === "review" ? " Delivery statuses below apply to these matching travellers." : " Counts show matching travellers."}</p></div>
     <div className="grid items-start gap-4 md:grid-cols-2">
       <div className="space-y-3"><AudienceChoices title="Document submission" description="Has the traveller completed their document submission?" value={audience.submission_status} disabled={disabled || loading} onChange={value => onChange({ ...audience, submission_status: value as GroupUpdateAudience["submission_status"] })} choices={[{ value: "all", label: "All", count: count({ submission_status: "all" }) }, { value: "submitted", label: "Submitted", count: count({ submission_status: "submitted" }) }, { value: "not_submitted", label: "Not submitted", count: count({ submission_status: "not_submitted" }) }]} />
         <div className="rounded-xl border border-slate-200 bg-white p-4 text-xs leading-5 text-slate-500"><p className="font-semibold text-slate-700">Which WhatsApp number is used?</p><p className="mt-2"><strong>Submitted:</strong> the number in their completed submission.</p><p className="mt-1"><strong>Not submitted:</strong> their imported broadcast number.</p></div>

@@ -21,7 +21,7 @@ export interface TrackedWhatsAppActivity {
   contextLabel: string;
   sourceGroupId: string;
   documentType: string | null;
-  messageType?: WhatsAppMessageType;
+  messageType?: WhatsAppMessageType | "document_update";
   total: number;
   queued: number;
   sent: number;
@@ -33,7 +33,7 @@ export interface TrackedWhatsAppActivity {
 }
 
 export interface DisplayedWhatsAppActivity extends WhatsAppActivitySummary {
-  messageType?: WhatsAppMessageType;
+  messageType?: WhatsAppMessageType | "document_update";
   startedAt?: number;
   skipped_already_sent: number;
   skipped_in_progress: number;
@@ -99,6 +99,7 @@ export function parseTrackedWhatsAppActivities(
           || candidate.messageType === "passport_link"
           || candidate.messageType === "reminder"
           || candidate.messageType === "group_invite"
+          || candidate.messageType === "document_update"
             ? candidate.messageType
             : undefined,
         total: finiteNonNegative(candidate.total),

@@ -57,12 +57,15 @@ export interface GroupUpdateRequest {
   audience_keys: string[];
   message_content: string;
 }
+export interface GroupUpdateResult extends DocumentUpdateResult {
+  batches?: { batch_id: string; broadcast_group_id: string; queued_count: number }[];
+}
 const path = (groupId: string) => `/api/v1/document-distribution/groups/${groupId}/updates`;
 export const groupUpdatesApi = {
   async preview(groupId: string, audience: GroupUpdateAudience, signal?: AbortSignal) {
     return (await apiClient.post<GroupUpdatePreview>(`${path(groupId)}/preview`, audience, { signal })).data;
   },
   async send(groupId: string, request: GroupUpdateRequest) {
-    return (await apiClient.post<DocumentUpdateResult>(`${path(groupId)}/send`, request)).data;
+    return (await apiClient.post<GroupUpdateResult>(`${path(groupId)}/send`, request)).data;
   },
 };

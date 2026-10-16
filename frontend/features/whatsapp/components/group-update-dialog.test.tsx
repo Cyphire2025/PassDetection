@@ -5,6 +5,8 @@ import { GroupUpdateDialog } from "./group-update-dialog";
 import { groupUpdatesApi, type GroupUpdatePreview } from "../api/group-updates.api";
 import { DocumentBroadcastActions } from "@/features/documents/components/document-broadcast-actions";
 
+const activityMocks = vi.hoisted(() => ({ registerActivity: vi.fn() }));
+vi.mock("./whatsapp-activity-tracker", () => ({ useWhatsAppActivityTracker: () => activityMocks }));
 vi.mock("../api/group-updates.api", () => ({ groupUpdatesApi: { preview: vi.fn(), send: vi.fn() } }));
 const initial: GroupUpdatePreview = {
   group_id: "trip", audience: { submission_status: "all", document_status: "all", document_type: "visa" },
@@ -62,6 +64,25 @@ it("previews normalized paragraphs and sends only the selected people", async ()
   fireEvent.click(screen.getByRole("button", { name: "Send individually to 1" }));
   await screen.findByText("Queued one update.");
   expect(groupUpdatesApi.send).toHaveBeenCalledWith("trip", expect.objectContaining({ audience_keys: ["contact:1"], message_content: "Please submit your documents.", preview_token: initial.preview_token }));
+});
+
+it("registers every returned update batch with the shared progress tracker", async () => {
+  vi.mocked(groupUpdatesApi.send).mockResolvedValue({ request_id: "request", queued_count: 2, passenger_count: 3,
+    message: "Updates queued.", batches: [
+      { batch_id: "batch-one", broadcast_group_id: "broadcast", queued_count: 1 },
+      { batch_id: "batch-two", broadcast_group_id: "another", queued_count: 1 },
+    ] });
+  mount();
+  await screen.findByText("3 people · 2 WhatsApp messages");
+  fireEvent.change(screen.getByLabelText("Your update message"), { target: { value: "Your documents are being processed." } });
+  fireEvent.click(screen.getByRole("button", { name: "Send individually to 2" }));
+  await screen.findByText("Updates queued.");
+  expect(activityMocks.registerActivity).toHaveBeenCalledTimes(2);
+  expect(activityMocks.registerActivity).toHaveBeenCalledWith(expect.objectContaining({
+    id: "batch-one", kind: "broadcast", messageType: "document_update", title: "Update message broadcast",
+    contextLabel: "Test trip", sourceGroupId: "broadcast", total: 1, queued: 1,
+  }));
+  expect(activityMocks.registerActivity).toHaveBeenCalledWith(expect.objectContaining({ id: "batch-two", sourceGroupId: "another" }));
 });
 
 it("freezes the exact request after a network uncertainty and retries without a new request id", async () => {

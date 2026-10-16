@@ -25,6 +25,10 @@ from app.infrastructure.database.session import get_db_session
 from app.infrastructure.repositories.user_repository import UserRepository
 from app.infrastructure.whatsapp import document_update_runtime, web_publication
 from app.presentation.api.v1.routes import group_update_preview, group_updates
+from app.presentation.api.v1.routes.whatsapp_activity import (
+    get_whatsapp_activity_failures,
+    get_whatsapp_activity_summary,
+)
 from app.presentation.dependencies.auth import get_current_active_user
 from tests.integration.test_document_updates import document
 from tests.persistence import persist_graph
@@ -66,7 +70,7 @@ async def group_update(db_session, monkeypatch):
     app.dependency_overrides[get_current_active_user] = lambda: actor_entity
     app.dependency_overrides[get_db_session] = lambda: db_session
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-        yield SimpleNamespace(session=db_session, agency=agency, group=group, broadcast=broadcast, link=link,
+        yield SimpleNamespace(session=db_session, agency=agency, actor=actor_entity, group=group, broadcast=broadcast, link=link,
                               passengers=passengers, recipients=recipients, client=client, publish=publish, provider=provider)
 
 
@@ -187,15 +191,64 @@ async def test_shared_verified_phone_is_deduplicated_and_request_is_idempotent(g
     result = await queue(group_update, payload)
     assert result.json()["queued_count"] == 3
     assert result.json()["passenger_count"] == 4
+    assert len(result.json()["batches"]) == 1
+    assert result.json()["batches"][0]["broadcast_group_id"] == str(group_update.broadcast.id)
+    assert result.json()["batches"][0]["queued_count"] == 3
     assert (await queue(group_update, payload)).json() == result.json()
     logs = list((await group_update.session.scalars(select(WhatsAppMessageLogModel))).all())
     assert len(logs) == 3
+    assert {str(log.batch_id) for log in logs} == {result.json()["batches"][0]["batch_id"]}
     assert all(log.template_parameter_values == ["Your visas are being processed."] for log in logs)
     assert all(log.document_update_context["audience_version"] == 2 for log in logs)
     assert group_update.publish.await_count == 1
     await queue(group_update, {**payload, "message_content": "Different"}, expected=409)
     data = await preview(group_update)
     assert not any(row["eligible"] for row in data["recipients"])
+    group_update.provider.assert_not_awaited()
+
+
+async def test_update_progress_uses_real_batch_counts_and_saved_destination(group_update):
+    response = (await queue(group_update, request_for(await preview(group_update)))).json()
+    batch = response["batches"][0]
+    logs = list((await group_update.session.scalars(select(WhatsAppMessageLogModel))).all())
+    logs[0].status = "read"
+    logs[1].status = "failed"
+    logs[1].error_message = "Meta reported delivery failure (131049)"
+    await group_update.session.commit()
+    summary = await get_whatsapp_activity_summary(
+        kind="broadcast", batch_id=uuid.UUID(batch["batch_id"]),
+        current_user=group_update.actor, session=group_update.session,
+    )
+    assert summary.title == "Update message broadcast"
+    assert (summary.total, summary.queued, summary.sent, summary.failed) == (4, 2, 1, 1)
+    failures = await get_whatsapp_activity_failures(
+        kind="broadcast", batch_id=uuid.UUID(batch["batch_id"]),
+        current_user=group_update.actor, session=group_update.session,
+    )
+    assert len(failures) == 1
+    assert failures[0].phone_number == logs[1].normalized_phone_number
+    group_update.provider.assert_not_awaited()
+
+
+async def test_multiple_linked_broadcasts_return_every_progress_batch_and_replay_them(group_update):
+    other = WhatsAppBroadcastGroupModel(id=uuid.uuid4(), agency_id=group_update.agency.id,
+        name="Other contacts", recipient_opt_in_confirmed_at=datetime.now(UTC))
+    link = ClientGroupWhatsAppBroadcastLinkModel(agency_id=group_update.agency.id,
+        client_group_id=group_update.group.id, broadcast_group_id=other.id, matching_field_keys=["staff_code"])
+    recipient = WhatsAppBroadcastRecipientModel(id=uuid.uuid4(), agency_id=group_update.agency.id,
+        broadcast_group_id=other.id, name="New contact", phone_number="+919555000111",
+        normalized_phone_number="+919555000111", imported_fields={"staff_code": "EXTRA"})
+    await persist_graph(group_update.session, [other, link, recipient])
+    payload = request_for(await preview(group_update))
+    response = (await queue(group_update, payload)).json()
+    assert len(response["batches"]) == 2
+    assert {batch["broadcast_group_id"]: batch["queued_count"] for batch in response["batches"]} == {
+        str(group_update.broadcast.id): 4, str(other.id): 1,
+    }
+    assert sum(batch["queued_count"] for batch in response["batches"]) == response["queued_count"]
+    assert (await queue(group_update, payload)).json() == response
+    assert group_update.publish.await_count == 2
+    assert len(list((await group_update.session.scalars(select(WhatsAppMessageLogModel))).all())) == 5
     group_update.provider.assert_not_awaited()
 
 

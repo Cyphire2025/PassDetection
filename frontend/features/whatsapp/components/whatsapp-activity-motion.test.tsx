@@ -65,11 +65,11 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-function CurrentPage() {
+function CurrentPage({ trackedActivity = activity }: { trackedActivity?: TrackedWhatsAppActivity }) {
   const { registerActivity } = useWhatsAppActivityTracker();
   return (
     <>
-      <button onClick={() => registerActivity(activity)}>Register broadcast</button>
+      <button onClick={() => registerActivity(trackedActivity)}>Register broadcast</button>
       {mocks.pathname === ROUTES.dashboard.whatsapp
         ? <WhatsAppActivityInline />
         : <p>Another dashboard page</p>}
@@ -77,12 +77,12 @@ function CurrentPage() {
   );
 }
 
-function renderTracker() {
+function renderTracker(trackedActivity = activity) {
   const client = new QueryClient({ defaultOptions: { queries: { retryDelay: 0 } } });
   clients.push(client);
   const tree = () => (
     <QueryClientProvider client={client}>
-      <WhatsAppActivityTrackerProvider><CurrentPage /></WhatsAppActivityTrackerProvider>
+      <WhatsAppActivityTrackerProvider><CurrentPage trackedActivity={trackedActivity} /></WhatsAppActivityTrackerProvider>
     </QueryClientProvider>
   );
   const view = render(tree());
@@ -158,6 +158,23 @@ it("carries the same broadcast into the floating tracker and back, preserving co
   fireEvent.click(screen.getByRole("button", { name: "Close Passport link broadcast progress" }));
   expect(scene()).not.toBeInTheDocument();
   expect(screen.queryByLabelText("Movable WhatsApp delivery progress")).not.toBeInTheDocument();
+});
+
+it("keeps update message progress inline, movable across pages, and restorable from storage", async () => {
+  const tracked: TrackedWhatsAppActivity = { ...activity, messageType: "document_update", title: "Update message broadcast" };
+  const { client, navigate } = renderTracker(tracked);
+  fireEvent.click(screen.getByRole("button", { name: "Register broadcast" }));
+  expect(screen.getByLabelText("Live WhatsApp delivery progress")).toContainElement(scene() as HTMLElement);
+  expect(scene()).toHaveAttribute("data-message-type", "document_update");
+  await update(client, { queued: 8, sent: 7, failed: 1 });
+  navigate("/dashboard/another-page");
+  expect(screen.getByLabelText("Movable WhatsApp delivery progress")).toContainElement(scene() as HTMLElement);
+  expect(scene()).toHaveAttribute("data-message-type", "document_update");
+  expect(screen.getByText("7 accepted of 15")).toBeVisible();
+  expect(parseTrackedWhatsAppActivities(window.sessionStorage.getItem(WHATSAPP_ACTIVITY_STORAGE_KEY))[0].messageType).toBe("document_update");
+  navigate(ROUTES.dashboard.whatsapp);
+  expect(screen.queryByLabelText("Movable WhatsApp delivery progress")).not.toBeInTheDocument();
+  expect(screen.getByLabelText("Live WhatsApp delivery progress")).toContainElement(scene() as HTMLElement);
 });
 
 it("settles the existing scene during a status-fetch error and resumes it after recovery", async () => {
