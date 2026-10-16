@@ -8,6 +8,7 @@ from __future__ import annotations
 import copy
 from urllib.parse import urlencode
 
+from image_runtime_policy import reviewed_process_command
 from mcp_direct_containers import clone_payload
 
 MIB = 1024**2
@@ -15,6 +16,7 @@ PAUSED = frozenset({'email-worker', 'email-ai-worker', 'my-photos-worker'})
 BACKEND_MIB = 3584
 LABEL = 'globalconnects.runtime-profile'
 PROFILE = 'pdf-checking-email-photos-paused-v1'
+SCHEDULER = '--scheduler=app.infrastructure.processing.paused_feature_scheduler:PausedFeatureScheduler'
 DISABLED = {
     'EMAIL_INTEGRATIONS_ENABLED': 'false',
     'EMAIL_SYNC_ENABLED': 'false',
@@ -64,6 +66,12 @@ def create_candidate(client, original: dict, options: dict) -> str:
         payload['HostConfig'].update(Memory=BACKEND_MIB * MIB, MemorySwap=BACKEND_MIB * MIB)
     if name in PAUSED:
         payload['HostConfig']['RestartPolicy'] = {'Name': 'no', 'MaximumRetryCount': 0}
+    if name == 'email-beat':
+        normal = reviewed_process_command('email-beat')
+        focused = [*normal[:-1], normal[-1] + ' ' + SCHEDULER]
+        if payload.get('Cmd') not in (normal, focused):
+            raise ValueError('pdf_profile_shared_scheduler_command_changed')
+        payload['Cmd'] = focused
     result = client.request('POST', '/containers/create?' + urlencode({'name': options['name']}), payload)
     return client.identifier(result['Id'])
 

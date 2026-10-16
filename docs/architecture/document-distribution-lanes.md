@@ -167,6 +167,9 @@ queues and volumes. It disables email producers/features in the new backend
 process environments and retains existing disabled My Photos providers. It
 does not stop `email-beat`: that container is the shared platform scheduler
 for document lifecycle and mobile notification work as well as email work.
+Its dedicated `PausedFeatureScheduler` excludes periodic email/My Photos
+entries before merging the persistent Beat schedule, so stopped feature queues
+do not accumulate newly scheduled jobs. Existing queued jobs are preserved.
 
 The backend receives 3584 MiB instead of 2560 MiB, with the same hard memory
 and memory-plus-swap ceiling. Other serving limits are unchanged. The active

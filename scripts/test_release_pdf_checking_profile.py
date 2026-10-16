@@ -8,6 +8,7 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 
 import release_pdf_checking_profile as profile
+from image_runtime_policy import reviewed_process_command
 from release_retained_update import RetainedUpdate, select_live
 from test_release_retained_update import live_rows
 
@@ -38,7 +39,7 @@ class ProfileTests(unittest.TestCase):
         client.identifier.side_effect = lambda value: value
         for name in ['backend', 'worker', 'email-beat', *sorted(profile.PAUSED)]:
             original = {'Config': {'Labels': {'com.docker.compose.service': name}}}
-            payload = {'Labels': {}, 'HostConfig': {'Memory': 2560 * profile.MIB if name == 'backend' else 384 * profile.MIB,
+            payload = {'Labels': {}, 'Cmd': reviewed_process_command('email-beat'), 'HostConfig': {'Memory': 2560 * profile.MIB if name == 'backend' else 384 * profile.MIB,
                                                    'MemorySwap': 2560 * profile.MIB if name == 'backend' else 384 * profile.MIB,
                                                    'RestartPolicy': {'Name': 'unless-stopped'}, 'NanoCpus': 1000000000}}
             before = copy.deepcopy(payload)
@@ -53,6 +54,8 @@ class ProfileTests(unittest.TestCase):
             else:
                 self.assertEqual(payload['HostConfig'], before['HostConfig'])
             self.assertEqual(payload['Labels'][profile.LABEL], profile.PROFILE)
+            if name == 'email-beat':
+                self.assertIn(profile.SCHEDULER, payload['Cmd'][-1])
 
     def test_current_inventory_requires_matching_paused_project_and_explicit_profile(self):
         rows = live_rows()
