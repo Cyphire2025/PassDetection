@@ -9,6 +9,8 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 
 from release_document_distribution_contract import SOURCE, TARGET
+from release_document_distribution_contract import source_contract as historical_contract
+from legacy_document_contract_fixture import document_source
 from release_document_fast import (
     CHECKS,
     binding,
@@ -55,6 +57,14 @@ def receipt(release):
 
 
 class FastDocumentTests(unittest.TestCase):
+    def setUp(self):
+        fixture = document_source()
+        source = fixture.__enter__()
+        self.addCleanup(fixture.__exit__, None, None, None)
+        contract_patch = patch('release_document_fast.source_contract', side_effect=lambda _: historical_contract(source))
+        contract_patch.start()
+        self.addCleanup(contract_patch.stop)
+
     def test_backend_dependency_drift_requires_separate_build(self):
         with patch('release_document_fast.command', return_value='backend/requirements.lock'), \
              self.assertRaisesRegex(ValueError, 'dependencies_must_be_unchanged'):

@@ -7,6 +7,7 @@ import unittest
 from pathlib import Path
 
 from release_document_distribution_contract import CHAIN, SOURCE, TARGET
+from legacy_document_contract_fixture import document_source
 from release_mcp_contract import require_same_schema_artifact, require_source_contract, source_contract, validate_contract
 from release_mcp_database import DUMP_COMMAND, MCPDatabaseRelease, ReleaseBindings
 from release_traveller_whatsapp import ReleaseError
@@ -15,22 +16,27 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class DocumentReleaseContractTests(unittest.TestCase):
+    def setUp(self):
+        fixture = document_source()
+        self.source = fixture.__enter__()
+        self.addCleanup(fixture.__exit__, None, None, None)
+
     def test_active_source_is_bound_to_the_two_nullable_additions(self):
-        value = source_contract(ROOT)
+        value = source_contract(self.source)
         self.assertEqual(value["kind"], "document_distribution_updates_v1")
         self.assertEqual(value["source_schema"], SOURCE)
         self.assertEqual([row["revision"] for row in value["migrations"]], list(CHAIN))
         validate_contract(value, TARGET)
-        require_source_contract({"deployment": value}, ROOT)
+        require_source_contract({"deployment": value}, self.source)
         with self.assertRaises(ValueError):
             require_same_schema_artifact({"deployment": value})
         changed = copy.deepcopy(value)
         changed["migrations"][0]["sha256"] = "0" * 64
         with self.assertRaises(ValueError):
-            require_source_contract({"deployment": changed}, ROOT)
+            require_source_contract({"deployment": changed}, self.source)
 
     def test_downgrade_identity_history_and_resume_rules_cannot_be_relaxed(self):
-        value = source_contract(ROOT)
+        value = source_contract(self.source)
         for field, replacement in (("version", True), ("automatic_downgrade", True),
             ("identity_and_delivery_history", "rewrite"), ("new_column_values", "backfill"),
             ("resume_schema_revisions", [SOURCE]), ("extra", "ignored")):
@@ -53,7 +59,7 @@ class DocumentReleaseContractTests(unittest.TestCase):
                     stdout_file.write(b"PGDMPsynthetic-document-backup")
                 return "TABLE DATA public alembic_version" if arguments == ("pg_restore", "--list") else ""
 
-            release = MCPDatabaseRelease(ROOT, directory,
+            release = MCPDatabaseRelease(self.source, directory,
                 ReleaseBindings("a" * 40, "sha256:" + "b" * 64, "c" * 64, "d" * 64),
                 database_command=command, verify_fence=fence, read_schema=lambda: state[0])
             backup = release.backup()
