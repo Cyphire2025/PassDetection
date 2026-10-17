@@ -31,6 +31,7 @@ def main() -> int:
     if heads != (EXPECTED_HEAD,):
         raise RuntimeError(f"Expected one Alembic head {EXPECTED_HEAD!r}; observed {heads!r}")
     chain = (
+        ("0141_workspace_branding", "0140_document_update_context"),
         ("0140_document_update_context", "0139_passenger_display_name"),
         ("0139_passenger_display_name", "0138_verified_portal_lookup"),
         ("0138_verified_portal_lookup", "0137_company_directory"),
@@ -136,7 +137,7 @@ def main() -> int:
         )
 
     print(
-        "Alembic topology verified: 0140 follows 0139, 0138, 0137, 0136, 0135, 0134, 0133, 0132, 0131, 0130, 0129, 0128, 0127, 0126, 0125, 0124, 0123, 0122, 0121, 0120, 0119, 0118, 0117, 0116, 0115, 0114, 0113, 0112, 0111, 0110, 0109, 0108, 0107, 0106, 0105, 0104, 0103, 0102, 0101, 0100, 0099, 0098, 0097, 0096, 0095, 0094, 0093, 0092, 0091, 0090, 0089 and the preserved 0088 merge "
+        "Alembic topology verified: 0141 follows 0140, 0139, 0138, 0137, 0136, 0135, 0134, 0133, 0132, 0131, 0130, 0129, 0128, 0127, 0126, 0125, 0124, 0123, 0122, 0121, 0120, 0119, 0118, 0117, 0116, 0115, 0114, 0113, 0112, 0111, 0110, 0109, 0108, 0107, 0106, 0105, 0104, 0103, 0102, 0101, 0100, 0099, 0098, 0097, 0096, 0095, 0094, 0093, 0092, 0091, 0090, 0089 and the preserved 0088 merge "
         "of the My Photos and enterprise-hardening branches."
     )
     return 0

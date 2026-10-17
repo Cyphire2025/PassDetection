@@ -164,6 +164,8 @@
   border-radius: 4px;
 }
 
+.company-logo:focus-visible { border-radius: 9999px; }
+
 /* ── Scrollbar ───────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar        { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track  { background: var(--color-surface-2); }
@@ -173,6 +175,31 @@
 /* Dashboard presentation preferences only affect the office workspace. */
 [data-dashboard-shell] { background: #fafbfc; }
 [data-dashboard-shell] #main-content { scrollbar-gutter: stable; }
+.group-banner { --color-slate-500: #475569; }
+.group-banner .workspace-page-header {
+  padding: 1rem;
+  border: 1px solid rgb(255 255 255 / 0.8);
+  border-radius: 0.75rem;
+  background: rgb(255 255 255 / 0.78);
+  backdrop-filter: blur(10px);
+}
+.group-banner [data-workspace-summary] {
+  background: rgb(255 255 255 / 0.8);
+  border-color: rgb(255 255 255 / 0.85);
+  box-shadow: 0 1px 3px rgb(15 23 42 / 0.06);
+  backdrop-filter: blur(12px);
+}
+.group-banner [data-workspace-metric] { background-color: transparent; border-color: rgb(148 163 184 / 0.18); }
+@media (width < 640px) {
+  .group-banner [data-workspace-summary] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .group-banner [data-workspace-metric] { flex-direction: column; align-items: flex-start; gap: 0.5rem; padding: 0.875rem 0.75rem; }
+  .group-banner [data-workspace-metric]:nth-child(odd) { border-right-width: 1px; }
+  .group-banner [data-workspace-metric]:nth-last-child(-n + 2) { border-bottom-width: 0; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .group-banner :is([data-workspace-summary], .workspace-page-header) { background: rgb(255 255 255 / 0.97); backdrop-filter: none; }
+}
+
 [data-dashboard-shell] .workspace-page-header [class*="bg-white/10"][class*="text-white"] { color: #334155; }
 [data-dashboard-shell] .workspace-page-header [class*="text-slate-100"] { color: #64748b; }
 [data-dashboard-shell] .workspace-page-header [class*="border-white/"] { border-color: #dce1e8; background: white; }

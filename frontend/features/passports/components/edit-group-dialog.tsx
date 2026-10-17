@@ -1,6 +1,8 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { ImageUploadField } from "@/features/branding/components/image-upload-field";
+import { invalidateBrandingImages, saveBrandingImage, type ImageDraft } from "@/features/branding/api/branding-images.api";
 import { useQueryClient } from "@tanstack/react-query";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -30,6 +32,7 @@ export function EditGroupDialog({ group, onClose }: { group: UploadLinkResponse;
   const [busy, setBusy] = useState(false);
   const [review, setReview] = useState(false);
   const [error, setError] = useState<string>();
+  const [banner, setBanner] = useState<ImageDraft>();
   const update = useUpdateUploadLink();
   const inFlight = useRef(false);
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -60,6 +63,13 @@ export function EditGroupDialog({ group, onClose }: { group: UploadLinkResponse;
       notes: current.notes,
     });
     requireCurrentSession();
+    if (banner !== undefined) {
+      const result = await saveBrandingImage("group-banner", current.id, current.agency_id, banner, current.banner_url);
+      setSaved((previous) => ({ ...previous, banner_url: result.url }));
+      setBanner(undefined);
+      await invalidateBrandingImages(client);
+      requireCurrentSession();
+    }
     onClose();
   };
   const finish = async (assigned?: UploadLinkResponse) => {
@@ -103,6 +113,7 @@ export function EditGroupDialog({ group, onClose }: { group: UploadLinkResponse;
         <div className="max-h-[calc(90dvh-9rem)] space-y-4 overflow-y-auto px-6 py-5">
           <Input label="Group name" value={name} maxLength={100} required data-dialog-initial-focus disabled={blocked} onChange={(event) => setName(event.target.value)} />
           <GroupCompanyAssignment agencyId={group.agency_id} selected={selected} onChange={setSelected} disabled={blocked} />
+          <ImageUploadField kind="banner" value={banner} currentUrl={saved.banner_url} onChange={setBanner} disabled={blocked} />
           {!group.import_only && <UploadLinkSettings value={settings} onChange={(patch) => setSettings((current) => ({ ...current, ...patch }))} disabled={blocked} error={settingsError} />}
           {error && <CompanyError message={error} />}
           {busy && <p role="status" className="text-sm text-slate-600">Saving group changes…</p>}

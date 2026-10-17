@@ -27,7 +27,7 @@ const group: PassportGroupSummary = {
 
 function overviewProps(groupDetails: PassportGroupSummary): ComponentProps<typeof PassportGroupOverviewPanel> {
   return {
-    isLoading: false, groupDetails, submissionsView: undefined,
+    groupDetails,
     isTripDetailsExpanded: true, tripDetailsRegionId: "trip-details",
     setIsTripDetailsExpanded: vi.fn(), setTripForm: vi.fn(), setIsEditingTrip: vi.fn(),
     error: null, groupId: groupDetails.group_id,

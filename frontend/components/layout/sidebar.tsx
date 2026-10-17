@@ -128,7 +128,7 @@ export function Sidebar({ mobile = false, onNavigate }: SidebarProps) {
       {/* Brand */}
       <div className="flex h-[76px] shrink-0 items-center justify-center overflow-hidden px-3">
         {mobile ? (
-          <BrandLogo priority />
+          <BrandLogo className="h-14 w-[160px]" priority />
         ) : (
           <button
             type="button"
@@ -137,7 +137,7 @@ export function Sidebar({ mobile = false, onNavigate }: SidebarProps) {
             aria-expanded={!isCollapsed}
             className="flex h-full w-full cursor-pointer items-center justify-center rounded-lg transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-600"
           >
-            <BrandLogo compact={isCollapsed} priority />
+            <BrandLogo compact={isCollapsed} className={isCollapsed ? "h-9 w-10" : "h-14 w-[160px]"} priority />
           </button>
         )}
       </div>

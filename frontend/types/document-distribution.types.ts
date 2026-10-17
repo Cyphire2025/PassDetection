@@ -6,6 +6,8 @@ export type DistributionDocumentType =
   | "flight_ticket_domestic_arrival";
 
 export interface DocumentDistributionGroup {
+  company_name?: string | null;
+  company_logo_url?: string | null;
   group_id: string;
   group_name: string;
   group_status: string;

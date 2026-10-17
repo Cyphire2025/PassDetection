@@ -251,6 +251,9 @@ export interface StaffApprovalResult {
 }
 
 export interface PassportGroupSummary {
+  company_name?: string | null;
+  company_logo_url?: string | null;
+  banner_url?: string | null;
   import_only?: boolean;
   group_id: string;
   group_name: string;

@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { GroupBannerAction } from "@/features/branding/components/group-banner-action";
 import { CompanyGroupReturnLink } from "@/features/companies/components/company-group-return-link";
 import {
   WorkspaceHeaderContext,
@@ -142,7 +143,8 @@ export function PassportGroupHeaderPanel({
           </>
         }
         actions={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <GroupBannerAction group={groupDetails} disabled={includeDeleted} />
             <ImportGroupExcelAction groupDetails={groupDetails} includeDeleted={includeDeleted} importMutation={importMutation} importInputRef={importInputRef} />
             {exportImagesMutation.isPending && (
               <div

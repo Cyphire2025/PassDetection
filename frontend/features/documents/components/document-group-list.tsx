@@ -1,4 +1,5 @@
 "use client";
+import { CompanyLogo } from "@/features/branding/components/company-logo";
 
 import { useMemo, useState } from "react";
 import {
@@ -203,7 +204,8 @@ export function DocumentGroupList({
                 style={{ contentVisibility: "auto", containIntrinsicSize: "0 190px" }}
               >
                 <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
+                  <CompanyLogo src={group.company_logo_url} name={group.company_name || group.group_name} />
+                  <div className="min-w-0 flex-1">
                     <h3 className="truncate font-semibold text-slate-950">{group.group_name}</h3>
                     <p className="mt-1 flex items-center gap-1.5 truncate text-sm text-slate-500">
                       <Search className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />

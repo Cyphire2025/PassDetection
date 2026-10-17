@@ -1,17 +1,9 @@
 "use client";
+import { Button, Card, CardContent } from "@/components/ui";
 import {
-  WorkspaceSummaryItem,
-  WorkspaceSummaryStrip,
-} from "@/components/shared/workspace-ui";
-import { Button, Card, CardContent, Skeleton } from "@/components/ui";
-import {
-  AlertTriangle,
   CalendarDays,
-  CheckCircle2,
   ChevronDown,
   Pencil,
-  UsersRound,
-  X,
 } from "lucide-react";
 import { DEFAULT_TRIP_TIMEZONE } from "../utils/trip-timezone";
 import { formatPassportDateForUi } from "@/lib/utils/passport-date";
@@ -24,9 +16,7 @@ import {
 import { InfoPair } from "./passport-group-model";
 import type { PassportGroupController } from "./use-passport-group-controller";
 export function PassportGroupOverviewPanel({
-  isLoading,
   groupDetails,
-  submissionsView,
   isTripDetailsExpanded,
   tripDetailsRegionId,
   setIsTripDetailsExpanded,
@@ -40,9 +30,7 @@ export function PassportGroupOverviewPanel({
   bulkDeleteFeedback,
 }: Pick<
   PassportGroupController,
-  | "isLoading"
   | "groupDetails"
-  | "submissionsView"
   | "isTripDetailsExpanded"
   | "tripDetailsRegionId"
   | "setIsTripDetailsExpanded"
@@ -60,54 +48,6 @@ export function PassportGroupOverviewPanel({
     || (groupDetails?.upload_configuration == null && (groupDetails?.departure_cities?.length ?? 0) > 0);
   return (
     <>
-      <WorkspaceSummaryStrip label="Group passport readiness">
-        {isLoading && !groupDetails ? (
-          Array.from({ length: 4 }).map((_, index) => (
-            <Skeleton key={index} className="h-[72px] rounded-none" />
-          ))
-        ) : (
-          <>
-            <WorkspaceSummaryItem
-              label="Submitted"
-              value={(
-                submissionsView?.group_total ??
-                groupDetails?.total_passports ??
-                0
-              ).toLocaleString()}
-              helper="passengers"
-              icon={UsersRound}
-              tone="info"
-            />
-            <WorkspaceSummaryItem
-              label="Needs review"
-              value={(groupDetails?.pending_review_count ?? 0).toLocaleString()}
-              helper="records"
-              icon={AlertTriangle}
-              tone={
-                (groupDetails?.pending_review_count ?? 0) > 0
-                  ? "attention"
-                  : "success"
-              }
-            />
-            <WorkspaceSummaryItem
-              label="Confirmed"
-              value={(groupDetails?.confirmed_count ?? 0).toLocaleString()}
-              helper="ready"
-              icon={CheckCircle2}
-              tone="success"
-            />
-            <WorkspaceSummaryItem
-              label="Failed"
-              value={(groupDetails?.failed_count ?? 0).toLocaleString()}
-              helper="need recovery"
-              icon={X}
-              tone={
-                (groupDetails?.failed_count ?? 0) > 0 ? "attention" : "default"
-              }
-            />
-          </>
-        )}
-      </WorkspaceSummaryStrip>
       {groupDetails && (
         <section aria-label="Group overview" className="space-y-3">
           <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,17rem),1fr))] items-stretch gap-3">

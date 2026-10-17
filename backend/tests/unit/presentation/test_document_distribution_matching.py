@@ -811,6 +811,7 @@ async def test_document_group_counts_use_constant_query_count() -> None:
             status="active",
             destination="Bangkok",
             travel_date=None,
+            company=SimpleNamespace(name="Example Client", logo_url="/api/v1/branding/company-logo/example?v=1"),
         )
         for name in ("Newest", "Older")
     ]
@@ -846,6 +847,8 @@ async def test_document_group_counts_use_constant_query_count() -> None:
     assert [item.group_id for item in response] == [group.id for group in groups]
     assert [item.total_passengers for item in response] == [3, 4]
     assert response[0].visa_assigned_count == 2
+    assert response[0].company_name == "Example Client"
+    assert response[0].company_logo_url == "/api/v1/branding/company-logo/example?v=1"
     assert response[1].flight_ticket_assigned_count == 1
     assert response[1].flight_ticket_arrival_assigned_count == 3
     assert response[1].flight_ticket_domestic_assigned_count == 2
@@ -865,6 +868,7 @@ async def test_document_group_search_includes_submitted_passenger_names() -> Non
         status="active",
         destination="Hanoi",
         travel_date=None,
+        company=None,
     )
     groups_result = MagicMock()
     groups_result.scalars.return_value.all.return_value = [group]

@@ -27,6 +27,7 @@ from app.infrastructure.repositories.passport_submission_view_repository import 
     PassportSubmissionViewRepository,
 )
 from app.infrastructure.repositories.sensitive_read_audit import record_sensitive_read
+from app.presentation.api.v1.branding_metadata import group_branding_metadata
 from app.presentation.api.v1.pagination import PageOffset, PageSize
 from app.presentation.api.v1.schemas.passport_schemas import (
     PassportGroupSummaryResponse,
@@ -62,6 +63,7 @@ async def list_passport_groups(
     use_case: ListPassportGroupSummariesUseCase = Depends(_get_list_passport_groups_use_case),
     skip: PageOffset = 0,
     limit: PageSize = 50,
+    session: AsyncSession = Depends(get_db_session),
 ) -> list[PassportGroupSummaryResponse]:
     if not current_user.agency_id:
         return []
@@ -73,7 +75,8 @@ async def list_passport_groups(
         created_by_user_id=_owner_scope_for(current_user),
         visible_to_user=current_user,
     )
-    return [PassportGroupSummaryResponse.model_validate(item) for item in result]
+    branding = await group_branding_metadata(session, [item.group_id for item in result])
+    return [PassportGroupSummaryResponse.model_validate(item).model_copy(update=branding.get(item.group_id, {})) for item in result]
 
 
 @router.get(

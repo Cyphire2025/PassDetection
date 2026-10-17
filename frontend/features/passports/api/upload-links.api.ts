@@ -216,6 +216,7 @@ export interface QualifierRelationOption {
 }
 
 export interface UploadLinkResponse {
+  banner_url?: string | null;
   company_id?: string | null;
   company?: CompanyReference | null;
   company_revision?: number;

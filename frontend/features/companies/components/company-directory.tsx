@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { CompanyLogo } from "@/features/branding/components/company-logo";
 import Link from "next/link";
 import { ArrowRight, Building2, Pencil, Plus, RefreshCw } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -48,7 +49,7 @@ export function CompanyDirectory() {
       {companies.isLoading || search !== debounced ? <CompanyLoading /> : companies.isError ? <CompanyError message="The company directory could not be loaded." retry={() => void companies.refetch()} /> : companies.data?.items.length ? <ul className="divide-y divide-slate-100">
         {companies.data.items.map((company) => <li key={company.id} className="flex flex-col gap-3 px-4 py-4 transition-colors hover:bg-slate-50/50 sm:flex-row sm:items-center sm:justify-between sm:px-5">
           <div className="flex min-w-0 items-start gap-3">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-700"><Building2 className="h-5 w-5" aria-hidden="true" /></span>
+            <CompanyLogo src={company.logo_url} name={company.name} />
             <div className="min-w-0"><Link prefetch={false} href={ROUTES.dashboard.company(company.id)} className="break-words rounded text-sm font-semibold text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600">{company.name}</Link>
               <div className="mt-1 flex flex-wrap items-center gap-2 text-xs"><span className={`inline-flex items-center gap-1.5 ${company.status === "active" ? "text-emerald-700" : "text-slate-500"}`}><span className={`h-1.5 w-1.5 rounded-full ${company.status === "active" ? "bg-emerald-500" : "bg-slate-400"}`} aria-hidden="true" />{company.status === "active" ? "Active" : "Inactive"}</span>{company.external_reference && <span className="break-all text-slate-400">{company.external_reference}</span>}</div>
             </div>

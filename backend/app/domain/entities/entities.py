@@ -430,6 +430,7 @@ class ClientGroup:
     company_id: uuid.UUID | None = None
     company_revision: int = 0
     company: dict[str, object] | None = None
+    banner_url: str | None = None
     import_only: bool = False
     created_at: datetime = field(default_factory=_utcnow)
     closed_at: datetime | None = None

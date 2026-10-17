@@ -1,4 +1,5 @@
 "use client";
+import { CompanyLogo } from "@/features/branding/components/company-logo";
 
 import {
   useDeferredValue,
@@ -337,6 +338,7 @@ export function PassportList() {
                               aria-label={`Select ${group.group_name}`}
                               className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                             />
+                            <CompanyLogo src={group.company_logo_url} name={group.company_name || group.group_name} />
                             <div className="min-w-0">
                               <div className="font-semibold text-slate-950">{group.group_name}</div>
                               <div className="mt-1 text-xs text-slate-500">
@@ -371,7 +373,7 @@ export function PassportList() {
                           <IntentPrefetchLink
                             href={ROUTES.dashboard.passportGroup(group.group_id)}
                             onClick={(event) => event.stopPropagation()}
-                            className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-800"
+                            className="inline-flex h-9 items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-slate-300 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-800"
                           >
                             <Eye className="h-4 w-4" aria-hidden="true" />
                             Open Group
@@ -438,6 +440,7 @@ function PassportGroupMobileCard({
               aria-label={`Select ${group.group_name}`}
               className="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
             />
+            <CompanyLogo src={group.company_logo_url} name={group.company_name || group.group_name} />
             <div className="min-w-0">
               <h3 className="truncate text-base font-semibold text-slate-950">{group.group_name}</h3>
               <p className="mt-1 text-xs text-slate-500">

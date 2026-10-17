@@ -68,6 +68,8 @@ export function useCompanyMutations(agencyId: string) {
       client.invalidateQueries({ queryKey: companyKeys.scope(agencyId) }),
       client.invalidateQueries({ queryKey: ["gc-app", agencyId] }),
       client.invalidateQueries({ queryKey: ["upload-links"] }),
+      client.invalidateQueries({ queryKey: ["passports", "groups"] }),
+      client.invalidateQueries({ queryKey: ["document-distribution", "groups"] }),
     ]);
   };
   return {

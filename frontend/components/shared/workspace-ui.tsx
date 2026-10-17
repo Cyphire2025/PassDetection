@@ -83,6 +83,7 @@ export function WorkspaceSummaryStrip({
 }) {
   return (
     <section
+      data-workspace-summary=""
       aria-label={label}
       className={cn(
         "grid overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm sm:grid-cols-2",
@@ -130,6 +131,7 @@ export function WorkspaceSummaryItem({
 
   return (
     <div
+      data-workspace-metric=""
       className={cn(
         "flex min-w-0 items-center gap-3 border-b border-slate-100 px-4 py-3.5 last:border-b-0 sm:[&:nth-child(odd)]:border-r lg:border-b-0 lg:border-r lg:last:border-r-0",
         style.surface,

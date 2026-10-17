@@ -12,6 +12,7 @@ export async function refreshGroupAssignment(client: QueryClient, saved: UploadL
   await Promise.all([
     client.invalidateQueries({ queryKey: ["upload-links"] }),
     client.invalidateQueries({ queryKey: ["passports", "groups"] }),
+    client.invalidateQueries({ queryKey: ["document-distribution", "groups"] }),
     client.invalidateQueries({ queryKey: companyKeys.scope(saved.agency_id) }),
     client.invalidateQueries({ queryKey: ["gc-app", saved.agency_id] }),
   ]);

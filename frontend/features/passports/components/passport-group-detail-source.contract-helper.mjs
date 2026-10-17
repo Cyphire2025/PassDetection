@@ -17,6 +17,7 @@ const passportGroupDetailFiles = [
   "./passport-document-cell.tsx",
   "./passport-document-import-dialog.tsx",
   "./passport-trip-details-dialog.tsx",
+  "./passport-group-readiness.tsx",
   "../utils/passport-document-import.ts",
   "../utils/passport-group-trip.ts",
 ];

@@ -34,6 +34,7 @@ from app.infrastructure.export.document_assignment_excel_exporter import (
     build_document_assignment_workbook,
 )
 from app.infrastructure.repositories.operational_roster import operational_roster_member
+from app.presentation.api.v1.branding_metadata import company_branding_metadata
 from app.presentation.api.v1.response_contracts import XLSX, binary_responses
 from app.presentation.api.v1.routes.document_distribution_access import (
     document_agency_scope,
@@ -152,6 +153,7 @@ async def list_document_groups(
             DocumentGroupResponse(
                 group_id=group.id,
                 group_name=group.name,
+                **company_branding_metadata(group.company),
                 group_status=group.status,
                 destination=group.destination,
                 travel_date=group.travel_date.isoformat() if group.travel_date else None,

@@ -7,11 +7,7 @@ export type DocumentDistributionCategory = "visa" | "flight_tickets";
 export type FlightTicketScope = "international" | "domestic";
 export type FlightTicketLeg = "onward" | "return";
 
-type AssignedCountField = {
-  [Key in keyof DocumentDistributionGroup]: Key extends `${string}_assigned_count`
-    ? Key
-    : never;
-}[keyof DocumentDistributionGroup];
+type AssignedCountField = Extract<keyof DocumentDistributionGroup, `${string}_assigned_count`>;
 
 export interface DocumentDistributionLane {
   key:

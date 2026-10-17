@@ -1,4 +1,5 @@
 export interface CompanyReference {
+  logo_url?: string | null;
   id: string;
   name: string;
   status: "active" | "inactive";

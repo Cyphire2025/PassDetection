@@ -355,6 +355,7 @@ class WhatsAppBroadcastSummaryResponse(BaseModel):
 
 
 class ClientGroupResponse(BaseModel):
+    banner_url: str | None = None
     company_id: uuid.UUID | None = None
     company_revision: int = 0
     company: dict[str, object] | None = None

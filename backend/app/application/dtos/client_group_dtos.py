@@ -85,6 +85,7 @@ class ClientGroupOutputDTO:
     company_id: uuid.UUID | None = None
     company_revision: int = 0
     company: dict[str, object] | None = None
+    banner_url: str | None = None
     import_only: bool = False
     closed_at: datetime | None = None
     destination: str | None = None
@@ -121,6 +122,7 @@ def client_group_output_from_entity(link: ClientGroup) -> ClientGroupOutputDTO:
         company_id=link.company_id,
         company_revision=link.company_revision,
         company=link.company,
+        banner_url=link.banner_url,
         name=link.name,
         token=link.token,
         agency_id=link.agency_id,

@@ -97,7 +97,7 @@ async def test_import_group_assignment_commits_and_lists_current_company_without
         assert response.status_code == 200, response.text
         saved = response.json()
         assert saved["company_id"] == str(client.id) and saved["company_revision"] == 1
-        assert saved["company"] == {"id": str(client.id), "name": client.name, "status": "active"}
+        assert saved["company"] == {"id": str(client.id), "name": client.name, "status": "active", "logo_url": None}
         assert saved["status"] == lifecycle.value and saved["import_only"] is True
         listed = await http.get("/api/v1/upload-links", params={"status_filter": lifecycle.value})
         assert listed.status_code == 200

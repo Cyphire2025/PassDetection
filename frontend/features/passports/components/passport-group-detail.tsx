@@ -3,6 +3,8 @@ import { DocumentThumbnailCacheProvider } from "./document-thumbnail-cache-provi
 import { PassportDisplayNameDialog } from "./passport-display-name-dialog";
 import { PassportGroupDialogs } from "./passport-group-dialogs";
 import { PassportGroupHeaderPanel } from "./passport-group-header-panel";
+import { PassportGroupReadiness } from "./passport-group-readiness";
+import { GroupBanner } from "@/features/branding/components/group-banner";
 import { PassportGroupImportPanel } from "./passport-group-import-panel";
 import { PassportGroupOverviewPanel } from "./passport-group-overview-panel";
 import { PassportGroupRosterPanel } from "./passport-group-roster-panel";
@@ -14,7 +16,10 @@ export function PassportGroupDetail({ groupId }: { groupId: string }) {
   return (
     <DocumentThumbnailCacheProvider key={`${groupId}:${controller.page}`}>
       <div className="flex flex-col gap-5">
-        <PassportGroupHeaderPanel {...controller} />
+        <GroupBanner src={controller.groupDetails?.banner_url}>
+          <PassportGroupHeaderPanel {...controller} />
+          <PassportGroupReadiness {...controller} />
+        </GroupBanner>
         <PassportGroupOverviewPanel {...controller} />
         <PassportGroupImportPanel {...controller} />
         <PassportGroupSelectionToolbar {...controller} />

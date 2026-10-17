@@ -629,6 +629,9 @@ class PassportSubmissionsViewResponse(BaseModel):
 
 
 class PassportGroupSummaryResponse(BaseModel):
+    company_name: str | None = None
+    company_logo_url: str | None = None
+    banner_url: str | None = None
     group_id: uuid.UUID
     group_name: str
     group_status: str

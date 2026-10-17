@@ -9,6 +9,8 @@ from pydantic import BaseModel, Field
 
 
 class DocumentGroupResponse(BaseModel):
+    company_name: str | None = None
+    company_logo_url: str | None = None
     group_id: uuid.UUID
     group_name: str
     group_status: str

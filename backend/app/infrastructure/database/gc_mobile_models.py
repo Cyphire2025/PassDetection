@@ -91,6 +91,14 @@ class ClientOrganizationModel(Base):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     normalized_name: Mapped[str] = mapped_column(String(255), nullable=False)
     external_reference: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    logo_image_key: Mapped[str | None] = mapped_column(String(512), nullable=True)
+
+    @property
+    def logo_url(self) -> str | None:
+        from app.infrastructure.storage.branding_urls import branding_image_url
+
+        return branding_image_url("company-logo", self.id, self.agency_id, self.logo_image_key)
+
     status: Mapped[str] = mapped_column(
         String(16), nullable=False, default="active", server_default="active"
     )

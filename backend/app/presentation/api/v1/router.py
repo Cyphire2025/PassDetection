@@ -17,6 +17,7 @@ from app.presentation.api.v1.routes.analytics import router as analytics_router
 from app.presentation.api.v1.routes.attendance_runtime import router as attendance_runtime_router
 from app.presentation.api.v1.routes.audit_logs import router as audit_logs_router
 from app.presentation.api.v1.routes.auth import router as auth_router
+from app.presentation.api.v1.routes.branding_images import router as branding_images_router
 from app.presentation.api.v1.routes.client_groups import router as links_router
 from app.presentation.api.v1.routes.companies import router as companies_router
 from app.presentation.api.v1.routes.company_data_exports import (
@@ -269,3 +270,4 @@ api_v1_router.include_router(
     tags=["WhatsApp"],
 )
 api_v1_router.include_router(whatsapp_router, prefix="/whatsapp", tags=["WhatsApp"])
+api_v1_router.include_router(branding_images_router, prefix="/branding", tags=["Workspace Branding"])

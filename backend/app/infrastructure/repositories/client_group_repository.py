@@ -17,6 +17,7 @@ from app.domain.entities.entities import ClientGroup, GroupStatus, User
 from app.domain.exceptions.exceptions import EntityNotFoundError
 from app.domain.repositories.interfaces import IClientGroupRepository
 from app.infrastructure.database.models import ClientGroupModel, ManagerGroupAccessModel
+from app.infrastructure.storage.branding_urls import branding_image_url
 
 logger = get_logger(__name__)
 
@@ -33,7 +34,8 @@ class ClientGroupRepository(IClientGroupRepository):
             id=model.id,
             company_id=model.company_id,
             company_revision=model.company_revision,
-            company=({"id": model.company.id, "name": model.company.name, "status": model.company.status}
+            banner_url=branding_image_url("group-banner", model.id, model.agency_id, model.banner_image_key),
+            company=({"id": model.company.id, "name": model.company.name, "status": model.company.status, "logo_url": model.company.logo_url}
                      if model.company is not None else None),
             name=model.name,
             token=model.token,

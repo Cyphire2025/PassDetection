@@ -33,6 +33,7 @@ class DirectBuildTests(unittest.TestCase):
             self.assertEqual(RetainedBuild(root, root, "a" * 40, schema_revision="0133_traveller_document_impact").schema_revision, "0133_traveller_document_impact")
             self.assertEqual(RetainedBuild(root, root, "a" * 40, schema_revision="0138_verified_portal_lookup").schema_revision, "0138_verified_portal_lookup")
             self.assertEqual(RetainedBuild(root, root, "a" * 40, schema_revision="0140_document_update_context").schema_revision, "0140_document_update_context")
+            self.assertEqual(RetainedBuild(root, root, "a" * 40, schema_revision="0141_workspace_branding").schema_revision, "0141_workspace_branding")
             with self.assertRaisesRegex(BuildError, "unreviewed_build_schema"):
                 RetainedBuild(root, root, "a" * 40, schema_revision="0130_unreviewed")
 

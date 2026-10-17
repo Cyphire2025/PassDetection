@@ -60,7 +60,7 @@ describe("company assignment", () => {
     expect(apiClient.post).not.toHaveBeenCalled();
   });
 
-  it("merges saved list state and invalidates both company and passport group views", async () => {
+  it("merges saved list state and refreshes company, passport and document group views", async () => {
     const saved = { ...base, company_id: target.id, company: target, company_revision: 1 };
     vi.mocked(apiClient.patch).mockResolvedValue({ data: saved });
     const { client, onClose } = setup();
@@ -68,12 +68,14 @@ describe("company assignment", () => {
     client.setQueryData(listKey, [base, { ...base, agency_id: "different-agency" }]);
     client.setQueryData(["companies", base.agency_id, "summary"], {});
     client.setQueryData(["passports", "groups"], []);
+    client.setQueryData(["document-distribution", "groups"], []);
     fireEvent.click(screen.getByRole("button", { name: "Select target company" }));
     fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
     await waitFor(() => expect(onClose).toHaveBeenCalledOnce());
     expect(client.getQueryData(listKey)).toEqual([saved, { ...base, agency_id: "different-agency" }]);
     expect(client.getQueryState(["companies", base.agency_id, "summary"])?.isInvalidated).toBe(true);
     expect(client.getQueryState(["passports", "groups"])?.isInvalidated).toBe(true);
+    expect(client.getQueryState(["document-distribution", "groups"])?.isInvalidated).toBe(true);
   });
 
   it("keeps a failed assignment draft and retries only through an explicit save", async () => {

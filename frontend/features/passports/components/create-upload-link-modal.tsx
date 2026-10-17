@@ -5,6 +5,9 @@ import Link from "next/link";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { ImageUploadField } from "@/features/branding/components/image-upload-field";
+import { invalidateBrandingImages, saveBrandingImage, type ImageDraft } from "@/features/branding/api/branding-images.api";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { copyTextToClipboard } from "@/lib/utils/clipboard";
@@ -48,10 +51,15 @@ function CreateUploadLinkForm({ isOpen, onClose, workspace }: CreateUploadLinkMo
   const [createdImportGroupId, setCreatedImportGroupId] = useState<string | null>(null);
   const [copiedTargetKey, setCopiedTargetKey] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [banner, setBanner] = useState<ImageDraft>();
+  const [savingBanner, setSavingBanner] = useState(false);
+  const [bannerRetryGroupId, setBannerRetryGroupId] = useState<string | null>(null);
+  const queryClient = useQueryClient();
   const copiedTimerRef = useRef<number | null>(null);
   const titleId = useId();
   const { tryEnter: tryEnterCreate, leave: leaveCreate } = useSingleFlightGate();
-  const { mutateAsync: createUploadLink, isPending } = useCreateUploadLink();
+  const { mutateAsync: createUploadLink, isPending: creating } = useCreateUploadLink();
+  const isPending = creating || savingBanner;
 
   const {
     register,
@@ -116,6 +124,8 @@ function CreateUploadLinkForm({ isOpen, onClose, workspace }: CreateUploadLinkMo
     setCreatedImportGroupId(null);
     setCopiedTargetKey(null);
     setActionError(null);
+    setBanner(undefined);
+    setBannerRetryGroupId(null);
     onClose();
   }, [isPending, onClose, reset]);
 
@@ -143,6 +153,16 @@ function CreateUploadLinkForm({ isOpen, onClose, workspace }: CreateUploadLinkMo
           ? data.matching_fields_by_broadcast
           : {},
       });
+      if (banner instanceof File) {
+        setSavingBanner(true);
+        try {
+          await saveBrandingImage("group-banner", result.id, agencyId, banner);
+          await invalidateBrandingImages(queryClient);
+        } catch {
+          setBannerRetryGroupId(result.id);
+          setActionError("Your group was created, but the banner could not be uploaded. Retry below or add it later from the group header.");
+        } finally { setSavingBanner(false); }
+      }
       if (data.import_only) {
         setCreatedImportGroupId(result.id);
       } else {
@@ -267,6 +287,20 @@ function CreateUploadLinkForm({ isOpen, onClose, workspace }: CreateUploadLinkMo
                 </div>
               )}
 
+              {bannerRetryGroupId && <div className="space-y-3">
+                <ImageUploadField kind="banner" value={banner} onChange={setBanner} disabled={isPending} />
+                <Button type="button" variant="secondary" isLoading={savingBanner} disabled={banner === undefined} onClick={async () => {
+                  if (savingBanner || banner === undefined) return;
+                  setSavingBanner(true);
+                  try {
+                    await saveBrandingImage("group-banner", bannerRetryGroupId, agencyId ?? undefined, banner);
+                    await invalidateBrandingImages(queryClient);
+                    setBannerRetryGroupId(null); setActionError(null);
+                  } catch { setActionError("The banner could not be uploaded. Retry when ready; your group is already saved."); }
+                  finally { setSavingBanner(false); }
+                }}>Retry banner upload</Button>
+              </div>}
+
               <Button onClick={handleClose} className="w-full">
                 Done
               </Button>
@@ -298,6 +332,7 @@ function CreateUploadLinkForm({ isOpen, onClose, workspace }: CreateUploadLinkMo
                 error={errors.name?.message}
                 data-dialog-initial-focus
               />
+              <ImageUploadField kind="banner" value={banner} onChange={setBanner} disabled={isPending} />
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <Input

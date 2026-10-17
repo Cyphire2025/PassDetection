@@ -19,6 +19,7 @@ class CompanyLookupResponse(BaseModel):
     id: uuid.UUID
     name: str
     status: Literal["active", "inactive"]
+    logo_url: str | None = None
 
 
 class CompanyResponse(CompanyLookupResponse):

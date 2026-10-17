@@ -117,7 +117,7 @@ def test_every_migration_restore_and_resume_runs_as_owner_not_bootstrap(monkeypa
     assert result["target_revision"] == "0138_verified_portal_lookup"
     assert result["current_head_orm_check"] == {
         "source_after_historical_proof": "0138_verified_portal_lookup",
-        "checked_revision": "0140_document_update_context", "orm_consistent": True,
+        "checked_revision": "0141_workspace_branding", "orm_consistent": True,
         "separate_from_historical_preservation_proof": True}
     assert cleanup.call_args_list[0].args == (admin(), rehearsal.RESTORED_DATABASE)
     assert cleanup.call_args_list[1].args == (admin(), rehearsal.SOURCE_DATABASE)
@@ -143,5 +143,5 @@ def test_current_mapping_upgrade_precedes_check_and_uses_actual_head(monkeypatch
     monkeypatch.setattr(rehearsal, "_alembic", alembic)
     result = rehearsal.verify_current_head_mapping(admin())
     assert [call.args[2:] for call in alembic.call_args_list] == [
-        ("upgrade", "0140_document_update_context"), ("check",)]
+        ("upgrade", "0141_workspace_branding"), ("check",)]
     assert result["source_after_historical_proof"] == "0138_verified_portal_lookup"

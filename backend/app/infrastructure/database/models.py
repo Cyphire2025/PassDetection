@@ -234,6 +234,7 @@ class RefreshTokenModel(Base):
 
 class ClientGroupModel(Base):
     __tablename__ = "client_groups"
+    banner_image_key: Mapped[str | None] = mapped_column(String(512), nullable=True)
     roster_revision: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0, server_default="0")
     __table_args__ = (
         UniqueConstraint("id", "agency_id", "company_id", name="uq_client_groups_company_scope"),

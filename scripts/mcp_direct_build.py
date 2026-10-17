@@ -81,7 +81,7 @@ class RetainedBuild:
             raise BuildError("invalid_build_source")
         if output.resolve() != output or not output.is_dir() or output.is_symlink():
             raise BuildError("invalid_build_output")
-        if schema_revision not in {"0122_mcp_gc_push", "0129_travel_tracker", "0133_traveller_document_impact", "0135_company_removal_history", "0138_verified_portal_lookup", "0140_document_update_context"}:
+        if schema_revision not in {"0122_mcp_gc_push", "0129_travel_tracker", "0133_traveller_document_impact", "0135_company_removal_history", "0138_verified_portal_lookup", "0140_document_update_context", "0141_workspace_branding"}:
             raise BuildError("unreviewed_build_schema")
         self.source, self.output, self.revision, self.run = source, output, revision, run
         self.client = client

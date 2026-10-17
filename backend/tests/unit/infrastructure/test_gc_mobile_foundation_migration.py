@@ -261,6 +261,8 @@ def test_gc_mobile_migration_matches_orm_tables_and_indexes() -> None:
         if table_name == "client_organizations":
             # The company directory adds optimistic revision control in 0130.
             model_column_names.discard("revision")
+            # Branding is additive in 0141; preserve the installed 0069 schema.
+            model_column_names.discard("logo_image_key")
         if table_name == "gc_group_access":
             model_column_names.discard("removed_at")
         if table_name == "mobile_push_registrations":
