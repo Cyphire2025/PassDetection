@@ -45,7 +45,8 @@ def redis_original():
 
 
 class DocumentRelease(unittest.TestCase):
-    def test_factory_requires_explicit_full_or_operator_fast_mode(self):
+    @patch('release_retained_update.load_release_manifest', return_value={'deployment_kind': 'document_distribution_updates_v1'})
+    def test_factory_requires_explicit_full_or_operator_fast_mode(self, _manifest):
         source = Path(__file__).resolve().parents[1]
         with patch('release_document_retained_update.RetainedUpdate.__init__') as constructor:
             self.assertIsInstance(release_for_source(source, 'a' * 40, 'full', source / 'artifact'), DocumentRetainedUpdate)

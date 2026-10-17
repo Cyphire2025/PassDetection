@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "deployment_kind": "document_distribution_updates_v1",
+  "deployment_kind": "workspace_branding_v1",
   "schema_revision": "0141_workspace_branding",
-  "previous_schema_revision": "0138_verified_portal_lookup",
+  "previous_schema_revision": "0140_document_update_context",
   "worker_nodes": {
     "worker": "general",
     "email-worker": "email",

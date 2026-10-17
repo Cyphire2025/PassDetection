@@ -37,6 +37,10 @@ def source_contract(root: Path) -> dict | None:
     manifest = json.loads(
         (root / "backend/app/core/config/release_manifest.json").read_text("utf-8")
     )
+    if manifest.get("deployment_kind") == "workspace_branding_v1":
+        from release_workspace_branding_contract import source_contract as branding_contract
+
+        return branding_contract(root)
     if manifest.get("deployment_kind") == "document_distribution_updates_v1":
         from release_document_distribution_contract import source_contract as document_contract
 
@@ -135,6 +139,11 @@ def source_contract(root: Path) -> dict | None:
 
 def validate_contract(contract: dict, schema: str) -> None:
     """Validate signed metadata without treating it as a deployment permission."""
+    if isinstance(contract, dict) and contract.get("kind") == "workspace_branding_v1":
+        from release_workspace_branding_contract import validate_contract as validate_branding
+
+        validate_branding(contract, schema)
+        return
     if isinstance(contract, dict) and contract.get("kind") == "document_distribution_updates_v1":
         from release_document_distribution_contract import validate_contract as validate_document
 

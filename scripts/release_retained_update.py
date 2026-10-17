@@ -201,6 +201,15 @@ shutil.rmtree(source)
 class RetainedUpdate:
     candidate_schema = SCHEMA
 
+    def initial_schema(self) -> str:
+        return self.candidate_schema
+
+    def prepare_images(self) -> None:
+        """Same-schema updates need no migration identity."""
+
+    def before_candidate_start(self) -> None:
+        require(self.schema() == self.candidate_schema, 'same_schema_required_before_start')
+
     def retention_schema(self) -> str:
         return self.candidate_schema
 
@@ -457,7 +466,7 @@ walk(root);if(!found)throw Error('revision asset absent');console.log(JSON.strin
         require(not list(self.directory.glob('*-prepared.private.json')), 'existing_attempt_requires_receipt_review')
         running = self.rows()
         inventory = pdf_profile.live_inventory(running, self.rows(all=True)) if self.paused_services() else running
-        live = select_live(inventory, schema=self.candidate_schema, paused_services=self.paused_services())
+        live = select_live(inventory, schema=self.initial_schema(), paused_services=self.paused_services())
         previous = environment(live['backend'])['APP_REVISION']
         self.compatibility(previous)
         self.current_main()
@@ -467,16 +476,17 @@ walk(root);if(!found)throw Error('revision asset absent');console.log(JSON.strin
                 'steady_capacity_exceeds_host_reserve')
         require(not Path('/proc/swaps').read_text().splitlines()[1:], 'swap_must_remain_disabled')
         profile_budget = pdf_profile.planned_budget(live, int(command('docker', 'info', '--format', '{{.MemTotal}}'))) if self.paused_services() else None
-        self.record = {'revision': self.revision, 'mode': self.mode, 'schema': self.candidate_schema, 'project': self.project,
+        self.record = {'revision': self.revision, 'mode': self.mode, 'schema': self.initial_schema(), 'project': self.project,
                        'source': str(self.source), 'previous_revision': previous, 'live': live,
                        'inventory': {row['Id']: row for row in self.rows(all=True)},
                        'images_before': command('docker', 'image', 'ls', '-q', '--no-trunc').split(),
                        'volumes_before': command('docker', 'volume', 'ls', '-q').split(),
                        'pause_email_and_photos': bool(self.paused_services()), 'runtime_profile_budget': profile_budget}
         self.event('prepared')
-        require(self.schema() == self.candidate_schema, 'same_schema_required_no_migration_permitted')
+        require(self.schema() == self.initial_schema(), 'same_schema_required_no_migration_permitted')
         self.proof(live, previous, public=True)
         require(shutil.disk_usage(self.directory).free >= 12 * GIB, 'insufficient_retained_image_headroom')
+        self.prepare_images()
         if self.mode == 'full':
             manifest = verify_manifest(self.artifact, self.revision, pull=True, enforce_current_policy=True)
             require(manifest['schema'] == self.candidate_schema, 'signed_image_schema_mismatch')
@@ -505,7 +515,7 @@ walk(root);if(!found)throw Error('revision asset absent');console.log(JSON.strin
                 self.stop(bound_original(live[name]))
             require({row['Id'] for row in self.rows()} == {live[name]['Id'] for name in INFRASTRUCTURE},
                     'writers_not_fenced')
-            require(self.schema() == self.candidate_schema, 'same_schema_required_before_start')
+            self.before_candidate_start()
             for name in ('backend', 'frontend', *WORKERS, 'email-beat'):
                 if name not in self.paused_services(): self.start(candidates[name])
             self.proof({name: candidates[name] for name in APPLICATION}, self.revision, public=False)
@@ -529,6 +539,10 @@ walk(root);if(!found)throw Error('revision asset absent');console.log(JSON.strin
 
 def release_for_source(source: Path, revision: str, mode: str, artifact: Path | None) -> RetainedUpdate:
     manifest = load_release_manifest(source / 'backend/app/core/config/release_manifest.json')
+    if manifest.get('deployment_kind') == 'workspace_branding_v1':
+        from release_workspace_branding import WorkspaceBrandingUpdate
+
+        return WorkspaceBrandingUpdate(source, revision, mode, artifact)
     if manifest.get('deployment_kind') == 'document_distribution_updates_v1':
         from release_document_retained_update import DocumentRetainedUpdate
 
