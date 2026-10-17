@@ -17855,22 +17855,15 @@
             "type": "string"
           },
           "message_type": {
-            "anyOf": [
-              {
-                "enum": [
-                  "welcome",
-                  "passport_link",
-                  "reminder",
-                  "group_invite"
-                ],
-                "type": "string"
-              },
-              {
-                "const": "update",
-                "type": "string"
-              }
+            "enum": [
+              "welcome",
+              "passport_link",
+              "reminder",
+              "group_invite",
+              "update"
             ],
-            "title": "Message Type"
+            "title": "Message Type",
+            "type": "string"
           },
           "repeatable": {
             "default": false,
@@ -36567,7 +36560,7 @@
             "title": "Message Content"
           },
           "message_type": {
-            "pattern": "^(welcome|passport_link|reminder|group_invite)$",
+            "pattern": "^(welcome|passport_link|reminder|group_invite|update)$",
             "title": "Message Type",
             "type": "string"
           },
@@ -36649,6 +36642,32 @@
               }
             ],
             "title": "Support Contact Ids"
+          },
+          "update_distribution": {
+            "default": "all",
+            "enum": [
+              "all",
+              "sent",
+              "pending"
+            ],
+            "title": "Update Distribution",
+            "type": "string"
+          },
+          "update_document_type": {
+            "default": "visa",
+            "pattern": "^(visa|flight_ticket|flight_ticket_arrival|flight_ticket_domestic|flight_ticket_domestic_arrival)$",
+            "title": "Update Document Type",
+            "type": "string"
+          },
+          "update_submission": {
+            "default": "all",
+            "enum": [
+              "all",
+              "submitted",
+              "not_submitted"
+            ],
+            "title": "Update Submission",
+            "type": "string"
           }
         },
         "required": [
@@ -37531,7 +37550,7 @@
             "title": "Message Content"
           },
           "message_type": {
-            "pattern": "^(welcome|passport_link|reminder|group_invite)$",
+            "pattern": "^(welcome|passport_link|reminder|group_invite|update)$",
             "title": "Message Type",
             "type": "string"
           },
@@ -37613,6 +37632,32 @@
               }
             ],
             "title": "Support Contact Ids"
+          },
+          "update_distribution": {
+            "default": "all",
+            "enum": [
+              "all",
+              "sent",
+              "pending"
+            ],
+            "title": "Update Distribution",
+            "type": "string"
+          },
+          "update_document_type": {
+            "default": "visa",
+            "pattern": "^(visa|flight_ticket|flight_ticket_arrival|flight_ticket_domestic|flight_ticket_domestic_arrival)$",
+            "title": "Update Document Type",
+            "type": "string"
+          },
+          "update_submission": {
+            "default": "all",
+            "enum": [
+              "all",
+              "submitted",
+              "not_submitted"
+            ],
+            "title": "Update Submission",
+            "type": "string"
           }
         },
         "required": [
@@ -37687,7 +37732,7 @@
             "title": "Message Content"
           },
           "message_type": {
-            "pattern": "^(welcome|passport_link|reminder|group_invite)$",
+            "pattern": "^(welcome|passport_link|reminder|group_invite|update)$",
             "title": "Message Type",
             "type": "string"
           },
@@ -37745,6 +37790,32 @@
               }
             ],
             "title": "Support Contact Ids"
+          },
+          "update_distribution": {
+            "default": "all",
+            "enum": [
+              "all",
+              "sent",
+              "pending"
+            ],
+            "title": "Update Distribution",
+            "type": "string"
+          },
+          "update_document_type": {
+            "default": "visa",
+            "pattern": "^(visa|flight_ticket|flight_ticket_arrival|flight_ticket_domestic|flight_ticket_domestic_arrival)$",
+            "title": "Update Document Type",
+            "type": "string"
+          },
+          "update_submission": {
+            "default": "all",
+            "enum": [
+              "all",
+              "submitted",
+              "not_submitted"
+            ],
+            "title": "Update Submission",
+            "type": "string"
           }
         },
         "required": [
@@ -38552,7 +38623,7 @@
                 }
               ]
             },
-            "maxProperties": 7,
+            "maxProperties": 9,
             "minProperties": 1,
             "propertyNames": {
               "enum": [
@@ -38560,6 +38631,7 @@
                 "passport_link",
                 "reminder",
                 "group_invite",
+                "update",
                 "document",
                 "document_update",
                 "qr",
@@ -38597,6 +38669,7 @@
               "passport_link",
               "reminder",
               "group_invite",
+              "update",
               "document",
               "document_update",
               "qr",

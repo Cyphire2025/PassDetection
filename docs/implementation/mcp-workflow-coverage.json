@@ -10405,7 +10405,7 @@
         "id": "frontend_api:frontend/features/companies/api/company-agency.api.ts",
         "kind": "frontend_api_contract",
         "source": "frontend/features/companies/api/company-agency.api.ts",
-        "contract_sha256": "b5b93761dd240230bad046a5f5d8a32709cb1e5d48cc733bbd40d704144157aa"
+        "contract_sha256": "ff6925fe3aab334b004bf9ec8c57574835a50205e50bc198da62b6a3750050cb"
       },
       "workflow": "companies.directory-and-reviewed-history",
       "disposition": "internal_dependency",
@@ -10531,7 +10531,7 @@
         "id": "frontend_api:frontend/features/companies/api/traveller-enrollment.api.ts",
         "kind": "frontend_api_contract",
         "source": "frontend/features/companies/api/traveller-enrollment.api.ts",
-        "contract_sha256": "46c716640613a073a6a37d3a2cff89f4919252192f0010bad927f4da7e4a78d9"
+        "contract_sha256": "2722a6b44fbde03b1911d00523980266165f05abcc8810a7ef2e9730a3ea07be"
       },
       "workflow": "companies.directory-and-reviewed-history",
       "disposition": "internal_dependency",
