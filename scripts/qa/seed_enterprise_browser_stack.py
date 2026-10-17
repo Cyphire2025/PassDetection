@@ -25,6 +25,9 @@ from app.core.config.settings import get_settings
 from app.core.security.identity_security import encrypt_mfa_secret
 from app.core.security.password import hash_password
 from app.domain.entities.entities import UserRole
+from app.infrastructure.database import (
+    model_registry,  # noqa: F401 -- standalone ORM registration
+)
 from app.infrastructure.database.models import (
     AgencyModel,
     AttendanceCloseoutCheckpointModel,

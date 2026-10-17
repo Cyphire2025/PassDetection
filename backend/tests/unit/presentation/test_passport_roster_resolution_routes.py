@@ -551,7 +551,8 @@ async def test_newly_linked_broadcast_is_reconciled_against_active_replacements(
     session = MagicMock()
     session.execute = AsyncMock(
         side_effect=[
-            _scalar_result(SimpleNamespace(import_only=False)),
+            # Legacy groups without a company have no company-history schedule.
+            _scalar_result(SimpleNamespace(import_only=False, company_id=None)),
             existing_links_result,
             MagicMock(),
         ]
