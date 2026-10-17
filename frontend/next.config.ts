@@ -113,13 +113,6 @@ const nextConfig: NextConfig = {
           { key: "Service-Worker-Allowed", value: "/" },
         ],
       },
-      {
-        source: "/ai",
-        headers: [{
-          key: "Permissions-Policy",
-          value: "camera=(self), microphone=(self), geolocation=()",
-        }],
-      },
       { source: "/mcp/connect", headers: [{ key: "Referrer-Policy", value: "no-referrer" }] },
       { source: "/mcp/file-transfer/:path*", headers: [{ key: "Referrer-Policy", value: "no-referrer" }] },
     ];

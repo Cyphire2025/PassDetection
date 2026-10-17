@@ -7,6 +7,14 @@ proxy,
 } from "./proxy";
 
 describe("dashboard proxy boundary", () => {
+  it("allows local microphone input only on the exact public AI preview route", () => {
+    const preview = proxy(new NextRequest("https://dashboard.example/ai"));
+    expect(preview.status).toBe(200);
+    expect(preview.headers.get("Permissions-Policy")).toBe("camera=(self), microphone=(self), geolocation=()");
+    for (const path of ["/login", "/ai-other", "/ai/other"]) {
+      expect(proxy(new NextRequest(`https://dashboard.example${path}`)).headers.get("Permissions-Policy")).toBeNull();
+    }
+  });
   it.each(PROTECTED_PREFIXES)("redirects unauthenticated requests for %s", (prefix) => {
     const response = proxy(new NextRequest(`https://dashboard.example${prefix}`));
     expect(response.status).toBe(307);
