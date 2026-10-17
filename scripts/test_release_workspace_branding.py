@@ -17,6 +17,11 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class BrandingReleaseTests(unittest.TestCase):
+    def test_fresh_process_can_resume_an_additive_attempt(self):
+        release = WorkspaceBrandingUpdate.__new__(WorkspaceBrandingUpdate)
+        self.assertFalse(release.installed)
+        self.assertEqual(release.initial_schema(), SOURCE)
+
     def test_actual_contract_and_reviewed_file_hashes(self):
         value = source_contract(ROOT)
         validate_contract(value, TARGET)

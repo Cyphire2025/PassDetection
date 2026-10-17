@@ -26,6 +26,7 @@ from release_workspace_branding_policy import validate_source
 
 class WorkspaceBrandingUpdate(RetainedUpdate):
     candidate_schema = TARGET
+    installed = False
 
     def initial_schema(self) -> str:
         return TARGET if getattr(self, 'installed', False) else SOURCE
