@@ -196,6 +196,33 @@ For a Fast attempt use `--mode fast` and omit `--manifest`. A recovery receipt
 must belong to that exact attempt, source, revision and mode. Do not invoke
 old schema-specific direct-release scripts for a new release.
 
+## Workspace branding: exact 0140 to 0141 transition
+
+The `workspace_branding_v1` contract selects `release_workspace_branding.py`.
+Its first rollout uses the explicitly selected operator Fast mode and retains
+the installed PDF checking profile, including its three paused feature workers
+and shared scheduler. It admits the reviewed `98f4fb4f` source baseline and
+only migration `0141_workspace_branding`, adding nullable private image keys
+to `client_organizations` and `client_groups`. Existing rows, grants, queues,
+runtime dependencies, resource ceilings and infrastructure remain retained.
+
+Before cutover, the exact backend image must pass the isolated PostgreSQL 16
+branding rehearsal. This verifies source upgrade, target retry, rollback of
+both columns after a lock timeout on the second table, historical row/catalog/
+ACL preservation, rejection of wrong baselines and early new-column values,
+and runtime access through existing table grants. Its receipt binds the source,
+image and migration hashes. This is Fast evidence, not Full CI qualification.
+
+Cutover drains both application generations, archives the source database and
+records its SHA-256 plus a bounded-memory row/catalog/ACL baseline. An image-bound
+helper uses the existing migration identity to apply the single transaction.
+It must prove the original baseline unchanged before activation. If 0141 has
+committed, recovery only moves forward using the same backup, baseline and
+candidate images. A running helper blocks recovery. No automatic downgrade or
+restart of an old-schema writer is permitted. All prior resources are retained.
+
+Once 0141 is installed, subsequent releases use the ordinary same-schema rules.
+
 ## Companies and traveller portal: exact additive transition
 
 The `companies_traveller_reuse_v1` version 3 contract selects
