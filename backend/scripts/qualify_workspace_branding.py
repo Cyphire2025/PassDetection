@@ -72,7 +72,9 @@ def qualify() -> dict:
         with engine.begin() as held:
             # First column would be added before this lock blocks the second.
             # PostgreSQL must roll both additions back as one transaction.
-            held.execute(text('LOCK TABLE client_groups IN ACCESS EXCLUSIVE MODE'))
+            # SHARE permits the preservation SELECTs and blocks ALTER TABLE,
+            # so the timeout happens after the first ADD COLUMN, during DDL.
+            held.execute(text('LOCK TABLE client_groups IN SHARE MODE'))
             invoke(success=False)
             assert held.scalar(text('SELECT version_num FROM alembic_version')) == SOURCE
             assert held.scalar(text("SELECT count(*) FROM information_schema.columns WHERE column_name IN ('logo_image_key','banner_image_key') AND table_schema='public'")) == 0
