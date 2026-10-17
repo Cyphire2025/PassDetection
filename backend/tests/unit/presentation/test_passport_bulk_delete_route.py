@@ -29,6 +29,10 @@ from app.presentation.api.v1.schemas.passport_schemas import (
 
 @pytest.fixture(autouse=True)
 def _isolate_mobile_passenger_propagation(monkeypatch: pytest.MonkeyPatch) -> None:
+    # This route suite uses a narrow fake database. Retained-source FK and
+    # copying/deletion behavior are exercised against a real database in the
+    # traveller enrollment integration tests.
+    monkeypatch.setattr("app.application.travellers.retention.detach_submission_provenance", AsyncMock())
     monkeypatch.setattr(
         passport_bulk_actions,
         "propagate_mobile_passenger_change",

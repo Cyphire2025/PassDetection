@@ -13,6 +13,8 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.elements import ColumnElement
 
+from app.application.companies.assignment import assign_group_company
+from app.application.companies.directory import create_company, delete_company
 from app.application.mobile.group_app_availability import (
     GCAppAvailability,
     availability_fields,
@@ -303,7 +305,7 @@ async def search_gc_groups(
             )
             .outerjoin(
                 ClientOrganizationModel,
-                (ClientOrganizationModel.id == GCGroupAccessModel.client_organization_id)
+                (ClientOrganizationModel.id == ClientGroupModel.company_id)
                 & (ClientOrganizationModel.agency_id == ClientGroupModel.agency_id),
             )
             .where(*filters)
@@ -341,7 +343,7 @@ async def search_gc_groups(
             )
             .outerjoin(
                 ClientOrganizationModel,
-                (ClientOrganizationModel.id == GCGroupAccessModel.client_organization_id)
+                (ClientOrganizationModel.id == ClientGroupModel.company_id)
                 & (ClientOrganizationModel.agency_id == ClientGroupModel.agency_id),
             )
             .where(*filters)
@@ -372,7 +374,7 @@ async def search_gc_groups(
                     access and access.is_enabled and access.revoked_at is None
                 ),
                 client_organization_id=(
-                    access.client_organization_id if access is not None else None
+                    group.company_id
                 ),
                 client_organization_name=(organization.name if organization else None),
                 access=(
@@ -473,29 +475,20 @@ async def configure_gc_group_access(
             .with_for_update()
         )
     ).scalar_one_or_none()
-    restoring = _group_access_support.validate_removed_access_restore(
-        access, body, can_enable=can_enable,
+    restoring, organization_id, company_changed = _group_access_support.validate_group_access_edit(
+        group, access, body, can_enable=can_enable,
     )
-    organization_id = body.client_organization_id or (
-        access.client_organization_id if access else None
-    )
-    if organization_id is None:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-            detail="A client organization is required when adding a group to GC App",
+    if company_changed:
+        group = await assign_group_company(
+            session, user=current_user, agency_id=tenant_id, group_id=group_id,
+            company_id=organization_id, expected_revision=group.company_revision,
         )
-    await _get_organization(session, tenant_id, organization_id, lock=True)
 
     now = datetime.now(tz=UTC)
     revoked_roles: set[MobileAudience] = set()
-    revoke_all_group_sessions = False
+    revoke_all_group_sessions = company_changed
     access_window_changed = False
     if access is None:
-        if not can_enable:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="Archived or deleted groups cannot be added to GC App",
-            )
         access = GCGroupAccessModel(
             id=uuid.uuid4(),
             agency_id=tenant_id,
@@ -526,30 +519,6 @@ async def configure_gc_group_access(
         session.add(access)
         action = "gc_app.group_added"
     else:
-        if body.expected_revision is None or body.expected_revision != access.revision:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="GC App settings changed; refresh and retry",
-            )
-        if organization_id != access.client_organization_id:
-            active_assignments = int(
-                (
-                    await session.execute(
-                        select(func.count())
-                        .select_from(ClientManagerGroupAssignmentModel)
-                        .where(
-                            ClientManagerGroupAssignmentModel.gc_group_access_id == access.id,
-                            ClientManagerGroupAssignmentModel.is_active.is_(True),
-                        )
-                    )
-                ).scalar_one()
-            )
-            if active_assignments:
-                raise HTTPException(
-                    status_code=status.HTTP_409_CONFLICT,
-                    detail="Remove Client Manager assignments before changing the client organization",
-                )
-            revoke_all_group_sessions = True
         if access.passenger_access_enabled and not body.passenger_access_enabled:
             revoked_roles.add("passenger")
         if (
@@ -870,42 +839,8 @@ async def create_client_organization(
     current_user: User = Depends(require_role(GC_ADMIN_ROLES)),
     session: AsyncSession = Depends(get_db_session),
 ) -> ClientOrganizationResponse:
-    tenant_id = _tenant_id(current_user, agency_id)
-    normalized_name = body.name.casefold()
-    existing = (
-        await session.execute(
-            select(ClientOrganizationModel.id).where(
-                ClientOrganizationModel.agency_id == tenant_id,
-                ClientOrganizationModel.normalized_name == normalized_name,
-                ClientOrganizationModel.status != "deleted",
-            )
-        )
-    ).scalar_one_or_none()
-    if existing is not None:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Organization already exists")
-    now = datetime.now(tz=UTC)
-    organization = ClientOrganizationModel(
-        id=uuid.uuid4(),
-        agency_id=tenant_id,
-        name=body.name,
-        normalized_name=normalized_name,
-        status="active",
-        created_by_user_id=current_user.id,
-        updated_by_user_id=current_user.id,
-        created_at=now,
-        updated_at=now,
-    )
-    session.add(organization)
-    await session.flush()
-    await _audit(
-        session,
-        current_user,
-        request,
-        agency_id=tenant_id,
-        action="gc_app.organization_created",
-        entity_type="client_organization",
-        entity_id=organization.id,
-        metadata=None,
+    organization = await create_company(
+        session, user=current_user, agency_id=agency_id, name=body.name,
     )
     return _organization_response(organization)
 
@@ -926,78 +861,10 @@ async def delete_client_organization(
     """Soft-delete an unused client organization without touching travel data."""
 
     tenant_id = _tenant_id(current_user, agency_id)
-    organization = await _get_organization(
-        session,
-        tenant_id,
-        organization_id,
-        lock=True,
-    )
-    enabled_group_count = int(
-        (
-            await session.execute(
-                select(func.count())
-                .select_from(GCGroupAccessModel)
-                .where(
-                    GCGroupAccessModel.agency_id == tenant_id,
-                    GCGroupAccessModel.client_organization_id == organization.id,
-                    GCGroupAccessModel.is_enabled.is_(True),
-                    GCGroupAccessModel.revoked_at.is_(None),
-                )
-            )
-        ).scalar_one()
-    )
-    live_manager_count = int(
-        (
-            await session.execute(
-                select(func.count())
-                .select_from(ClientManagerProfileModel)
-                .where(
-                    ClientManagerProfileModel.agency_id == tenant_id,
-                    ClientManagerProfileModel.organization_id == organization.id,
-                    ClientManagerProfileModel.status != "deleted",
-                )
-            )
-        ).scalar_one()
-    )
-    if enabled_group_count or live_manager_count:
-        dependencies: list[str] = []
-        if enabled_group_count:
-            dependencies.append(
-                f"{enabled_group_count} enabled GC App group"
-                f"{'s' if enabled_group_count != 1 else ''}"
-            )
-        if live_manager_count:
-            dependencies.append(
-                f"{live_manager_count} Client Manager account"
-                f"{'s' if live_manager_count != 1 else ''}"
-            )
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=(
-                "This company/client cannot be removed while it is used by "
-                + " and ".join(dependencies)
-                + ". Remove those assignments first."
-            ),
-        )
-
-    now = datetime.now(tz=UTC)
-    organization.status = "deleted"
-    organization.deleted_at = now
-    organization.updated_by_user_id = current_user.id
-    organization.updated_at = now
-    await session.flush()
-    await _audit(
-        session,
-        current_user,
-        request,
-        agency_id=tenant_id,
-        action="gc_app.organization_deleted",
-        entity_type="client_organization",
-        entity_id=organization.id,
-        metadata={
-            "historical_group_references_retained": True,
-            "historical_manager_references_retained": True,
-        },
+    organization = await _get_organization(session, tenant_id, organization_id, lock=True)
+    await delete_company(
+        session, user=current_user, company_id=organization_id,
+        agency_id=tenant_id, expected_revision=organization.revision,
     )
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 

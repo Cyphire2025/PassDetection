@@ -177,6 +177,7 @@ async def queue_broadcast_message(
     source_recipients = _select_group_recipients(all_recipients, body.recipient_ids)
     audience_resolution = await resolve_reminder_audience(
         session,
+        message_request=body,
         broadcast_group=group,
         recipients=source_recipients,
         audience=body.audience,
@@ -250,11 +251,18 @@ async def queue_broadcast_message(
         support_contact_ids=merged_body.support_contact_ids,
         audience=merged_body.audience,
         audience_client_group_id=merged_body.audience_client_group_id,
+        update_submission=body.update_submission,
+        update_distribution=body.update_distribution,
+        update_document_type=body.update_document_type,
+        include_previous_recipients=body.include_previous_recipients,
     )
     batch_id = uuid.uuid4()
     now = datetime.now(tz=UTC)
     stale_cutoff = now - WHATSAPP_STALE_CLAIM_AGE
     suppressed_statuses = broadcast_suppression_statuses(message_type, suppress_unknown_reminders)
+    if body.include_previous_recipients or message_type == "update":
+        # A new send can include accepted recipients, but never an unresolved attempt.
+        suppressed_statuses = frozenset({"queued", "processing", "delivery_unknown", "stalled"})
     if suppress_unknown_reminders:
         recorded_states = await session.scalars(
             select(WhatsAppRecipientMessageStateModel.status)
@@ -278,8 +286,8 @@ async def queue_broadcast_message(
     )
 
     active_explicit_reminder_ids = (
-        await _active_explicit_reminder_recipient_ids(session, recipients)
-        if message_type == "reminder"
+        await _active_explicit_reminder_recipient_ids(session, recipients, message_type)
+        if message_type in {"reminder", "update"}
         else set()
     )
     if message_type == "passport_link":
@@ -299,7 +307,7 @@ async def queue_broadcast_message(
     invite_blocks = (
         await group_invite_blocking_statuses(session, recipients)
         if message_type == "group_invite"
-        else await message_phone_blocking_statuses(session, recipients, message_type=message_type)
+        else await message_phone_blocking_statuses(session, recipients, message_type=message_type, include_accepted=not body.include_previous_recipients)
         if message_type == "passport_link"
         else {}
     )
@@ -416,6 +424,7 @@ async def queue_broadcast_message(
         "passport_link": passport_link,
         "group_invite_link": resolved_body.group_invite_link,
         "header_image_id": resolved_body.header_image_id,
+        **({"include_previous_recipients": True} if body.include_previous_recipients else {}),
     }
 
 

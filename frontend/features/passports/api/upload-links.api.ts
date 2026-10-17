@@ -9,6 +9,7 @@ import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import type { PublicFlowTelemetryPayload } from "@/features/upload/services/public-flow-telemetry";
 import { getOrCreatePublicUploadSessionId } from "./public-upload-session";
 import type { UploadConfiguration } from "../types/upload-configuration";
+import type { CompanyReference } from "@/features/companies/types";
 
 const publicUploadHeaders = (token: string) => ({
   "X-Upload-Session-ID": getOrCreatePublicUploadSessionId(token),
@@ -30,6 +31,8 @@ export interface CustomUploadDetail {
 }
 
 export interface UpdateUploadLinkRequest {
+  company_id?: string;
+  company_revision?: number;
   name: string;
   destination?: string | null;
   travel_date?: string | null;
@@ -57,6 +60,8 @@ export interface UpdateUploadLinkRequest {
 }
 
 export interface CreateUploadLinkRequest extends UpdateUploadLinkRequest {
+  company_id: string;
+  agency_id?: string;
   import_only?: boolean;
   destination: string;
   travel_date: string;
@@ -211,6 +216,9 @@ export interface QualifierRelationOption {
 }
 
 export interface UploadLinkResponse {
+  company_id?: string | null;
+  company?: CompanyReference | null;
+  company_revision?: number;
   import_only?: boolean;
   id: string;
   name: string;

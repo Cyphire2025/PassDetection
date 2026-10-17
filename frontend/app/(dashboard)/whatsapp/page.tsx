@@ -20,9 +20,9 @@ export default function DashboardWhatsAppPage() {
   useEffect(() => {
     if (!hasHydrated || role === null || canAccessWhatsApp) return;
     router.replace(
-      (role === "agency_coordinator"
+      role === "agency_coordinator"
         ? ROUTES.coordinator
-        : ROUTES.dashboard.passports),
+        : ROUTES.dashboard.passports,
     );
   }, [canAccessWhatsApp, hasHydrated, role, router]);
 

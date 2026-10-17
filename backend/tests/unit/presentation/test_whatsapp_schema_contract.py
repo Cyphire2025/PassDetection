@@ -60,6 +60,8 @@ def test_whatsapp_route_reexports_reviewed_schema_contracts() -> None:
     # Remove only these explicit additions and keep both runtime hashes intact;
     # every extension removed here is separately checked below.
     for name, schema in schemas:
+        if name == "WhatsAppContactPreviewResponse":
+            schema["properties"].pop("rejected_counts")
         if name == "WhatsAppPreviewResponse":
             schema["properties"].pop("audience_recipient_ids")
         if name in {"WhatsAppBroadcastGroupResponse", "WhatsAppBroadcastGroupDetailResponse"}:
@@ -79,8 +81,13 @@ def test_whatsapp_route_reexports_reviewed_schema_contracts() -> None:
             linked_group["properties"].pop("import_only")
         if name in {"WhatsAppSendRequest", "WhatsAppResendRequest", "WhatsAppPreviewRequest"}:
             message_type = schema["properties"]["message_type"]
-            assert message_type["pattern"] == "^(welcome|passport_link|reminder|group_invite)$"
+            assert message_type["pattern"] == "^(welcome|passport_link|reminder|group_invite|update)$"
             message_type["pattern"] = "^(welcome|passport_link|reminder)$"
+            for field in ("update_submission", "update_distribution", "update_document_type", "include_previous_recipients"):
+                schema["properties"].pop(field)
+            if name == "WhatsAppResendRequest":
+                for field in ("source_message_log_id", "request_id"):
+                    schema["properties"].pop(field)
         if name in {
             "WhatsAppSendRequest", "WhatsAppResendRequest", "WhatsAppPreviewRequest", "WhatsAppPreviewResponse",
         }:

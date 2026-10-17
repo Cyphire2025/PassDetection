@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { uploadLinksApi } from "@/features/passports/api/upload-links.api";
 import { useUploadLinkByToken } from "@/features/passports/hooks/use-upload-links";
+import { ReturningTravellerOffer } from "@/features/travellers/components/returning-offer";
+import type { ReplacementIntent, ReturningCapabilities, ReturningMethod } from "@/features/travellers/types";
 import { isUploadFieldRequired, type RequiredUploadField } from "@/features/passports/types/upload-configuration";
 import type { PassportSubmission } from "@/types/passport.types";
 import {
@@ -88,6 +90,14 @@ const SmartCamera = dynamic(
   () => import("./smart-camera").then((module) => module.SmartCamera),
   { loading: () => <CenteredLoader /> },
 );
+const ReturningFlow = dynamic(
+  () => import("@/features/travellers/components/returning-flow").then((module) => module.ReturningFlow),
+  { loading: () => <CenteredLoader /> },
+);
+const ReturningReplacementStatus = dynamic(
+  () => import("@/features/travellers/components/returning-replacement-status").then((module) => module.ReturningReplacementStatus),
+  { loading: () => <CenteredLoader /> },
+);
 const VisaPhotoUpload = dynamic(
   () => import("./visa-photo-upload").then((module) => module.VisaPhotoUpload),
   { loading: () => <CenteredLoader /> },
@@ -104,6 +114,8 @@ interface UploadFlowProps {
 export function UploadFlow({ token }: UploadFlowProps) {
   const { data: group, isLoading, error, refetch: refetchLink, isFetching: isFetchingLink } = useUploadLinkByToken(token);
   const [linkError, setLinkError] = useState<unknown>(null);
+  const [returningSelection, setReturningSelection] = useState<{ method: ReturningMethod; capabilities: ReturningCapabilities } | null>(null);
+  const [replacementIntent, setReplacementIntent] = useState<ReplacementIntent | null>(null);
 
   const [step, setStep] = useState<Step>("BOOTSTRAP");
   const [flowMode, setFlowMode] = useState<FlowMode | null>(null);
@@ -227,6 +239,7 @@ export function UploadFlow({ token }: UploadFlowProps) {
   };
 
   const chooseMode = (mode: FlowMode) => {
+    setReplacementIntent(null);
     setFlowMode(mode);
     setUploadError(null);
     setStep(mode === "single" ? "METHOD_SELECT" : "FAMILY_SETUP");
@@ -420,6 +433,18 @@ export function UploadFlow({ token }: UploadFlowProps) {
   }
 
   if (isLoading || step === "BOOTSTRAP" || !group) return <CenteredLoader />;
+  if (returningSelection) return <ReturningFlow key={token} token={token} group={group} initialMethod={returningSelection.method} capabilities={returningSelection.capabilities} onFresh={() => { setReturningSelection(null); setReplacementIntent(null); }} onReplace={(request) => {
+    const uploadSessionId = createIdempotencyKey();
+    setReplacementIntent({ ...request, uploadSessionId, idempotencyKey: createIdempotencyKey() });
+    setSingleUploadIdempotencyKey(uploadSessionId); setSubmission(null); setReviewFields({}); setDocumentBundle(emptyDocumentBundle());
+    setVisaSelfie(null); setVisaPhotoSource(null); setCustomAnswers({}); setCustomDetailAnswers({});
+    setClientEmail(""); setClientPhone(""); setDepartureCity(""); setBaseCity(""); setNearestDomesticAirport("");
+    setStaffCode(""); setAgentEmployeeCode(""); setDesignation(""); setAgencyDealershipName(""); setMealPreference("");
+    clearQualifierSelectionToken(token); setQualifierSelectionToken(null); setPersistedQualifierChoice(null);
+    setQualifierPath(null); setQualifierRelationCode(""); setQualifierOtherRelation("");
+    setFlowMode("single"); setClientName(request.displayName); setReturningSelection(null); setUploadError(null);
+    setStep(relationWithQualifierEnabled ? "QUALIFIER_SELECT" : "METHOD_SELECT");
+  }} />;
 
   if (step === "RECOVERY_ERROR") {
     return <UploadRecoveryScreen error={uploadError} onRetry={retrySavedUploadRecovery} />;
@@ -529,6 +554,8 @@ export function UploadFlow({ token }: UploadFlowProps) {
       handleFamilyReviewFieldChange={handleFamilyReviewFieldChange} />;
   }
 
+  if (step === "SUCCESS" && replacementIntent && flowMode === "single" && submission && replacementIntent.uploadSessionId === singleUploadIdempotencyKey) return <ReturningReplacementStatus intent={replacementIntent} submission={submission} />;
+
   if (step === "SUCCESS") {
     return (
       <UploadSuccessScreen
@@ -545,6 +572,8 @@ export function UploadFlow({ token }: UploadFlowProps) {
     <div className="min-h-screen bg-slate-50 px-3 py-4 font-sans selection:bg-blue-100 selection:text-blue-900 sm:flex sm:flex-col sm:items-center sm:justify-center sm:px-4 sm:py-8 lg:py-12">
       <div className={`mx-auto w-full ${step === "METHOD_SELECT" && flowMode === "family" ? "max-w-5xl" : "max-w-lg"}`}>
         <UploadHeader groupName={group.name} departureDate={group.travel_date} returnDate={group.return_date} />
+        {replacementIntent && <p role="status" className="mb-4 rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm leading-6 text-blue-900">Updating the passport for {replacementIntent.displayName}. Upload the current document for this person; staff will review it before future reuse.</p>}
+        {(step === "MODE_SELECT" || step === "QUALIFIER_SELECT") && <ReturningTravellerOffer token={token} onSelect={(method, capabilities) => { setReplacementIntent(null); setReturningSelection({ method, capabilities }); }} />}
         <ErrorMessage message={uploadError} />
         <div className="relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-4 shadow-xl shadow-slate-200/50 sm:rounded-3xl sm:p-8">
           {step === "MODE_SELECT" && (

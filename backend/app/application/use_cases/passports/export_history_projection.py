@@ -27,6 +27,8 @@ class ExportHistoryItem(BaseModel):
     exported_count: int = Field(ge=0)
     pending_recipient_count: int = Field(ge=0)
     new_submission_count: int = Field(ge=0)
+    changed_submission_count: int = Field(default=0, ge=0)
+    removed_submission_count: int = Field(default=0, ge=0)
     compatible: bool
     actor_email: str | None
     created_at: datetime
@@ -43,13 +45,15 @@ class ExportHistoryPerson(BaseModel):
     passport_number: str | None = None
 
 
-def project_history_item(history: Any, *, compatible: bool, new_submission_count: int) -> ExportHistoryItem:
+def project_history_item(history: Any, *, compatible: bool, new_submission_count: int,
+                         changed_submission_count: int = 0, removed_submission_count: int = 0) -> ExportHistoryItem:
     return ExportHistoryItem(
         id=history.id, export_kind=validated_export_kind(history.export_kind),
         export_mode=validated_export_mode(history.export_mode), baseline_export_id=history.baseline_export_id,
         total_available_count=history.total_available_count, exported_count=history.exported_count,
         pending_recipient_count=history.pending_recipient_count, compatible=compatible,
         new_submission_count=new_submission_count, actor_email=getattr(history, "actor_email", None),
+        changed_submission_count=changed_submission_count, removed_submission_count=removed_submission_count,
         created_at=history.created_at, completed_at=history.completed_at,
     )
 

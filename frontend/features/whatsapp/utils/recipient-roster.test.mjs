@@ -7,7 +7,7 @@ const hooks = registerHooks({
     return nextResolve(specifier === "./recipient-delivery" ? "./recipient-delivery.ts" : specifier, context);
   },
 });
-const { filterRecipientRosterItems, recipientHasFailedMessage, recipientHasSentMessage, searchRecipientRosterItems } = await import("./recipient-roster.ts");
+const { countRecipientRosterItems, filterRecipientRosterItems, recipientHasFailedMessage, recipientHasSentMessage, searchRecipientRosterItems } = await import("./recipient-roster.ts");
 hooks.deregister();
 
 function messageStatus({
@@ -299,4 +299,75 @@ test("recipient search covers rejected, replaced, and unidentified roster rows",
 test("blank recipient search preserves the already-filtered roster", () => {
   const filtered = filterRecipientRosterItems(unorderedRoster, "failed");
   assert.equal(searchRecipientRosterItems(filtered, "  "), filtered);
+});
+
+test("Delivery left counts only accepted and sent attempts for the selected message, in import order", () => {
+  const states = ["not_sent", "queued", "processing", "submitted", "sent", "delivered", "read", "failed", "delivery_unknown"];
+  const items = states.map((status, index) => recipientItem({
+    id: status,
+    displayOrder: index + 1,
+    messageStatuses: [messageStatus({ messageType: "welcome", status })],
+  }));
+  items.push(recipientItem({
+    id: "other-message",
+    displayOrder: 10,
+    messageStatuses: [messageStatus({ messageType: "passport_link", status: "sent" })],
+  }), neverSent, rejected);
+  const reversed = [...items].reverse();
+
+  assert.deepEqual(filterRecipientRosterItems(reversed, "delivery_left", "welcome").map(itemId), ["submitted", "sent"]);
+  assert.equal(countRecipientRosterItems(items, "delivery_left", "welcome"), 2);
+  assert.deepEqual(filterRecipientRosterItems(items, "delivery_left", "passport_link").map(itemId), ["other-message"]);
+  assert.equal(countRecipientRosterItems(items, "delivery_left"), 3);
+  assert.deepEqual(filterRecipientRosterItems(searchRecipientRosterItems(items, "submitted"), "delivery_left", "welcome").map(itemId), ["submitted"]);
+});
+
+test("Delivery left stops counting an attempt after delivery, read, or failure confirmation", () => {
+  const item = recipientItem({
+    id: "pending",
+    displayOrder: 1,
+    messageStatuses: [messageStatus({ messageType: "welcome", status: "sent", alreadySent: true })],
+  });
+  assert.equal(countRecipientRosterItems([item], "delivery_left", "welcome"), 1);
+  for (const status of ["delivered", "read", "failed"]) {
+    const updated = structuredClone(item);
+    updated.recipient.message_statuses[0].status = status;
+    assert.equal(countRecipientRosterItems([updated], "delivery_left", "welcome"), 0);
+  }
+});
+
+test("Delivery left includes only original accepted or sent messages without pending or failed resends", () => {
+  const cases = [
+    ["submitted", null, true],
+    ["sent", null, true],
+    ["read", "submitted", false],
+    ["delivered", "sent", false],
+    ["failed", "sent", false],
+    ["failed", "submitted", false],
+    ["sent", "failed", false],
+    ["submitted", "failed", false],
+    ["sent", "delivered", true],
+    ["submitted", "read", true],
+    ["sent", "queued", false],
+    ["sent", "processing", false],
+    ["sent", "submitted", false],
+    ["sent", "sent", false],
+    ["submitted", "sent", false],
+    ["sent", "delivery_unknown", false],
+    ["delivered", "queued", false],
+    ["delivered", "processing", false],
+    ["delivered", "failed", false],
+    ["delivered", "delivery_unknown", false],
+    ["failed", "read", false],
+  ];
+  for (const [status, latestResendStatus, awaiting] of cases) {
+    const item = recipientItem({
+      id: `${status}-${latestResendStatus}`,
+      displayOrder: 1,
+      messageStatuses: [messageStatus({ messageType: "welcome", status, latestResendStatus })],
+    });
+    assert.equal(countRecipientRosterItems([item], "delivery_left", "welcome"), Number(awaiting), item.recipient.id);
+    assert.equal(countRecipientRosterItems([item], "delivery_left"), Number(awaiting), item.recipient.id);
+    assert.deepEqual(filterRecipientRosterItems([item], "delivery_left", "welcome").map(itemId), awaiting ? [item.recipient.id] : []);
+  }
 });

@@ -1,6 +1,21 @@
 import { canUseDemoMode, DEMO_APPLICATION_ID } from '../demo-policy';
 
 describe('demo mode build boundary', () => {
+  it.each([true, false])('allows the offline review build on physical device=%s', (isPhysicalDevice) => {
+    expect(canUseDemoMode({ requested: true, standalone: true, appEnv: 'preview',
+      applicationId: 'com.globalconnects.groupcompanion', apiHostname: 'demo.invalid', isPhysicalDevice })).toBe(true);
+  });
+
+  it.each([
+    { requested: false }, { appEnv: 'production' as const }, { appEnv: 'development' as const },
+    { apiHostname: 'tech.gctravels.com' }, { apiHostname: 'localhost' },
+    { applicationId: DEMO_APPLICATION_ID }, { standalone: false },
+  ])('rejects an unsafe standalone configuration: %s', (override) => {
+    expect(canUseDemoMode({ requested: true, standalone: true, appEnv: 'preview',
+      applicationId: 'com.globalconnects.groupcompanion', apiHostname: 'demo.invalid',
+      isPhysicalDevice: true, ...override })).toBe(false);
+  });
+
   it('allows the explicitly requested development demo package', () => {
     expect(
       canUseDemoMode({

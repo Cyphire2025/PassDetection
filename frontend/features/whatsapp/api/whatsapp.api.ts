@@ -177,7 +177,7 @@ export interface WhatsAppBroadcastGroupDetail extends WhatsAppBroadcastGroup {
   linked_client_groups?: WhatsAppLinkedClientGroup[];
 }
 
-export type WhatsAppMessageType = "welcome" | "passport_link" | "reminder" | "group_invite";
+export type WhatsAppMessageType = "welcome" | "passport_link" | "reminder" | "group_invite" | "update";
 export type WhatsAppReminderAudience = "all" | "not_submitted";
 
 export interface WhatsAppMessageDraft {
@@ -193,6 +193,10 @@ export interface WhatsAppMessageDraft {
   support_contact_ids?: string[] | null;
   audience?: WhatsAppReminderAudience;
   audience_client_group_id?: string | null;
+  update_submission?: "all" | "submitted" | "not_submitted";
+  update_distribution?: "all" | "sent" | "pending";
+  update_document_type?: string;
+  include_previous_recipients?: boolean;
 }
 
 export interface WhatsAppPreviewResponse {
@@ -405,6 +409,7 @@ export const whatsappApi = {
     recipientOptInConfirmed,
     importedFieldKeys,
     file,
+    duplicateSourceFiles,
   }: {
     name: string;
     contacts: WhatsAppRecipientInput[];
@@ -413,6 +418,7 @@ export const whatsappApi = {
     recipientOptInConfirmed: boolean;
     importedFieldKeys?: string[];
     file?: File | null;
+    duplicateSourceFiles?: File[];
   }): Promise<WhatsAppBroadcastGroupDetail> => {
     const formData = new FormData();
     formData.append("name", name);
@@ -425,6 +431,7 @@ export const whatsappApi = {
     formData.append("recipient_opt_in_confirmed", String(recipientOptInConfirmed));
     formData.append("imported_field_keys_json", JSON.stringify(importedFieldKeys ?? []));
     if (file) formData.append("contacts_file", file);
+    for (const sourceFile of duplicateSourceFiles ?? []) formData.append("duplicate_source_files", sourceFile);
     const { data } = await apiClient.post<WhatsAppBroadcastGroupDetail>(API_ENDPOINTS.whatsapp.groups, formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
@@ -460,6 +467,7 @@ export const whatsappApi = {
     recipientOptInConfirmed,
     importedFieldKeys,
     file,
+    duplicateSourceFiles,
   }: {
     groupId: string;
     contacts: WhatsAppRecipientInput[];
@@ -467,6 +475,7 @@ export const whatsappApi = {
     recipientOptInConfirmed: boolean;
     importedFieldKeys?: string[];
     file?: File | null;
+    duplicateSourceFiles?: File[];
   }): Promise<WhatsAppBroadcastGroupDetail> => {
     const formData = new FormData();
     formData.append("contacts_json", JSON.stringify(contacts));
@@ -477,6 +486,7 @@ export const whatsappApi = {
     formData.append("recipient_opt_in_confirmed", String(recipientOptInConfirmed));
     formData.append("imported_field_keys_json", JSON.stringify(importedFieldKeys ?? []));
     if (file) formData.append("contacts_file", file);
+    for (const sourceFile of duplicateSourceFiles ?? []) formData.append("duplicate_source_files", sourceFile);
     const { data } = await apiClient.post<WhatsAppBroadcastGroupDetail>(
       API_ENDPOINTS.whatsapp.recipients(groupId),
       formData,

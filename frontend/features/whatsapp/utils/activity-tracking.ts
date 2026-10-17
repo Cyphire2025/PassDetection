@@ -179,7 +179,7 @@ export function initialWhatsAppActivitySummary(
 }
 
 export function isWhatsAppBroadcastSourcePath(pathname: string): boolean {
-  if (pathname === ROUTES.dashboard.whatsapp) return true;
+  if (pathname === ROUTES.dashboard.whatsapp || pathname.startsWith(`${ROUTES.dashboard.whatsapp}/`)) return true;
 
   const visaPrefix = `${ROUTES.dashboard.documentDistributionVisa}/`;
   if (

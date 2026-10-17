@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import uuid
+from dataclasses import replace
 from unittest.mock import AsyncMock
 
 import pytest
@@ -126,7 +127,9 @@ async def test_closed_group_reopens_same_link_and_resumes_configured_uploads(
     assert reopened.deleted_at is None
     assert reopened.passport_purge_at is None
     assert reopened.passport_retention_days_applied is None
-    assert await lookup.execute(group.token) == original
+    refreshed = await lookup.execute(group.token)
+    assert refreshed.company_revision == original.company_revision + 2
+    assert replace(refreshed, company_revision=original.company_revision) == original
     assert await db_session.get(PassportSubmissionModel, previous_submission.id) is not None
 
     with pytest.raises(ValidationError) as missing_selfie:

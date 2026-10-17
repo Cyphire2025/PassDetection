@@ -14,6 +14,7 @@ export type ApplicationCapability =
   | "rooming.workspace.view"
   | "menu.workspace.view"
   | "gc_app.manage"
+  | "companies.manage"
   | "accounts.admin.manage"
   | "mcp.manage"
   | "accounts.staff.manage"
@@ -43,6 +44,7 @@ const OFFICE_ROLES: readonly UserRole[] = [
 
 const ROLE_CAPABILITIES: Record<UserRole, readonly ApplicationCapability[]> = {
   super_admin: [
+    "companies.manage",
     "dashboard.overview.view",
     "passports.workspace.view",
     "whatsapp.broadcast.manage",
@@ -61,6 +63,7 @@ const ROLE_CAPABILITIES: Record<UserRole, readonly ApplicationCapability[]> = {
     "legacy_data.manage",
   ],
   agency_admin: [
+    "companies.manage",
     "dashboard.overview.view",
     "passports.workspace.view",
     "whatsapp.broadcast.manage",
@@ -77,6 +80,7 @@ const ROLE_CAPABILITIES: Record<UserRole, readonly ApplicationCapability[]> = {
     "settings.manage",
   ],
   agency_manager: [
+    "companies.manage",
     "dashboard.overview.view",
     "passports.workspace.view",
     "whatsapp.broadcast.manage",
@@ -103,6 +107,7 @@ const ROLE_CAPABILITIES: Record<UserRole, readonly ApplicationCapability[]> = {
 // Most-specific prefixes must come first. An unmapped dashboard route is
 // intentionally denied until its feature owner declares a capability here.
 export const ROUTE_CAPABILITY_POLICIES: readonly RouteCapabilityPolicy[] = [
+  { prefix: ROUTES.dashboard.companies, capability: "companies.manage" },
   {
     prefix: ROUTES.dashboard.tourOperationsCoordinators,
     capability: "tour_operations.coordinators.manage",

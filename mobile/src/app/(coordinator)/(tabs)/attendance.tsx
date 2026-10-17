@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 
 import { userFacingErrorMessage } from '@/core/errors/user-facing-error';
+import { isDemoMode } from '@/core/demo/demo-mode';
 import { MOBILE_LIST_WINDOWING } from '@/core/performance/mobile-performance-budgets';
 import { useManualRefresh } from '@/core/query/use-manual-refresh';
 import { ContentEmpty, ContentError, ContentLoading } from '@/design/components/content-state';
@@ -124,7 +125,9 @@ export default function CoordinatorAttendanceScreen() {
     if (!tripId || !selectedActivity || selectedActivity.status !== 'active' || !selectedForScanning) return;
     Alert.alert(
       'Finish scanning on this device?',
-      'This only leaves the activity on your device. It will stay open for other coordinators, and any scans already saved here will continue synchronizing.',
+      isDemoMode()
+        ? 'This leaves the selected sample activity on this device. Attendance changes stay in this local coordinator workspace.'
+        : 'This only leaves the activity on your device. It will stay open for other coordinators, and any scans already saved here will continue synchronizing.',
       [
         { text: 'Cancel', style: 'cancel' },
         {

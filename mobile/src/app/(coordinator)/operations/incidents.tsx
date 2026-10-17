@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { isDemoMode } from '@/core/demo/demo-mode';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { GlassCard } from '@/design/components/glass-card';
@@ -26,7 +27,7 @@ export default function CoordinatorIncidentsScreen() {
       await enqueueIncident(trips.selectedTripId, { title, description, severity });
       await drainIncidentQueue(trips.selectedTripId).catch(() => undefined);
       const pending = await incidentQueueCount(trips.selectedTripId);
-      setMessage(pending ? 'Incident saved securely and waiting to synchronize.' : 'Incident reported successfully.');
+      setMessage(isDemoMode() ? 'Sample incident checked locally. Nothing was sent to the dashboard.' : pending ? 'Incident saved securely and waiting to synchronize.' : 'Incident reported successfully.');
       setTitle('');
       setDescription('');
     } catch {

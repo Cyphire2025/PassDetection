@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils/cn";
 import { selectUser, useAuthStore } from "@/stores/auth.store";
 import {
   BarChart3,
+  Building2,
   BedDouble,
   CalendarCheck,
   ClipboardList,
@@ -73,6 +74,7 @@ const NAV_ITEMS: NavItem[] = [
     ],
   },
   { label: "Manager", href: ROUTES.dashboard.admin, icon: Shield, section: "Administration" },
+  { label: "Companies / Clients", href: ROUTES.dashboard.companies, icon: Building2, section: "Administration" },
   { label: "MCP", href: ROUTES.dashboard.mcp, icon: Plug, section: "Administration" },
   {
     label: "Coordinators",

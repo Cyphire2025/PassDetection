@@ -260,6 +260,7 @@ class PassportExcelExporter:
         | None = None,
         group_by_field: str | None = None,
         pending_rows: list[dict[str, Any]] | None = None,
+        change_rows: list[dict[str, str]] | None = None,
         ecr_results: dict[uuid.UUID, str] | None = None,
         maximum_cells: int | None = None,
         maximum_columns: int | None = None,
@@ -335,7 +336,7 @@ class PassportExcelExporter:
         # Up to two separator rows per source row, plus the four-row header.
         # Check before openpyxl allocates cells or styles; never truncate output.
         require_workbook_capacity(
-            rows=4 + 3 * (len(submissions) + len(pending_rows or [])),
+            rows=5 + 3 * (len(submissions) + len(pending_rows or [])) + len(change_rows or []),
             columns=len(headers), maximum_cells=maximum_cells, maximum_columns=maximum_columns,
         )
         workbook = Workbook()
@@ -442,6 +443,20 @@ class PassportExcelExporter:
         for index, column in enumerate(columns, start=1):
             column_letter = worksheet.cell(row=header_row, column=index).column_letter
             worksheet.column_dimensions[column_letter].width = column.width
+
+        if change_rows is not None:
+            changes = workbook.create_sheet("Changes")
+            changes.append(["Submission ID", "Change", "Previous revision", "Current revision"])
+            for cell in changes[1]:
+                cell.font = Font(bold=True)
+            for change in change_rows:
+                changes.append([_safe_xlsx_value(change[key]) for key in (
+                    "submission_id", "change", "previous_revision", "revision",
+                )])
+            changes.freeze_panes = "A2"
+            changes.auto_filter.ref = changes.dimensions
+            for column, width in (("A", 40), ("B", 16), ("C", 68), ("D", 68)):
+                changes.column_dimensions[column].width = width
 
         if maximum_output_bytes is not None:
             return bounded_workbook_bytes(workbook, maximum_output_bytes)

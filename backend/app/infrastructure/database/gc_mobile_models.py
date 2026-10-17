@@ -75,6 +75,10 @@ class ClientOrganizationModel(Base):
             sqlite_where=text("external_reference IS NOT NULL"),
         ),
         Index("ix_client_org_agency_status", "agency_id", "status"),
+        Index("ix_client_org_directory_seek", "agency_id", "status", "normalized_name", "id"),
+        Index("ix_client_org_directory_all_seek", "agency_id", "normalized_name", "id"),
+        Index("ix_client_org_search_trgm", "normalized_name", postgresql_using="gin",
+              postgresql_ops={"normalized_name": "gin_trgm_ops"}).ddl_if(dialect="postgresql"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -83,6 +87,7 @@ class ClientOrganizationModel(Base):
         ForeignKey("agencies.id", ondelete="CASCADE"),
         nullable=False,
     )
+    revision: Mapped[int] = mapped_column(Integer, nullable=False, default=1, server_default="1")
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     normalized_name: Mapped[str] = mapped_column(String(255), nullable=False)
     external_reference: Mapped[str | None] = mapped_column(String(128), nullable=True)
@@ -231,6 +236,11 @@ class GCGroupAccessModel(Base):
 
     __tablename__ = "gc_group_access"
     __table_args__ = (
+        ForeignKeyConstraint(
+            ["group_id", "agency_id", "client_organization_id"],
+            ["client_groups.id", "client_groups.agency_id", "client_groups.company_id"],
+            name="fk_gc_group_canonical_company", deferrable=True, initially="DEFERRED",
+        ),
         UniqueConstraint("group_id", name="uq_gc_group_access_group"),
         UniqueConstraint("id", "agency_id", "group_id", name="uq_gc_group_access_scope"),
         UniqueConstraint(

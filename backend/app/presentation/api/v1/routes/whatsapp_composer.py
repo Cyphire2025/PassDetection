@@ -214,6 +214,7 @@ async def preview_broadcast_message(
     message_type = _as_message_type(body.message_type)
     audience_resolution = await resolve_reminder_audience(
         session,
+        message_request=body,
         broadcast_group=group,
         recipients=source_recipients,
         audience=body.audience,
@@ -325,6 +326,7 @@ async def preview_broadcast_message(
             session,
             recipients=recipients,
             message_type=message_type,
+            include_previous_recipients=body.include_previous_recipients,
         )
     template_name = await configured_template_name(session, message_type)
     preview_response = WhatsAppPreviewResponse(

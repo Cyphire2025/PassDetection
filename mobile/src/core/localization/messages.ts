@@ -17,7 +17,7 @@ export const englishMessages = Object.freeze({
   dateUnavailable: () => 'Date unavailable',
   datesBeingPrepared: () => 'Dates being prepared',
   daysLeft: (count: number) => `${count} ${count === 1 ? 'day' : 'days'} left`,
-  demoModeBanner: () => 'LOCAL EMULATOR DEMO · NO SERVER CONNECTION',
+  demoModeBanner: () => 'DEMO · SAMPLE DATA · NO SERVER CONNECTION',
   departure: () => 'Departure',
   downloadingRequiredDocuments: () => 'Downloading required documents',
   hidePassword: () => 'Hide password',

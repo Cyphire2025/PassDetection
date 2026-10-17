@@ -5,6 +5,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { bootstrapApplicationSession } from '@/core/auth/application-bootstrap';
 import { useSessionStore } from '@/core/auth/session-store';
 import { APP_DISPLAY_NAME } from '@/core/config/branding';
+import { isDemoMode } from '@/core/demo/demo-mode';
 import { PrimaryButton } from '@/design/components/primary-button';
 import { colors, spacing } from '@/design/theme';
 import { AuthShell } from '@/features/auth/ui/auth-shell';
@@ -52,7 +53,9 @@ export default function WelcomeScreen() {
         onPress={() => router.push('/(auth)/staff-login')}
       />
       <Text style={styles.note}>
-        Passenger document submissions continue through the secure links shared by your travel team.
+        {isDemoMode()
+          ? 'Explore the passenger, client manager and coordinator sample accounts. No external setup is required.'
+          : 'Passenger document submissions continue through the secure links shared by your travel team.'}
       </Text>
     </AuthShell>
   );

@@ -3,7 +3,9 @@ import { mobileQueryClient } from '@/core/query/query-client';
 import { preloadPassengerTrip } from '@/features/content/data/passenger-preload';
 import { preloadManagerTrips } from '@/features/content/data/manager-preload';
 import { preloadCoordinatorTrips } from '@/features/coordinator/data/coordinator-preload';
-import { refreshTripsInContext } from '@/features/trips/data/trip-repository';
+import { localTrips, refreshTripsInContext } from '@/features/trips/data/trip-repository';
+import { isDemoMode } from '@/core/demo/demo-mode';
+import { isDemoPrincipal } from '@/core/demo/demo-data';
 import type { Trip } from '@/features/trips/model/trip';
 import { useSelectedTripStore } from '@/features/trips/state/selected-trip-store';
 
@@ -38,6 +40,15 @@ export async function preloadAuthenticatedWorkspace(
 ): Promise<RequiredPreloadResult> {
   const session = useSessionStore.getState().session;
   if (!session) throw new Error('Authentication is required before preparing offline access.');
+  if (isDemoMode() && isDemoPrincipal(session.principal)) {
+    const trips = await localTrips();
+    if (!trips.length) throw new Error('The sample workspace could not be loaded. Sign in again to reset it.');
+    if (session.principal.principalType === 'passenger') useSelectedTripStore.getState().selectTrip(trips[0]!.id);
+    completeRequiredPreparation(session.sessionId);
+    onProgress({ percent: 100, message: 'Your sample workspace is ready', completedLabel: 'All sample information is stored on this device' });
+    return { destination: session.principal.principalType === 'passenger' ? '/(passenger)/(tabs)/trip'
+      : session.principal.principalType === 'client_manager' ? '/(manager)/(tabs)/groups' : '/(coordinator)/(tabs)/groups' };
+  }
 
   // The signed login/refresh response already contains the authoritative
   // principal and has been committed to the account namespace before this

@@ -118,6 +118,15 @@ from app.presentation.api.v1.routes.whatsapp_composer import (
 from app.presentation.api.v1.routes.whatsapp_composer import (
     upload_welcome_media as upload_welcome_media,
 )
+from app.presentation.api.v1.routes.whatsapp_catalog import message_catalog as message_catalog
+from app.presentation.api.v1.routes.whatsapp_history import (
+    get_broadcast_message as get_broadcast_message,
+    list_broadcast_messages as list_broadcast_messages,
+    list_message_recipients as list_message_recipients,
+)
+from app.presentation.api.v1.routes.whatsapp_workspace_passengers import (
+    broadcast_passenger_links as broadcast_passenger_links,
+)
 from app.presentation.api.v1.routes.whatsapp_contact_import import (
     _append_excel_contact_rejection as _append_excel_contact_rejection,
 )

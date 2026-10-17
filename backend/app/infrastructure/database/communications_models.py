@@ -81,6 +81,7 @@ class WhatsAppBroadcastGroupModel(Base):
 class WhatsAppBroadcastRecipientModel(Base):
     __tablename__ = "whatsapp_broadcast_recipients"
     __table_args__ = (
+        Index("ix_whatsapp_recipient_source_seek", "broadcast_group_id", "id"),
         UniqueConstraint(
             "broadcast_group_id",
             "normalized_phone_number",
@@ -232,6 +233,7 @@ class WhatsAppTravellerPhoneOverrideModel(Base):
 class WhatsAppBroadcastRejectedContactModel(Base):
     __tablename__ = "whatsapp_broadcast_rejected_contacts"
     __table_args__ = (
+        Index("ix_whatsapp_rejected_source_seek", "broadcast_group_id", "id"),
         UniqueConstraint(
             "broadcast_group_id",
             "fingerprint",
@@ -344,6 +346,10 @@ class WhatsAppMessageLogModel(Base):
             "message_type",
             unique=True,
             postgresql_where=text(
+                "is_explicit_resend = true "
+                "AND status IN ('queued', 'processing', 'delivery_unknown')"
+            ),
+            sqlite_where=text(
                 "is_explicit_resend = true "
                 "AND status IN ('queued', 'processing', 'delivery_unknown')"
             ),

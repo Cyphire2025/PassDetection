@@ -17,6 +17,7 @@ from app.application.mcp.authorization import MCPAuthorizationService, MCPPrinci
 from app.application.mcp.credentials import MCPAuthError, utc
 from app.application.mcp.read_cursor import MCPReadCursor
 from app.application.security.authorization_policy import AuthorizationPolicy
+from app.application.use_cases.passports.export_changes import export_changes, submission_revision
 from app.application.use_cases.passports.export_history_projection import (
     project_history_item,
     project_history_people,
@@ -117,7 +118,9 @@ class MCPExportHistoryReadService:
                     personal=include_personal_details, deleted=include_deleted))
             except ValueError as exc:
                 raise ExportHistoryReadError("history_invalid_request") from exc
-            current_ids = await repository.current_ids(agency_id, group_id, actor)
+            sources = await repository.current_revision_sources(agency_id, group_id, actor)
+            current_ids = {row.id for row in sources}
+            revisions = {str(row.id): submission_revision(row) for row in sources}
             if len(current_ids) > MAX_CHECKPOINT_PEOPLE:
                 raise ExportHistoryReadError("history_limit")
             predicates = repository.scope(agency_id, group_id, actor.id if actor.role == UserRole.AGENCY_STAFF else None)
@@ -135,11 +138,16 @@ class MCPExportHistoryReadService:
                 try:
                     baseline = validated_export_history_ids(row, field_name="snapshot_submission_ids")
                     compatible, new_count = True, len(current_ids - baseline)
+                    delta = export_changes(sources, row, revisions=revisions)
+                    changed_count = sum(change["change"] == "changed" for change in delta.rows)
+                    removed_count = sum(change["change"] == "removed" for change in delta.rows)
                 except ValueError:
                     compatible, new_count = False, 0
+                    changed_count = removed_count = 0
                 try:
                     items.append(project_history_item(row, compatible=compatible,
-                        new_submission_count=new_count).model_dump(mode="json"))
+                        new_submission_count=new_count, changed_submission_count=changed_count,
+                        removed_submission_count=removed_count).model_dump(mode="json"))
                 except ValueError as exc:
                     raise ExportHistoryReadError("history_integrity") from exc
             more = len(identifiers) > page_size
@@ -149,7 +157,7 @@ class MCPExportHistoryReadService:
                 current_submission_count=len(current_ids), page_size=page_size, has_more=more,
                 next_cursor=self.cursors.next(state, {"id": rows[-1].id, "created_at": rows[-1].completed_at}) if more else None,
                 completed_before=state["cutoff"], completeness="partial" if more else "complete",
-                consistency="Completion-cutoff keyset; counts and source membership are live. Incompatible checkpoints have unknown new-submission counts (reported as zero)."),
+                consistency="Completion-cutoff keyset; counts and source membership are live. Added, changed and removed counts use the same content revision policy as export preparation. Incompatible checkpoints have unknown counts (reported as zero)."),
                 actor, agency_id, group_id, include_personal_details)
 
     async def get_history(self, principal: MCPPrincipal, *, agency_id: uuid.UUID, group_id: uuid.UUID,

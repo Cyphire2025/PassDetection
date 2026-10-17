@@ -3,6 +3,7 @@ import * as Crypto from 'expo-crypto';
 import { ApiError, apiRequest } from '@/core/api/client';
 import { principalAccountNamespace } from '@/core/auth/types';
 import { useSessionStore } from '@/core/auth/session-store';
+import { isDemoMode } from '@/core/demo/demo-mode';
 import { openAccountDatabase, withAccountTransaction } from '@/core/storage/database';
 import {
   assertSyncContextActive,
@@ -634,6 +635,11 @@ export async function loadCoordinatorPassenger(
   passengerId: string,
   syncContext?: ImmutableSyncContext,
 ) {
+  if (isDemoMode()) {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { demoPassengerDetail } = require('@/core/demo/demo-operations') as typeof import('@/core/demo/demo-operations');
+    return { passenger: await demoPassengerDetail(tripId, passengerId), offline: true };
+  }
   try {
     if (syncContext) assertSyncContextActive(syncContext);
     const passenger = await apiRequest(

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import re
 import tempfile
 import unicodedata
@@ -84,6 +85,7 @@ class PassportImageZipExporter:
         zone_names: Mapping[uuid.UUID, str] | None = None,
         namespace_submissions: list[PassportSubmission] | None = None,
         max_uncompressed_bytes: int | None = None,
+        change_rows: list[dict[str, str]] | None = None,
     ) -> tuple[BinaryIO, int, int]:
         if len(submissions) > self.MAX_SUBMISSIONS:
             raise PassportImageExportLimitError(
@@ -154,6 +156,13 @@ class PassportImageZipExporter:
                 spool, mode="w", compression=zipfile.ZIP_STORED, allowZip64=True
             ) as archive:
                 archive.writestr(self._zip_info(f"{root}/", is_directory=True), b"")
+                if change_rows is not None:
+                    changes = json.dumps({"version": 1, "changes": change_rows}, separators=(",", ":")).encode()
+                    if len(change_rows) > 2 * self.MAX_SUBMISSIONS or len(changes) > byte_limit:
+                        raise PassportImageExportLimitError("Export change manifest exceeds the safety limit.")
+                    archive.writestr(self._zip_info(f"{root}/changes.json"), changes)
+                    total_bytes += len(changes)
+                    entry_count += 1
                 for namespace_submission in ordered_namespace:
                     zone_folder = ""
                     if use_zone_folders:
@@ -314,6 +323,17 @@ class PassportImageZipExporter:
                 extension = rendered.extension
         else:
             content = await storage.get_file(spec.storage_key)
+        if extension == ".bin" and spec.storage_key.startswith("travellers/"):
+            # Retained originals have opaque UUID keys. Inspect only fixed magic
+            # bytes already fetched; never decode or copy the whole image here.
+            if content.startswith(b"\x89PNG\r\n\x1a\n"):
+                extension = ".png"
+            elif content.startswith(b"\xff\xd8\xff"):
+                extension = ".jpg"
+            elif content[:4] == b"RIFF" and content[8:12] == b"WEBP":
+                extension = ".webp"
+            elif content.startswith(b"%PDF-"):
+                extension = ".pdf"
         return _LoadedArchiveImage(
             path=f"{spec.path_stem}{extension}",
             content=content,

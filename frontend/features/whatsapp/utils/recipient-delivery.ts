@@ -72,14 +72,17 @@ export function hasAlreadySentMessage(
 export function isRecipientEligible(
   recipient: RecipientDeliveryState,
   messageType: string,
+  includePreviousRecipients = false,
 ): boolean {
   if (welcomeDeliveryBlockReason(recipient, messageType)) return false;
   if (messageType === "group_invite" && groupInviteDeliveryBlockReason(recipient)) return false;
   const status = getMessageStatus(recipient, messageType);
   // Each manually submitted reminder is a new broadcast. Only an active
   // delivery is excluded; the result of an earlier reminder is not a limit.
-  if (messageType === "reminder") {
+  if (messageType === "reminder" || messageType === "update" || (messageType === "passport_link" && includePreviousRecipients)) {
     return !IN_PROGRESS_STATUSES.has(status?.status ?? "")
+      && (messageType === "reminder" || !["delivery_unknown", "stalled"].includes(status?.status ?? ""))
+      && (messageType === "reminder" || !["delivery_unknown", "stalled"].includes(status?.latest_resend_status ?? ""))
       && !IN_PROGRESS_STATUSES.has(status?.latest_resend_status ?? "");
   }
   return (

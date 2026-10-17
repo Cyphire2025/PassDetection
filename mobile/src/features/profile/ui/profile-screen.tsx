@@ -3,6 +3,7 @@ import ShieldCheck from 'lucide-react-native/icons/shield-check';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { useSessionStore } from '@/core/auth/session-store';
+import { isDemoMode } from '@/core/demo/demo-mode';
 import { GlassCard } from '@/design/components/glass-card';
 import { PageHeader } from '@/design/components/page-header';
 import { Screen } from '@/design/components/screen';
@@ -46,8 +47,9 @@ export function ProfileScreen({
           <View style={styles.rowText}>
             <Text style={styles.rowTitle}>Sign out</Text>
             <Text style={styles.rowDescription}>
-              Unsynchronized changes must be uploaded or explicitly discarded first. After sign-out,
-              offline files and scan issues stay encrypted and locked until this same account signs in again.
+              {isDemoMode()
+                ? 'Changes stay on this device in this sample account. Sign in again to start with fresh sample data, or choose another role.'
+                : 'Unsynchronized changes must be uploaded or explicitly discarded first. After sign-out, offline files and scan issues stay encrypted and locked until this same account signs in again.'}
             </Text>
           </View>
         </View>

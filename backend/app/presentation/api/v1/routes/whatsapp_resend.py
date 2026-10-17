@@ -35,6 +35,8 @@ from app.infrastructure.whatsapp.publication import (
 )
 from app.infrastructure.whatsapp.template_settings import configured_template_name
 from app.presentation.api.v1.routes.whatsapp_archive_policy import require_active_broadcast
+from app.presentation.api.v1.routes.whatsapp_history_resend import historical_resend_batch, replay_historical_resend
+from app.presentation.api.v1.routes.whatsapp_composer_support import _template_snapshot_from_log
 from app.presentation.api.v1.routes.whatsapp_phone_welcome import (
     claim_resend_welcome_or_reject,
     enforce_broadcast_welcome_prerequisite,
@@ -123,6 +125,10 @@ async def resend_recipient_message(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="WhatsApp recipient not found",
         )
+    history_batch = historical_resend_batch(body, user_id=current_user.id, group_id=group.id, recipient_id=recipient.id)
+    replay = await replay_historical_resend(session, batch_id=history_batch, group_id=group.id, recipient_id=recipient.id)
+    if replay is not None:
+        return replay
     if await active_replacement_resolution_id_for_recipient(
         session,
         recipient=recipient,
@@ -249,8 +255,10 @@ async def resend_recipient_message(
             WhatsAppMessageLogModel.recipient_id == recipient.id,
             WhatsAppMessageLogModel.message_type == message_type,
             WhatsAppMessageLogModel.status.in_(
-                WHATSAPP_ACCEPTED_STATUSES | ({"failed"} if is_retry else set())
+                WHATSAPP_ACCEPTED_STATUSES | ({"failed"} if is_retry or body.source_message_log_id else set())
             ),
+            *([WhatsAppMessageLogModel.id == body.source_message_log_id]
+              if body.source_message_log_id is not None else []),
         )
         .order_by(
             WhatsAppMessageLogModel.created_at.desc(),
@@ -281,7 +289,11 @@ async def resend_recipient_message(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="WhatsApp Cloud API credentials are incomplete",
         )
-    effective_template_name = await configured_template_name(session, message_type)
+    effective_template_name = (
+        source_log.template_name
+        if body.source_message_log_id is not None and source_log.template_name
+        else await configured_template_name(session, message_type)
+    )
     merged_body = _merge_composer_snapshot(body, source_snapshot)
     header_image_id = _resolve_send_header_image(
         message_type,
@@ -344,7 +356,11 @@ async def resend_recipient_message(
             detail=f"WhatsApp {message_type} template name is not configured",
         )
 
-    batch_id = uuid.uuid4()
+    if body.source_message_log_id is not None:
+        header_parameters, parameters = _template_snapshot_from_log(source_log)
+        rendered_message = source_log.rendered_message
+        template_name = source_log.template_name or template_name
+    batch_id = history_batch or uuid.uuid4()
     resend_log = WhatsAppMessageLogModel(
         id=uuid.uuid4(),
         normalized_phone_number=recipient.normalized_phone_number,

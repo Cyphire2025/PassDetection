@@ -306,7 +306,7 @@ function StandardMessagePreviewDialog({
       return () => controller.abort();
     }
     const timeout = window.setTimeout(() => {
-      if (bulkMode && bulkRecipientIds && messageType !== "reminder") {
+      if (bulkMode && bulkRecipientIds && messageType !== "reminder" && messageType !== "update") {
         bulkPreviewMutate({
           groupId: group.id,
           messageType,
@@ -951,7 +951,7 @@ function StandardMessagePreviewDialog({
             </div>
         </MessageComposerSection>
         <MessageComposerSection title="Delivery settings" description="Confirm who will receive this message.">
-          {bulkRecipients && messageType !== "reminder" ? <RecipientBulkComposerAudience recipients={bulkRecipients} messageType={messageType} hiddenCount={hiddenSelectedCount} preview={bulkPreview} /> : <div className="flex items-center gap-3">
+          {bulkRecipients && messageType !== "reminder" && messageType !== "update" ? <RecipientBulkComposerAudience recipients={bulkRecipients} messageType={messageType} hiddenCount={hiddenSelectedCount} preview={bulkPreview} /> : <div className="flex items-center gap-3">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500"><UsersRound className="h-5 w-5" aria-hidden="true" /></span>
             <div className="min-w-0">
               <p className="text-sm font-semibold text-slate-900">

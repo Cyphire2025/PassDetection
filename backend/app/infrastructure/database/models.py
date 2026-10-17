@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import date, datetime
-from typing import TypedDict
+from typing import TYPE_CHECKING, TypedDict
 
 from sqlalchemy import (
     BigInteger,
@@ -38,6 +38,9 @@ from app.infrastructure.database import communications_models as _communications
 from app.infrastructure.database import document_models as _document_models
 from app.infrastructure.database import identity_security_models as _identity_security_models
 from app.infrastructure.database import operations_models as _operations_models
+from app.infrastructure.database import (
+    traveller_reuse_models as _traveller_reuse_models,  # noqa: F401
+)
 from app.infrastructure.database import whatsapp_receipt_models as _whatsapp_receipt_models
 from app.infrastructure.database.dashboard_session_models import (
     DashboardSessionModel as DashboardSessionModel,
@@ -50,6 +53,9 @@ from app.infrastructure.database.search_index_sql import GROUP_SEARCH_SQL, PASSP
 from app.infrastructure.database.travel_tracker_model import (
     TravelTrackerModel as TravelTrackerModel,
 )
+
+if TYPE_CHECKING:
+    from app.infrastructure.database.gc_mobile_models import ClientOrganizationModel
 
 WhatsAppBroadcastGroupModel = _communications_models.WhatsAppBroadcastGroupModel
 WhatsAppBroadcastRecipientModel = _communications_models.WhatsAppBroadcastRecipientModel
@@ -221,6 +227,14 @@ class ClientGroupModel(Base):
     __tablename__ = "client_groups"
     roster_revision: Mapped[int] = mapped_column(BigInteger, nullable=False, default=0, server_default="0")
     __table_args__ = (
+        UniqueConstraint("id", "agency_id", "company_id", name="uq_client_groups_company_scope"),
+        ForeignKeyConstraint(
+            ["company_id", "agency_id"], ["client_organizations.id", "client_organizations.agency_id"],
+            name="fk_client_groups_company_scope", ondelete="RESTRICT",
+        ),
+        Index("ix_client_groups_company_lifecycle", "agency_id", "company_id", "status", "created_at", "id"),
+        Index("ix_client_groups_company_seek", "agency_id", "company_id", "created_at", "id"),
+
         Index("ix_client_group_search_trgm", literal_column(GROUP_SEARCH_SQL).label("search_text"),
               postgresql_using="gin", postgresql_ops={"search_text": "gin_trgm_ops"}).ddl_if(dialect="postgresql"),
         UniqueConstraint(
@@ -261,6 +275,12 @@ class ClientGroupModel(Base):
     )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    company_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
+    company_revision: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
+    company: Mapped["ClientOrganizationModel | None"] = relationship(
+        "ClientOrganizationModel", lazy="selectin", viewonly=True,
+        foreign_keys="[ClientGroupModel.company_id, ClientGroupModel.agency_id]",
+    )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     token: Mapped[str] = mapped_column(String(128), nullable=False, unique=True, index=True)
     agency_id: Mapped[uuid.UUID] = mapped_column(
@@ -496,6 +516,7 @@ class CoordinatorGroupAssignmentModel(Base):
 class PassportSubmissionModel(Base):
     __tablename__ = "passport_submissions"
     __table_args__ = (
+        Index("ix_passport_submissions_scoped_seek", "agency_id", "group_id", "id"),
         Index("ix_passport_search_trgm", literal_column(PASSPORT_SEARCH_SQL).label("search_text"),
               postgresql_using="gin", postgresql_ops={"search_text": "gin_trgm_ops"}).ddl_if(dialect="postgresql"),
         ForeignKeyConstraint(

@@ -8,13 +8,18 @@ from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
-from sqlalchemy import delete, func, or_, select, update
+from sqlalchemy import delete, exists, func, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.travellers.retention import detach_submission_provenance
 from app.infrastructure.database.models import (
     ClientGroupModel,
     NotificationModel,
     PassportSubmissionModel,
+)
+from app.infrastructure.database.traveller_reuse_models import (
+    TravellerDocumentAssetModel,
+    TravellerDocumentRevisionModel,
 )
 from app.infrastructure.documents.storage_cleanup import stage_storage_cleanup_jobs
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
@@ -139,6 +144,10 @@ async def apply_platform_lifecycle_policies(
             ClientGroupModel.status.in_(("closed", "archived", "deleted")),
             ClientGroupModel.passport_purge_at.is_not(None),
             ClientGroupModel.passport_purge_at <= timestamp,
+            ~exists(select(TravellerDocumentAssetModel.id).join(TravellerDocumentRevisionModel,
+                TravellerDocumentRevisionModel.id == TravellerDocumentAssetModel.document_revision_id,
+            ).where(TravellerDocumentRevisionModel.source_submission_id == PassportSubmissionModel.id,
+                    TravellerDocumentAssetModel.availability == "pending")),
         )
         .order_by(ClientGroupModel.passport_purge_at, PassportSubmissionModel.id)
         .limit(LIFECYCLE_PASSPORT_BATCH_SIZE)
@@ -178,6 +187,7 @@ async def apply_platform_lifecycle_policies(
     deleted_notifications_count = 0
     deleted_passports_count = 0
     if submission_ids:
+        await detach_submission_provenance(session, submission_ids)
         notifications = await session.execute(
             delete(NotificationModel).where(
                 NotificationModel.entity_type == "passport_submission",

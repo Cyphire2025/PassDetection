@@ -96,8 +96,8 @@ test("critical office workspaces render and retain their primary keyboard-operab
   await expect(coverageFilter).toHaveAttribute("aria-pressed", "true");
 
   await page.goto("/whatsapp");
-  await expect(page.getByRole("heading", { name: "WhatsApp", level: 1 })).toBeVisible();
-  await page.getByRole("button", { name: "Create Broadcast" }).first().click();
+  await expect(page.getByRole("heading", { name: "WhatsApp broadcasts", level: 1 })).toBeVisible();
+  await page.getByRole("button", { name: "Create broadcast" }).first().click();
   await expect(page.getByRole("heading", { name: "Create WhatsApp Broadcast Group" })).toBeVisible();
 
   await page.goto("/email-integrations/inbox");

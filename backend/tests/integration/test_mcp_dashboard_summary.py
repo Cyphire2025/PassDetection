@@ -108,7 +108,7 @@ async def test_http_summary_matches_actual_website_and_fixed_tied_timestamp_prev
     assert response.status_code == 200, response.text
     website = response.json()
     assert {key: website[key] for key in ("total_passports", "pending_review", "confirmed", "active_links")} == {
-        "total_passports": 11, "pending_review": 6, "confirmed": 3, "active_links": 4}
+        "total_passports": 10, "pending_review": 6, "confirmed": 3, "active_links": 4}
     assert [item["id"] for item in website["recent_submissions"]] == [str(uuid.UUID(f"aaaaaaaa-0000-0000-0000-{i:012x}")) for i in (6, 5, 4, 3, 2)]
     response = await call_mcp(f.client, tokens["access_token"], name="get_dashboard_summary", arguments={})
     result = response.json()["result"]["structuredContent"]
@@ -127,6 +127,36 @@ async def test_http_summary_matches_actual_website_and_fixed_tied_timestamp_prev
     assert audit.result == "success" and audit.metadata_json == {"capability": "mcp:read", "failure_category": None}
     assert await f.session.scalar(select(func.count()).select_from(PassportSubmissionModel)) == before
     await assert_no_business_effects(f.session)
+
+
+@pytest.mark.parametrize("with_actor", [False, True])
+async def test_dashboard_total_excludes_retained_deleted_and_purged_history(dashboard_data, with_actor):
+    f = dashboard_data
+    f.groups["deleted"].deletion_retained_records = True
+    purged = ClientGroupModel(
+        id=uuid.uuid4(), agency_id=f.agency.id, name="Purged history", token=uuid.uuid4().hex,
+        status="deleted", deleted_at=datetime.now(UTC),
+        deletion_retained_records=False, deleted_passport_count=2500,
+    )
+    tombstone = ClientGroupModel(
+        id=uuid.uuid4(), agency_id=f.agency.id, name="Deleted marker", token=uuid.uuid4().hex,
+        status="active", deleted_at=datetime.now(UTC),
+    )
+    f.session.add_all([purged, tombstone])
+    await f.session.flush()
+    f.session.add(PassportSubmissionModel(
+        id=uuid.uuid4(), agency_id=f.agency.id, group_id=tombstone.id,
+        client_name="Deleted record", image_s3_key="synthetic/deleted.jpg", status="confirmed",
+    ))
+    await f.session.commit()
+    actor = await UserRepository(f.session).get_by_id(f.user.id) if with_actor else None
+    repository = PassportSubmissionRepository(f.session)
+
+    # Six owned records, one assigned, one unassigned, one closed and one archived.
+    assert await repository.count_by_agency(f.agency.id, visible_to_user=actor) == 10
+    assert await repository.count_by_agency(
+        f.agency.id, exclude_archived_groups=True, visible_to_user=actor,
+    ) == 9
 
 
 @pytest.mark.parametrize("role,counts", [

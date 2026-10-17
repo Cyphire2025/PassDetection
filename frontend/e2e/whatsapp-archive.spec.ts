@@ -1,4 +1,5 @@
 import { expect, test, type Page, type Route } from "@playwright/test";
+import { catalog } from "./support/whatsapp-workspace-fixture";
 import type { WhatsAppBroadcastGroupDetail } from "../features/whatsapp/api/whatsapp.api";
 
 const staff = {
@@ -46,6 +47,7 @@ async function mockBroadcastApi(page: Page) {
       group = { ...group, is_archived: archived, archived_at: archived ? "2026-09-19T10:00:00Z" : null };
       return json(route, group);
     }
+    if (path.endsWith("/message-catalog")) return json(route, catalog);
     if (request.method() === "GET") return json(route, []);
     unexpectedMutations.push(`${request.method()} ${path}`);
     return json(route, { detail: "No messaging or unrelated mutation is allowed in this test." }, 400);
@@ -54,59 +56,37 @@ async function mockBroadcastApi(page: Page) {
 }
 
 for (const viewport of [{ name: "desktop", width: 1440, height: 1080 }, { name: "mobile", width: 390, height: 844 }]) {
-  test(`staff can archive, inspect read-only history, search and restore on ${viewport.name}`, async ({ page }, testInfo) => {
-    test.setTimeout(90_000);
+  test(`staff can archive, inspect read-only recipients, search and restore on ${viewport.name}`, async ({ page }, testInfo) => {
     const api = await mockBroadcastApi(page);
     const pageErrors: string[] = [];
     page.on("pageerror", (error) => pageErrors.push(error.message));
     await page.setViewportSize(viewport);
     await page.goto("/whatsapp");
-    const active = page.getByRole("region", { name: "Active broadcasts", exact: true });
-    const archived = page.getByRole("region", { name: "Archived broadcasts", exact: true });
-    const archiveToggle = archived.getByRole("button", { name: "Archived broadcasts", exact: true });
-    await expect(archiveToggle).toHaveAttribute("aria-expanded", "false");
-    await active.getByRole("button", { name: "Open actions for September travellers" }).filter({ visible: true }).click();
-    await expect(page.getByRole("button", { name: "Delete Broadcast", exact: true })).toHaveCount(0);
-    await page.getByRole("button", { name: "Archive Broadcast", exact: true }).click();
-    const confirmation = page.getByRole("dialog", { name: "Archive WhatsApp broadcast?" });
-    await expect(confirmation).toContainText("delivery history will be retained");
-    await confirmation.getByRole("button", { name: "Archive Broadcast", exact: true }).click();
+    await page.getByRole("link", { name: "Open September travellers" }).click();
+    await page.getByRole("link", { name: "Broadcast details", exact: true }).click();
+    await expect(page.getByRole("button", { name: "Delete broadcast", exact: true })).toHaveCount(0);
+    await page.getByRole("button", { name: "Archive broadcast", exact: true }).click();
+    const confirmation = page.getByRole("dialog", { name: "Archive broadcast?" });
+    await confirmation.getByRole("button", { name: "Archive broadcast", exact: true }).click();
     await expect(confirmation).toHaveCount(0);
-    await expect(active.getByText("No active broadcasts", { exact: true })).toBeVisible();
-    await archived.scrollIntoViewIfNeeded();
-    await archiveToggle.focus();
-    await page.keyboard.press("Enter");
-    await expect(archiveToggle).toHaveAttribute("aria-expanded", "true");
-    await archived.getByRole("button", { name: "Open actions for September travellers" }).filter({ visible: true }).click();
-    await expect(page.getByRole("button", { name: "Send Reminder", exact: true })).toHaveCount(0);
-    await expect(page.getByRole("button", { name: "Restore Broadcast", exact: true })).toBeVisible();
-    const archiveScreenshot = testInfo.outputPath(`whatsapp-archive-${viewport.name}.png`);
-    await page.screenshot({ path: archiveScreenshot, animations: "disabled", fullPage: true });
-    await testInfo.attach(`Archived broadcasts — ${viewport.name}`, { path: archiveScreenshot, contentType: "image/png" });
-    await page.getByRole("button", { name: "Recipient List", exact: true }).click();
-    const recipients = page.getByRole("dialog", { name: "Recipients — September travellers" });
-    await expect(recipients.getByText("Passenger A", { exact: true })).toBeVisible();
-    await expect(recipients.getByText(/This broadcast is archived and read-only/)).toBeVisible();
-    await expect(recipients.getByRole("button", { name: "Add recipients", exact: true })).toHaveCount(0);
-    await expect(recipients.getByRole("checkbox", { name: "Select Passenger A" })).toBeDisabled();
-    await expect(recipients.getByText("Delivered", { exact: true })).toBeVisible();
-    await recipients.getByRole("searchbox", { name: "Search current recipients" }).fill("missing passenger");
-    await expect(recipients.getByText(/No recipients match/)).toBeVisible();
-    await recipients.getByRole("searchbox", { name: "Search current recipients" }).fill("");
-    await recipients.getByRole("button", { name: "Broadcast details", exact: true }).click();
-    await expect(recipients.getByRole("textbox", { name: "Group name", exact: true })).toBeDisabled();
-    await expect(recipients.getByRole("button", { name: "Save Details", exact: true })).toBeDisabled();
-    await page.keyboard.press("Escape");
-    await expect(recipients).toHaveCount(0);
-    await page.getByRole("searchbox", { name: "Search WhatsApp broadcast groups" }).fill("does not exist");
-    await expect(archiveToggle).toHaveAttribute("aria-expanded", "true");
-    await expect(archived.getByText("No archived broadcasts match this search")).toBeVisible();
-    await page.getByRole("searchbox", { name: "Search WhatsApp broadcast groups" }).fill("");
-    await archived.getByRole("button", { name: "Open actions for September travellers" }).filter({ visible: true }).click();
-    await page.getByRole("button", { name: "Restore Broadcast", exact: true }).click();
-    await expect(archived.getByText("No archived broadcasts", { exact: true })).toBeVisible();
-    await active.getByRole("button", { name: "Open actions for September travellers" }).filter({ visible: true }).click();
-    await expect(page.getByRole("button", { name: "Send Reminder", exact: true })).toBeEnabled();
+    await expect(page.getByRole("textbox", { name: "Broadcast name", exact: true })).toBeDisabled();
+    await expect(page.getByRole("button", { name: "Save changes", exact: true })).toBeDisabled();
+    await page.getByRole("link", { name: "Recipients", exact: true }).click();
+    await expect(page.getByText("Passenger A", { exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Add recipients", exact: true })).toBeDisabled();
+    await expect(page.getByText("Delivered", { exact: true })).toBeVisible();
+    await page.getByRole("searchbox", { name: "Search recipients", exact: true }).fill("missing passenger");
+    await expect(page.getByText("No matching recipients", { exact: true })).toBeVisible();
+    await page.getByRole("link", { name: "All broadcasts", exact: true }).click();
+    await page.getByRole("button", { name: /^Archived/ }).click();
+    await page.getByRole("searchbox", { name: "Search broadcasts", exact: true }).fill("does not exist");
+    await expect(page.getByText("No broadcasts found", { exact: true })).toBeVisible();
+    await page.getByRole("searchbox", { name: "Search broadcasts", exact: true }).fill("");
+    await page.screenshot({ path: testInfo.outputPath(`archived-${viewport.name}.png`), fullPage: true, animations: "disabled" });
+    await page.getByRole("link", { name: "Open September travellers" }).click();
+    await page.getByRole("link", { name: "Broadcast details", exact: true }).click();
+    await page.getByRole("button", { name: "Restore broadcast", exact: true }).click();
+    await expect(page.getByRole("textbox", { name: "Broadcast name", exact: true })).toBeEnabled();
     expect(api.lifecycle).toEqual(["archive", "restore"]);
     expect(api.unexpectedMutations).toEqual([]);
     expect(pageErrors).toEqual([]);

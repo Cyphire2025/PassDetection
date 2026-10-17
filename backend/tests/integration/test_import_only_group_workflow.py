@@ -17,6 +17,7 @@ from app.application.use_cases.client_groups.get_client_group_by_token_use_case 
 )
 from app.domain.entities.entities import User, UserRole
 from app.domain.exceptions.exceptions import EntityNotFoundError
+from app.infrastructure.database.gc_mobile_models import ClientOrganizationModel
 from app.infrastructure.database.models import AgencyModel, PassportSubmissionModel, UserModel
 from app.infrastructure.repositories.client_group_repository import ClientGroupRepository
 from app.infrastructure.repositories.passport_submission_repository import (
@@ -39,10 +40,13 @@ async def test_create_import_group_import_excel_and_reload_workspace(db_session:
                   full_name=user.full_name, role=user.role.value, agency_id=user.agency_id),
     ])
     await db_session.flush()
+    company = ClientOrganizationModel(id=uuid.uuid4(), agency_id=user.agency_id, name="Import company", normalized_name="import company")
+    db_session.add(company)
+    await db_session.flush()
     repo = ClientGroupRepository(db_session)
     response = await create_client_group(
         request=CreateClientGroupRequest(
-            name="Final traveller list", destination="Dubai", travel_date="2026-11-10",
+            company_id=company.id, name="Final traveller list", destination="Dubai", travel_date="2026-11-10",
             return_date="2026-11-15", timezone="Asia/Kolkata", import_only=True,
         ),
         current_user=user, use_case=CreateClientGroupUseCase(repo), session=db_session,

@@ -118,7 +118,7 @@ async def _set_message_state(
         WhatsAppRecipientMessageStateModel.message_type == log.message_type,
     ]
     if submitted:
-        if log.message_type == "reminder":
+        if log.message_type in {"reminder", "update", "passport_link"}:
             # An earlier reminder completing late must not consume a newer
             # deliberate reminder's claim or move its delivery timestamps.
             predicates.append(WhatsAppRecipientMessageStateModel.batch_id == expected_batch_id)
@@ -148,6 +148,7 @@ async def _load_sendable_recipient(
     *,
     log: WhatsAppMessageLogModel,
     expected_batch_id: uuid.UUID,
+    include_previous_recipients: bool = False,
 ) -> tuple[WhatsAppBroadcastRecipientModel | None, str | None]:
     mcp_error = await authorize_mcp_batch_dispatch(session, log=log, settings=get_settings())
     if mcp_error:
@@ -190,7 +191,7 @@ async def _load_sendable_recipient(
     if log.message_type == "passport_link":
         phone_blocks = await message_phone_blocking_statuses(
             session, [recipient], message_type="passport_link", current_log=log,
-            include_accepted=not log.is_explicit_resend,
+            include_accepted=not (log.is_explicit_resend or include_previous_recipients),
         )
         if recipient.id in phone_blocks:
             return None, passport_link_block_message(phone_blocks[recipient.id])
@@ -277,6 +278,7 @@ async def run_whatsapp_broadcast(
     header_image_id: str | None = None,
     passport_intro: str | None = None,
     group_invite_link: str | None = None,
+    include_previous_recipients: bool = False,
 ) -> None:
     parsed_batch_id = uuid.UUID(batch_id)
     settings = get_settings()
@@ -424,6 +426,7 @@ async def run_whatsapp_broadcast(
                     session,
                     log=log,
                     expected_batch_id=parsed_batch_id,
+                    include_previous_recipients=include_previous_recipients,
                 )
                 if not recipient:
                     log.status = "failed"
@@ -477,6 +480,7 @@ async def run_whatsapp_broadcast(
                         session,
                         log=log,
                         expected_batch_id=parsed_batch_id,
+                        include_previous_recipients=include_previous_recipients,
                     )
                     if not recipient:
                         log.status = "failed"

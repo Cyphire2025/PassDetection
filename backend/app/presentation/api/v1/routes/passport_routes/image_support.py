@@ -76,6 +76,10 @@ async def _authorized_staff_passport_image(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="The requested image was not uploaded."
         )
+    from app.application.travellers.snapshot_access import can_read_snapshot_asset
+    if storage_key.startswith("travellers/") and not await can_read_snapshot_asset(session, submission_id=submission.id,
+        agency_id=submission.agency_id, group_id=submission.group_id, storage_key=storage_key):
+        raise HTTPException(status_code=404, detail="The requested image is unavailable.")
     await record_sensitive_read(session, user=current_user, kind="image",
                                 agency_id=submission.agency_id, entity_id=submission.id)
     return submission, storage_key
@@ -155,6 +159,9 @@ async def _delete_ephemeral_edit_source_best_effort(
         return
     if await PassportImageLibraryRepository(session).contains_storage_key(key):
         return
+    from app.application.travellers.retention import deletable_storage_keys
+    if not await deletable_storage_keys(session, [key], agency_id=None):
+        return
     await _delete_crop_derivative_best_effort(
         storage,
         key,
@@ -177,6 +184,8 @@ async def _delete_unreferenced_passport_image_keys_best_effort(
             unique_keys
         )
         deletable_keys = [key for key in unique_keys if key not in referenced_keys]
+        from app.application.travellers.retention import deletable_storage_keys
+        deletable_keys = await deletable_storage_keys(session, deletable_keys, agency_id=None)
         if deletable_keys:
             await storage.delete_files(deletable_keys)
     except Exception as exc:

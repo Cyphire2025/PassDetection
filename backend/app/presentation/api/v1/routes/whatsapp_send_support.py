@@ -110,7 +110,7 @@ def broadcast_suppression_statuses(
     message_type: str, suppress_unknown_reminders: bool
 ) -> frozenset[str]:
     """Web reminders are deliberate repeats; MCP conservatively blocks unknown outcomes."""
-    if message_type != "reminder":
+    if message_type not in {"reminder", "update"}:
         return WHATSAPP_SUPPRESSED_STATUSES
     return WHATSAPP_IN_PROGRESS_STATUSES | (
         WHATSAPP_UNCERTAIN_STATUSES if suppress_unknown_reminders else frozenset()

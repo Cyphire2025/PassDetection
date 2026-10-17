@@ -420,17 +420,21 @@ def test_more_than_500_failed_rows_are_not_silently_truncated():
     snapshot = snapshot_workbook(
         workbook([["Name", "Phone"], *[[f"Name {i}", "bad"] for i in range(501)]])
     )
-    with pytest.raises(MCPOperationError, match="contact_import_capacity_exceeded"):
-        map_contacts(
-            snapshot,
-            support=CONTACT_IMPORT_SUPPORT.mapping,
-            filename="contacts.xlsx",
-            mappings=[
-                ContactColumnMapping(
-                    sheet_name="Contacts", header_row=1, phone_column=2, name_column=1
-                )
-            ],
-        )
+    mapped = map_contacts(
+        snapshot,
+        support=CONTACT_IMPORT_SUPPORT.mapping,
+        filename="contacts.xlsx",
+        mappings=[
+            ContactColumnMapping(
+                sheet_name="Contacts", header_row=1, phone_column=2, name_column=1
+            )
+        ],
+    )
+    assert len(mapped.rejected) == 501
+    preview = mapped.preview(CONTACT_IMPORT_SUPPORT.mapping)
+    assert preview["rejected_count"] == 501
+    assert len(preview["rejected_rows"]) == 500
+    assert preview["rejected_rows_truncated"] and preview["omitted_rejected_count"] == 1
 
 
 def test_explicit_mapping_composes_names_and_does_not_guess_other_sheets():

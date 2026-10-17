@@ -7,6 +7,7 @@ import {
   CalendarDays,
   Check,
   CheckCircle2,
+  ChevronDown,
   Clock,
   Copy,
   Link2,
@@ -29,6 +30,7 @@ import {
 } from "@/components/shared/workspace-ui";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { GroupCompanyAssignment } from "@/features/companies/components/group-company-assignment";
 import { ConfirmDialog } from "@/components/ui";
 import { useModalKeyboardBoundary } from "@/components/ui/modal";
 import { copyTextToClipboard } from "@/lib/utils/clipboard";
@@ -67,6 +69,7 @@ export function UploadLinkList() {
   const canPermanentlyDelete = canPermanentlyDeleteGroup(role);
   const canArchive = canArchiveGroup(role);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isArchivedExpanded, setIsArchivedExpanded] = useState(false);
   const [query, setQuery] = useState("");
   const deferredQuery = useDeferredValue(query);
   const [copiedLinkKey, setCopiedLinkKey] = useState<string | null>(null);
@@ -295,7 +298,7 @@ export function UploadLinkList() {
         className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
         aria-labelledby="archived-group-links-heading"
       >
-        <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3.5 sm:px-5">
+        <div className={`flex items-center justify-between gap-3 px-4 py-3.5 sm:px-5 ${isArchivedExpanded ? "border-b border-slate-200" : ""}`}>
           <div>
 
             <h2 id="archived-group-links-heading" className="mt-0.5 font-semibold text-slate-950">
@@ -303,41 +306,60 @@ export function UploadLinkList() {
             </h2>
             <p className="mt-1 text-sm text-slate-500">Groups removed from active passport queues.</p>
           </div>
-          <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
-            {archivedLinks.length.toLocaleString()}
-          </span>
+          <div className="flex shrink-0 items-center gap-2">
+            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
+              {archivedLinks.length.toLocaleString()}
+            </span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              aria-label={isArchivedExpanded ? "Hide archived groups" : "Show archived groups"}
+              aria-expanded={isArchivedExpanded}
+              aria-controls="archived-group-links-content"
+              onClick={() => setIsArchivedExpanded((current) => !current)}
+            >
+              {isArchivedExpanded ? "Hide" : "Show"}
+              <ChevronDown
+                className={`h-4 w-4 transition-transform motion-reduce:transition-none ${isArchivedExpanded ? "rotate-180" : ""}`}
+                aria-hidden="true"
+              />
+            </Button>
+          </div>
         </div>
 
-        {isLoadingArchived ? (
-          <div className="p-5"><LoadingRows /></div>
-        ) : archivedLinks.length === 0 ? (
-          <WorkspaceEmptyState
-            title="No archived Group Links"
-            description="Groups moved out of active work will remain available here according to their retention choice."
-          />
-        ) : filteredArchivedLinks.length === 0 ? (
-          <WorkspaceEmptyState
-            filtered
-            title="No archived groups match this search"
-            description="Clear the shared Group Link search to restore archived history."
-          />
-        ) : (
-          <UploadLinkTable
-            caption="Archived Group Links"
-            links={filteredArchivedLinks}
-            copiedLinkKey={copiedLinkKey}
-            onCopy={copyUploadLink}
-            onRestore={(id) => restoreLink(id)}
-            onRename={openGroupEditor}
-            onPermanentDelete={(id) => {
-              resetPermanentDelete();
-              setDeleteTarget(archivedLinks.find((link) => link.id === id) ?? null);
-            }}
-            canPermanentlyDelete={canPermanentlyDelete}
-            isMutating={isRestoring || isRenaming || isPermanentlyDeleting}
-            compact
-          />
-        )}
+        <div id="archived-group-links-content" hidden={!isArchivedExpanded}>
+          {isLoadingArchived ? (
+            <div className="p-5"><LoadingRows /></div>
+          ) : archivedLinks.length === 0 ? (
+            <WorkspaceEmptyState
+              title="No archived Group Links"
+              description="Groups moved out of active work will remain available here according to their retention choice."
+            />
+          ) : filteredArchivedLinks.length === 0 ? (
+            <WorkspaceEmptyState
+              filtered
+              title="No archived groups match this search"
+              description="Clear the shared Group Link search to restore archived history."
+            />
+          ) : (
+            <UploadLinkTable
+              caption="Archived Group Links"
+              links={filteredArchivedLinks}
+              copiedLinkKey={copiedLinkKey}
+              onCopy={copyUploadLink}
+              onRestore={(id) => restoreLink(id)}
+              onRename={openGroupEditor}
+              onPermanentDelete={(id) => {
+                resetPermanentDelete();
+                setDeleteTarget(archivedLinks.find((link) => link.id === id) ?? null);
+              }}
+              canPermanentlyDelete={canPermanentlyDelete}
+              isMutating={isRestoring || isRenaming || isPermanentlyDeleting}
+              compact
+            />
+          )}
+        </div>
       </section>
 
       <ConfirmDialog
@@ -485,6 +507,7 @@ function EditGroupDialog({
             disabled={isLoading}
             onChange={(event) => onNameChange(event.target.value)}
           />
+          <GroupCompanyAssignment key={group.id} group={group} disabled={isLoading} />
           {!group.import_only && <UploadLinkSettings value={settings} onChange={onSettingsChange} disabled={isLoading} error={settingsError} />}
         </div>
         <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4">
@@ -616,6 +639,7 @@ function UploadLinkTable({
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <h3 className="font-semibold text-slate-950">{link.name}</h3>
+                <CompanyAssignmentLabel group={link} />
                 {link.import_only && <span className="mt-1 inline-block rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">Excel import</span>}
                 {link.destination && (
                   <p className="mt-1 truncate text-xs text-slate-500">{link.destination}</p>
@@ -659,6 +683,7 @@ function UploadLinkTable({
               <tr key={link.id} className="transition-colors hover:bg-slate-50/50">
                 <td className="px-6 py-4">
                   <div className="font-medium text-slate-900">{link.name}</div>
+                  <CompanyAssignmentLabel group={link} />
                   {link.import_only && <span className="mt-1 inline-block rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">Excel import</span>}
                 </td>
                 <td className="px-6 py-4"><StatusPill status={link.status} /></td>
@@ -674,6 +699,10 @@ function UploadLinkTable({
       </div>
     </div>
   );
+}
+
+function CompanyAssignmentLabel({ group }: { group: UploadLinkResponse }) {
+  return <p className="mt-1 break-words text-xs text-slate-500">{group.company?.name ?? "Company not assigned"}{group.company?.status === "inactive" ? " · Inactive" : ""}</p>;
 }
 
 function StatusPill({ status }: { status: UploadLinkResponse["status"] }) {
@@ -808,7 +837,7 @@ function GroupDeleteRetentionDialog({
           >
             <div className="text-base font-semibold text-red-950">Delete passport records</div>
             <p className="mt-2 text-sm leading-6 text-red-800">
-              Permanently remove uploaded passport files and extracted records. The historical passport count for this group will still remain in total submissions.
+              Permanently remove uploaded passport files and extracted records.
             </p>
           </button>
         </div>

@@ -23,6 +23,8 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import InstrumentedAttribute
 
+from app.application.companies.access import company_agency_scope
+from app.application.companies.assignment import assign_group_company
 from app.application.dtos.client_group_dtos import (
     CreateClientGroupInputDTO,
     client_group_output_from_entity,
@@ -172,6 +174,7 @@ from app.presentation.api.v1.schemas.client_group_schemas import (
     UpdateClientGroupRequest,
     WhatsAppBroadcastSummaryResponse,
 )
+from app.presentation.api.v1.schemas.company_schemas import CompanyAssignmentRequest
 from app.presentation.dependencies.auth import (
     WHATSAPP_BROADCAST_ROLES,
     get_current_active_user,
@@ -605,11 +608,7 @@ async def create_client_group(
     use_case: CreateClientGroupUseCase = Depends(_get_create_use_case),
     session: AsyncSession = Depends(get_db_session),
 ) -> ClientGroupResponse:
-    if not current_user.agency_id:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="User must be associated with an agency to create upload links.",
-        )
+    tenant_id = company_agency_scope(current_user, request.agency_id)
 
     await _require_client_group_creation_access(current_user, session)
 
@@ -618,6 +617,7 @@ async def create_client_group(
 
     dto = CreateClientGroupInputDTO(
         name=request.name,
+        company_id=request.company_id,
         import_only=request.import_only,
         destination=request.destination,
         travel_date=request.travel_date,
@@ -650,18 +650,18 @@ async def create_client_group(
 
     await _validate_broadcast_ids(
         session,
-        agency_id=current_user.agency_id,
+        agency_id=tenant_id,
         broadcast_ids=request.whatsapp_broadcast_group_ids,
     )
     result = await use_case.execute(
         dto=dto,
-        agency_id=current_user.agency_id,
+        agency_id=tenant_id,
         created_by_user_id=current_user.id,
     )
     linked, _, _ = await _replace_whatsapp_links(
         session,
         group_id=result.id,
-        agency_id=current_user.agency_id,
+        agency_id=tenant_id,
         created_by_user_id=current_user.id,
         broadcast_ids=request.whatsapp_broadcast_group_ids,
         matching_fields_by_broadcast=request.matching_fields_by_broadcast,
@@ -670,7 +670,7 @@ async def create_client_group(
         action="client_group_created",
         entity_type="client_group",
         entity_id=str(result.id),
-        agency_id=current_user.agency_id,
+        agency_id=tenant_id,
         user_id=current_user.id,
         actor_email=current_user.email,
         metadata={
@@ -1826,6 +1826,23 @@ async def revoke_client_group(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.message)
 
 
+@router.patch("/{link_id}/company", response_model=ClientGroupResponse, dependencies=[Depends(require_cookie_csrf)])
+async def assign_client_group_company(
+    link_id: uuid.UUID,
+    body: CompanyAssignmentRequest,
+    agency_id: uuid.UUID | None = None,
+    current_user: User = Depends(get_current_active_user),
+    session: AsyncSession = Depends(get_db_session),
+) -> ClientGroupResponse:
+    scope = company_agency_scope(current_user, agency_id)
+    model = await assign_group_company(
+        session, user=current_user, agency_id=scope, group_id=link_id,
+        company_id=body.company_id, expected_revision=body.expected_revision,
+    )
+    entity = ClientGroupRepository._to_entity(model)
+    return ClientGroupResponse.model_validate(client_group_output_from_entity(entity))
+
+
 @router.patch(
     "/{link_id}",
     response_model=ClientGroupResponse,
@@ -1856,6 +1873,15 @@ async def update_client_group(
 
     if request.whatsapp_broadcast_group_ids is not None:
         _require_whatsapp_broadcast_access(current_user)
+
+    if "company_id" in request.model_fields_set:
+        if request.company_id is None:
+            raise HTTPException(status_code=422, detail="Company assignment cannot be cleared")
+        assigned = await assign_group_company(
+            session, user=current_user, agency_id=company_agency_scope(current_user, request.agency_id), group_id=group.id,
+            company_id=request.company_id, expected_revision=request.company_revision,
+        )
+        group = repo._to_entity(assigned)
 
     previous_qualifier_enabled = group.relation_with_qualifier_enabled
     group.update_configuration(

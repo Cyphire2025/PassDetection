@@ -16,6 +16,7 @@ from app.application.dtos.client_group_dtos import (
 from app.application.platform_policies import PlatformPolicyProvider
 from app.core.logging.logger import get_logger
 from app.domain.entities.entities import ClientGroup, GroupStatus
+from app.domain.exceptions.exceptions import ValidationError
 from app.domain.repositories.interfaces import IClientGroupRepository
 
 logger = get_logger(__name__)
@@ -38,6 +39,9 @@ class CreateClientGroupUseCase:
         agency_id: uuid.UUID,
         created_by_user_id: uuid.UUID,
     ) -> ClientGroupOutputDTO:
+        if dto.company_id is None:
+            raise ValidationError("Select an active company/client for the new group", field="company_id")
+        company = await self._client_group_repo.require_active_company(agency_id, dto.company_id)
         # Existing direct callers keep the historical ACTIVE default. Runtime
         # HTTP construction injects the persisted platform policy provider.
         initial_status = GroupStatus.ACTIVE
@@ -87,6 +91,10 @@ class CreateClientGroupUseCase:
                 else None
             ),
         )
+
+        link.company_id = dto.company_id
+        link.company_revision = 1
+        link.company = company
 
         # Save to DB
         await self._client_group_repo.save(link)

@@ -37,6 +37,10 @@ from app.presentation.api.v1.routes.whatsapp_archive_policy import require_activ
 from app.presentation.api.v1.routes.whatsapp_contact_import import (
     _parse_excel_contacts_result,
 )
+from app.presentation.api.v1.routes.whatsapp_contact_sources import (
+    excel_rejected_contacts,
+    recover_excel_duplicate_sources,
+)
 from app.presentation.api.v1.routes.whatsapp_contact_support import (
     _WhatsAppExcelContactParseResult,
 )
@@ -88,6 +92,7 @@ async def add_broadcast_recipients(
     rejected_contacts_json: str = Form("[]"),
     recipient_opt_in_confirmed: bool = Form(...),
     contacts_file: UploadFile | None = File(None),
+    duplicate_source_files: Annotated[list[UploadFile] | None, File()] = None,
     current_user: User = Depends(require_role(WHATSAPP_ROLES)),
     session: AsyncSession = Depends(get_db_session),
 ) -> WhatsAppBroadcastGroupDetailResponse:
@@ -103,6 +108,8 @@ async def add_broadcast_recipients(
         else _WhatsAppExcelContactParseResult([], [], {}, [])
     )
     contacts = manual_contacts + excel_result.contacts
+    rejected_contacts = excel_rejected_contacts(excel_result, rejected_contacts)
+    rejected_contacts = await recover_excel_duplicate_sources(duplicate_source_files, rejected_contacts)
     return await add_validated_broadcast_recipients(
         group_id=group_id, contacts=contacts, rejected_contacts=rejected_contacts,
         declared_field_keys=[*preview_field_keys, *excel_result.field_keys],

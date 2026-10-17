@@ -65,6 +65,17 @@ async def required_send_key(request: Request) -> str:
     return require_key(values[0])
 
 
+def canonical_send_body(body: WhatsAppSendRequest) -> dict[str, object]:
+    """Keep retained v1 receipts replayable when neutral form fields are added."""
+    payload = body.model_dump(mode="json")
+    if body.message_type != "update":
+        for key in ("update_submission", "update_distribution", "update_document_type"):
+            payload.pop(key, None)
+    if not body.include_previous_recipients:
+        payload.pop("include_previous_recipients", None)
+    return payload
+
+
 async def durable_send(
     group_id: uuid.UUID,
     body: WhatsAppSendRequest,
@@ -79,7 +90,7 @@ async def durable_send(
     ).hexdigest()
     request_hash = hashlib.sha256(
         json.dumps(
-            {"broadcast_id": str(group_id), "body": body.model_dump(mode="json")},
+            {"broadcast_id": str(group_id), "body": canonical_send_body(body)},
             sort_keys=True,
             separators=(",", ":"),
             allow_nan=False,

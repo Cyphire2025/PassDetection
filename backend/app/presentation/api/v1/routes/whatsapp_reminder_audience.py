@@ -20,6 +20,7 @@ from app.infrastructure.repositories.passport_whatsapp_matching_repository impor
     load_unresolved_passport_whatsapp_match_context,
 )
 from app.presentation.api.v1.routes.whatsapp_group_visibility import staff_linked_group_filters
+from app.presentation.api.v1.schemas.whatsapp_schemas import WhatsAppSendRequest
 
 
 @dataclass(frozen=True, slots=True)
@@ -42,6 +43,7 @@ async def resolve_reminder_audience(
     audience_client_group_id: uuid.UUID | None,
     current_user: User,
     roster_recipients: list[WhatsAppBroadcastRecipientModel] | None = None,
+    message_request: WhatsAppSendRequest | None = None,
 ) -> ReminderAudienceResolution:
     """Resolve one reminder scope without taking locks after the broadcast lock.
 
@@ -55,6 +57,14 @@ async def resolve_reminder_audience(
 
     source_count = len(recipients)
     roster = recipients if roster_recipients is None else roster_recipients
+    if message_request is not None and message_request.message_type == "update" and (
+        message_request.update_submission != "all" or message_request.update_distribution != "all"
+    ):
+        from app.presentation.api.v1.routes.whatsapp_update_audience import resolve_update_audience
+        return await resolve_update_audience(
+            session, broadcast_group=broadcast_group, recipients=recipients, roster=roster,
+            body=message_request, current_user=current_user,
+        )
     if audience == "all":
         return ReminderAudienceResolution(
             recipients=tuple(recipients),

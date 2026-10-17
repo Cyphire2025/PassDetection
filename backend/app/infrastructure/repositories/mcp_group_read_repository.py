@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.security.authorization_policy import AuthorizationPolicy
 from app.domain.entities.entities import OPERATIONALLY_APPROVED_PASSPORT_STATUS_VALUES, User
+from app.infrastructure.database.gc_mobile_models import ClientOrganizationModel
 from app.infrastructure.database.models import (
     AgencyModel,
     ClientGroupModel,
@@ -56,12 +57,16 @@ class MCPGroupReadRepository:
         statement = select(
             group.id, group.name, group.agency_id, AgencyModel.name.label("agency_name"),
             group.status, group.import_only, group.created_at, group.destination,
+            group.company_id, group.company_revision, ClientOrganizationModel.name.label("company_name"),
+            ClientOrganizationModel.status.label("company_status"),
             group.travel_date, group.return_date, group.timezone, group.roster_revision,
             group.deleted_at, passport_count.label("passport_submission_records"),
             operational_count.label("operational_passengers"),
             linked_count.label("linked_whatsapp_broadcasts"),
             recipient_count.label("whatsapp_active_recipient_entries"),
-        ).join(AgencyModel, AgencyModel.id == group.agency_id).where(group.created_at <= created_before)
+        ).join(AgencyModel, AgencyModel.id == group.agency_id).outerjoin(ClientOrganizationModel, and_(
+            ClientOrganizationModel.id == group.company_id, ClientOrganizationModel.agency_id == group.agency_id,
+        )).where(group.created_at <= created_before)
         statement = AuthorizationPolicy.apply_group_visibility_scope(statement, user)
         if not include_deleted:
             statement = statement.where(group.deleted_at.is_(None), group.status != "deleted")

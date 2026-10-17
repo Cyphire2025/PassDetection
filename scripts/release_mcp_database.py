@@ -107,6 +107,7 @@ class MCPDatabaseRelease:
         self.target_schema = self.contract["target_schema"]
         validate_contract(self.contract, self.target_schema)
         migration_helpers = {
+            "companies_traveller_reuse_v1": "scripts/release_companies_traveller_upgrade.py",
             "travel_tracker_additive_v1": "scripts/release_travel_tracker_upgrade.py",
             "mcp_read_only_v1": "scripts/apply_mcp_read_only_upgrade.py",
             "mcp_additive_v1": "scripts/apply_mcp_additive_upgrade.py",
@@ -243,7 +244,10 @@ class MCPDatabaseRelease:
         return path
 
     def migration_request(self, backup: dict[str, Any]) -> dict[str, Any]:
-        current = self.checkpoint({self.source_schema, self.target_schema})
+        allowed_schemas = {self.source_schema, self.target_schema}
+        if self.contract["kind"] == "companies_traveller_reuse_v1":
+            allowed_schemas.update(self.contract["resume_schema_revisions"])
+        current = self.checkpoint(allowed_schemas)
         self.verify_backup(backup)
         receipt = self.directory / (backup["filename"] + ".json")
         try:

@@ -27,6 +27,14 @@ function user(
 }
 
 describe("typed route capability map", () => {
+  it("reserves company administration and history for company administrator roles", () => {
+    for (const path of [ROUTES.dashboard.companies, ROUTES.dashboard.company("company-1")]) {
+      expect(resolveRouteCapability(path)).toBe("companies.manage");
+      for (const role of ["super_admin", "agency_admin", "agency_manager"] as const) expect(canAccessApplicationPath(user(role), path)).toBe(true);
+      for (const role of ["agency_staff", "agency_coordinator"] as const) expect(canAccessApplicationPath(user(role), path)).toBe(false);
+      expect(canAccessApplicationPath(user("agency_admin", { is_active: false }), path)).toBe(false);
+    }
+  });
   it("reserves MCP management and consent deep links for active superadmins", () => {
     for (const path of [ROUTES.dashboard.mcp, ROUTES.dashboard.mcpConnect]) {
       expect(resolveRouteCapability(path)).toBe("mcp.manage");

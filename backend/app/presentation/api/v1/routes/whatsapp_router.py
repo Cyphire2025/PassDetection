@@ -8,12 +8,14 @@ from app.presentation.api.v1.routes.whatsapp_bulk_resend_preview import (
     router as _bulk_resend_preview_router,
 )
 from app.presentation.api.v1.routes.whatsapp_composer import router as _composer_router
+from app.presentation.api.v1.routes.whatsapp_catalog import router as _catalog_router
 from app.presentation.api.v1.routes.whatsapp_contact_import import router as _contact_import_router
 from app.presentation.api.v1.routes.whatsapp_exports import router as _exports_router
 from app.presentation.api.v1.routes.whatsapp_groups_archive import router as _groups_archive_router
 from app.presentation.api.v1.routes.whatsapp_groups_delete import router as _groups_delete_router
 from app.presentation.api.v1.routes.whatsapp_groups_manage import router as _groups_manage_router
 from app.presentation.api.v1.routes.whatsapp_groups_read import router as _groups_read_router
+from app.presentation.api.v1.routes.whatsapp_history import router as _history_router
 from app.presentation.api.v1.routes.whatsapp_recipient_details import (
     router as _recipient_details_router,
 )
@@ -28,16 +30,20 @@ from app.presentation.api.v1.routes.whatsapp_resend import router as _resend_rou
 from app.presentation.api.v1.routes.whatsapp_send import router as _send_router
 from app.presentation.api.v1.routes.whatsapp_source_groups import router as _source_groups_router
 from app.presentation.api.v1.routes.whatsapp_webhook import router as _webhook_router
+from app.presentation.api.v1.routes.whatsapp_workspace_passengers import router as _passengers_router
 
 router = APIRouter()
 router.include_router(_webhook_router)
 router.include_router(_contact_import_router)
 router.include_router(_source_groups_router)
 router.include_router(_groups_read_router)
+router.include_router(_history_router)
+router.include_router(_passengers_router)
 router.include_router(_recipient_roster_router)
 router.include_router(_exports_router)
 router.include_router(_rejected_contacts_router)
 router.include_router(_composer_router)
+router.include_router(_catalog_router)
 router.include_router(_groups_manage_router)
 router.include_router(_recipients_router)
 router.include_router(_recipient_details_router)

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 
 import { useRouteFocus } from '@/core/query/use-route-focus';
+import { isDemoMode } from '@/core/demo/demo-mode';
 import { recordAttendanceReconciliationAssessment } from '@/core/observability/attendance-observability';
 import type { AttendanceSession } from '@/features/coordinator/api/coordinator-contracts';
 import { publishAttendanceCloseoutCheckpoint } from '@/features/coordinator/data/attendance-closeout-checkpoint';
@@ -19,6 +20,7 @@ type Props = Readonly<{
  */
 export function AttendanceCheckpointReporter({ session, tripId }: Props) {
   const focused = useRouteFocus();
+  const demoMode = isDemoMode();
 
   useEffect(() => {
     if (!focused) return;
@@ -48,7 +50,7 @@ export function AttendanceCheckpointReporter({ session, tripId }: Props) {
   }, [focused, session.assigned_count, session.id, session.scanned_count, tripId]);
 
   useEffect(() => {
-    if (!focused || session.status !== 'active') return;
+    if (demoMode || !focused || session.status !== 'active') return;
     let publishing = false;
     const publish = async () => {
       if (publishing) return;
@@ -64,7 +66,7 @@ export function AttendanceCheckpointReporter({ session, tripId }: Props) {
     void publish();
     const refreshTimer = setInterval(() => void publish(), CLOSEOUT_CHECKPOINT_REFRESH_MS);
     return () => clearInterval(refreshTimer);
-  }, [focused, session.id, session.status, tripId]);
+  }, [demoMode, focused, session.id, session.status, tripId]);
 
   return null;
 }

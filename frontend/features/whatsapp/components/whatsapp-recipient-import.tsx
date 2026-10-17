@@ -61,6 +61,7 @@ export type RecipientImportState =
       rejectedRowsTruncated: boolean;
       omittedRejectedCount: number;
       matchingFieldCount: number;
+      retainedSourceFileCount: number;
     }
   | { status: "error"; fileName: string; message: string };
 
@@ -85,6 +86,9 @@ export function useRecipientExcelPreview({
   const rejectedContactsRef = useRef<RejectedContactDraft[]>([]);
   const matchingFieldsRef = useRef<RecipientImportMatchingField[]>([]);
   const omittedRejectedCountsRef = useRef(new Map<string, number>());
+  const duplicateSourceFilesRef = useRef(new Map<string, File>());
+  const [duplicateSourceFiles, setDuplicateSourceFiles] = useState<File[]>([]);
+  const [rejectedContactCount, setRejectedContactCount] = useState(0);
   const [rejectedContacts, setRejectedContacts] = useState<
     RejectedContactDraft[]
   >([]);
@@ -119,11 +123,26 @@ export function useRecipientExcelPreview({
       const preview = await whatsappApi.previewContacts(file, controller.signal);
       if (requestId !== requestIdRef.current || controller.signal.aborted) return;
 
+      const hasOmittedRows = Boolean(preview.rejected_rows_truncated || (preview.omitted_rejected_count ?? 0) > 0 || (preview.rejected_count ?? 0) > (preview.rejected_rows?.length ?? 0));
+      const sourceKey = `${file.name}:${file.size}:${file.lastModified}`;
+      if (hasOmittedRows) {
+        if (!preview.rejected_count || preview.rejected_counts?.duplicate_phone !== preview.rejected_count) {
+          throw new Error("This preview omits rows that cannot all be safely retained as shared-number records. Correct the invalid rows in the workbook and upload it again, or explicitly ignore this failed import. No rows from this file were added.");
+        }
+        if (!duplicateSourceFilesRef.current.has(sourceKey) && duplicateSourceFilesRef.current.size >= 10) {
+          throw new Error("Save the current imports before adding another large workbook. A save can retain at most 10 original source files. No rows from this file were added.");
+        }
+      }
+
       const merged = mergeRecipientImportPreview(
         contactsRef.current,
         preview,
         excludedPhoneNumbersRef.current,
       );
+      if (hasOmittedRows) {
+        duplicateSourceFilesRef.current.set(sourceKey, file);
+        setDuplicateSourceFiles(Array.from(duplicateSourceFilesRef.current.values()));
+      }
       contactsRef.current = merged.contacts;
       setContacts(merged.contacts);
       const accumulatedRejectedRows = mergeRecipientImportRejectedRows(
@@ -150,6 +169,7 @@ export function useRecipientExcelPreview({
       );
       const accumulatedRejectedCount =
         accumulatedRejectedRows.length + accumulatedOmittedRejectedCount;
+      setRejectedContactCount(accumulatedRejectedCount);
       setRejectedContacts(accumulatedRejectedRows);
       setImportState({
         status: "success",
@@ -162,6 +182,7 @@ export function useRecipientExcelPreview({
         rejectedRowsTruncated: accumulatedOmittedRejectedCount > 0,
         omittedRejectedCount: accumulatedOmittedRejectedCount,
         matchingFieldCount: accumulatedMatchingFields.length,
+        retainedSourceFileCount: duplicateSourceFilesRef.current.size,
       });
     } catch (previewError) {
       if (requestId !== requestIdRef.current || controller.signal.aborted) return;
@@ -185,6 +206,9 @@ export function useRecipientExcelPreview({
     rejectedContactsRef.current = [];
     matchingFieldsRef.current = [];
     omittedRejectedCountsRef.current.clear();
+    duplicateSourceFilesRef.current.clear();
+    setDuplicateSourceFiles([]);
+    setRejectedContactCount(0);
     setRejectedContacts([]);
     setImportedFieldKeys([]);
     setImportState({ status: "idle" });
@@ -194,7 +218,10 @@ export function useRecipientExcelPreview({
     importState,
     previewFile,
     rejectedContacts,
+    rejectedContactCount,
     importedFieldKeys,
+    duplicateSourceFiles,
+    dismissImportError: () => { if (importState.status === "error") setImportState({ status: "idle" }); },
     resetImport,
   };
 }
@@ -203,10 +230,12 @@ export function ExcelRecipientImport({
   state,
   onFile,
   label,
+  onDismissError,
 }: {
   state: RecipientImportState;
   onFile: (file: File) => Promise<void>;
   label: string;
+  onDismissError?: () => void;
 }) {
   const isLoading = state.status === "loading";
   const fileName = state.status === "idle" ? null : state.fileName;
@@ -296,6 +325,7 @@ export function ExcelRecipientImport({
                   receive messages.
                   {state.rejectedRowsTruncated &&
                     ` ${state.omittedRejectedCount} additional rejected row${state.omittedRejectedCount === 1 ? " was" : "s were"} counted but could not be included in this preview.`}
+                  {state.retainedSourceFileCount > 0 && " The original workbook is retained in this open dialog so all shared-number source rows can be saved. Your edited recipient list remains authoritative for delivery."}
                 </p>
                 {state.rejectedRows.length > 0 && (
                   <div
@@ -335,9 +365,7 @@ export function ExcelRecipientImport({
           </div>
         )}
         {state.status === "error" && (
-          <p role="alert" className="text-sm text-red-700">
-            {state.message}
-          </p>
+          <div className="space-y-2"><p role="alert" className="text-sm text-red-700">{state.message}</p>{onDismissError && <button type="button" onClick={onDismissError} className="min-h-11 text-left text-sm font-medium text-slate-600 underline focus-visible:ring-2 focus-visible:ring-blue-600">Ignore this failed import and keep the existing list</button>}</div>
         )}
       </div>
     </div>

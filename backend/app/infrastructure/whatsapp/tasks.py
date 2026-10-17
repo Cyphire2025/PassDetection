@@ -79,6 +79,7 @@ def process_whatsapp_broadcast(
     header_image_id: str | None = None,
     passport_intro: str | None = None,
     group_invite_link: str | None = None,
+    include_previous_recipients: bool = False,
 ) -> None:
     try:
         celery_async_runtime.run(
@@ -90,6 +91,7 @@ def process_whatsapp_broadcast(
                 group_invite_link=group_invite_link,
                 passport_link=passport_link,
                 header_image_id=header_image_id,
+                include_previous_recipients=include_previous_recipients,
             )
         )
     except Exception as exc:

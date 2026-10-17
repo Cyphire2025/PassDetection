@@ -115,6 +115,10 @@ class IAgencyRepository(ABC):
 class IClientGroupRepository(ABC):
     """Contract for upload link persistence operations."""
 
+    async def require_active_company(self, agency_id: uuid.UUID, company_id: uuid.UUID) -> dict[str, object]:
+        """Validate and lock the active company until the group transaction ends."""
+        raise NotImplementedError
+
     @abstractmethod
     async def get_by_id(self, link_id: uuid.UUID) -> ClientGroup | None: ...
 

@@ -21,6 +21,7 @@ from app.domain.entities.entities import (
     CONFIRMED_PASSPORT_STATUS_VALUES,
     OFFICE_VISIBLE_PASSPORT_STATUS_VALUES,
     PENDING_REVIEW_PASSPORT_STATUS_VALUES,
+    GroupStatus,
     PassportExtractionStatus,
     PassportProcessingStatus,
     PassportSubmission,
@@ -463,6 +464,8 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
         model.updated_at = submission.updated_at
 
     async def delete(self, submission_id: uuid.UUID) -> None:
+        from app.application.travellers.retention import detach_submission_provenance
+        await detach_submission_provenance(self._session, [submission_id])
         await self._session.execute(
             delete(PassportSubmissionModel).where(PassportSubmissionModel.id == submission_id)
         )
@@ -871,16 +874,17 @@ class PassportSubmissionRepository(IPassportSubmissionRepository):
             status_filter=status_filter, exclude_archived_groups=exclude_archived_groups,
             created_by_user_id=created_by_user_id, visible_to_user=visible_to_user,
         )
+        # Dashboard totals cover the live/closed and archived Group Links lists,
+        # including for superadmins who can otherwise access retained deleted data.
+        stmt = stmt.where(PassportSubmissionModel.group_id.in_(
+            select(ClientGroupModel.id).where(
+                ClientGroupModel.agency_id == agency_id,
+                ClientGroupModel.status.in_(
+                    [GroupStatus.ACTIVE.value, GroupStatus.CLOSED.value, GroupStatus.ARCHIVED.value]
+                ),
+                ClientGroupModel.deleted_at.is_(None),
+            ).correlate(None)
+        ))
 
         result = await self._session.execute(stmt)
-        total = int(result.scalar_one())
-        if not status_filter and not exclude_archived_groups and created_by_user_id is None and visible_to_user is None:
-            historical_result = await self._session.execute(
-                select(func.coalesce(func.sum(ClientGroupModel.deleted_passport_count), 0)).where(
-                    ClientGroupModel.agency_id == agency_id,
-                    ClientGroupModel.status == "deleted",
-                    ClientGroupModel.deletion_retained_records.is_(False),
-                )
-            )
-            total += int(historical_result.scalar_one() or 0)
-        return total
+        return int(result.scalar_one())

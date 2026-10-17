@@ -160,6 +160,8 @@ export interface PassportGroupExportHistoryItem {
   exported_count: number;
   pending_recipient_count: number;
   new_submission_count: number;
+  changed_submission_count?: number;
+  removed_submission_count?: number;
   compatible: boolean;
   actor_email: string | null;
   created_at: string;

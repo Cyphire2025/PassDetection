@@ -12,11 +12,12 @@ export function isDemoMode(): boolean {
     applicationId: Application.applicationId,
     apiHostname: new URL(env.apiUrl).hostname,
     isPhysicalDevice: Device.isDevice,
+    standalone: env.standaloneDemo,
   });
 }
 
 export function assertDemoMode(): void {
   if (!isDemoMode()) {
-    throw new Error('Local demo access is unavailable in this application build.');
+    throw new Error('Demo access is unavailable in this application build.');
   }
 }

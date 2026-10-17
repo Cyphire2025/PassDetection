@@ -53,6 +53,7 @@ class WhatsAppContactPreviewResponse(BaseModel):
     accepted_count: int
     recipients: list[WhatsAppContactPreviewRecipient]
     rejected_count: int
+    rejected_counts: dict[WhatsAppContactRejectionCode, int] = Field(default_factory=dict)
     rejected_rows: list[WhatsAppContactPreviewRejectedRow]
     rejected_rows_truncated: bool
     omitted_rejected_count: int
@@ -210,7 +211,7 @@ class WhatsAppBroadcastGroupDetailResponse(WhatsAppBroadcastGroupResponse):
 class WhatsAppSendRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    message_type: str = Field(pattern="^(welcome|passport_link|reminder|group_invite)$")
+    message_type: str = Field(pattern="^(welcome|passport_link|reminder|group_invite|update)$")
     passport_intro: str | None = Field(default=None, max_length=600)
     passport_link: str | None = None
     message_content: str | None = Field(default=None, max_length=600)
@@ -223,9 +224,20 @@ class WhatsAppSendRequest(BaseModel):
     support_contact_ids: list[uuid.UUID] | None = Field(default=None, max_length=1)
     audience: Literal["all", "not_submitted"] = "all"
     audience_client_group_id: uuid.UUID | None = None
+    update_submission: Literal["all", "submitted", "not_submitted"] = "all"
+    update_distribution: Literal["all", "sent", "pending"] = "all"
+    update_document_type: str = Field(default="visa", pattern="^(visa|flight_ticket|flight_ticket_arrival|flight_ticket_domestic|flight_ticket_domestic_arrival)$")
+    include_previous_recipients: bool = False
 
     @model_validator(mode="after")
     def validate_audience(self) -> WhatsAppSendRequest:
+        if self.include_previous_recipients and self.message_type != "passport_link":
+            raise ValueError("Previous recipients can be included only in a new passport-link message")
+        if self.message_type != "update" and (
+            self.update_submission != "all" or self.update_distribution != "all"
+            or self.update_document_type != "visa"
+        ):
+            raise ValueError("Document audience filters are available only for updates")
         if self.message_type != "reminder" and (
             self.audience != "all" or self.audience_client_group_id is not None
         ):
@@ -236,6 +248,9 @@ class WhatsAppSendRequest(BaseModel):
 
 
 class WhatsAppResendRequest(WhatsAppSendRequest):
+    source_message_log_id: uuid.UUID | None = None
+    request_id: uuid.UUID | None = None
+
     @model_validator(mode="after")
     def validate_resend_audience(self) -> WhatsAppResendRequest:
         if self.audience != "all" or self.audience_client_group_id is not None:

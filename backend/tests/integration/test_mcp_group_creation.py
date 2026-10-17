@@ -19,6 +19,7 @@ from app.application.mcp.operations import MCPOperationError, MCPOperationServic
 from app.application.use_cases.client_groups.create_client_group_use_case import (
     CreateClientGroupUseCase,
 )
+from app.infrastructure.database.gc_mobile_models import ClientOrganizationModel
 from app.infrastructure.database.mcp_operation_models import MCPOperationModel
 from app.infrastructure.database.models import (
     AgencyModel,
@@ -59,7 +60,11 @@ async def group_creation_fixture(operations_fixture):
     )
     session.add(owner)
     await session.flush()
+    company = ClientOrganizationModel(id=uuid.uuid4(), agency_id=agency.id, name="Creation company", normalized_name="creation company")
+    session.add(company)
+    await session.flush()
     payload = {
+        "company_id": str(company.id),
         "agency_id": str(agency.id),
         "owner_user_id": str(owner.id),
         "name": "  September   trip ",

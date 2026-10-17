@@ -297,9 +297,10 @@ class MCPImageExportService:
             history = None
             if prepared.history_fields:
                 history = await PassportExportHistoryRepository(self.session).record(
-                    **prepared.history_fields,
+                    **{key: value for key, value in prepared.history_fields.items() if key != "artifact_metadata"},
                     request_id=operation.id,
                     artifact_metadata={
+                        **prepared.history_fields.get("artifact_metadata", {}),
                         "image_count": image_count,
                         "uncompressed_bytes": source_bytes,
                         "archive_bytes": archive_size,

@@ -326,15 +326,18 @@ def _select_support_contacts(
 async def _active_explicit_reminder_recipient_ids(
     session: AsyncSession,
     recipients: list[WhatsAppBroadcastRecipientModel],
+    message_type: str = "reminder",
 ) -> set[uuid.UUID]:
     if not recipients:
         return set()
     result = await session.execute(
         select(WhatsAppMessageLogModel.recipient_id).where(
             WhatsAppMessageLogModel.recipient_id.in_([recipient.id for recipient in recipients]),
-            WhatsAppMessageLogModel.message_type == "reminder",
+            WhatsAppMessageLogModel.message_type == message_type,
             WhatsAppMessageLogModel.is_explicit_resend.is_(True),
-            WhatsAppMessageLogModel.status.in_(WHATSAPP_IN_PROGRESS_STATUSES),
+            WhatsAppMessageLogModel.status.in_(
+                WHATSAPP_IN_PROGRESS_STATUSES | (WHATSAPP_UNCERTAIN_STATUSES if message_type == "update" else frozenset())
+            ),
         )
     )
     return set(result.scalars().all())
@@ -345,6 +348,7 @@ async def _recipient_delivery_counts(
     *,
     recipients: list[WhatsAppBroadcastRecipientModel],
     message_type: str,
+    include_previous_recipients: bool = False,
 ) -> tuple[int, int, int, int]:
     if not recipients:
         return 0, 0, 0, 0
@@ -352,7 +356,7 @@ async def _recipient_delivery_counts(
         statuses = (
             await group_invite_blocking_statuses(session, recipients)
             if message_type == "group_invite"
-            else await message_phone_blocking_statuses(session, recipients, message_type=message_type)
+            else await message_phone_blocking_statuses(session, recipients, message_type=message_type, include_accepted=not include_previous_recipients)
         )
         already_sent = sum(value in WHATSAPP_ACCEPTED_STATUSES for value in statuses.values())
         in_progress = sum(value in WHATSAPP_IN_PROGRESS_STATUSES for value in statuses.values())
@@ -370,15 +374,15 @@ async def _recipient_delivery_counts(
         )
     )
     statuses = {recipient_id: state_status for recipient_id, state_status in states_result.all()}
-    if message_type == "reminder":
-        for recipient_id in await _active_explicit_reminder_recipient_ids(session, recipients):
+    if message_type in {"reminder", "update"}:
+        for recipient_id in await _active_explicit_reminder_recipient_ids(session, recipients, message_type):
             # Explicit resends intentionally retain the baseline ledger. Their
             # active log must still prevent a simultaneous fresh reminder.
             statuses[recipient_id] = "processing"
     already_sent = sum(
         1
         for state_status in statuses.values()
-        if message_type != "reminder" and state_status in WHATSAPP_ACCEPTED_STATUSES
+        if message_type not in {"reminder", "update"} and state_status in WHATSAPP_ACCEPTED_STATUSES
     )
     in_progress = sum(
         1 for state_status in statuses.values() if state_status in WHATSAPP_IN_PROGRESS_STATUSES

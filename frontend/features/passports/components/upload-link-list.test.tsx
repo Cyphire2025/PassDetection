@@ -35,6 +35,8 @@ function renderList(role: UserRole = "agency_admin") {
 }
 
 async function openDeleteDialog() {
+  const showArchived = screen.queryByRole("button", { name: "Show archived groups" });
+  if (showArchived) fireEvent.click(showArchived);
   // Both responsive table layouts exist in jsdom; either invokes the same action.
   const triggers = await screen.findAllByRole("button", { name: "Delete" });
   fireEvent.click(triggers[0]);
@@ -46,6 +48,30 @@ beforeEach(() => {
     status === "archived" ? [archivedGroup] : []
   ));
   vi.mocked(uploadLinksApi.permanentDelete).mockReset();
+});
+
+describe("archived group disclosure", () => {
+  it("starts collapsed, retains the count, and allows the archived actions to be shown and hidden", async () => {
+    renderList();
+    const archivedSection = screen.getByRole("region", { name: "Archived groups" });
+    await within(archivedSection).findByText("1");
+    const toggle = within(archivedSection).getByRole("button", { name: "Show archived groups" });
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    expect(within(archivedSection).queryByRole("button", { name: "Restore" })).not.toBeInTheDocument();
+    expect(within(archivedSection).queryByRole("table", { name: "Archived Group Links" })).not.toBeInTheDocument();
+
+    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+    expect(within(archivedSection).getByRole("table", { name: "Archived Group Links" })).toBeVisible();
+    expect(within(archivedSection).getAllByRole("button", { name: "Restore" })).toHaveLength(2);
+    expect(within(archivedSection).getAllByRole("button", { name: "Edit" })).toHaveLength(2);
+    expect(within(archivedSection).getAllByRole("button", { name: "Delete" })).toHaveLength(2);
+
+    fireEvent.click(within(archivedSection).getByRole("button", { name: "Hide archived groups" }));
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    expect(within(archivedSection).queryByRole("button", { name: "Restore" })).not.toBeInTheDocument();
+    expect(within(archivedSection).getByText("1")).toBeVisible();
+  });
 });
 
 describe("archived group deletion feedback", () => {
@@ -110,6 +136,7 @@ describe("archived group deletion feedback", () => {
 
   it.each(["agency_manager", "agency_staff"] as const)("keeps permanent deletion hidden for %s", async (role) => {
     renderList(role);
+    fireEvent.click(screen.getByRole("button", { name: "Show archived groups" }));
     await screen.findAllByText("NIPUN");
     expect(screen.queryByRole("button", { name: "Delete" })).not.toBeInTheDocument();
     expect(uploadLinksApi.permanentDelete).not.toHaveBeenCalled();

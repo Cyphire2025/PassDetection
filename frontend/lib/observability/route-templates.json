@@ -6,6 +6,8 @@
   "/admin/mcp/connect",
   "/analytics",
   "/audit-logs",
+  "/companies",
+  "/companies/[companyId]",
   "/coordinator",
   "/coordinator/groups/[groupId]",
   "/coordinator/groups/[groupId]/hotel-checkin",
@@ -63,5 +65,10 @@
   "/upload-links",
   "/upload/[token]",
   "/whatsapp",
+  "/whatsapp/[broadcastId]",
+  "/whatsapp/[broadcastId]/details",
+  "/whatsapp/[broadcastId]/documents",
+  "/whatsapp/[broadcastId]/history",
+  "/whatsapp/[broadcastId]/recipients",
   "unknown"
 ]
