@@ -113,10 +113,11 @@ export function proxy(request: NextRequest): NextResponse {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-nonce", nonce);
   requestHeaders.set("Content-Security-Policy", contentSecurityPolicy);
-  return withContentSecurityPolicy(
-    NextResponse.next({ request: { headers: requestHeaders } }),
-    contentSecurityPolicy,
-  );
+  const response = NextResponse.next({ request: { headers: requestHeaders } });
+  if (pathname === "/ai") {
+    response.headers.set("Permissions-Policy", "camera=(self), microphone=(self), geolocation=()");
+  }
+  return withContentSecurityPolicy(response, contentSecurityPolicy);
 }
 
 export const config = {
