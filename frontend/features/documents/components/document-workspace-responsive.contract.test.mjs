@@ -16,7 +16,8 @@ test("the review table preserves readable columns inside a keyboard-accessible h
 });
 
 test("document row actions escape the table clipping boundary and retain viewport bounds", () => {
-  assert.match(review, /open && createPortal\(/);
+  assert.match(review, /open && portalContainer && createPortal\(/);
+  assert.match(review, /closest<HTMLElement>\('\[role="dialog"\]'\) \?\? document\.body/);
   assert.match(review, /document\.body/);
   assert.match(review, /role="menu"[^>]*className="fixed [^"]*max-w-\[calc\(100vw-16px\)\][^"]*overflow-y-auto/);
   for (const event of ["scroll", "resize"]) {

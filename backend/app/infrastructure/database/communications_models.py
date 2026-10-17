@@ -349,6 +349,10 @@ class WhatsAppMessageLogModel(Base):
                 "is_explicit_resend = true "
                 "AND status IN ('queued', 'processing', 'delivery_unknown')"
             ),
+            sqlite_where=text(
+                "is_explicit_resend = true "
+                "AND status IN ('queued', 'processing', 'delivery_unknown')"
+            ),
         ),
     )
 

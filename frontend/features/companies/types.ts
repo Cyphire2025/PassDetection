@@ -86,3 +86,10 @@ export interface HistoryPage<T> {
   items: T[];
   next_cursor: string | null;
 }
+export interface CompanyTraveller {
+  id: string;
+  display_name: string;
+  status: string;
+  participation_count: number;
+  last_trip_date: string | null;
+}

@@ -62,7 +62,7 @@ export function BroadcastSendPage() {
           <ArrowLeft className="h-3.5 w-3.5" />
           Message library
         </Button>
-        {selected.audience === "update" ? (
+        {selected.id === "update" ? (
           <UpdateMessageComposer />
         ) : (
           <BroadcastMessageComposer

@@ -11,7 +11,6 @@ from sqlalchemy.dialects import postgresql
 from starlette.requests import Request
 
 from app.domain.entities.entities import UserRole
-from app.domain.exceptions.exceptions import ConflictError
 from app.infrastructure.database.gc_mobile_models import (
     ClientManagerProfileModel,
     ClientOrganizationModel,
@@ -357,12 +356,13 @@ async def test_unused_client_organization_is_soft_deleted_and_audited(db_session
         AuditLogModel.entity_id == str(organization.id), AuditLogModel.action == "company.deleted",
     ))).one()
     assert audit.agency_id == user.agency_id and audit.user_id == user.id
-    assert audit.metadata_json == {"status": "deleted", "revision": 2}
+    assert audit.metadata_json == {"status": "deleted", "revision": 2,
+                                   "detached_groups": 0, "retained_manager_grants": 0}
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("dependency", ["active", "closed", "archived", "manager"])
-async def test_client_organization_removal_is_blocked_while_in_use(db_session, dependency) -> None:
+async def test_client_organization_removal_preserves_group_and_manager_history(db_session, dependency) -> None:
     user = await seed_user(db_session)
     organization = await company(db_session, user)
     if dependency == "manager":
@@ -372,22 +372,32 @@ async def test_client_organization_removal_is_blocked_while_in_use(db_session, d
         )
         db_session.add(manager)
         await db_session.flush()
-        db_session.add(ClientManagerProfileModel(
+        retained = ClientManagerProfileModel(
             id=uuid.uuid4(), user_id=manager.id, agency_id=user.agency_id,
             organization_id=organization.id, normalized_phone_number="+919999999981", status="invited",
-        ))
-    else:
-        db_session.add(ClientGroupModel(
-            id=uuid.uuid4(), agency_id=user.agency_id, company_id=organization.id,
-            name="Synthetic group", token=uuid.uuid4().hex, status=dependency,
-        ))
-    await db_session.commit()
-    with pytest.raises(ConflictError, match="history and cannot be deleted"):
-        await delete_client_organization(
-            organization_id=organization.id, request=_request(), current_user=user, session=db_session,
         )
-    assert organization.status == "active" and organization.deleted_at is None
-    assert organization.revision == 1
+        db_session.add(retained)
+    else:
+        retained = ClientGroupModel(
+            id=uuid.uuid4(), agency_id=user.agency_id, company_id=organization.id, company_revision=1,
+            name="Synthetic group", token=uuid.uuid4().hex, status=dependency,
+        )
+        db_session.add(retained)
+    await db_session.commit()
+    # Migration 0135 and company removal deliberately retain historical rows.
+    await delete_client_organization(
+        organization_id=organization.id, request=_request(), current_user=user, session=db_session,
+    )
+    await db_session.commit()
+    assert organization.status == "deleted" and organization.deleted_at is not None
+    assert organization.revision == 2
+    await db_session.refresh(retained)
+    assert retained.agency_id == user.agency_id
+    if dependency == "manager":
+        assert retained.organization_id == organization.id and retained.status == "invited"
+    else:
+        assert retained.company_id is None and retained.status == dependency
+        assert retained.company_revision == 2
     assert await db_session.scalar(select(AuditLogModel.id).where(
         AuditLogModel.entity_id == str(organization.id), AuditLogModel.action == "company.deleted",
-    )) is None
+    )) is not None

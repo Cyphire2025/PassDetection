@@ -1271,6 +1271,7 @@ class Settings(BaseSettings):
     whatsapp_welcome_template_name: str = ""
     whatsapp_passport_link_template_name: str = ""
     whatsapp_reminder_template_name: str = "reminder_v1"
+    whatsapp_update_template_name: str = ""
     whatsapp_group_invite_template_name: str = "whatsapp_group_invite_v1"
     whatsapp_group_invite_template_language: str = "en"
     whatsapp_document_template_name: str = "documents_v1"

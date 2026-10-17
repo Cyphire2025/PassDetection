@@ -12,6 +12,7 @@ from app.presentation.api.v1.routes import (
     document_distribution_manual_verification,
     document_distribution_review_support,
     document_updates,
+    group_updates,
     traveller_welcome,
 )
 
@@ -67,6 +68,8 @@ _EXPECTED_ROUTES = [
     (("POST",), "/groups/{group_id}/{document_type}/passengers/{passenger_id}/manual-upload", "manually_upload_passenger_document"),
     (("GET",), "/groups/{group_id}/{document_type}/update-preview", "preview_update"),
     (("POST",), "/groups/{group_id}/{document_type}/send-update", "send_update"),
+    (("POST",), "/groups/{group_id}/updates/preview", "preview_group_update"),
+    (("POST",), "/groups/{group_id}/updates/send", "send_group_update"),
 ]
 
 _FACADE_NAMES = {
@@ -134,6 +137,8 @@ def test_document_distribution_route_order_and_names_remain_stable() -> None:
             assert route.endpoint is document_distribution_manual_upload.manually_upload_passenger_document
         elif route.name in {"preview_update", "send_update"}:
             assert route.endpoint is getattr(document_updates, route.name)
+        elif route.name in {"preview_group_update", "send_group_update"}:
+            assert route.endpoint is getattr(group_updates, route.name)
         elif route.name in {"preview_traveller_welcomes", "send_traveller_welcomes"}:
             assert route.endpoint is getattr(traveller_welcome, route.name)
             assert inspect.unwrap(route.endpoint).__module__ == traveller_welcome.__name__

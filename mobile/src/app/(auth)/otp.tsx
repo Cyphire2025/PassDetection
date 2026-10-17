@@ -1,7 +1,9 @@
 import { Redirect, router } from 'expo-router';
 import { useEffect, useState } from 'react';
 
-import { activateSession } from '@/core/auth/session-service';
+import { activateDemoSession, activateSession } from '@/core/auth/session-service';
+import { isDemoMode } from '@/core/demo/demo-mode';
+import { isDemoPassengerOtp, DEMO_OTP_CHALLENGE } from '@/core/demo/demo-credentials';
 import { PrimaryButton } from '@/design/components/primary-button';
 import { requestOtp, verifyOtp } from '@/features/auth/api/auth-api';
 import { useAuthFlowStore } from '@/features/auth/state/auth-flow-store';
@@ -12,6 +14,7 @@ import { OtpCodeInput } from '@/features/auth/ui/otp-code-input';
 import { isTripAvailability, TripAvailabilityNotice, type TripAvailability } from '@/features/auth/ui/trip-availability-notice';
 
 export default function OtpScreen() {
+  const demoMode = isDemoMode();
   const flow = useAuthFlowStore();
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
@@ -35,12 +38,22 @@ export default function OtpScreen() {
 
   async function submit() {
     if (!/^\d{6}$/.test(code)) {
-      setError('Enter the 6-digit verification code from WhatsApp.');
+      setError(demoMode ? 'Enter all six digits of the demo code: 123456.' : 'Enter the 6-digit verification code from WhatsApp.');
       return;
     }
     setLoading(true);
     setError(null);
     try {
+      if (demoMode) {
+        if (!isDemoPassengerOtp(flow.challengeId, flow.phoneNumber, code)) {
+          setError('The demo verification code is 123456.');
+          return;
+        }
+        await activateDemoSession('passenger');
+        flow.reset();
+        router.replace('/');
+        return;
+      }
       const result = await verifyOtp(flow.challengeId!, code, flow.phoneNumber);
       if (isTripAvailability(result.status)) {
         setAvailability(result.status);
@@ -67,6 +80,12 @@ export default function OtpScreen() {
     setLoading(true);
     setError(null);
     try {
+      if (demoMode) {
+        flow.setChallenge({ challengeId: DEMO_OTP_CHALLENGE, expiresInSeconds: 3600, resendAfterSeconds: 0 });
+        setResendSeconds(0);
+        setCode('');
+        return;
+      }
       const result = await requestOtp(flow.phoneNumber);
       flow.setChallenge({
         challengeId: result.challenge_id,
@@ -85,8 +104,8 @@ export default function OtpScreen() {
   return (
     <AuthShell
       eyebrow="Verification"
-      title="Check WhatsApp."
-      description="If this number was submitted through your trip’s collection link, a 6-digit code will arrive on WhatsApp. After verification, we’ll check whether your trip is ready to open.">
+      title={demoMode ? 'Enter the demo code.' : 'Check WhatsApp.'}
+      description={demoMode ? 'Enter 123456 to open the sample passenger trip. This reusable code is checked on your device.' : 'If this number was submitted through your trip’s collection link, a 6-digit code will arrive on WhatsApp. After verification, we’ll check whether your trip is ready to open.'}>
       <OtpCodeInput
         value={code}
         disabled={loading}
@@ -98,7 +117,7 @@ export default function OtpScreen() {
         <CountdownProgress remaining={resendSeconds} total={Math.max(1, flow.resendAfterSeconds)} />
       ) : null}
       <PrimaryButton
-        label={resendSeconds ? `Send another code in ${resendSeconds}s` : 'Send another WhatsApp code'}
+        label={demoMode ? 'Reset demo code entry' : resendSeconds ? `Send another code in ${resendSeconds}s` : 'Send another WhatsApp code'}
         tone="secondary"
         disabled={resendSeconds > 0}
         onPress={() => void resend()}

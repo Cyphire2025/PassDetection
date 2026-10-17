@@ -29,11 +29,11 @@ for (const operation of ["create", "add"] as const) test(`700-person import reta
   await page.setViewportSize({ width: 390, height: 900 });
   const mutations = await setup(page, operation === "add");
   await page.goto("/whatsapp");
-  if (operation === "create") await page.getByRole("button", { name: "Create Broadcast", exact: true }).first().click();
+  if (operation === "create") await page.getByRole("button", { name: "Create broadcast", exact: true }).first().click();
   else {
-    await page.getByRole("button", { name: `Open actions for ${groupName}` }).filter({ visible: true }).click();
-    await page.getByRole("button", { name: "Recipient List", exact: true }).click();
-    await page.getByRole("navigation", { name: "Broadcast workspace" }).getByRole("button", { name: /^Add recipients/ }).click();
+    await page.getByRole("link", { name: `Open ${groupName}` }).click();
+    await page.getByRole("link", { name: "Recipients", exact: true }).click();
+    await page.getByRole("button", { name: "Add recipients", exact: true }).click();
   }
   const dialog = page.getByRole("dialog");
   if (operation === "create") {
@@ -46,10 +46,10 @@ for (const operation of ["create", "add"] as const) test(`700-person import reta
   await dialog.locator('input[type="file"]').setInputFiles({ name: "700-travellers.xlsx", mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", buffer: Buffer.from(originalBytes) });
   await expect(dialog.getByRole("heading", { name: "699 spreadsheet rows need attention" })).toBeVisible();
   await expect(dialog.getByText(/original workbook is retained/)).toBeVisible();
-  if (operation === "add") await expect(dialog.getByRole("navigation", { name: "Broadcast workspace" }).getByRole("button", { name: /^Add recipients/ })).toContainText("700");
+
   await dialog.getByRole("textbox", { name: "Recipient 1 name", exact: true }).fill("Reviewed delivery contact");
   await dialog.getByRole("checkbox", { name: /recipients agreed/ }).check();
-  await dialog.getByRole("button", { name: operation === "create" ? "Save List" : "Add Recipients", exact: true }).click();
+  await dialog.getByRole("button", { name: operation === "create" ? "Save List" : "Add recipients (1)", exact: true }).click();
   await expect.poll(() => mutations.length).toBe(1);
   expect(mutations[0]).toContain('name="duplicate_source_files"; filename="700-travellers.xlsx"');
   expect(mutations[0]).toContain(originalBytes);

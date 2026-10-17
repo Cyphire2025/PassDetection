@@ -177,6 +177,7 @@ async def queue_broadcast_message(
     source_recipients = _select_group_recipients(all_recipients, body.recipient_ids)
     audience_resolution = await resolve_reminder_audience(
         session,
+        message_request=body,
         broadcast_group=group,
         recipients=source_recipients,
         audience=body.audience,
@@ -250,6 +251,9 @@ async def queue_broadcast_message(
         support_contact_ids=merged_body.support_contact_ids,
         audience=merged_body.audience,
         audience_client_group_id=merged_body.audience_client_group_id,
+        update_submission=body.update_submission,
+        update_distribution=body.update_distribution,
+        update_document_type=body.update_document_type,
         include_previous_recipients=body.include_previous_recipients,
     )
     batch_id = uuid.uuid4()
@@ -280,7 +284,7 @@ async def queue_broadcast_message(
 
     active_explicit_reminder_ids = (
         await _active_explicit_reminder_recipient_ids(session, recipients, message_type)
-        if message_type == "reminder"
+        if message_type in {"reminder", "update"}
         else set()
     )
     if message_type == "passport_link":

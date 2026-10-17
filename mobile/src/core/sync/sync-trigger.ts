@@ -1,4 +1,5 @@
 import { useSessionStore } from '@/core/auth/session-store';
+import { isDemoMode } from '@/core/demo/demo-mode';
 import { principalAccountNamespace } from '@/core/auth/types';
 import { localTripsInContext } from '@/features/trips/data/trip-repository';
 
@@ -445,6 +446,10 @@ export function requestSync(
   trigger: SyncTrigger,
   options: SyncRequestOptions = {},
 ): Promise<SyncAllTripsSummary> {
+  if (isDemoMode()) {
+    if (options.signal?.aborted) return Promise.reject(abortReason(options.signal));
+    return Promise.resolve(EMPTY_SUMMARY);
+  }
   return syncCoordinator.request(trigger, options);
 }
 

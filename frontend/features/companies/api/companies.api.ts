@@ -1,7 +1,7 @@
 import apiClient from "@/lib/api/client";
 import { API_ENDPOINTS } from "@/lib/api/endpoints";
 import type { Company, CompanyGroup, CompanyGroupSearch, CompanyInput, CompanyReference, CompanySearch, CompanySummary, CompanyUpdate, CursorPage } from "../types";
-import type { TravellerHistory, HistoryPage } from "../types";
+import type { CompanyTraveller, TravellerHistory, HistoryPage } from "../types";
 
 const endpoints = API_ENDPOINTS.companies;
 const scope = (agencyId: string) => ({ agency_id: agencyId });
@@ -33,6 +33,9 @@ export const companiesApi = {
   },
   async groups(agencyId: string, id: string, params: CompanyGroupSearch, signal?: AbortSignal) {
     return (await apiClient.get<CursorPage<CompanyGroup>>(endpoints.groups(id), { params: { ...scope(agencyId), ...params }, signal })).data;
+  },
+  async travellers(agencyId: string, id: string, params: { search?: string; cursor?: string }, signal?: AbortSignal) {
+    return (await apiClient.get<CursorPage<CompanyTraveller>>(`${endpoints.detail(id)}/travellers`, { params: { ...scope(agencyId), ...params, page_size: 30 }, signal })).data;
   },
   async history(agencyId: string, id: string, travellerId: string, cursor?: string, signal?: AbortSignal) {
     return (await apiClient.get<HistoryPage<TravellerHistory>>(endpoints.travellerHistory(id, travellerId), { params: { ...scope(agencyId), cursor, page_size: 25 }, signal })).data;

@@ -81,6 +81,17 @@ const field = (key: string, label: string, kind = "textarea") => ({
 });
 export const catalog = [
   {
+    id: "text_update",
+    message_type: "update",
+    label: "Text trip update",
+    description: "Write a text update and filter recipients by submission and document delivery.",
+    category: "Trip updates",
+    image_required: false,
+    audience: "update",
+    repeatable: true,
+    fields: [field("message_content", "Update message")],
+  },
+  {
     id: "welcome",
     message_type: "welcome",
     label: "Welcome message",
@@ -259,7 +270,7 @@ export async function setupWorkspace(
         route,
         options.largeCatalog
           ? Array.from({ length: 100 }, (_, i) => ({
-              ...catalog[4],
+              ...catalog[0],
               id: `message-${i}`,
               label: `Travel update ${String(i + 1).padStart(3, "0")}`,
             }))

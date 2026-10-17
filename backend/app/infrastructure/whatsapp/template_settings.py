@@ -17,7 +17,7 @@ TEMPLATE_SETTINGS_KEY = "whatsapp_template_names"
 TEMPLATE_SETTINGS_MEMO = "whatsapp_template_settings_snapshot"
 TEMPLATE_NAME_MAX_LENGTH = 255  # The existing frozen delivery columns are VARCHAR(255).
 TEMPLATE_NAME_PATTERN = r"^[a-z0-9_]+$"
-TemplateSlot = Literal["welcome", "passport_link", "reminder", "group_invite", "document", "document_update", "qr", "otp"]
+TemplateSlot = Literal["welcome", "passport_link", "reminder", "group_invite", "update", "document", "document_update", "qr", "otp"]
 
 
 @dataclass(frozen=True, slots=True)
@@ -31,6 +31,7 @@ TEMPLATE_REGISTRY = (
     TemplateDefinition("welcome", "Welcome", "IMAGE header and one BODY variable; preserve the approved welcome format."),
     TemplateDefinition("passport_link", "Passport Link", "IMAGE header and four BODY variables: introduction, passport link, message, support contacts."),
     TemplateDefinition("reminder", "Reminder", "No media header and one BODY variable."),
+    TemplateDefinition("update", "Trip Update", "No media header and one BODY variable containing the trip update."),
     TemplateDefinition("group_invite", "Group Invite", "IMAGE header and two BODY variables: invitation message, WhatsApp group link."),
     TemplateDefinition("document", "Document Distribution", "DOCUMENT header and two BODY variables: message, review instruction."),
     TemplateDefinition("document_update", "Document update", "No media header and one BODY variable: the update message."),

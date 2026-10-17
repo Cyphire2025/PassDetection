@@ -5,6 +5,7 @@ import { AppState, StyleSheet, Text, View } from 'react-native';
 import Pdf from 'react-native-pdf';
 
 import { ApiError } from '@/core/api/client';
+import { isDemoMode } from '@/core/demo/demo-mode';
 import { userFacingErrorMessage } from '@/core/errors/user-facing-error';
 import { SensitiveScreenProtection } from '@/core/security/sensitive-screen-protection';
 import { ContentError, ContentLoading } from '@/design/components/content-state';
@@ -23,6 +24,7 @@ function first(value: string | string[] | undefined): string | null {
 }
 
 export default function ManagerDocumentPreviewScreen() {
+  const demoMode = isDemoMode();
   const params = useLocalSearchParams<{
     tripId?: string | string[];
     passengerId?: string | string[];
@@ -118,12 +120,12 @@ export default function ManagerDocumentPreviewScreen() {
 
   return (
     <Screen scroll={false} bottomInset={0} contentStyle={styles.screen}>
-      <OperationHeader title={title} subtitle="Secure online preview · not stored offline" />
+      <OperationHeader title={title} subtitle={demoMode ? 'Protected sample PDF · available offline' : 'Secure online preview · not stored offline'} />
       <View style={styles.viewer}>
         {loading ? <ContentLoading label="Loading document preview" /> : null}
         {error ? <ContentError message={error} onRetry={() => void load()} /> : null}
         {preview ? (
-          <View testID="manager-document-preview-rendered" style={styles.document}>
+          <View testID="manager-document-preview-rendered" accessible accessibilityLabel="Document preview content" accessibilityState={{ busy: !rendererLoaded }} style={styles.document}>
             {preview.contentType === 'application/pdf' ? (
               <Pdf
                 source={{ uri: preview.file.uri, cache: false }}

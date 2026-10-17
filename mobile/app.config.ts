@@ -10,6 +10,16 @@ import {
 
 const APP_DISPLAY_NAME = "Global Connect Travels";
 const APP_ID = "com.globalconnects.groupcompanion";
+const standaloneDemo = process.env.EXPO_PUBLIC_STANDALONE_DEMO === "true";
+if (standaloneDemo && (process.env.EXPO_PUBLIC_APP_ENV !== "preview"
+  || process.env.EXPO_PUBLIC_DEMO_MODE !== "true"
+  || process.env.EXPO_PUBLIC_API_URL !== "https://demo.invalid/api/v1"
+  || process.env.EXPO_PUBLIC_REALTIME_ENABLED !== "false"
+  || process.env.EXPO_PUBLIC_APP_INTEGRITY_MODE !== "disabled"
+  || process.env.EXPO_PUBLIC_SENTRY_DSN || process.env.EXPO_PUBLIC_UPDATES_URL
+  || process.env.GOOGLE_SERVICES_JSON || process.env.GC_ANDROID_FACE_LIVENESS_ENABLED === "true")) {
+  throw new Error("Standalone demo builds must use the offline demo configuration with all network services disabled.");
+}
 const VERIFIED_LINK_HOST = "tech.gctravels.com";
 const PRODUCTION_EAS_PROFILES = new Set(["production", "production-apk"]);
 const updatesUrl = process.env.EXPO_PUBLIC_UPDATES_URL;
@@ -71,7 +81,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     ...(process.env.EXPO_PUBLIC_EXPO_OWNER
       ? { owner: process.env.EXPO_PUBLIC_EXPO_OWNER }
       : {}),
-    version: "1.0.9",
+    version: "1.0.10",
     jsEngine: "hermes",
     orientation: "portrait",
     icon: "./assets/images/gc-app-icon.png",
@@ -114,7 +124,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
           NSAllowsLocalNetworking: localNetworkDevelopment,
         },
       },
-      associatedDomains: [`applinks:${VERIFIED_LINK_HOST}`],
+      associatedDomains: standaloneDemo ? [] : [`applinks:${VERIFIED_LINK_HOST}`],
       ...(appIntegrityBuild.appAttestEnvironment
         ? {
             entitlements: {
@@ -126,10 +136,11 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     },
     android: {
       package: APP_ID,
-      versionCode: 10,
+      versionCode: 11,
       ...(googleServicesFile ? { googleServicesFile } : {}),
       allowBackup: false,
       blockedPermissions: [
+        ...(standaloneDemo ? ["android.permission.INTERNET"] : []),
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.WRITE_EXTERNAL_STORAGE",
         "android.permission.READ_MEDIA_IMAGES",
@@ -144,7 +155,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         "android.permission.RECEIVE_BOOT_COMPLETED",
         "android.permission.VIBRATE",
       ],
-      intentFilters: [
+      intentFilters: standaloneDemo ? [] : [
         {
           action: "VIEW",
           autoVerify: true,
@@ -275,6 +286,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       reactCompiler: true,
     },
     extra: {
+      standaloneDemo,
       iosPushNotificationsEnabled,
       eas: {
         projectId: process.env.EXPO_PUBLIC_EAS_PROJECT_ID || undefined,

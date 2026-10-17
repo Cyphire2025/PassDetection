@@ -23,7 +23,7 @@ class ComposerField(BaseModel):
 
 class MessageDefinition(BaseModel):
     id: str
-    message_type: WhatsAppMessageType | Literal["update"]
+    message_type: WhatsAppMessageType
     label: str
     description: str
     category: str
@@ -34,6 +34,16 @@ class MessageDefinition(BaseModel):
 
 
 MESSAGE_CATALOG = (
+    MessageDefinition(
+        id="text_update",
+        message_type="update",
+        label="Text trip update",
+        description="Write a text update and filter recipients by submission and document delivery.",
+        category="Trip updates",
+        audience="update",
+        repeatable=True,
+        fields=[ComposerField(key="message_content", label="Update message")],
+    ),
     MessageDefinition(
         id="welcome",
         message_type="welcome",

@@ -2,6 +2,7 @@ export type WhatsAppTemplateKey =
   | "welcome"
   | "passport_link"
   | "reminder"
+  | "update"
   | "group_invite"
   | "document"
   | "document_update"

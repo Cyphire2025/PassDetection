@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
 
-import { activateDemoSession } from '@/core/auth/session-service';
+import { DEMO_OTP_CHALLENGE, isDemoPassengerPhone } from '@/core/demo/demo-credentials';
 import { isDemoMode } from '@/core/demo/demo-mode';
 import { PrimaryButton } from '@/design/components/primary-button';
 import { TextField } from '@/design/components/text-field';
@@ -26,8 +26,13 @@ export default function PhoneScreen() {
     setError(null);
     try {
       if (demoMode) {
-        await activateDemoSession('passenger');
-        router.replace('/');
+        if (!isDemoPassengerPhone(normalizedInput)) {
+          setError('Use the demo passenger number +919876543219.');
+          return;
+        }
+        useAuthFlowStore.getState().setPhoneNumber(normalizedInput);
+        useAuthFlowStore.getState().setChallenge({ challengeId: DEMO_OTP_CHALLENGE, expiresInSeconds: 3600, resendAfterSeconds: 0 });
+        router.push('/(auth)/otp');
         return;
       }
       const result = await requestOtp(normalizedInput);
@@ -50,12 +55,12 @@ export default function PhoneScreen() {
       eyebrow="Passenger access"
       title={demoMode ? 'Open the passenger demo.' : 'Let’s find your trip.'}
       description={demoMode
-        ? 'Enter any value. This isolated emulator build opens local sample data without checking a real passenger record.'
+        ? 'Use +919876543219, then enter the demo code 123456. No WhatsApp message or internet connection is needed.'
         : 'Use the WhatsApp number you entered when submitting your details through your trip’s collection link.'}>
       <TextField
         testID="passenger-phone-input"
         label="Mobile number"
-        placeholder="+91 98765 43210"
+        placeholder={demoMode ? '+919876543219' : '+91 98765 43210'}
         keyboardType="phone-pad"
         textContentType="telephoneNumber"
         autoComplete="tel"
@@ -68,7 +73,7 @@ export default function PhoneScreen() {
       <AuthError message={error} />
       <PrimaryButton
         testID="passenger-send-otp"
-        label={demoMode ? 'Open passenger demo' : 'Send verification code'}
+        label={demoMode ? 'Continue to demo code' : 'Send verification code'}
         loading={loading}
         onPress={() => void submit()}
       />

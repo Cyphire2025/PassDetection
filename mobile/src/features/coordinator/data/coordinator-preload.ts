@@ -1,4 +1,5 @@
 import { canDeferWorkspacePreparationFailure } from '@/core/sync/preload-failure-policy';
+import { isDemoMode } from '@/core/demo/demo-mode';
 import { scheduleTripDocumentHydration } from '@/core/sync/sync-service';
 import {
   assertSyncContextActive,
@@ -22,6 +23,10 @@ export async function preloadCoordinatorTrip(
   syncContext?: ImmutableSyncContext,
 ): Promise<{ failedDownloads: number }> {
   if (syncContext) assertSyncContextActive(syncContext);
+  if (isDemoMode()) {
+    onProgress({ progress: 1, label: `${trip.name} is ready with a local sample attendance activity` });
+    return { failedDownloads: 0 };
+  }
   onProgress({ progress: 0.05, label: `Preparing ${trip.name}` });
   try {
     await requestSync(

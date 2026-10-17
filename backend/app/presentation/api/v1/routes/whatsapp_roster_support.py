@@ -336,7 +336,7 @@ async def _active_explicit_reminder_recipient_ids(
             WhatsAppMessageLogModel.message_type == message_type,
             WhatsAppMessageLogModel.is_explicit_resend.is_(True),
             WhatsAppMessageLogModel.status.in_(
-                WHATSAPP_IN_PROGRESS_STATUSES
+                WHATSAPP_IN_PROGRESS_STATUSES | (WHATSAPP_UNCERTAIN_STATUSES if message_type == "update" else frozenset())
             ),
         )
     )
@@ -374,7 +374,7 @@ async def _recipient_delivery_counts(
         )
     )
     statuses = {recipient_id: state_status for recipient_id, state_status in states_result.all()}
-    if message_type == "reminder":
+    if message_type in {"reminder", "update"}:
         for recipient_id in await _active_explicit_reminder_recipient_ids(session, recipients, message_type):
             # Explicit resends intentionally retain the baseline ledger. Their
             # active log must still prevent a simultaneous fresh reminder.
@@ -382,7 +382,7 @@ async def _recipient_delivery_counts(
     already_sent = sum(
         1
         for state_status in statuses.values()
-        if message_type != "reminder" and state_status in WHATSAPP_ACCEPTED_STATUSES
+        if message_type not in {"reminder", "update"} and state_status in WHATSAPP_ACCEPTED_STATUSES
     )
     in_progress = sum(
         1 for state_status in statuses.values() if state_status in WHATSAPP_IN_PROGRESS_STATUSES

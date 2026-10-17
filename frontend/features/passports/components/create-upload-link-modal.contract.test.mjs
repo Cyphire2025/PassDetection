@@ -18,7 +18,7 @@ const settingsSource = readFileSync(
 test("link creation cannot submit twice before pending state rerenders", () => {
   assert.match(
     modalSource,
-    /if \(isPending \|\| !tryEnterCreate\(\)\) return;/,
+    /if \(!agencyId \|\| isPending \|\| !tryEnterCreate\(\)\) return;/,
   );
   assert.match(modalSource, /if \(inFlightRef\.current\) return false;/);
   assert.match(modalSource, /inFlightRef\.current = true;/);

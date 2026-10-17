@@ -212,7 +212,7 @@ async def preview_broadcast_message(
     source_recipients = _select_group_recipients(all_recipients, body.recipient_ids)
     message_type = _as_message_type(body.message_type)
     audience_resolution = await resolve_reminder_audience(
-        session,
+        session, message_request=body,
         broadcast_group=group,
         recipients=source_recipients,
         audience=body.audience,

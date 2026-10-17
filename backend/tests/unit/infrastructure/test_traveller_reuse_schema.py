@@ -9,7 +9,7 @@ from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
-from sqlalchemy import delete
+from sqlalchemy import Column, Index, MetaData, Table, delete
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -198,6 +198,7 @@ def test_frozen_migration_matches_every_model_constraint_and_index(monkeypatch):
     migration = _migration()
     impact = _migration("0133_traveller_document_impact.py")
     exports = _migration("0134_company_data_exports.py")
+    lookup = _migration("0138_verified_portal_lookup.py")
     assert migration.down_revision == "0130_company_directory"
     assert impact.down_revision == "0132_traveller_source_seek"
     assert exports.down_revision == "0133_traveller_document_impact"
@@ -219,8 +220,10 @@ def test_frozen_migration_matches_every_model_constraint_and_index(monkeypatch):
     operations = MagicMock()
     monkeypatch.setattr(impact, "op", operations)
     monkeypatch.setattr(exports, "op", operations)
+    monkeypatch.setattr(lookup, "op", operations)
     impact.upgrade()
     exports.upgrade()
+    lookup.upgrade()
     additions = {}
     for call in operations.add_column.call_args_list:
         table, column = call.args
@@ -232,12 +235,23 @@ def test_frozen_migration_matches_every_model_constraint_and_index(monkeypatch):
         name, table, expression = call.args
         additions.setdefault(table, []).append(f"CONSTRAINT {name} CHECK ({expression})")
     composed = []
+    removed_constraints = {
+        (call.args[1], call.args[0]) for call in operations.drop_constraint.call_args_list
+    }
     for statement in (*migration.DDL, *impact.DDL, *exports.DDL):
         lines = list(canonical(statement))
+        for table, name in removed_constraints:
+            if statement.startswith(f"CREATE TABLE {table} ("):
+                lines = [line for line in lines if not line.startswith(f"CONSTRAINT {name} ")]
         for table, extra in additions.items():
             if statement.startswith(f"CREATE TABLE {table} ("):
                 lines.extend(line.strip().rstrip(",") for line in extra)
         composed.append(tuple(sorted(lines)))
+    for call in operations.create_index.call_args_list:
+        name, table_name, columns = call.args
+        table = Table(table_name, MetaData(), *(Column(column) for column in columns))
+        index = Index(name, *(table.c[column] for column in columns), **call.kwargs)
+        composed.append(canonical(str(CreateIndex(index).compile(dialect=dialect))))
     assert set(composed) == {canonical(item) for item in expected}
 
 

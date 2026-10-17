@@ -68,6 +68,9 @@ async def required_send_key(request: Request) -> str:
 def canonical_send_body(body: WhatsAppSendRequest) -> dict[str, object]:
     """Keep retained v1 receipts replayable when neutral form fields are added."""
     payload = body.model_dump(mode="json")
+    if body.message_type != "update":
+        for key in ("update_submission", "update_distribution", "update_document_type"):
+            payload.pop(key, None)
     if not body.include_previous_recipients:
         payload.pop("include_previous_recipients", None)
     return payload

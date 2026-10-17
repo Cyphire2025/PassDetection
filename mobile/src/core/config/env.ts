@@ -28,8 +28,15 @@ const parsed = EnvSchema.parse({
 });
 
 const demoModeRequested = process.env.EXPO_PUBLIC_DEMO_MODE === 'true';
+const standaloneDemo = process.env.EXPO_PUBLIC_STANDALONE_DEMO === 'true';
 
-if (demoModeRequested && parsed.appEnv !== 'development') {
+if (standaloneDemo && (!demoModeRequested || parsed.appEnv !== 'preview'
+  || parsed.apiUrl !== 'https://demo.invalid/api/v1'
+  || parsed.realtimeEnabled || parsed.sentryDsn || parsed.appIntegrityMode !== 'disabled')) {
+  throw new Error('Standalone demo requires preview, local demo data, and disabled network services.');
+}
+
+if (demoModeRequested && parsed.appEnv !== 'development' && !standaloneDemo) {
   throw new Error('The local demo mode can only be bundled with the development app environment.');
 }
 
@@ -90,6 +97,7 @@ export const env = Object.freeze({
   playIntegrityCloudProjectNumber: parsed.playIntegrityCloudProjectNumber,
   sentryDsn: parsed.sentryDsn,
   demoModeRequested,
+  standaloneDemo,
   maestroAttendanceFixtureEnabled:
     parsed.appEnv === 'preview' && maestroAttendanceFixtureRequested,
 });

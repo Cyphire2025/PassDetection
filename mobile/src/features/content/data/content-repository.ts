@@ -1,4 +1,5 @@
 import { apiRequest, ApiError } from '@/core/api/client';
+import { isDemoMode } from '@/core/demo/demo-mode';
 import { principalAccountNamespace, type MobilePrincipal } from '@/core/auth/types';
 import { useSessionStore } from '@/core/auth/session-store';
 import { mobileQueryClient } from '@/core/query/query-client';
@@ -450,14 +451,18 @@ export async function localDocuments(
   if (scope === 'personal' && (!passengerId || principal.principalType !== 'passenger')) return [];
   const database = await openAccountDatabase(namespace);
   if (syncContext) assertSyncContextActive(syncContext);
-  await recoverTripVaultOnce(database, namespace, tripId);
+  if (!isDemoMode()) await recoverTripVaultOnce(database, namespace, tripId);
   if (syncContext) assertSyncContextActive(syncContext);
-  return queryLocalDocuments(database, {
+  const documents = await queryLocalDocuments(database, {
     namespace,
     tripId,
     ownership: documentOwnershipFilter(principal),
     ...(scope ? { scope } : {}),
   });
+  // Sample PDFs are embedded in the application and require no vault download.
+  return isDemoMode() ? documents.map((document) => ({ ...document,
+    offline: true, offlineVersion: document.version,
+  })) : documents;
 }
 
 type CachedDocumentCollection = Readonly<{
@@ -996,6 +1001,12 @@ async function prefetchOfflineDocuments(
   includeDeferred = false,
 ): Promise<OfflinePrefetchProgress> {
   if (syncContext) assertSyncContextActive(syncContext);
+  if (isDemoMode()) {
+    const documents = (await localDocuments(tripId, syncContext)).filter((document) => scopes.has(document.scope));
+    const progress = { total: documents.length, completed: documents.length, failed: 0, currentDocumentName: null };
+    onProgress?.(progress);
+    return progress;
+  }
   const documents = await retryableOfflineDocuments(
     tripId,
     scopes,

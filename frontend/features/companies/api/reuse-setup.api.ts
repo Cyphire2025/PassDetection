@@ -10,11 +10,31 @@ export interface ReusePolicy {
 }
 export interface ReusePolicyInput {
   expected_revision: number; enabled: boolean;
+  retention_mode?: "until_withdrawn";
+  purpose_version?: string | null;
+  notice_version?: string | null;
+  processing_basis?: string | null;
+}
+export interface GroupReuseConfig {
+  group_id: string; company_id: string; group_revision: number;
+  enabled: boolean; revision: number; roster_mode: "closed" | "open";
+  individual_identifier_type: string | null; identifier_required: boolean;
+}
+export interface GroupReuseConfigInput {
+  expected_revision: number; expected_group_revision: number; enabled: boolean;
+  roster_mode: "closed" | "open"; individual_identifier_type: string | null;
+  identifier_required: boolean;
 }
 const path = (companyId: string) => API_ENDPOINTS.companies.detail(companyId);
 const params = (agencyId: string) => ({ agency_id: agencyId });
 
 export const reuseSetupApi = {
+  async group(agencyId: string, companyId: string, groupId: string, signal?: AbortSignal) {
+    return (await apiClient.get<GroupReuseConfig>(`${path(companyId)}/groups/${encodeURIComponent(groupId)}/reuse-config`, { params: params(agencyId), signal })).data;
+  },
+  async saveGroup(agencyId: string, companyId: string, groupId: string, body: GroupReuseConfigInput) {
+    return (await apiClient.put<GroupReuseConfig>(`${path(companyId)}/groups/${encodeURIComponent(groupId)}/reuse-config`, body, { params: params(agencyId) })).data;
+  },
   async policy(agencyId: string, companyId: string, signal?: AbortSignal) {
     return (await apiClient.get<ReusePolicy>(`${path(companyId)}/reuse-policy`, { params: params(agencyId), signal })).data;
   },

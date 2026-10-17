@@ -56,6 +56,8 @@ class _WhatsAppComposerSnapshot:
 
 
 def _as_message_type(value: str) -> WhatsAppMessageType:
+    if value == "update":
+        return "update"
     if value == "group_invite":
         return "group_invite"
     if value == "welcome":
@@ -119,7 +121,7 @@ def _resolve_send_header_image(
     *,
     resend: bool = False,
 ) -> str | None:
-    if message_type == "reminder":
+    if message_type in {"reminder", "update"}:
         return None
     media_id = (value or "").strip()
     if media_id:
@@ -359,7 +361,7 @@ def _decode_legacy_template_snapshot(
 def _template_snapshot_from_log(
     log: WhatsAppMessageLogModel,
 ) -> tuple[list[str], list[str]]:
-    if log.message_type not in {"welcome", "passport_link", "reminder", "group_invite"}:
+    if log.message_type not in {"welcome", "passport_link", "reminder", "group_invite", "update"}:
         raise ValueError("The saved WhatsApp message type cannot be resent")
     message_type = _as_message_type(log.message_type)
     saved_header = log.header_parameter_values
@@ -389,7 +391,7 @@ def _composer_snapshot_from_log(
 ) -> _WhatsAppComposerSnapshot:
     header_parameters, parameters = _template_snapshot_from_log(log)
     header_image_id = header_parameters[0] if header_parameters else None
-    if log.message_type in {"welcome", "reminder", "group_invite"}:
+    if log.message_type in {"welcome", "reminder", "group_invite", "update"}:
         return _WhatsAppComposerSnapshot(
             log=log,
             passport_intro=None,
@@ -502,5 +504,8 @@ def _merge_composer_snapshot(
         support_contact_ids=body.support_contact_ids,
         audience=body.audience,
         audience_client_group_id=body.audience_client_group_id,
+        update_submission=body.update_submission,
+        update_distribution=body.update_distribution,
+        update_document_type=body.update_document_type,
         include_previous_recipients=body.include_previous_recipients,
     )

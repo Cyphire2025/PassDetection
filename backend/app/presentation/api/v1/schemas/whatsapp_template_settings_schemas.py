@@ -10,6 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 from app.infrastructure.whatsapp.template_settings import (
     TEMPLATE_NAME_MAX_LENGTH,
     TEMPLATE_NAME_PATTERN,
+    TEMPLATE_REGISTRY,
     TemplateSlot,
 )
 
@@ -22,7 +23,7 @@ class WhatsAppTemplateOverrideRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     expected_revision: int = Field(ge=0, strict=True)
-    overrides: dict[TemplateSlot, TemplateName | None] = Field(min_length=1, max_length=7)
+    overrides: dict[TemplateSlot, TemplateName | None] = Field(min_length=1, max_length=len(TEMPLATE_REGISTRY))
 
 
 class WhatsAppTemplateSettingResponse(BaseModel):

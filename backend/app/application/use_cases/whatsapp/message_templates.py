@@ -9,7 +9,7 @@ from urllib.parse import urlsplit
 
 from app.application.use_cases.whatsapp.template_text import normalize_template_text
 
-WhatsAppMessageType = Literal["welcome", "passport_link", "reminder", "group_invite"]
+WhatsAppMessageType = Literal["welcome", "passport_link", "reminder", "group_invite", "update"]
 
 STATIC_TEMPLATE_HEADER = "Dear Delegates"
 GREETING = "Greetings from Global Connect Travels."
@@ -66,6 +66,7 @@ EXPECTED_BODY_PARAMETER_COUNTS: dict[WhatsAppMessageType, int] = {
     "passport_link": 4,
     "reminder": 1,
     "group_invite": 2,
+    "update": 1,
 }
 
 
@@ -89,6 +90,8 @@ def passport_link_intro(group_name: str) -> str:
 
 
 def default_message_content(message_type: WhatsAppMessageType, *, group_name: str) -> str:
+    if message_type == "update":
+        return f'An update regarding your upcoming trip to "{group_name}".'
     if message_type == "welcome":
         return welcome_default_message_content(group_name)
     if message_type == "reminder":
@@ -118,6 +121,8 @@ def render_message(
 ) -> str:
     """Render the same message a recipient sees after Meta substitutes variables."""
 
+    if message_type == "update":
+        return f"Dear Delegates\n\n{GREETING}\n\n{message_content}\n\nRegards,\nTeam Global Connect Travels"
     if message_type == "group_invite":
         return (
             "Dear Delegates\n\n"
@@ -172,6 +177,8 @@ def template_parameters(
 ) -> list[str]:
     """Return positional BODY variables in the exact Meta template order."""
 
+    if message_type == "update":
+        return [message_content]
     if message_type == "group_invite":
         return [message_content, group_invite_link or ""]
     if message_type == "welcome":
@@ -194,7 +201,7 @@ def template_header_parameters(
 ) -> list[str]:
     """Return positional HEADER variables in the exact Meta template order."""
 
-    if message_type == "reminder":
+    if message_type in {"reminder", "update"}:
         return []
     if message_type == "group_invite":
         # The invite has its own user-selected photo. Never reuse a configured
@@ -223,7 +230,7 @@ def validate_template_parameters(
         if not isinstance(body_parameters[1], str):
             raise ValueError("WhatsApp template parameters must contain non-empty text")
         validate_group_invite_link(body_parameters[1])
-    elif message_type == "reminder":
+    elif message_type in {"reminder", "update"}:
         if header_parameters or len(body_parameters) != 1:
             raise ValueError(
                 "reminder requires no media header and exactly one body parameter"
@@ -249,7 +256,7 @@ def validate_template_parameters(
 
     expected_body_count = EXPECTED_BODY_PARAMETER_COUNTS[message_type]
     if (
-        message_type not in {"welcome", "reminder"}
+        message_type not in {"welcome", "reminder", "update"}
         and len(body_parameters) != expected_body_count
     ):
         raise ValueError(

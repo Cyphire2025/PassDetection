@@ -161,7 +161,7 @@ test("surname may be blank while every other canonical field remains required", 
   );
 });
 
-test("public upload entry uses Global Connect branding and requested copy", () => {
+test("public upload entry keeps Global Connect branding and the traveller heading", () => {
   assert.match(
     source,
     /import \{ BrandLogo \} from "@\/components\/brand\/brand-logo";/,
@@ -169,9 +169,10 @@ test("public upload entry uses Global Connect branding and requested copy", () =
   assert.match(source, /<BrandLogo[\s\S]*?priority[\s\S]*?\/>/);
   assert.match(
     source,
-    /Global Connect Travels has requested passport details for/,
+    /Prepare your documents for a smooth journey\./,
   );
-  assert.match(source, />Upload Travel Documents<\/h1>/);
+  assert.match(source, />Your travel details<\/h1>/);
+  assert.match(source, /<span className="truncate">\{groupName\}<\/span>/);
   assert.match(source, /file \? "Visa Photo ready" : "Upload Photo for Visa"/);
   assert.doesNotMatch(
     source,

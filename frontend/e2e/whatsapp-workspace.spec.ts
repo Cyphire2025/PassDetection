@@ -34,6 +34,89 @@ test("broadcasts open into five coherent pages with editor and preview before re
     fullPage: true,
   });
   await page
+    .getByRole("button", { name: /^Text trip update Write a text update/ })
+    .click();
+  await expect(
+    page.getByRole("textbox", { name: "Update message" }),
+  ).toHaveValue(/airport transfer/);
+  await page
+    .getByRole("textbox", { name: "Update message" })
+    .fill(
+      "Your departure time is now 10:30. Please arrive at Terminal 3 by 07:30.",
+    );
+  await expect(page.getByLabel("Live WhatsApp preview")).toContainText(
+    "Your departure time is now 10:30",
+  );
+  const editor = await page
+    .getByRole("region", { name: "Message editor and preview" })
+    .boundingBox();
+  const audience = await page
+    .getByRole("region", { name: "Message audience" })
+    .boundingBox();
+  expect(editor!.y).toBeLessThan(audience!.y);
+  await page.screenshot({
+    path: "../output/whatsapp-workspace-qa/03-compose-update.png",
+    fullPage: true,
+  });
+  await page.getByRole("button", { name: "Deselect matching" }).click();
+  await expect(
+    page.getByRole("button", { name: "Review message", exact: true }),
+  ).toBeDisabled();
+  await page.getByRole("button", { name: "Select all matching" }).click();
+  await expect(
+    page.getByRole("button", { name: "Review message", exact: true }),
+  ).toBeEnabled();
+  await page
+    .getByRole("combobox", { name: "Document submission", exact: true })
+    .selectOption("not_submitted");
+  await expect
+    .poll(() => fixture.previews.at(-1)?.update_submission)
+    .toBe("not_submitted");
+  await expect(
+    page.getByRole("button", { name: "Review message", exact: true }),
+  ).toBeEnabled();
+  await page
+    .getByRole("button", { name: "Review message", exact: true })
+    .click();
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: "Send 3 messages" })
+    .click();
+  await expect(page).toHaveURL(new RegExp(`/history\\?message=${batchId}`));
+  expect(
+    fixture.mutations.find((item) => item.path.endsWith("/send"))?.body
+      .update_submission,
+  ).toBe("not_submitted");
+  expect(fixture.errors).toEqual([]);
+});
+
+test("released document-status trip updates keep their preview and dispatch flow", async ({
+  page,
+}) => {
+  const fixture = await setupWorkspace(page);
+  await page.setViewportSize({ width: 1536, height: 1100 });
+  await page.goto("/whatsapp");
+  await expect(
+    page.getByRole("heading", { name: "WhatsApp broadcasts" }),
+  ).toBeVisible();
+  await expect(page.getByText("CURRENT BATCH", { exact: true })).toHaveCount(0);
+  await page.screenshot({
+    path: "../output/whatsapp-workspace-qa/01-broadcasts.png",
+    fullPage: true,
+  });
+  await page
+    .getByRole("link", { name: "Open Dubai · October delegates" })
+    .click();
+  await expect(
+    page
+      .getByRole("navigation", { name: "Broadcast sections" })
+      .getByRole("link"),
+  ).toHaveCount(5);
+  await page.screenshot({
+    path: "../output/whatsapp-workspace-qa/02-message-library.png",
+    fullPage: true,
+  });
+  await page
     .getByRole("button", { name: /^Trip update Send an update/ })
     .click();
   await expect(
@@ -168,9 +251,7 @@ test("each send has a report and retry preserves the selected saved message iden
     .first()
     .click();
   await page.getByRole("button", { name: "View message", exact: true }).click();
-  await expect(
-    page.getByRole("dialog", { name: "Message content" }),
-  ).toContainText("Airport transfer details");
+  await expect(page.getByRole("dialog", { name: "Message content" })).toContainText("Airport transfer details");
   await page.keyboard.press("Escape");
   await page.getByRole("button", { name: /^Failed/ }).click();
   await expect(page.getByRole("table").getByRole("row")).toHaveCount(3);

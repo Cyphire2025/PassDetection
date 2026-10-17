@@ -15,6 +15,8 @@ import { useCoordinatorTrips } from '@/features/coordinator/hooks/use-coordinato
 import CoordinatorScanScreen from '../scan';
 
 const mockCameraRender = jest.fn();
+jest.mock('@/core/demo/demo-mode', () => ({ isDemoMode: () => false }));
+jest.mock('@/features/coordinator/ui/demo-scan-screen', () => ({ DemoScanScreen: () => null }));
 const mockRefreshCameraPermission = jest.fn(async () => ({ granted: true }));
 const mockRequestCameraPermission = jest.fn(async () => ({ granted: true }));
 const mockRequestSync = jest.fn(async (..._args: unknown[]) => ({ results: [], failures: [] }));

@@ -2,6 +2,9 @@ import * as Crypto from 'expo-crypto';
 import { Directory, File, FileMode, Paths } from 'expo-file-system';
 
 import { apiDownloadToFile } from '@/core/api/client';
+import { isDemoMode } from '@/core/demo/demo-mode';
+import { demoDocumentContent } from '@/core/demo/demo-document';
+import { base64 } from '@scure/base';
 import { assertSensitiveOfflineStorageAllowed } from '@/core/security/device-risk';
 import { nativePathForAppPrivateFileUri } from '@/core/storage/ios-backup';
 
@@ -66,6 +69,16 @@ export async function loadManagerDocumentPreview(
 ): Promise<ManagerPreview> {
   if (!UUID_PATTERN.test(tripId) || !UUID_PATTERN.test(passengerId)) {
     throw new Error('The requested document preview identity was invalid.');
+  }
+  if (isDemoMode()) {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { demoPassengerDetail } = require('@/core/demo/demo-operations') as typeof import('@/core/demo/demo-operations');
+    const passenger = await demoPassengerDetail(tripId, passengerId);
+    if (signal?.aborted) throw signal.reason;
+    const file = new File(previewRoot(), `${Crypto.randomUUID()}.pdf`);
+    const content = demoDocumentContent(`${passenger.display_name} - ${documentType} sample`);
+    file.write(base64.decode(content.uri.split(',')[1]!));
+    return { file, contentType: 'application/pdf' };
   }
   const lifecycleGeneration = previewLifecycleGeneration;
   await assertSensitiveOfflineStorageAllowed();

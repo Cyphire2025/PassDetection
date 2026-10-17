@@ -15,6 +15,8 @@ import {
 } from 'react-native';
 
 import { useManualRefresh } from '@/core/query/use-manual-refresh';
+import { isDemoMode } from '@/core/demo/demo-mode';
+import { DemoScanScreen } from '@/features/coordinator/ui/demo-scan-screen';
 import { MOBILE_LIST_WINDOWING } from '@/core/performance/mobile-performance-budgets';
 import { userFacingErrorMessage } from '@/core/errors/user-facing-error';
 import { recordAttendanceCameraToLocalQueue } from '@/core/observability/attendance-observability';
@@ -61,6 +63,10 @@ function validAttendanceQr(value: string): boolean {
 }
 
 export default function CoordinatorScanScreen() {
+  return isDemoMode() ? <DemoScanScreen /> : <LiveCoordinatorScanScreen />;
+}
+
+function LiveCoordinatorScanScreen() {
   const manualRefresh = useManualRefresh();
   const trips = useCoordinatorTrips();
   const sessions = useAttendanceSessions(trips.selectedTripId);

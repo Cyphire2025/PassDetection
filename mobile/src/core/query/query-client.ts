@@ -1,11 +1,14 @@
 import { QueryClient } from '@tanstack/react-query';
 
 import { ApiError } from '@/core/api/client';
+import { env } from '@/core/config/env';
 
 const NON_RETRYABLE_CONTRACT_CODES = new Set([
   'INVALID_CONTENT_TYPE',
   'INVALID_RESPONSE',
   'PAYLOAD_TOO_LARGE',
+  'DEMO_LOCAL_ONLY',
+  'DEMO_DATA_INVALID',
 ]);
 
 export function shouldRetryQuery(failureCount: number, error: unknown): boolean {
@@ -40,6 +43,7 @@ export function queryRetryDelay(attemptIndex: number, error: unknown): number {
 export const mobileQueryClient = new QueryClient({
   defaultOptions: {
     queries: {
+      networkMode: env.demoModeRequested ? 'always' : 'online',
       staleTime: 60_000,
       gcTime: 10 * 60_000,
       retry: shouldRetryQuery,
@@ -50,6 +54,6 @@ export const mobileQueryClient = new QueryClient({
       refetchOnReconnect: false,
       refetchOnWindowFocus: false,
     },
-    mutations: { retry: 0 },
+    mutations: { retry: 0, networkMode: env.demoModeRequested ? 'always' : 'online' },
   },
 });

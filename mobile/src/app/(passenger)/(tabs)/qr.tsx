@@ -3,6 +3,7 @@ import { RefreshControl, StyleSheet, Text, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 
 import { useManualRefresh } from '@/core/query/use-manual-refresh';
+import { isDemoMode } from '@/core/demo/demo-mode';
 import { ContentError, ContentLoading } from '@/design/components/content-state';
 import { GlassCard } from '@/design/components/glass-card';
 import { PageHeader } from '@/design/components/page-header';
@@ -40,8 +41,8 @@ export default function PassengerQrScreen() {
             <QRCode value={qr.data.qr.signed_payload} size={244} color="#000000" backgroundColor="#FFFFFF" ecl="H" />
           </View>
           <Text style={styles.name}>{trips.selectedTrip?.destination || trips.selectedTrip?.name}</Text>
-          <Text style={styles.ready}>Ready for your checkpoint - available offline</Text>
-          <Text style={styles.help}>Show this screen at your group checkpoint. It is bound to you and this trip.</Text>
+          <Text style={styles.ready}>{isDemoMode() ? 'Sample QR - available offline' : 'Ready for your checkpoint - available offline'}</Text>
+          <Text style={styles.help}>{isDemoMode() ? 'Use this sample QR with the coordinator demo scanner. It represents Demo Passenger and is not a real travel credential.' : 'Show this screen at your group checkpoint. It is bound to you and this trip.'}</Text>
         </GlassCard>
       ) : null}
     </Screen>

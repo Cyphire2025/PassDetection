@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 
 import { englishMessages, formatInstantDateTime } from '@/core/localization/date-time';
+import { isDemoMode } from '@/core/demo/demo-mode';
 import { useManualRefresh } from '@/core/query/use-manual-refresh';
 import { ContentEmpty, ContentError, ContentLoading } from '@/design/components/content-state';
 import { GlassCard } from '@/design/components/glass-card';
@@ -78,7 +79,7 @@ export default function ManagerReadinessScreen() {
       <PageHeader
         eyebrow="Group overview"
         title="Readiness"
-        subtitle="Passenger documents and live attendance for the selected group."
+        subtitle={isDemoMode() ? 'Sample passenger documents and local attendance for the selected group.' : 'Passenger documents and live attendance for the selected group.'}
         tone="manager"
       />
       <TripSwitcher trips={trips.trips} selectedTripId={trips.selectedTripId} onSelect={trips.selectTrip} />

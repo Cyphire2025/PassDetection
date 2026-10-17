@@ -17,7 +17,8 @@ const passengerWorkspace = read("../../passports/components/passport-detail.tsx"
 const groupWhatsApp = read(
   "../../passports/components/group-whatsapp-broadcast-panel.tsx",
 ) + read("../../passports/components/group-whatsapp-tracking-table.tsx");
-const groupLinks = read("../../passports/components/upload-link-list.tsx");
+const groupLinks = read("../../passports/components/upload-link-list.tsx")
+  + read("../../passports/components/edit-group-dialog.tsx");
 const whatsappRoute = read("../../whatsapp/components/whatsapp-page.tsx");
 const whatsappWorkspace = read(
   "../../whatsapp/components/whatsapp-workspace.tsx",
@@ -138,7 +139,7 @@ test("large and interaction-heavy routes defer work until it is needed", () => {
   assert.match(passengerWorkspace, /dynamic\(/);
   assert.match(menu, /dynamic\(/);
   assert.match(whatsappRoute, /dynamic\(/);
-  assert.match(whatsappRoute, /import\("\.\/whatsapp-workspace"\)/);
+  assert.match(whatsappRoute, /import\("\.\.\/workspace\/broadcast-index"\)/);
   assert.match(whatsappWorkspace, /useDeferredValue/);
   assert.match(documentGroups, /contentVisibility: "auto"/);
   assert.match(groupList, /loadSelectedGroupsExportDialog/);

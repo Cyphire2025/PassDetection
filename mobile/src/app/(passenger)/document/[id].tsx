@@ -15,6 +15,8 @@ import { ApiError } from '@/core/api/client';
 import { NativeFileDownloadError } from '@/core/api/native-file-download';
 import { useSessionStore } from '@/core/auth/session-store';
 import { principalAccountNamespace } from '@/core/auth/types';
+import { isDemoMode } from '@/core/demo/demo-mode';
+import { demoDocumentContent } from '@/core/demo/demo-document';
 import { userFacingErrorMessage } from '@/core/errors/user-facing-error';
 import { SensitiveScreenProtection } from '@/core/security/sensitive-screen-protection';
 import {
@@ -209,6 +211,10 @@ export default function SecureDocumentScreen() {
         if (!mounted.current || attempt.current !== operationAttempt) return;
         setTitle(document.display_name);
         setContentType(document.content_type);
+        if (isDemoMode()) {
+          setUri(demoDocumentContent(document.display_name).uri);
+          return;
+        }
         if (
           document.metadata_state !== 'ready' ||
           !document.offline_available ||
@@ -293,7 +299,7 @@ export default function SecureDocumentScreen() {
   }, [finishTemporaryView, id, session, tripId]);
 
   const handleRendererFailure = useCallback((failedUri: string, message: string) => {
-    if (temporaryView.current?.uri !== failedUri) return;
+    if (isDemoMode() ? uri !== failedUri : temporaryView.current?.uri !== failedUri) return;
     attempt.current += 1;
     openInFlight.current?.controller.abort();
     openInFlight.current = null;
@@ -310,7 +316,7 @@ export default function SecureDocumentScreen() {
     }
     setOpening(false);
     setError({ message, retryable: true, supportCode: 'DOCUMENT_RENDER_FAILED' });
-  }, [finishTemporaryView, openDocument]);
+  }, [finishTemporaryView, openDocument, uri]);
 
   const markRendererLoaded = useCallback(() => {
     rendererLoadedRef.current = true;

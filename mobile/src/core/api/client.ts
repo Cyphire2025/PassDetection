@@ -8,6 +8,7 @@ import {
   type AuthenticationSnapshot,
 } from '@/core/auth/session-store';
 import { isDemoMode } from '@/core/demo/demo-mode';
+import { env } from '@/core/config/env';
 import {
   recordMobileMetric,
   type MobileMetricAttributes,
@@ -246,8 +247,18 @@ async function apiRequestInternal<T>(
   options: ApiRequestOptions<T>,
 ): Promise<T> {
   if (isDemoMode()) {
+    if (env.standaloneDemo && /^\/mobile\/(manager|coordinator)\/groups\//.test(path)) {
+      if (options.signal?.aborted) throw options.signal.reason;
+      // Defer SQLite initialization until an authenticated sample operation.
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { demoOperationsRequest } = require('@/core/demo/demo-operations') as typeof import('@/core/demo/demo-operations');
+      const value = await demoOperationsRequest(path, options.method, options.body);
+      const result = options.schema.safeParse(value);
+      if (!result.success) throw new ApiError('The local demo data is invalid.', 500, 'DEMO_DATA_INVALID', null);
+      return result.data;
+    }
     throw new ApiError(
-      'This emulator demo uses local sample data and cannot contact the server.',
+      'This demo uses local sample data and cannot contact the server.',
       503,
       'DEMO_LOCAL_ONLY',
       null,

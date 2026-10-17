@@ -63,7 +63,7 @@ const viewports = [
 ];
 const caseIndex = process.argv.indexOf("--case");
 const requestedCase = caseIndex < 0 ? "all" : process.argv[caseIndex + 1];
-assert.ok(["all", "desktop", "mobile", "retry"].includes(requestedCase), "--case must be all, desktop, mobile, or retry");
+assert.ok(["all", "desktop", "mobile", "retry", "filters"].includes(requestedCase), "--case must be all, desktop, mobile, retry, or filters");
 const report = {
   origin: origin.origin,
   evidence: "Real local Next page; every API response is synthetic; external requests and unexpected mutations are blocked; no WhatsApp provider calls",
@@ -306,6 +306,58 @@ async function inspectSavedPreview(composer, state, type) {
   return editor;
 }
 
+async function verifyDeliveryFilters(dialog) {
+  const filters = dialog.getByRole("group", { name: "Recipient delivery filters", exact: true });
+  await expect(filters.getByRole("button")).toHaveText([
+    /^All\s*\d+$/, /^Sent\s*\d+$/, /^Not Sent\s*\d+$/,
+    /^Delivery left\s*\d+$/, /^Failed\s*\d+$/, /^Need Review\s*\d+$/,
+  ]);
+  const expectRecipients = async (indices) => {
+    for (const [index, recipient] of recipients.entries()) {
+      const checkbox = dialog.getByRole("checkbox", { name: `Select ${recipient.name}`, exact: true });
+      if (indices.includes(index)) await expect(checkbox).toBeVisible();
+      else await expect(checkbox).toHaveCount(0);
+    }
+  };
+  const messageType = dialog.getByRole("combobox", { name: "Message type", exact: true });
+  await expect(messageType).toHaveValue("welcome");
+  await filters.getByRole("button", { name: /^Delivery left\s*3$/ }).click();
+  await expectRecipients([0, 1, 4]);
+  await filters.getByRole("button", { name: /^Failed\s*1$/ }).click();
+  await expectRecipients([2]);
+  await messageType.selectOption("passport_link");
+  await filters.getByRole("button", { name: /^Delivery left\s*3$/ }).click();
+  await expectRecipients([0, 1, 3]);
+  await filters.getByRole("button", { name: /^Not Sent\s*1$/ }).click();
+  await expectRecipients([4]);
+  await messageType.selectOption("welcome");
+  await expect(filters.getByRole("button", { name: /^All\s*5$/ })).toHaveAttribute("aria-pressed", "true");
+  await expectRecipients([0, 1, 2, 3, 4]);
+}
+
+async function verifyFiltersOnly(browser, viewport) {
+  const { context, page, state, result } = await createCase(browser, viewport, `${viewport.name}-delivery-filters`);
+  try {
+    const response = await page.goto(`${origin.origin}/whatsapp`);
+    assert.equal(response.status(), 200);
+    const dialog = await openRecipients(page);
+    await verifyDeliveryFilters(dialog);
+    result.dimensions = await assertFit(dialog, viewport);
+    await dialog.getByRole("group", { name: "Recipient delivery filters", exact: true })
+      .getByRole("button", { name: /^Delivery left\s*3$/ }).click();
+    await page.screenshot({ path: join(output, `${viewport.name}-delivery-filters.png`), animations: "disabled" });
+    assert.equal(state.bulkRequests.length, 0, "Reviewing filters never sends a message");
+    assert.deepEqual(state.errors, [], "No browser runtime errors");
+    assert.deepEqual(state.blocked, [], "No unexpected mutations or external requests attempted");
+    return { ...result, status: "passed", exactSixFilters: true, deliveryLeftScopedByMessageType: true, failedAndQueuedExcluded: true };
+  } catch (error) {
+    await page.screenshot({ path: join(output, `${viewport.name}-delivery-filters-failure.png`), animations: "disabled" }).catch(() => {});
+    throw Object.assign(error, { caseResult: { ...result, status: "failed", error: String(error), errors: state.errors, blocked: state.blocked, requests: state.requests } });
+  } finally {
+    await context.close();
+  }
+}
+
 async function verifyWorkspace(browser, viewport) {
   const fixture = await createCase(browser, viewport, `${viewport.name}-recipient-selection`);
   const { context, page, state, result } = fixture;
@@ -313,6 +365,7 @@ async function verifyWorkspace(browser, viewport) {
     const response = await page.goto(`${origin.origin}/whatsapp`);
     assert.equal(response.status(), 200);
     const dialog = await openRecipients(page);
+    await verifyDeliveryFilters(dialog);
     const actions = selectionActions(dialog);
     const search = dialog.getByRole("searchbox", { name: "Search current recipients", exact: true });
     await dialog.getByRole("checkbox", { name: `Select ${recipients[0].name}`, exact: true }).check();
@@ -323,10 +376,10 @@ async function verifyWorkspace(browser, viewport) {
     await search.fill("");
     await expect(dialog.getByRole("checkbox", { name: `Select ${recipients[0].name}`, exact: true })).toBeChecked();
     await expect(dialog.getByRole("checkbox", { name: `Select ${recipients[1].name}`, exact: true })).toBeChecked();
-    await dialog.getByRole("tab", { name: /^Failed\b/ }).click();
+    await dialog.getByRole("group", { name: "Recipient delivery filters", exact: true }).getByRole("button", { name: /^Failed\b/ }).click();
     await expect(dialog.getByRole("checkbox", { name: `Select ${recipients[2].name}`, exact: true })).toBeVisible();
     await expect(actions).toContainText(/2 selected|2 recipients/i);
-    await dialog.getByRole("tab", { name: /^All\b/ }).click();
+    await dialog.getByRole("group", { name: "Recipient delivery filters", exact: true }).getByRole("button", { name: /^All\b/ }).click();
     await expect(dialog.getByRole("checkbox", { name: "Select Rejected Sample", exact: true })).toHaveCount(0);
     result.selectionPersistsAcrossSearchAndStatus = true;
     result.rejectedRowsNotSelectable = true;
@@ -508,6 +561,12 @@ let browser;
 try {
   browser = await chromium.launch({ headless: true });
   report.browser = browser.version();
+  if (requestedCase === "filters") {
+    for (const viewport of viewports) {
+      report.cases.push(await verifyFiltersOnly(browser, viewport));
+      console.log(`PASS ${viewport.name} delivery filters`);
+    }
+  }
   for (const viewport of viewports.filter((candidate) => requestedCase === "all" || candidate.name === requestedCase)) {
     report.cases.push(await verifyWorkspace(browser, viewport));
     console.log(`PASS ${viewport.name} recipient workspace`);

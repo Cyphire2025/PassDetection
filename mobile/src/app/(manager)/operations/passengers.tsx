@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 
 import { MOBILE_LIST_WINDOWING } from '@/core/performance/mobile-performance-budgets';
+import { isDemoMode } from '@/core/demo/demo-mode';
 import { useDebouncedValue } from '@/core/query/use-debounced-value';
 import { ContentEmpty, ContentError, ContentLoading } from '@/design/components/content-state';
 import { GlassCard } from '@/design/components/glass-card';
@@ -30,6 +31,7 @@ function documentMode(value: string | string[] | undefined): ManagerDocumentMode
 }
 
 export default function ManagerPassengersScreen() {
+  const demoMode = isDemoMode();
   const router = useRouter();
   const params = useLocalSearchParams<{ mode?: string | string[] }>();
   const mode = documentMode(params.mode);
@@ -89,7 +91,7 @@ export default function ManagerPassengersScreen() {
                     {mode === 'all'
                       ? item.employee_code || 'Employee code not provided'
                       : available
-                        ? 'Available · tap to preview from server'
+                        ? demoMode ? 'Available · tap to open sample PDF' : 'Available · tap to preview from server'
                         : 'Not available'}
                   </Text>
                 </View>

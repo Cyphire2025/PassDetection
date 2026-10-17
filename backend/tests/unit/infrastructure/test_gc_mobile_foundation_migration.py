@@ -118,6 +118,13 @@ def _foundation_constraint_signatures(
                 "fk_gc_group_canonical_company",
             }
         }
+    if table_name == "client_manager_group_assignments":
+        # 0135 adds independent tenant FKs and a retained, revoked-grant shape.
+        projected = {item for item in projected if item[1] not in {
+            "fk_client_manager_assignment_retained_profile",
+            "fk_client_manager_assignment_retained_group",
+            "ck_client_manager_assignment_active_organization",
+        }}
     if table_name == "mobile_push_registrations":
         projected = {item for item in projected if item[1] != "ck_mobile_push_apns_environment"}
     if table_name == "mobile_notifications":
@@ -269,7 +276,11 @@ def test_gc_mobile_migration_matches_orm_tables_and_indexes() -> None:
         for column_name, migration_column in migration_columns.items():
             model_column = model_table.c[column_name]
             assert _compiled_type(migration_column) == _compiled_type(model_column)
-            assert migration_column.nullable is model_column.nullable
+            expected_nullable = model_column.nullable
+            if (table_name, column_name) == ("client_manager_group_assignments", "organization_id"):
+                # 0135 permits NULL only for retained, revoked assignments.
+                expected_nullable = False
+            assert migration_column.nullable is expected_nullable
             expected_default = _FOUNDATION_SERVER_DEFAULT_OVERRIDES.get(
                 (table_name, column_name),
                 _server_default(model_column),
@@ -312,6 +323,8 @@ def test_gc_mobile_migration_matches_orm_tables_and_indexes() -> None:
                 "ix_client_org_directory_seek",
                 "ix_client_org_directory_all_seek",
                 "ix_client_org_search_trgm",
+                # 0135 adds company-scoped removal lookup.
+                "ix_client_manager_assignment_company",
             }:
                 continue
             postgres_where = index.dialect_options["postgresql"].get("where")

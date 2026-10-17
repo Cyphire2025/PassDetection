@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 
 import { userFacingErrorMessage } from '@/core/errors/user-facing-error';
+import { isDemoMode } from '@/core/demo/demo-mode';
 import { MOBILE_LIST_WINDOWING } from '@/core/performance/mobile-performance-budgets';
 import { useRouteFocus } from '@/core/query/use-route-focus';
 import { ContentEmpty, ContentError, ContentLoading } from '@/design/components/content-state';
@@ -54,6 +55,7 @@ type AttendanceSection = { title: string; data: Row[] };
 const MANAGER_CLOSEOUT_REFRESH_MS = 30_000;
 
 export default function ManagerAttendanceScreen() {
+  const demoMode = isDemoMode();
   const router = useRouter();
   const focused = useRouteFocus();
   const trips = useTrips();
@@ -178,7 +180,7 @@ export default function ManagerAttendanceScreen() {
             setCreateNotice({
               tripId,
               kind: 'success',
-              message: `${created.name} is ready for coordinators to select.`,
+              message: demoMode ? `${created.name} was created in this local sample workspace.` : `${created.name} is ready for coordinators to select.`,
             });
             return;
           }
@@ -198,7 +200,7 @@ export default function ManagerAttendanceScreen() {
         });
       })
       .finally(() => setCreateBusy(false));
-  }, [activityName, createBusy, sessions, trips.selectedTripId]);
+  }, [activityName, createBusy, demoMode, sessions, trips.selectedTripId]);
 
   const closeSelectedActivity = useCallback(() => {
     const tripId = trips.selectedTripId;
@@ -251,8 +253,8 @@ export default function ManagerAttendanceScreen() {
         const exceptionUsed = !closeout.ready;
         const serverCount = `${authoritative.scanned_count} of ${authoritative.assigned_count}`;
         Alert.alert(
-          exceptionUsed ? 'Review audited manager exception' : 'Review guarded close',
-          exceptionUsed
+          demoMode ? 'Review sample activity closeout' : exceptionUsed ? 'Review audited manager exception' : 'Review guarded close',
+          demoMode ? `This local sample activity has ${serverCount} passengers counted. Closing it changes only this manager workspace.` : exceptionUsed
             ? closeout.active_assignment_count === 0
               ? `The server confirms ${serverCount} passengers, but no coordinator account is assigned and no affirmative checkpoint evidence exists. Exception reason: "${normalizedExceptionReason}".`
               : `${closeout.blocked_assignment_count} of ${closeout.active_assignment_count} coordinator checkpoints are missing, stale, or nonzero, with ${closeout.unresolved_count} unresolved items reported. Exception reason: "${normalizedExceptionReason}".`
@@ -262,8 +264,8 @@ export default function ManagerAttendanceScreen() {
             {
               text: 'Continue',
               onPress: () => Alert.alert(
-                exceptionUsed ? 'Override the closeout guard?' : 'Close for every coordinator?',
-                exceptionUsed
+                demoMode ? 'Close this sample activity?' : exceptionUsed ? 'Override the closeout guard?' : 'Close for every coordinator?',
+                demoMode ? 'The sample activity will be marked completed on this device. Other sample accounts are separate workspaces.' : exceptionUsed
                   ? 'Final warning: close despite coordinator checkpoint blockers and permanently audit this manager exception? This does not discard scans already saved before closure.'
                   : 'This shared activity will stop accepting new camera capture for every coordinator. This action does not discard scans already saved before closure.',
                 [
@@ -319,7 +321,7 @@ export default function ManagerAttendanceScreen() {
         });
       })
       .finally(() => setCloseBusy(false));
-  }, [exceptionReason, expandedStatus, roster, selectedActivity, sessions, trips.selectedTripId]);
+  }, [demoMode, exceptionReason, expandedStatus, roster, selectedActivity, sessions, trips.selectedTripId]);
 
   const sections = useMemo<AttendanceSection[]>(() => {
     const result: AttendanceSection[] = [{
@@ -445,7 +447,7 @@ export default function ManagerAttendanceScreen() {
             <GlassCard style={styles.createCard}>
               <Text style={styles.createTitle}>Prepare attendance activity</Text>
               <Text style={styles.createHelp}>
-                Create the canonical name and stable ID before coordinators scan.
+                {demoMode ? 'Create a sample activity in this local manager workspace.' : 'Create the canonical name and stable ID before coordinators scan.'}
               </Text>
               <TextField
                 label="Activity name"
@@ -506,7 +508,7 @@ export default function ManagerAttendanceScreen() {
                 <GlassCard style={styles.closeoutCard}>
                   <View style={styles.closeoutTitleRow}>
                     <Text accessibilityRole="header" style={styles.closeoutTitle}>
-                      Coordinator closeout checkpoints
+                      {demoMode ? 'Sample closeout checks' : 'Coordinator closeout checkpoints'}
                     </Text>
                     {selectedCloseout ? (
                       <StatusPill
@@ -524,15 +526,14 @@ export default function ManagerAttendanceScreen() {
                   {selectedCloseout ? (
                     <>
                       <Text style={selectedCloseout.ready ? styles.closeoutReady : styles.closeoutBlocked}>
-                        {selectedCloseout.ready
+                        {demoMode ? 'This demonstration uses sample coordinator checkpoints. No report is requested from a server.' : selectedCloseout.ready
                           ? `${selectedCloseout.ready_assignment_count} of ${selectedCloseout.active_assignment_count} assigned coordinator accounts recently reported zero unresolved items.`
                           : selectedCloseout.active_assignment_count === 0
                             ? 'No coordinator account is assigned. An audited manager exception is required to close.'
                             : `${selectedCloseout.blocked_assignment_count} of ${selectedCloseout.active_assignment_count} coordinator checkpoints are missing, stale, or nonzero; ${selectedCloseout.unresolved_count} unresolved items are reported.`}
                       </Text>
                       <Text style={styles.closeoutHelp}>
-                        Checkpoints expire after {selectedCloseout.checkpoint_ttl_seconds} seconds.
-                        They are count-only latest reports for assigned coordinator accounts, not proof about every physical device.
+                        {demoMode ? 'Manager and coordinator sample accounts have separate local workspaces.' : `Checkpoints expire after ${selectedCloseout.checkpoint_ttl_seconds} seconds. They are count-only latest reports for assigned coordinator accounts, not proof about every physical device.`}
                       </Text>
                       {selectedCloseout.coordinators.map((coordinator) => {
                         const unresolved = coordinator.pending_count

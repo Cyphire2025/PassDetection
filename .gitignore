@@ -108,3 +108,8 @@ load-tests/k6/mobile-attendance-load-data*.json
 
 # Standalone local desktop utility; maintained outside this production repository.
 Smart COPY-PASTE/
+
+# Local investigation, test screenshots and conversation exports.
+/.tmp/
+/output/
+/full_chat_transcript_*.txt

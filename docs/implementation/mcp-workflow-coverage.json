@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "reviewed_at": "2026-10-16",
+  "reviewed_at": "2026-10-17",
   "scope": "Source route declarations, committed HTTP operations, frontend API/direct-transport callables, browser pages and routing registries. Surfaces are not unique tool counts.",
   "truth_contract": "All allowed workflows begin planned; only retained executable adapter and evidence may change implementation state. The ledger is never a runtime permission allowlist.",
   "owners": {
@@ -593,6 +593,24 @@
     },
     {
       "surface": {
+        "id": "frontend:frontend/features/companies/api/companies.api.ts:travellers",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/companies.api.ts",
+        "handler": "travellers"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
         "id": "frontend:frontend/features/companies/api/companies.api.ts:update",
         "kind": "frontend_callable",
         "source": "frontend/features/companies/api/companies.api.ts",
@@ -620,6 +638,24 @@
       "disposition": "internal_dependency",
       "phase": null,
       "rationale": "Internal client-company workspace and UI projection support; existing record authorization remains authoritative and this does not add an MCP tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/api/company-agency.api.ts:searchCompanyAgencies",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/company-agency.api.ts",
+        "handler": "searchCompanyAgencies"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
       "adapter_requirements": [],
       "implementation": {
         "status": "not_applicable",
@@ -917,6 +953,60 @@
     },
     {
       "surface": {
+        "id": "frontend:frontend/features/companies/api/company-review-tasks.api.ts:list",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/company-review-tasks.api.ts",
+        "handler": "list"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/api/company-review-tasks.api.ts:resolve",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/company-review-tasks.api.ts",
+        "handler": "resolve"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/api/reuse-setup.api.ts:group",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/reuse-setup.api.ts",
+        "handler": "group"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
         "id": "frontend:frontend/features/companies/api/reuse-setup.api.ts:policy",
         "kind": "frontend_callable",
         "source": "frontend/features/companies/api/reuse-setup.api.ts",
@@ -935,10 +1025,64 @@
     },
     {
       "surface": {
+        "id": "frontend:frontend/features/companies/api/reuse-setup.api.ts:saveGroup",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/reuse-setup.api.ts",
+        "handler": "saveGroup"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
         "id": "frontend:frontend/features/companies/api/reuse-setup.api.ts:savePolicy",
         "kind": "frontend_callable",
         "source": "frontend/features/companies/api/reuse-setup.api.ts",
         "handler": "savePolicy"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/api/traveller-enrollment.api.ts:enroll",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/traveller-enrollment.api.ts",
+        "handler": "enroll"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/companies/api/traveller-enrollment.api.ts:sources",
+        "kind": "frontend_callable",
+        "source": "frontend/features/companies/api/traveller-enrollment.api.ts",
+        "handler": "sources"
       },
       "workflow": "companies.directory-and-reviewed-history",
       "disposition": "internal_dependency",
@@ -8754,6 +8898,60 @@
     },
     {
       "surface": {
+        "id": "frontend:frontend/features/whatsapp/api/group-updates.api.ts:preview",
+        "kind": "frontend_callable",
+        "source": "frontend/features/whatsapp/api/group-updates.api.ts",
+        "handler": "preview"
+      },
+      "workflow": "whatsapp.reviewed-update-dispatch",
+      "disposition": "implement",
+      "phase": 6,
+      "rationale": "Repeat updates and retries require explicit user send intent, current agency/group authority, frozen preview and historical content, durable idempotency and provider-outcome reconciliation. No MCP implementation or verification is claimed.",
+      "adapter_requirements": [
+        "immutable_preparation_and_explicit_user_send_intent",
+        "dispatch_authority_recheck",
+        "business_dispatch_idempotency",
+        "provider_receipt_reconciliation",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/whatsapp/api/group-updates.api.ts:send",
+        "kind": "frontend_callable",
+        "source": "frontend/features/whatsapp/api/group-updates.api.ts",
+        "handler": "send"
+      },
+      "workflow": "whatsapp.reviewed-update-dispatch",
+      "disposition": "implement",
+      "phase": 6,
+      "rationale": "Repeat updates and retries require explicit user send intent, current agency/group authority, frozen preview and historical content, durable idempotency and provider-outcome reconciliation. No MCP implementation or verification is claimed.",
+      "adapter_requirements": [
+        "immutable_preparation_and_explicit_user_send_intent",
+        "dispatch_authority_recheck",
+        "business_dispatch_idempotency",
+        "provider_receipt_reconciliation",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
         "id": "frontend:frontend/features/whatsapp/api/whatsapp-activity.api.ts:documentDeliveries",
         "kind": "frontend_callable",
         "source": "frontend/features/whatsapp/api/whatsapp-activity.api.ts",
@@ -9579,6 +9777,244 @@
     },
     {
       "surface": {
+        "id": "frontend:frontend/features/whatsapp/workspace/composer.api.ts:catalog",
+        "kind": "frontend_callable",
+        "source": "frontend/features/whatsapp/workspace/composer.api.ts",
+        "handler": "catalog"
+      },
+      "workflow": "whatsapp.scoped-message-and-passenger-history",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Tenant-scoped catalogue, saved-message history or proven passenger links. A dedicated bounded MCP read adapter remains planned; this classification grants no runtime authority.",
+      "adapter_requirements": [
+        "active_mcp_and_tenant_authority",
+        "bounded_pagination_and_private_field_projection",
+        "no_removal_effect_audit"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/whatsapp/workspace/composer.api.ts:passengerLinks",
+        "kind": "frontend_callable",
+        "source": "frontend/features/whatsapp/workspace/composer.api.ts",
+        "handler": "passengerLinks"
+      },
+      "workflow": "whatsapp.scoped-message-and-passenger-history",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Tenant-scoped catalogue, saved-message history or proven passenger links. A dedicated bounded MCP read adapter remains planned; this classification grants no runtime authority.",
+      "adapter_requirements": [
+        "active_mcp_and_tenant_authority",
+        "bounded_pagination_and_private_field_projection",
+        "no_removal_effect_audit"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/whatsapp/workspace/composer.api.ts:send",
+        "kind": "frontend_callable",
+        "source": "frontend/features/whatsapp/workspace/composer.api.ts",
+        "handler": "send"
+      },
+      "workflow": "whatsapp.reviewed-update-dispatch",
+      "disposition": "implement",
+      "phase": 6,
+      "rationale": "Repeat updates and retries require explicit user send intent, current agency/group authority, frozen preview and historical content, durable idempotency and provider-outcome reconciliation. No MCP implementation or verification is claimed.",
+      "adapter_requirements": [
+        "immutable_preparation_and_explicit_user_send_intent",
+        "dispatch_authority_recheck",
+        "business_dispatch_idempotency",
+        "provider_receipt_reconciliation",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/whatsapp/workspace/history.api.ts:entry",
+        "kind": "frontend_callable",
+        "source": "frontend/features/whatsapp/workspace/history.api.ts",
+        "handler": "entry"
+      },
+      "workflow": "whatsapp.scoped-message-and-passenger-history",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Tenant-scoped catalogue, saved-message history or proven passenger links. A dedicated bounded MCP read adapter remains planned; this classification grants no runtime authority.",
+      "adapter_requirements": [
+        "active_mcp_and_tenant_authority",
+        "bounded_pagination_and_private_field_projection",
+        "no_removal_effect_audit"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/whatsapp/workspace/history.api.ts:list",
+        "kind": "frontend_callable",
+        "source": "frontend/features/whatsapp/workspace/history.api.ts",
+        "handler": "list"
+      },
+      "workflow": "whatsapp.scoped-message-and-passenger-history",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Tenant-scoped catalogue, saved-message history or proven passenger links. A dedicated bounded MCP read adapter remains planned; this classification grants no runtime authority.",
+      "adapter_requirements": [
+        "active_mcp_and_tenant_authority",
+        "bounded_pagination_and_private_field_projection",
+        "no_removal_effect_audit"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/whatsapp/workspace/history.api.ts:recipients",
+        "kind": "frontend_callable",
+        "source": "frontend/features/whatsapp/workspace/history.api.ts",
+        "handler": "recipients"
+      },
+      "workflow": "whatsapp.scoped-message-and-passenger-history",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Tenant-scoped catalogue, saved-message history or proven passenger links. A dedicated bounded MCP read adapter remains planned; this classification grants no runtime authority.",
+      "adapter_requirements": [
+        "active_mcp_and_tenant_authority",
+        "bounded_pagination_and_private_field_projection",
+        "no_removal_effect_audit"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/whatsapp/workspace/history.api.ts:resend",
+        "kind": "frontend_callable",
+        "source": "frontend/features/whatsapp/workspace/history.api.ts",
+        "handler": "resend"
+      },
+      "workflow": "whatsapp.reviewed-update-dispatch",
+      "disposition": "implement",
+      "phase": 6,
+      "rationale": "Repeat updates and retries require explicit user send intent, current agency/group authority, frozen preview and historical content, durable idempotency and provider-outcome reconciliation. No MCP implementation or verification is claimed.",
+      "adapter_requirements": [
+        "immutable_preparation_and_explicit_user_send_intent",
+        "dispatch_authority_recheck",
+        "business_dispatch_idempotency",
+        "provider_receipt_reconciliation",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/whatsapp/workspace/history.api.ts:typeRecipients",
+        "kind": "frontend_callable",
+        "source": "frontend/features/whatsapp/workspace/history.api.ts",
+        "handler": "typeRecipients"
+      },
+      "workflow": "whatsapp.scoped-message-and-passenger-history",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Tenant-scoped catalogue, saved-message history or proven passenger links. A dedicated bounded MCP read adapter remains planned; this classification grants no runtime authority.",
+      "adapter_requirements": [
+        "active_mcp_and_tenant_authority",
+        "bounded_pagination_and_private_field_projection",
+        "no_removal_effect_audit"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/whatsapp/workspace/history.api.ts:types",
+        "kind": "frontend_callable",
+        "source": "frontend/features/whatsapp/workspace/history.api.ts",
+        "handler": "types"
+      },
+      "workflow": "whatsapp.scoped-message-and-passenger-history",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Tenant-scoped catalogue, saved-message history or proven passenger links. A dedicated bounded MCP read adapter remains planned; this classification grants no runtime authority.",
+      "adapter_requirements": [
+        "active_mcp_and_tenant_authority",
+        "bounded_pagination_and_private_field_projection",
+        "no_removal_effect_audit"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/whatsapp/workspace/history.api.ts:versions",
+        "kind": "frontend_callable",
+        "source": "frontend/features/whatsapp/workspace/history.api.ts",
+        "handler": "versions"
+      },
+      "workflow": "whatsapp.scoped-message-and-passenger-history",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Tenant-scoped catalogue, saved-message history or proven passenger links. A dedicated bounded MCP read adapter remains planned; this classification grants no runtime authority.",
+      "adapter_requirements": [
+        "active_mcp_and_tenant_authority",
+        "bounded_pagination_and_private_field_projection",
+        "no_removal_effect_audit"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
         "id": "frontend:frontend/lib/api/api-error-detail.ts:normalizeStructuredApiErrorDetail",
         "kind": "frontend_callable",
         "source": "frontend/lib/api/api-error-detail.ts",
@@ -9951,7 +10387,25 @@
         "id": "frontend_api:frontend/features/companies/api/companies.api.ts",
         "kind": "frontend_api_contract",
         "source": "frontend/features/companies/api/companies.api.ts",
-        "contract_sha256": "6e52008c7be11ebfdc427cd087378a1ac40b4abec48b148c468d89197f1944ef"
+        "contract_sha256": "d5418498f303b92fbe2e2e8cf7b7af48b60c73fcebe5567600a2be8207cd2bb1"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend_api:frontend/features/companies/api/company-agency.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/companies/api/company-agency.api.ts",
+        "contract_sha256": "b5b93761dd240230bad046a5f5d8a32709cb1e5d48cc733bbd40d704144157aa"
       },
       "workflow": "companies.directory-and-reviewed-history",
       "disposition": "internal_dependency",
@@ -10038,10 +10492,46 @@
     },
     {
       "surface": {
+        "id": "frontend_api:frontend/features/companies/api/company-review-tasks.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/companies/api/company-review-tasks.api.ts",
+        "contract_sha256": "2e541b57e34d86fa5d8acfa033ef34a620791dcae738935ecf4c819e3caf035c"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
         "id": "frontend_api:frontend/features/companies/api/reuse-setup.api.ts",
         "kind": "frontend_api_contract",
         "source": "frontend/features/companies/api/reuse-setup.api.ts",
-        "contract_sha256": "18e7b72b31b3e1cad3eafce1d9cab9c6e530d229daa603b2357062b235792555"
+        "contract_sha256": "99b7c7c75b438b4bc6018ee7a92509d1abded88868bf589c0ee72970fdb83518"
+      },
+      "workflow": "companies.directory-and-reviewed-history",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Interactive proof and explicit traveller or staff evidence remain website workflows; MCP cannot fabricate OTP possession, document answers, consent or human review.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend_api:frontend/features/companies/api/traveller-enrollment.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/companies/api/traveller-enrollment.api.ts",
+        "contract_sha256": "46c716640613a073a6a37d3a2cff89f4919252192f0010bad927f4da7e4a78d9"
       },
       "workflow": "companies.directory-and-reviewed-history",
       "disposition": "internal_dependency",
@@ -10520,6 +11010,24 @@
     },
     {
       "surface": {
+        "id": "frontend_api:frontend/features/whatsapp/api/group-updates.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/whatsapp/api/group-updates.api.ts",
+        "contract_sha256": "bff6461fb3b9c3ac7439d9159cb073e5f418c8ca1de5fac1b138640bc47ea905"
+      },
+      "workflow": "whatsapp.workspace-routing-and-transport",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Routing or frontend transport facade implementing the individually classified business operations; fingerprint forces review of prefix/registration/alias and nonstandard action changes.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
         "id": "frontend_api:frontend/features/whatsapp/api/whatsapp-activity.api.ts",
         "kind": "frontend_api_contract",
         "source": "frontend/features/whatsapp/api/whatsapp-activity.api.ts",
@@ -10559,7 +11067,7 @@
         "id": "frontend_api:frontend/features/whatsapp/api/whatsapp.api.ts",
         "kind": "frontend_api_contract",
         "source": "frontend/features/whatsapp/api/whatsapp.api.ts",
-        "contract_sha256": "95db1b485c34eea4e79c872abeec501d1bcead269d654ed3a5bd7b220ab141d3"
+        "contract_sha256": "6384e73db6795a3e28e6aaa153ed5bfd4b385d7f7118312065ec7d1c096ca9ae"
       },
       "workflow": "transport.frontend.features.whatsapp.api.whatsapp.api.ts",
       "disposition": "internal_dependency",
@@ -20077,6 +20585,209 @@
     },
     {
       "surface": {
+        "id": "openapi:GET:/api/v1/whatsapp/groups/{group_id}/message-types",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/whatsapp/groups/{group_id}/message-types",
+        "operation_id": "list_message_types_api_v1_whatsapp_groups__group_id__message_types_get",
+        "tags": [
+          "WhatsApp"
+        ],
+        "summary": "List Message Types"
+      },
+      "workflow": "whatsapp.scoped-message-and-passenger-history",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Tenant-scoped catalogue, saved-message history or proven passenger links. A dedicated bounded MCP read adapter remains planned; this classification grants no runtime authority.",
+      "adapter_requirements": [
+        "active_mcp_and_tenant_authority",
+        "bounded_pagination_and_private_field_projection",
+        "no_removal_effect_audit"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "openapi:GET:/api/v1/whatsapp/groups/{group_id}/message-types/{message_type}/recipients",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/whatsapp/groups/{group_id}/message-types/{message_type}/recipients",
+        "operation_id": "list_type_recipients_api_v1_whatsapp_groups__group_id__message_types__message_type__recipients_get",
+        "tags": [
+          "WhatsApp"
+        ],
+        "summary": "List Type Recipients"
+      },
+      "workflow": "whatsapp.scoped-message-and-passenger-history",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Tenant-scoped catalogue, saved-message history or proven passenger links. A dedicated bounded MCP read adapter remains planned; this classification grants no runtime authority.",
+      "adapter_requirements": [
+        "active_mcp_and_tenant_authority",
+        "bounded_pagination_and_private_field_projection",
+        "no_removal_effect_audit"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "openapi:GET:/api/v1/whatsapp/groups/{group_id}/message-types/{message_type}/versions",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/whatsapp/groups/{group_id}/message-types/{message_type}/versions",
+        "operation_id": "list_type_versions_api_v1_whatsapp_groups__group_id__message_types__message_type__versions_get",
+        "tags": [
+          "WhatsApp"
+        ],
+        "summary": "List Type Versions"
+      },
+      "workflow": "whatsapp.scoped-message-and-passenger-history",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Tenant-scoped catalogue, saved-message history or proven passenger links. A dedicated bounded MCP read adapter remains planned; this classification grants no runtime authority.",
+      "adapter_requirements": [
+        "active_mcp_and_tenant_authority",
+        "bounded_pagination_and_private_field_projection",
+        "no_removal_effect_audit"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "openapi:GET:/api/v1/whatsapp/groups/{group_id}/messages",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/whatsapp/groups/{group_id}/messages",
+        "operation_id": "list_broadcast_messages_api_v1_whatsapp_groups__group_id__messages_get",
+        "tags": [
+          "WhatsApp"
+        ],
+        "summary": "List Broadcast Messages"
+      },
+      "workflow": "whatsapp.scoped-message-and-passenger-history",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Tenant-scoped catalogue, saved-message history or proven passenger links. A dedicated bounded MCP read adapter remains planned; this classification grants no runtime authority.",
+      "adapter_requirements": [
+        "active_mcp_and_tenant_authority",
+        "bounded_pagination_and_private_field_projection",
+        "no_removal_effect_audit"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "openapi:GET:/api/v1/whatsapp/groups/{group_id}/messages/{message_id}",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/whatsapp/groups/{group_id}/messages/{message_id}",
+        "operation_id": "get_broadcast_message_api_v1_whatsapp_groups__group_id__messages__message_id__get",
+        "tags": [
+          "WhatsApp"
+        ],
+        "summary": "Get Broadcast Message"
+      },
+      "workflow": "whatsapp.scoped-message-and-passenger-history",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Tenant-scoped catalogue, saved-message history or proven passenger links. A dedicated bounded MCP read adapter remains planned; this classification grants no runtime authority.",
+      "adapter_requirements": [
+        "active_mcp_and_tenant_authority",
+        "bounded_pagination_and_private_field_projection",
+        "no_removal_effect_audit"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "openapi:GET:/api/v1/whatsapp/groups/{group_id}/messages/{message_id}/recipients",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/whatsapp/groups/{group_id}/messages/{message_id}/recipients",
+        "operation_id": "list_message_recipients_api_v1_whatsapp_groups__group_id__messages__message_id__recipients_get",
+        "tags": [
+          "WhatsApp"
+        ],
+        "summary": "List Message Recipients"
+      },
+      "workflow": "whatsapp.scoped-message-and-passenger-history",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Tenant-scoped catalogue, saved-message history or proven passenger links. A dedicated bounded MCP read adapter remains planned; this classification grants no runtime authority.",
+      "adapter_requirements": [
+        "active_mcp_and_tenant_authority",
+        "bounded_pagination_and_private_field_projection",
+        "no_removal_effect_audit"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "openapi:GET:/api/v1/whatsapp/groups/{group_id}/passenger-links",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/whatsapp/groups/{group_id}/passenger-links",
+        "operation_id": "broadcast_passenger_links_api_v1_whatsapp_groups__group_id__passenger_links_get",
+        "tags": [
+          "WhatsApp"
+        ],
+        "summary": "Broadcast Passenger Links"
+      },
+      "workflow": "whatsapp.scoped-message-and-passenger-history",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Tenant-scoped catalogue, saved-message history or proven passenger links. A dedicated bounded MCP read adapter remains planned; this classification grants no runtime authority.",
+      "adapter_requirements": [
+        "active_mcp_and_tenant_authority",
+        "bounded_pagination_and_private_field_projection",
+        "no_removal_effect_audit"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
         "id": "openapi:GET:/api/v1/whatsapp/groups/{group_id}/recipient-roster",
         "kind": "openapi_operation",
         "source": "backend/contracts/api.openapi.json",
@@ -20146,6 +20857,35 @@
         "adapter": null,
         "evidence": []
       }
+    },
+    {
+      "surface": {
+        "id": "openapi:GET:/api/v1/whatsapp/message-catalog",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/whatsapp/message-catalog",
+        "operation_id": "message_catalog_api_v1_whatsapp_message_catalog_get",
+        "tags": [
+          "WhatsApp"
+        ],
+        "summary": "Message Catalog"
+      },
+      "workflow": "whatsapp.scoped-message-and-passenger-history",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Tenant-scoped catalogue, saved-message history or proven passenger links. A dedicated bounded MCP read adapter remains planned; this classification grants no runtime authority.",
+      "adapter_requirements": [
+        "active_mcp_and_tenant_authority",
+        "bounded_pagination_and_private_field_projection",
+        "no_removal_effect_audit"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
     },
     {
       "surface": {
@@ -22113,6 +22853,72 @@
       "disposition": "implement",
       "phase": 6,
       "rationale": "Committed HTTP contract for document-distribution.send-document-whatsapp-broadcast. Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
+      "adapter_requirements": [
+        "immutable_preparation_and_explicit_user_send_intent",
+        "dispatch_authority_recheck",
+        "business_dispatch_idempotency",
+        "provider_receipt_reconciliation",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "openapi:POST:/api/v1/document-distribution/groups/{group_id}/updates/preview",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "POST",
+        "path": "/api/v1/document-distribution/groups/{group_id}/updates/preview",
+        "operation_id": "preview_group_update_api_v1_document_distribution_groups__group_id__updates_preview_post",
+        "tags": [
+          "Document Distribution"
+        ],
+        "summary": "Preview Group Update"
+      },
+      "workflow": "whatsapp.reviewed-update-dispatch",
+      "disposition": "implement",
+      "phase": 6,
+      "rationale": "Repeat updates and retries require explicit user send intent, current agency/group authority, frozen preview and historical content, durable idempotency and provider-outcome reconciliation. No MCP implementation or verification is claimed.",
+      "adapter_requirements": [
+        "immutable_preparation_and_explicit_user_send_intent",
+        "dispatch_authority_recheck",
+        "business_dispatch_idempotency",
+        "provider_receipt_reconciliation",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "openapi:POST:/api/v1/document-distribution/groups/{group_id}/updates/send",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "POST",
+        "path": "/api/v1/document-distribution/groups/{group_id}/updates/send",
+        "operation_id": "send_group_update_api_v1_document_distribution_groups__group_id__updates_send_post",
+        "tags": [
+          "Document Distribution"
+        ],
+        "summary": "Send Group Update"
+      },
+      "workflow": "whatsapp.reviewed-update-dispatch",
+      "disposition": "implement",
+      "phase": 6,
+      "rationale": "Repeat updates and retries require explicit user send intent, current agency/group authority, frozen preview and historical content, durable idempotency and provider-outcome reconciliation. No MCP implementation or verification is claimed.",
       "adapter_requirements": [
         "immutable_preparation_and_explicit_user_send_intent",
         "dispatch_authority_recheck",
@@ -26761,6 +27567,39 @@
     },
     {
       "surface": {
+        "id": "openapi:POST:/api/v1/whatsapp/groups/{group_id}/recipients/{recipient_id}/resend-update",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "POST",
+        "path": "/api/v1/whatsapp/groups/{group_id}/recipients/{recipient_id}/resend-update",
+        "operation_id": "resend_saved_update_api_v1_whatsapp_groups__group_id__recipients__recipient_id__resend_update_post",
+        "tags": [
+          "WhatsApp"
+        ],
+        "summary": "Resend Saved Update"
+      },
+      "workflow": "whatsapp.reviewed-update-dispatch",
+      "disposition": "implement",
+      "phase": 6,
+      "rationale": "Repeat updates and retries require explicit user send intent, current agency/group authority, frozen preview and historical content, durable idempotency and provider-outcome reconciliation. No MCP implementation or verification is claimed.",
+      "adapter_requirements": [
+        "immutable_preparation_and_explicit_user_send_intent",
+        "dispatch_authority_recheck",
+        "business_dispatch_idempotency",
+        "provider_receipt_reconciliation",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
         "id": "openapi:POST:/api/v1/whatsapp/groups/{group_id}/rejected-contacts/{rejected_contact_id}/resolve",
         "kind": "openapi_operation",
         "source": "backend/contracts/api.openapi.json",
@@ -29146,6 +29985,91 @@
     },
     {
       "surface": {
+        "id": "page:frontend/app/(dashboard)/whatsapp/[broadcastId]/details/page.tsx",
+        "kind": "frontend_page",
+        "source": "frontend/app/(dashboard)/whatsapp/[broadcastId]/details/page.tsx"
+      },
+      "workflow": "whatsapp.workspace-routing-and-transport",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Routing or frontend transport facade implementing the individually classified business operations; fingerprint forces review of prefix/registration/alias and nonstandard action changes.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "page:frontend/app/(dashboard)/whatsapp/[broadcastId]/documents/page.tsx",
+        "kind": "frontend_page",
+        "source": "frontend/app/(dashboard)/whatsapp/[broadcastId]/documents/page.tsx"
+      },
+      "workflow": "whatsapp.workspace-routing-and-transport",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Routing or frontend transport facade implementing the individually classified business operations; fingerprint forces review of prefix/registration/alias and nonstandard action changes.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "page:frontend/app/(dashboard)/whatsapp/[broadcastId]/history/page.tsx",
+        "kind": "frontend_page",
+        "source": "frontend/app/(dashboard)/whatsapp/[broadcastId]/history/page.tsx"
+      },
+      "workflow": "whatsapp.workspace-routing-and-transport",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Routing or frontend transport facade implementing the individually classified business operations; fingerprint forces review of prefix/registration/alias and nonstandard action changes.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "page:frontend/app/(dashboard)/whatsapp/[broadcastId]/page.tsx",
+        "kind": "frontend_page",
+        "source": "frontend/app/(dashboard)/whatsapp/[broadcastId]/page.tsx"
+      },
+      "workflow": "whatsapp.workspace-routing-and-transport",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Routing or frontend transport facade implementing the individually classified business operations; fingerprint forces review of prefix/registration/alias and nonstandard action changes.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "page:frontend/app/(dashboard)/whatsapp/[broadcastId]/recipients/page.tsx",
+        "kind": "frontend_page",
+        "source": "frontend/app/(dashboard)/whatsapp/[broadcastId]/recipients/page.tsx"
+      },
+      "workflow": "whatsapp.workspace-routing-and-transport",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Routing or frontend transport facade implementing the individually classified business operations; fingerprint forces review of prefix/registration/alias and nonstandard action changes.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
         "id": "page:frontend/app/(dashboard)/whatsapp/page.tsx",
         "kind": "frontend_page",
         "source": "frontend/app/(dashboard)/whatsapp/page.tsx"
@@ -29886,7 +30810,7 @@
         "id": "registration:backend/app/presentation/api/v1/routes/document_distribution.py",
         "kind": "route_registration",
         "source": "backend/app/presentation/api/v1/routes/document_distribution.py",
-        "contract_sha256": "d7c4e8c8976d19b074ddc12c9e427b99a48571691808e5684413df2188e0135f"
+        "contract_sha256": "62869cd5a94372b98a57a04f741fc12278e255a6b8abbe1a44dca94702f14b8b"
       },
       "workflow": "document-distribution.route-registration",
       "disposition": "internal_dependency",
@@ -30447,6 +31371,24 @@
         "contract_sha256": "5290a839c8cdf2c7047e7a379f6a183aa4752a98c285533c51d5a957ee50ccab"
       },
       "workflow": "transport.backend.app.presentation.api.v1.routes.gc_notifications.py",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Routing or frontend transport facade implementing the individually classified business operations; fingerprint forces review of prefix/registration/alias and nonstandard action changes.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/group_updates.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/group_updates.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "workflow": "whatsapp.workspace-routing-and-transport",
       "disposition": "internal_dependency",
       "phase": null,
       "rationale": "Routing or frontend transport facade implementing the individually classified business operations; fingerprint forces review of prefix/registration/alias and nonstandard action changes.",
@@ -31665,6 +32607,24 @@
     },
     {
       "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/whatsapp_catalog.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/whatsapp_catalog.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "workflow": "whatsapp.workspace-routing-and-transport",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Routing or frontend transport facade implementing the individually classified business operations; fingerprint forces review of prefix/registration/alias and nonstandard action changes.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
         "id": "registration:backend/app/presentation/api/v1/routes/whatsapp_composer.py",
         "kind": "route_registration",
         "source": "backend/app/presentation/api/v1/routes/whatsapp_composer.py",
@@ -31791,6 +32751,24 @@
     },
     {
       "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/whatsapp_history.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/whatsapp_history.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "workflow": "whatsapp.workspace-routing-and-transport",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Routing or frontend transport facade implementing the individually classified business operations; fingerprint forces review of prefix/registration/alias and nonstandard action changes.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
         "id": "registration:backend/app/presentation/api/v1/routes/whatsapp_recipient_details.py",
         "kind": "route_registration",
         "source": "backend/app/presentation/api/v1/routes/whatsapp_recipient_details.py",
@@ -31884,7 +32862,7 @@
         "id": "registration:backend/app/presentation/api/v1/routes/whatsapp_router.py",
         "kind": "route_registration",
         "source": "backend/app/presentation/api/v1/routes/whatsapp_router.py",
-        "contract_sha256": "5a61cd5259125bcca0b9a492f81a9788451aea8f0bc959a3d0e5c2bc2f2b1be1"
+        "contract_sha256": "6e2648eab251e8fc8adbcad3c225def52d1cccaf78be86413a1324044c03da19"
       },
       "workflow": "whatsapp.route-registration",
       "disposition": "internal_dependency",
@@ -31935,12 +32913,66 @@
     },
     {
       "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/whatsapp_type_history.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/whatsapp_type_history.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "workflow": "whatsapp.workspace-routing-and-transport",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Routing or frontend transport facade implementing the individually classified business operations; fingerprint forces review of prefix/registration/alias and nonstandard action changes.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/whatsapp_update_resend.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/whatsapp_update_resend.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "workflow": "whatsapp.workspace-routing-and-transport",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Routing or frontend transport facade implementing the individually classified business operations; fingerprint forces review of prefix/registration/alias and nonstandard action changes.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
         "id": "registration:backend/app/presentation/api/v1/routes/whatsapp_webhook.py",
         "kind": "route_registration",
         "source": "backend/app/presentation/api/v1/routes/whatsapp_webhook.py",
         "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
       },
       "workflow": "transport.backend.app.presentation.api.v1.routes.whatsapp_webhook.py",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Routing or frontend transport facade implementing the individually classified business operations; fingerprint forces review of prefix/registration/alias and nonstandard action changes.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/whatsapp_workspace_passengers.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/whatsapp_workspace_passengers.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "workflow": "whatsapp.workspace-routing-and-transport",
       "disposition": "internal_dependency",
       "phase": null,
       "rationale": "Routing or frontend transport facade implementing the individually classified business operations; fingerprint forces review of prefix/registration/alias and nonstandard action changes.",
@@ -37967,6 +38999,70 @@
       "phase": 7,
       "rationale": "Provide this application workflow through a named authorized business adapter. Classification does not enable any tool.",
       "adapter_requirements": [
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/group_updates.py:preview_group_update:POST:/groups/{group_id}/updates/preview",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/group_updates.py",
+        "handler": "preview_group_update",
+        "method": "POST",
+        "local_path": "/groups/{group_id}/updates/preview",
+        "contract_sha256": "7a42a5484eedaf3bb343ee17db71850c16329667b3eb3faeb17878b034ee437f",
+        "summary": "preview group update",
+        "schema_visible": true
+      },
+      "workflow": "whatsapp.reviewed-update-dispatch",
+      "disposition": "implement",
+      "phase": 6,
+      "rationale": "Repeat updates and retries require explicit user send intent, current agency/group authority, frozen preview and historical content, durable idempotency and provider-outcome reconciliation. No MCP implementation or verification is claimed.",
+      "adapter_requirements": [
+        "immutable_preparation_and_explicit_user_send_intent",
+        "dispatch_authority_recheck",
+        "business_dispatch_idempotency",
+        "provider_receipt_reconciliation",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/group_updates.py:send_group_update:POST:/groups/{group_id}/updates/send",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/group_updates.py",
+        "handler": "send_group_update",
+        "method": "POST",
+        "local_path": "/groups/{group_id}/updates/send",
+        "contract_sha256": "14203a72751ca4bb58e33901dd9168bbaa798ecbb4513e0c67d499caea962a4e",
+        "summary": "send group update",
+        "schema_visible": true
+      },
+      "workflow": "whatsapp.reviewed-update-dispatch",
+      "disposition": "implement",
+      "phase": 6,
+      "rationale": "Repeat updates and retries require explicit user send intent, current agency/group authority, frozen preview and historical content, durable idempotency and provider-outcome reconciliation. No MCP implementation or verification is claimed.",
+      "adapter_requirements": [
+        "immutable_preparation_and_explicit_user_send_intent",
+        "dispatch_authority_recheck",
+        "business_dispatch_idempotency",
+        "provider_receipt_reconciliation",
         "no_removal_effect_audit",
         "business_transaction_idempotency",
         "durable_operation_progress"
@@ -45710,6 +46806,34 @@
     },
     {
       "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/whatsapp_catalog.py:message_catalog:GET:/message-catalog",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/whatsapp_catalog.py",
+        "handler": "message_catalog",
+        "method": "GET",
+        "local_path": "/message-catalog",
+        "contract_sha256": "ce97bd085759ed527d99ea98efadb861cf7e039a3f83c781ad1c5e99257ee772",
+        "summary": "message catalog",
+        "schema_visible": true
+      },
+      "workflow": "whatsapp.scoped-message-and-passenger-history",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Tenant-scoped catalogue, saved-message history or proven passenger links. A dedicated bounded MCP read adapter remains planned; this classification grants no runtime authority.",
+      "adapter_requirements": [
+        "active_mcp_and_tenant_authority",
+        "bounded_pagination_and_private_field_projection",
+        "no_removal_effect_audit"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
         "id": "route:backend/app/presentation/api/v1/routes/whatsapp_composer.py:preview_broadcast_message:POST:/groups/{group_id}/preview",
         "kind": "source_route",
         "source": "backend/app/presentation/api/v1/routes/whatsapp_composer.py",
@@ -46004,6 +47128,90 @@
         "adapter": null,
         "evidence": []
       }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/whatsapp_history.py:get_broadcast_message:GET:/groups/{group_id}/messages/{message_id}",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/whatsapp_history.py",
+        "handler": "get_broadcast_message",
+        "method": "GET",
+        "local_path": "/groups/{group_id}/messages/{message_id}",
+        "contract_sha256": "02e17a7d51ceb660fcd890c2d404fba7834fd8c42d8c94154a399e76de89e907",
+        "summary": "get broadcast message",
+        "schema_visible": true
+      },
+      "workflow": "whatsapp.scoped-message-and-passenger-history",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Tenant-scoped catalogue, saved-message history or proven passenger links. A dedicated bounded MCP read adapter remains planned; this classification grants no runtime authority.",
+      "adapter_requirements": [
+        "active_mcp_and_tenant_authority",
+        "bounded_pagination_and_private_field_projection",
+        "no_removal_effect_audit"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/whatsapp_history.py:list_broadcast_messages:GET:/groups/{group_id}/messages",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/whatsapp_history.py",
+        "handler": "list_broadcast_messages",
+        "method": "GET",
+        "local_path": "/groups/{group_id}/messages",
+        "contract_sha256": "e3b353f01ec3adb8ec1f61b2c76fad1cf32928ff34fe1bd957e983b69d0fe775",
+        "summary": "list broadcast messages",
+        "schema_visible": true
+      },
+      "workflow": "whatsapp.scoped-message-and-passenger-history",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Tenant-scoped catalogue, saved-message history or proven passenger links. A dedicated bounded MCP read adapter remains planned; this classification grants no runtime authority.",
+      "adapter_requirements": [
+        "active_mcp_and_tenant_authority",
+        "bounded_pagination_and_private_field_projection",
+        "no_removal_effect_audit"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/whatsapp_history.py:list_message_recipients:GET:/groups/{group_id}/messages/{message_id}/recipients",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/whatsapp_history.py",
+        "handler": "list_message_recipients",
+        "method": "GET",
+        "local_path": "/groups/{group_id}/messages/{message_id}/recipients",
+        "contract_sha256": "7aadb0ee7be486b417783b6628d2879d57b5a4f120d24361e5e2fd6c7d10ea9a",
+        "summary": "list message recipients",
+        "schema_visible": true
+      },
+      "workflow": "whatsapp.scoped-message-and-passenger-history",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Tenant-scoped catalogue, saved-message history or proven passenger links. A dedicated bounded MCP read adapter remains planned; this classification grants no runtime authority.",
+      "adapter_requirements": [
+        "active_mcp_and_tenant_authority",
+        "bounded_pagination_and_private_field_projection",
+        "no_removal_effect_audit"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
     },
     {
       "surface": {
@@ -46350,6 +47558,122 @@
     },
     {
       "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/whatsapp_type_history.py:list_message_types:GET:/groups/{group_id}/message-types",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/whatsapp_type_history.py",
+        "handler": "list_message_types",
+        "method": "GET",
+        "local_path": "/groups/{group_id}/message-types",
+        "contract_sha256": "adce36a29f907768278d8ef442cad9b47df408dd0dde7276edb8af7bbc2884c1",
+        "summary": "list message types",
+        "schema_visible": true
+      },
+      "workflow": "whatsapp.scoped-message-and-passenger-history",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Tenant-scoped catalogue, saved-message history or proven passenger links. A dedicated bounded MCP read adapter remains planned; this classification grants no runtime authority.",
+      "adapter_requirements": [
+        "active_mcp_and_tenant_authority",
+        "bounded_pagination_and_private_field_projection",
+        "no_removal_effect_audit"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/whatsapp_type_history.py:list_type_recipients:GET:/groups/{group_id}/message-types/{message_type}/recipients",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/whatsapp_type_history.py",
+        "handler": "list_type_recipients",
+        "method": "GET",
+        "local_path": "/groups/{group_id}/message-types/{message_type}/recipients",
+        "contract_sha256": "9ab9ede77242b096aac9b21613910bf5895b10e36c8e28804388d7f58ab1af2a",
+        "summary": "list type recipients",
+        "schema_visible": true
+      },
+      "workflow": "whatsapp.scoped-message-and-passenger-history",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Tenant-scoped catalogue, saved-message history or proven passenger links. A dedicated bounded MCP read adapter remains planned; this classification grants no runtime authority.",
+      "adapter_requirements": [
+        "active_mcp_and_tenant_authority",
+        "bounded_pagination_and_private_field_projection",
+        "no_removal_effect_audit"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/whatsapp_type_history.py:list_type_versions:GET:/groups/{group_id}/message-types/{message_type}/versions",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/whatsapp_type_history.py",
+        "handler": "list_type_versions",
+        "method": "GET",
+        "local_path": "/groups/{group_id}/message-types/{message_type}/versions",
+        "contract_sha256": "0b7a15fa2459d8ff788af44c5027cda427b2e22e488d84890041ca9fdf446b88",
+        "summary": "list type versions",
+        "schema_visible": true
+      },
+      "workflow": "whatsapp.scoped-message-and-passenger-history",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Tenant-scoped catalogue, saved-message history or proven passenger links. A dedicated bounded MCP read adapter remains planned; this classification grants no runtime authority.",
+      "adapter_requirements": [
+        "active_mcp_and_tenant_authority",
+        "bounded_pagination_and_private_field_projection",
+        "no_removal_effect_audit"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/whatsapp_update_resend.py:resend_saved_update:POST:/groups/{group_id}/recipients/{recipient_id}/resend-update",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/whatsapp_update_resend.py",
+        "handler": "resend_saved_update",
+        "method": "POST",
+        "local_path": "/groups/{group_id}/recipients/{recipient_id}/resend-update",
+        "contract_sha256": "9b1aa9d5639fc1b3c6b80bb0d97a7d71cba34b7937355c22ac1a2212e199a892",
+        "summary": "resend saved update",
+        "schema_visible": true
+      },
+      "workflow": "whatsapp.reviewed-update-dispatch",
+      "disposition": "implement",
+      "phase": 6,
+      "rationale": "Repeat updates and retries require explicit user send intent, current agency/group authority, frozen preview and historical content, durable idempotency and provider-outcome reconciliation. No MCP implementation or verification is claimed.",
+      "adapter_requirements": [
+        "immutable_preparation_and_explicit_user_send_intent",
+        "dispatch_authority_recheck",
+        "business_dispatch_idempotency",
+        "provider_receipt_reconciliation",
+        "no_removal_effect_audit",
+        "business_transaction_idempotency",
+        "durable_operation_progress"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
         "id": "route:backend/app/presentation/api/v1/routes/whatsapp_webhook.py:receive_whatsapp_webhook:POST:/webhook",
         "kind": "source_route",
         "source": "backend/app/presentation/api/v1/routes/whatsapp_webhook.py",
@@ -46393,6 +47717,34 @@
         "adapter": null,
         "evidence": []
       }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/whatsapp_workspace_passengers.py:broadcast_passenger_links:GET:/groups/{group_id}/passenger-links",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/whatsapp_workspace_passengers.py",
+        "handler": "broadcast_passenger_links",
+        "method": "GET",
+        "local_path": "/groups/{group_id}/passenger-links",
+        "contract_sha256": "1e540d074206e50692513fffb2ccf5f6b046d454ab5b0a1ebd96a86beb8060fa",
+        "summary": "broadcast passenger links",
+        "schema_visible": true
+      },
+      "workflow": "whatsapp.scoped-message-and-passenger-history",
+      "disposition": "implement",
+      "phase": 4,
+      "rationale": "Tenant-scoped catalogue, saved-message history or proven passenger links. A dedicated bounded MCP read adapter remains planned; this classification grants no runtime authority.",
+      "adapter_requirements": [
+        "active_mcp_and_tenant_authority",
+        "bounded_pagination_and_private_field_projection",
+        "no_removal_effect_audit"
+      ],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      },
+      "effect_review": "required_before_enablement"
     }
   ]
 }

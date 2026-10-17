@@ -1,6 +1,9 @@
 """A selected historical resend has a stable identity across HTTP retries."""
 
+from __future__ import annotations
+
 import uuid
+from typing import TYPE_CHECKING
 
 from fastapi import HTTPException
 from sqlalchemy import select
@@ -13,6 +16,9 @@ from app.presentation.api.v1.schemas.whatsapp_schemas import (
     WhatsAppSendResponse,
     WhatsAppSendResult,
 )
+
+if TYPE_CHECKING:
+    from app.presentation.api.v1.routes.whatsapp_composer_support import _WhatsAppComposerSnapshot
 
 
 def historical_resend_batch(
@@ -92,7 +98,7 @@ async def saved_resend_source(
     message_type: str,
     is_retry: bool,
     source_message_log_id: uuid.UUID | None,
-):
+) -> tuple[WhatsAppMessageLogModel, _WhatsAppComposerSnapshot]:
     """Select the requested immutable send, retaining legacy latest-send behaviour."""
     from fastapi import status
 

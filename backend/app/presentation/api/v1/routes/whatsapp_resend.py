@@ -302,6 +302,7 @@ async def resend_recipient_message(
         recipient_ids=merged_body.recipient_ids,
         support_contact_ids=merged_body.support_contact_ids,
     )
+    rendered_message: str | None
     (
         _,
         _,

@@ -7,6 +7,7 @@ import {
 } from '@/core/localization/date-time';
 import { parseIanaTimeZone, type IanaTimeZone } from '@/core/localization/time-zone';
 import { withAccountTransaction } from '@/core/storage/database';
+import { demoDocumentContent } from './demo-document';
 
 export const DEMO_AGENCY_ID = '00000000-0000-4000-8000-000000000001';
 
@@ -333,23 +334,25 @@ async function seedSharedTripContent(
   }
 
   const commonDocuments = [
+    { category: 'itinerary_pdf', title: 'Itinerary · Demo preview' },
     { category: 'travel_tips', title: 'Travel tips · Demo preview' },
     { category: 'emergency_information', title: 'Emergency contacts · Demo preview' },
   ];
   for (const [index, document] of commonDocuments.entries()) {
+    const content = demoDocumentContent(document.title);
     await database.runAsync(
       `INSERT INTO document_metadata
         (id, account_namespace, trip_id, passenger_id, scope, category, display_name,
          content_type, size_bytes, version, checksum_sha256, offline_available,
          metadata_state, updated_at, revoked_at)
-       VALUES (?, ?, ?, NULL, 'common', ?, ?, 'application/pdf', ?, 1, ?, 0, 'ready', ?, NULL)`,
+       VALUES (?, ?, ?, NULL, 'common', ?, ?, 'application/pdf', ?, 1, ?, 1, 'ready', ?, NULL)`,
       uuid(trip.seed + 320 + index),
       namespace,
       trip.id,
       document.category,
       document.title,
-      240_000 + index * 25_000,
-      String(index + 1).repeat(64),
+      content.size,
+      content.checksum,
       now,
     );
   }
@@ -440,31 +443,34 @@ async function seedPassengerContent(
     namespace,
     trip.id,
     principalId,
-    `GC-DEMO:${trip.id}:${principalId}:OFFLINE-PREVIEW-V3`,
+    `GC-DEMO:${uuid(4_502)}`,
     dateTime(-1, trip.timeZone, 0, 0),
     dateTime(trip.returnOffset + 2, trip.timeZone, 23, 59),
     now,
   );
 
   const personalDocuments = [
-    ['passport', 'Passport · Demo metadata'],
-    ['visa', 'Singapore visa · Demo metadata'],
-    ['flight_ticket', 'Return flight ticket · Demo metadata'],
-    ['insurance', 'Travel insurance · Demo metadata'],
+    ['passport', 'Passport · Sample document'],
+    ['visa', 'Singapore visa · Sample document'],
+    ['flight_ticket', 'Return flight ticket · Sample document'],
+    ['insurance', 'Travel insurance · Sample document'],
   ] as const;
   for (const [index, document] of personalDocuments.entries()) {
+    const content = demoDocumentContent(document[1]);
     await database.runAsync(
       `INSERT INTO document_metadata
         (id, account_namespace, trip_id, passenger_id, scope, category, display_name,
          content_type, size_bytes, version, checksum_sha256, offline_available,
          metadata_state, updated_at, revoked_at)
-       VALUES (?, ?, ?, ?, 'personal', ?, ?, 'application/pdf', 0, 1, '', 0, 'pending', ?, NULL)`,
+       VALUES (?, ?, ?, ?, 'personal', ?, ?, 'application/pdf', ?, 1, ?, 1, 'ready', ?, NULL)`,
       uuid(trip.seed + 420 + index),
       namespace,
       trip.id,
       principalId,
       document[0],
       document[1],
+      content.size,
+      content.checksum,
       now,
     );
   }
@@ -475,10 +481,9 @@ async function seedManagerContent(
   namespace: string,
   trip: DemoTrip,
   now: string,
-  index: number,
 ): Promise<void> {
-  const passengerCount = index === 0 ? 700 : 184;
-  const attention = index === 0 ? 16 : 7;
+  const passengerCount = 14;
+  const attention = 5;
   await database.runAsync(
     `INSERT INTO manager_readiness
       (account_namespace, trip_id, passenger_count, passports_complete, visas_available,
@@ -488,12 +493,12 @@ async function seedManagerContent(
     namespace,
     trip.id,
     passengerCount,
+    passengerCount,
     passengerCount - attention,
-    passengerCount - attention - (index === 0 ? 14 : 3),
-    passengerCount - (index === 0 ? 8 : 5),
+    passengerCount,
     attention,
-    passengerCount - (index === 0 ? 4 : 2),
-    passengerCount - (index === 0 ? 3 : 1),
+    passengerCount - 1,
+    passengerCount,
     now,
   );
 }
@@ -507,7 +512,7 @@ async function seedCoordinatorContent(
   const passengers = [
     ['Aarav Mehta', 'EMP-1001', 'present', '1201', 'Vegetarian', 0],
     ['Aisha Khan', 'EMP-1002', 'present', '1202', 'Halal', 0],
-    ['Ananya Rao', 'EMP-1003', 'missing', '1203', 'Jain', 1],
+    ['Demo Passenger', 'EMP-1003', 'missing', '1203', 'Jain', 1],
     ['Arjun Patel', 'EMP-1004', 'present', '1204', 'Vegetarian', 0],
     ['Diya Iyer', 'EMP-1005', 'present', '1205', 'No seafood', 0],
     ['Ishaan Gupta', 'EMP-1006', 'excused', '1206', 'Standard', 1],
@@ -602,7 +607,7 @@ export async function seedDemoAccount(
     await transaction.runAsync('DELETE FROM sync_cursors WHERE account_namespace = ?', namespace);
     await transaction.runAsync('DELETE FROM trips WHERE account_namespace = ?', namespace);
 
-    for (const [index, trip] of trips.entries()) {
+    for (const trip of trips) {
       const accessExpiresAt = dateTime(60, trip.timeZone, 23, 59);
       await transaction.runAsync(
         `INSERT INTO trips
@@ -659,7 +664,8 @@ export async function seedDemoAccount(
       if (principal.principalType === 'passenger') {
         await seedPassengerContent(transaction, namespace, trip, principal.id, now);
       } else if (principal.principalType === 'client_manager') {
-        await seedManagerContent(transaction, namespace, trip, now, index);
+        await seedManagerContent(transaction, namespace, trip, now);
+        await seedCoordinatorContent(transaction, namespace, trip, now);
       } else {
         await seedCoordinatorContent(transaction, namespace, trip, now);
       }

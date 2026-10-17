@@ -11,8 +11,8 @@ describe("mobile release configuration", () => {
 
     expect(config.name).toBe("Global Connect Travels");
     expect(config.slug).toBe("group-companion");
-    expect(config.version).toBe("1.0.9");
-    expect(config.android?.versionCode).toBe(10);
+    expect(config.version).toBe("1.0.10");
+    expect(config.android?.versionCode).toBe(11);
     expect(config.ios?.buildNumber).toBe("2");
     expect(require("../../../../package.json").version).toBe(config.version);
     expect(require("../../../../package-lock.json").packages[""].version).toBe(config.version);

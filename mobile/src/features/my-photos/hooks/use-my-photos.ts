@@ -9,6 +9,7 @@ import { randomUUID } from 'expo-crypto';
 import { useEffect, useMemo, useRef } from 'react';
 
 import { useSessionStore } from '@/core/auth/session-store';
+import { isDemoMode } from '@/core/demo/demo-mode';
 import { principalAccountNamespace } from '@/core/auth/types';
 import { useRouteFocus } from '@/core/query/use-route-focus';
 
@@ -74,7 +75,7 @@ export function useMyPhotosSummary(tripId: string | null) {
       signal,
       (context, assertActive) => fetchMyPhotosSummary(context, assertActive),
     ),
-    enabled: Boolean(boundary && tripId),
+    enabled: Boolean(boundary && tripId && !isDemoMode()),
     staleTime: 15_000,
     refetchInterval: (query) => myPhotosSummaryRefreshInterval({
       routeFocused,

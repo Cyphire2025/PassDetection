@@ -45,6 +45,8 @@ Recipients offers A–Z, Z–A and import order, plus welcome-failed and welcome
 
 ## Configuration and validation
 
+The catalogue also offers **Text trip update** for a repeatable text message with submission and document-delivery audience filters. This uses the separate `update` template slot. Configure an approved text template with one body variable in the administrative template settings or `WHATSAPP_UPDATE_TEMPLATE_NAME`; no approved provider name is assumed. The established **Trip update** document-status workflow remains available.
+
 Trip update retains the current production `document_update` template slot, its configured language and approved template name. It uses the existing `/document-distribution/groups/{groupId}/updates` preview and durable send APIs, including submitted-number authority, repeat selection and four-at-a-time provider dispatch. No new template configuration or schema migration is required. Historical update retries copy the exact saved template, body and context, revalidate the current audience and retain a stable request identity.
 
 Verification uses synthetic browser data and isolated database fixtures. It does not send live WhatsApp messages. The browser suite covers the complete route flow, 100-entry catalogue, common editor ordering, reminder/passport audiences, failed-number correction, stacked details, archive/restore, manual/Excel import provenance, image sends, lost-response recovery, exact historical resend identity, document scoping and document dispatch. Backend integration tests exercise per-send history, immutable destinations, tenant scope, full saved bodies, unresolved outcomes, request canonicalisation, repeat passport eligibility and combined document filters.

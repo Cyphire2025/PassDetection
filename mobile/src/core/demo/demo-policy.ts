@@ -1,4 +1,5 @@
 export const DEMO_APPLICATION_ID = 'com.globalconnects.groupcompanion.demo';
+export const STANDALONE_DEMO_APPLICATION_ID = 'com.globalconnects.groupcompanion';
 
 export function canUseDemoMode(input: {
   requested: boolean;
@@ -6,7 +7,13 @@ export function canUseDemoMode(input: {
   applicationId: string | null;
   apiHostname: string;
   isPhysicalDevice: boolean;
+  standalone?: boolean;
 }): boolean {
+  if (input.standalone) {
+    return input.requested && input.appEnv === 'preview'
+      && input.applicationId === STANDALONE_DEMO_APPLICATION_ID
+      && input.apiHostname === 'demo.invalid';
+  }
   return (
     input.requested &&
     input.appEnv === 'development' &&
