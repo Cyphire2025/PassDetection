@@ -9,6 +9,7 @@ from __future__ import annotations
 import hashlib
 import json
 import sys
+import time
 from pathlib import Path
 
 from mcp_direct_build import command
@@ -46,17 +47,44 @@ class WorkspaceBrandingUpdate(RetainedUpdate):
 
     def fast_images(self) -> dict:
         if self.installed:
-            return super().fast_images()
-        with self.background_quiescence():
-            images = self.build_fast_images()
-            self.event('branding-images-built', image_ids=images)
-            receipt = self.directory / 'branding-migration-rehearsal.json'
-            command(sys.executable, '-B', str(self.source / 'scripts/qa/qualify_branding_migration.py'),
-                    '--image', images['backend'], '--revision', self.revision,
-                    '--postgres-image', self.record['live']['db']['Image'], '--output', str(receipt), timeout=1800)
-            self.event('branding-migration-rehearsed', branding_rehearsal=json.loads(receipt.read_text()),
-                       branding_rehearsal_sha256=hashlib.sha256(receipt.read_bytes()).hexdigest())
+            images = super().fast_images()
+        else:
+            with self.background_quiescence():
+                images = self.build_fast_images()
+                self.event('branding-images-built', image_ids=images)
+                receipt = self.directory / 'branding-migration-rehearsal.json'
+                command(sys.executable, '-B', str(self.source / 'scripts/qa/qualify_branding_migration.py'),
+                        '--image', images['backend'], '--revision', self.revision,
+                        '--postgres-image', self.record['live']['db']['Image'], '--output', str(receipt), timeout=1800)
+                self.event('branding-migration-rehearsed', branding_rehearsal=json.loads(receipt.read_text()),
+                           branding_rehearsal_sha256=hashlib.sha256(receipt.read_bytes()).hexdigest())
+        # Redis health keys can survive a restart. Do not immediately TERM a
+        # still-initializing Beat process based on the previous process's key.
+        self.wait_resumed_scheduler()
+        self.proof(self.record['live'], self.record['previous_revision'], public=True)
         return images
+
+    def wait_resumed_scheduler(self) -> None:
+        original = self.record['live']['email-beat']
+        first = bound_original(original)['State']
+        require(first['Running'] and first.get('Pid', 0) > 0, 'resumed_scheduler_not_running')
+        marker = ('record-platform-scheduler-heartbeat (platform.scheduler_heartbeat)'
+                  if self.paused_services() else 'record-email-scheduler-heartbeat (email.scheduler_heartbeat)')
+        deadline = time.monotonic() + 90
+        while time.monotonic() < deadline:
+            current = bound_original(original)['State']
+            require(current['Running'] and not current.get('OOMKilled')
+                    and current['StartedAt'] == first['StartedAt'] and current['Pid'] == first['Pid'],
+                    'resumed_scheduler_process_changed')
+            logs = command('docker', 'logs', '--since', first['StartedAt'], '--tail', '200', original['Id'])
+            if any('Scheduler: Sending due task ' + marker in line for line in logs.splitlines()):
+                self.event('resumed-scheduler-tick-verified', scheduler_resume={
+                    'container_id': original['Id'], 'started_at': first['StartedAt'], 'pid': first['Pid'],
+                    'fresh_scheduling_tick': True,
+                })
+                return
+            time.sleep(3)
+        raise ValueError('resumed_scheduler_fresh_tick_required')
 
     def backup(self) -> None:
         if self.installed:

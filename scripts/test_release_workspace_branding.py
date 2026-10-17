@@ -17,6 +17,33 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class BrandingReleaseTests(unittest.TestCase):
+    def test_scheduler_resume_requires_a_tick_from_the_current_process(self):
+        release = WorkspaceBrandingUpdate.__new__(WorkspaceBrandingUpdate)
+        release.record = {'live': {'email-beat': {'Id': 'bound-scheduler'}}}
+        release.pause_email_and_photos = True
+        release.event = Mock()
+        current = {'State': {'Running': True, 'StartedAt': '2026-10-18T00:00:00Z', 'Pid': 123, 'OOMKilled': False}}
+        marker = 'Scheduler: Sending due task record-platform-scheduler-heartbeat (platform.scheduler_heartbeat)'
+        with patch('release_workspace_branding.bound_original', return_value=current), \
+             patch('release_workspace_branding.command', side_effect=['celery is starting', marker]) as command, \
+             patch('release_workspace_branding.time.sleep') as sleep:
+            release.wait_resumed_scheduler()
+        self.assertEqual(command.call_args.args, ('docker', 'logs', '--since', current['State']['StartedAt'], '--tail', '200', 'bound-scheduler'))
+        sleep.assert_called_once_with(3)
+        self.assertTrue(release.event.call_args.kwargs['scheduler_resume']['fresh_scheduling_tick'])
+
+    def test_scheduler_restart_while_waiting_fails_closed(self):
+        release = WorkspaceBrandingUpdate.__new__(WorkspaceBrandingUpdate)
+        release.record = {'live': {'email-beat': {'Id': 'bound-scheduler'}}}
+        first = {'State': {'Running': True, 'StartedAt': 'start', 'Pid': 123, 'OOMKilled': False}}
+        changed = copy.deepcopy(first)
+        changed['State']['Pid'] = 456
+        with patch('release_workspace_branding.bound_original', side_effect=[first, changed]), \
+             patch('release_workspace_branding.command') as command:
+            with self.assertRaisesRegex(ValueError, 'resumed_scheduler_process_changed'):
+                release.wait_resumed_scheduler()
+        command.assert_not_called()
+
     def test_fresh_process_can_resume_an_additive_attempt(self):
         release = WorkspaceBrandingUpdate.__new__(WorkspaceBrandingUpdate)
         self.assertFalse(release.installed)
