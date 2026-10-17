@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import subprocess
 from pathlib import Path
 
 from mcp_direct_build import command
@@ -40,6 +41,8 @@ def digest(raw: str) -> str:
 
 def validate_source(source: Path, previous: str, revision: str) -> None:
     def git(*args):
+        if args[0] == 'show':
+            return subprocess.check_output(['git', '-C', str(source), *args], timeout=60).decode('utf-8')
         return command('git', '-C', str(source), *args)
     require(previous == BASE, 'exact_installed_branding_baseline_required')
     require(git('rev-parse', 'HEAD') == revision and not git('status', '--porcelain', '--untracked-files=all'),
@@ -52,7 +55,7 @@ def validate_source(source: Path, previous: str, revision: str) -> None:
         old = git('show', f'{previous}:{path}') if before is not None else ''
         candidate = source / path
         require(candidate.is_file() and not candidate.is_symlink(), 'regular_branding_contract_file_required')
-        require((before is None or digest(old + '\n') == before)
+        require((before is None or digest(old) == before)
                 and digest(candidate.read_text('utf-8')) == after, 'reviewed_branding_source_changed')
     validate_route_allowlist(source)
     manifest = json.loads((source / 'backend/app/core/config/release_manifest.json').read_text())
