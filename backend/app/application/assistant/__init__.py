@@ -1,0 +1,1 @@
+"""Private dashboard assistant contracts."""

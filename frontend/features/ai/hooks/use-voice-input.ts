@@ -128,5 +128,7 @@ export function useVoiceInput() {
     };
   }, [release, stop]);
 
-  return { status, error, levelRef, start, stop };
+  const getStream = useCallback(() => captureRef.current?.stream, []);
+  const clearError = useCallback(() => setError(""), []);
+  return { status, error, levelRef, start, stop, getStream, clearError };
 }

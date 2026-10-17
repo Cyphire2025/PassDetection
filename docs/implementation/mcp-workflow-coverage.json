@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "reviewed_at": "2026-10-17",
+  "reviewed_at": "2026-10-18",
   "scope": "Source route declarations, committed HTTP operations, frontend API/direct-transport callables, browser pages and routing registries. Surfaces are not unique tool counts.",
   "truth_contract": "All allowed workflows begin planned; only retained executable adapter and evidence may change implementation state. The ledger is never a runtime permission allowlist.",
   "owners": {
@@ -26,6 +26,204 @@
       "disposition": "internal_dependency",
       "phase": null,
       "rationale": "Existing UI, authentication, provider callback or physical/device protocol dependency; business adapters use the corresponding application services without fabricating client/physical evidence or bypassing consent.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/ai/api.ts:assets",
+        "kind": "frontend_callable",
+        "source": "frontend/features/ai/api.ts",
+        "handler": "assets"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/ai/api.ts:assistantError",
+        "kind": "frontend_callable",
+        "source": "frontend/features/ai/api.ts",
+        "handler": "assistantError"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/ai/api.ts:assistantMessage",
+        "kind": "frontend_callable",
+        "source": "frontend/features/ai/api.ts",
+        "handler": "assistantMessage"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/ai/api.ts:conversation",
+        "kind": "frontend_callable",
+        "source": "frontend/features/ai/api.ts",
+        "handler": "conversation"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/ai/api.ts:conversations",
+        "kind": "frontend_callable",
+        "source": "frontend/features/ai/api.ts",
+        "handler": "conversations"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/ai/api.ts:live",
+        "kind": "frontend_callable",
+        "source": "frontend/features/ai/api.ts",
+        "handler": "live"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/ai/api.ts:speak",
+        "kind": "frontend_callable",
+        "source": "frontend/features/ai/api.ts",
+        "handler": "speak"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/ai/api.ts:status",
+        "kind": "frontend_callable",
+        "source": "frontend/features/ai/api.ts",
+        "handler": "status"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/ai/api.ts:stream",
+        "kind": "frontend_callable",
+        "source": "frontend/features/ai/api.ts",
+        "handler": "stream"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/ai/api.ts:transcribe",
+        "kind": "frontend_callable",
+        "source": "frontend/features/ai/api.ts",
+        "handler": "transcribe"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/ai/api.ts:upload",
+        "kind": "frontend_callable",
+        "source": "frontend/features/ai/api.ts",
+        "handler": "upload"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
       "adapter_requirements": [],
       "implementation": {
         "status": "not_applicable",
@@ -446,6 +644,60 @@
         "evidence": []
       },
       "effect_review": "required_before_enablement"
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/branding/api/branding-images.api.ts:imageVersion",
+        "kind": "frontend_callable",
+        "source": "frontend/features/branding/api/branding-images.api.ts",
+        "handler": "imageVersion"
+      },
+      "workflow": "branding.private-image-transport",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Private authenticated image delivery and frontend transport for company logos and group banners. Business mutations are separately classified; this entry enables no MCP tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/branding/api/branding-images.api.ts:invalidateBrandingImages",
+        "kind": "frontend_callable",
+        "source": "frontend/features/branding/api/branding-images.api.ts",
+        "handler": "invalidateBrandingImages"
+      },
+      "workflow": "branding.private-image-transport",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Private authenticated image delivery and frontend transport for company logos and group banners. Business mutations are separately classified; this entry enables no MCP tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/branding/api/branding-images.api.ts:saveBrandingImage",
+        "kind": "frontend_callable",
+        "source": "frontend/features/branding/api/branding-images.api.ts",
+        "handler": "saveBrandingImage"
+      },
+      "workflow": "branding.private-image-transport",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Private authenticated image delivery and frontend transport for company logos and group banners. Business mutations are separately classified; this entry enables no MCP tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
     },
     {
       "surface": {
@@ -10384,6 +10636,24 @@
     },
     {
       "surface": {
+        "id": "frontend_api:frontend/features/branding/api/branding-images.api.ts",
+        "kind": "frontend_api_contract",
+        "source": "frontend/features/branding/api/branding-images.api.ts",
+        "contract_sha256": "ded4afb129b9813595a943514f88c849f03e701dda020b2bcb05d9222da1d0c1"
+      },
+      "workflow": "branding.private-image-transport",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Private authenticated image delivery and frontend transport for company logos and group banners. Business mutations are separately classified; this entry enables no MCP tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
         "id": "frontend_api:frontend/features/companies/api/companies.api.ts",
         "kind": "frontend_api_contract",
         "source": "frontend/features/companies/api/companies.api.ts",
@@ -10887,7 +11157,7 @@
         "id": "frontend_api:frontend/features/passports/api/upload-links.api.ts",
         "kind": "frontend_api_contract",
         "source": "frontend/features/passports/api/upload-links.api.ts",
-        "contract_sha256": "29a959fc2992902a927e3917bc5a77d2628de076ee2a71ee2217bad6f2974db6"
+        "contract_sha256": "89983d68b4ccc770ab0236e48e66f7c5b7a7500522c493fd769435ff3385b2da"
       },
       "workflow": "transport.frontend.features.passports.api.upload-links.api.ts",
       "disposition": "internal_dependency",
@@ -14399,6 +14669,31 @@
     },
     {
       "surface": {
+        "id": "openapi:DELETE:/api/v1/branding/{kind}/{owner_id}",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "DELETE",
+        "path": "/api/v1/branding/{kind}/{owner_id}",
+        "operation_id": "remove_image_api_v1_branding__kind___owner_id__delete",
+        "tags": [
+          "Workspace Branding"
+        ],
+        "summary": "Remove Image"
+      },
+      "workflow": "branding.remove-image",
+      "disposition": "manual_removal",
+      "phase": null,
+      "rationale": "Company logo or group banner removal remains an explicit website workflow; excluded from MCP removal capabilities.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "exclusion_boundary": "no_removal"
+    },
+    {
+      "surface": {
         "id": "openapi:DELETE:/api/v1/companies/{company_id}",
         "kind": "openapi_operation",
         "source": "backend/contracts/api.openapi.json",
@@ -15435,6 +15730,150 @@
     },
     {
       "surface": {
+        "id": "openapi:GET:/api/v1/ai-assistant/assets",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/ai-assistant/assets",
+        "operation_id": "assets_api_v1_ai_assistant_assets_get",
+        "tags": [
+          "AI Assistant"
+        ],
+        "summary": "Assets"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:GET:/api/v1/ai-assistant/assets/{asset_id}/content",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/ai-assistant/assets/{asset_id}/content",
+        "operation_id": "asset_content_api_v1_ai_assistant_assets__asset_id__content_get",
+        "tags": [
+          "AI Assistant"
+        ],
+        "summary": "Asset Content"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:GET:/api/v1/ai-assistant/conversations",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/ai-assistant/conversations",
+        "operation_id": "conversations_api_v1_ai_assistant_conversations_get",
+        "tags": [
+          "AI Assistant"
+        ],
+        "summary": "Conversations"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:GET:/api/v1/ai-assistant/conversations/{conversation_id}",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/ai-assistant/conversations/{conversation_id}",
+        "operation_id": "conversation_api_v1_ai_assistant_conversations__conversation_id__get",
+        "tags": [
+          "AI Assistant"
+        ],
+        "summary": "Conversation"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:GET:/api/v1/ai-assistant/live",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/ai-assistant/live",
+        "operation_id": "assistant_live_api_v1_ai_assistant_live_get",
+        "tags": [
+          "AI Assistant"
+        ],
+        "summary": "Assistant Live"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:GET:/api/v1/ai-assistant/status",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/ai-assistant/status",
+        "operation_id": "assistant_status_api_v1_ai_assistant_status_get",
+        "tags": [
+          "AI Assistant"
+        ],
+        "summary": "Assistant Status"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
         "id": "openapi:GET:/api/v1/analytics/summary",
         "kind": "openapi_operation",
         "source": "backend/contracts/api.openapi.json",
@@ -15560,6 +15999,30 @@
       "disposition": "internal_dependency",
       "phase": null,
       "rationale": "Committed HTTP contract for auth.get-me. Existing UI, authentication, provider callback or physical/device protocol dependency; business adapters use the corresponding application services without fabricating client/physical evidence or bypassing consent.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:GET:/api/v1/branding/{kind}/{owner_id}",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/branding/{kind}/{owner_id}",
+        "operation_id": "read_image_api_v1_branding__kind___owner_id__get",
+        "tags": [
+          "Workspace Branding"
+        ],
+        "summary": "Read Image"
+      },
+      "workflow": "branding.private-image-transport",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Private authenticated image delivery and frontend transport for company logos and group banners. Business mutations are separately classified; this entry enables no MCP tool.",
       "adapter_requirements": [],
       "implementation": {
         "status": "not_applicable",
@@ -22294,6 +22757,102 @@
     },
     {
       "surface": {
+        "id": "openapi:POST:/api/v1/ai-assistant/attachments",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "POST",
+        "path": "/api/v1/ai-assistant/attachments",
+        "operation_id": "upload_attachment_api_v1_ai_assistant_attachments_post",
+        "tags": [
+          "AI Assistant"
+        ],
+        "summary": "Upload Attachment"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:POST:/api/v1/ai-assistant/chat",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "POST",
+        "path": "/api/v1/ai-assistant/chat",
+        "operation_id": "chat_api_v1_ai_assistant_chat_post",
+        "tags": [
+          "AI Assistant"
+        ],
+        "summary": "Chat"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:POST:/api/v1/ai-assistant/speech",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "POST",
+        "path": "/api/v1/ai-assistant/speech",
+        "operation_id": "speech_api_v1_ai_assistant_speech_post",
+        "tags": [
+          "AI Assistant"
+        ],
+        "summary": "Speech"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:POST:/api/v1/ai-assistant/transcribe",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "POST",
+        "path": "/api/v1/ai-assistant/transcribe",
+        "operation_id": "transcribe_api_v1_ai_assistant_transcribe_post",
+        "tags": [
+          "AI Assistant"
+        ],
+        "summary": "Transcribe"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
         "id": "openapi:POST:/api/v1/auth/access-level",
         "kind": "openapi_operation",
         "source": "backend/contracts/api.openapi.json",
@@ -28152,6 +28711,30 @@
     },
     {
       "surface": {
+        "id": "openapi:PUT:/api/v1/branding/{kind}/{owner_id}",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "PUT",
+        "path": "/api/v1/branding/{kind}/{owner_id}",
+        "operation_id": "upload_image_api_v1_branding__kind___owner_id__put",
+        "tags": [
+          "Workspace Branding"
+        ],
+        "summary": "Upload Image"
+      },
+      "workflow": "branding.update-image",
+      "disposition": "implement",
+      "phase": 6,
+      "rationale": "Existing authenticated branding upload workflow requires a future named, tenant-authorized staged-upload adapter with revision checks and durable audit. No adapter is enabled by this classification.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "planned",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
         "id": "openapi:PUT:/api/v1/companies/{company_id}/groups/{group_id}/reuse-config",
         "kind": "openapi_operation",
         "source": "backend/contracts/api.openapi.json",
@@ -30138,6 +30721,23 @@
     },
     {
       "surface": {
+        "id": "page:frontend/app/ai/page.tsx",
+        "kind": "frontend_page",
+        "source": "frontend/app/ai/page.tsx"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
         "id": "page:frontend/app/coordinator/groups/[groupId]/hotel-checkin/page.tsx",
         "kind": "frontend_page",
         "source": "frontend/app/coordinator/groups/[groupId]/hotel-checkin/page.tsx"
@@ -30360,7 +30960,7 @@
         "id": "registration:backend/app/presentation/api/v1/router.py",
         "kind": "route_registration",
         "source": "backend/app/presentation/api/v1/router.py",
-        "contract_sha256": "3276de404aad3aecc994fa2adc98f39645f273ffb8c832d8fe03d3808efdb14c"
+        "contract_sha256": "63e03b609528e6094b0b7e498993c574f0002f2ee303079d80c224409bc9805a"
       },
       "workflow": "application.route-registration",
       "disposition": "internal_dependency",
@@ -30420,6 +31020,24 @@
       "disposition": "internal_dependency",
       "phase": null,
       "rationale": "Routing or frontend transport facade implementing the individually classified business operations; fingerprint forces review of prefix/registration/alias and nonstandard action changes.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/ai_assistant.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/ai_assistant.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
       "adapter_requirements": [],
       "implementation": {
         "status": "not_applicable",
@@ -30528,6 +31146,24 @@
       "disposition": "internal_dependency",
       "phase": null,
       "rationale": "Routing or frontend transport facade implementing the individually classified business operations; fingerprint forces review of prefix/registration/alias and nonstandard action changes.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/branding_images.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/branding_images.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "workflow": "branding.private-image-transport",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Private authenticated image delivery and frontend transport for company logos and group banners. Business mutations are separately classified; this entry enables no MCP tool.",
       "adapter_requirements": [],
       "implementation": {
         "status": "not_applicable",
@@ -33583,6 +34219,236 @@
     },
     {
       "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/ai_assistant.py:asset_content:GET:/assets/{asset_id}/content",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/ai_assistant.py",
+        "handler": "asset_content",
+        "method": "GET",
+        "local_path": "/assets/{asset_id}/content",
+        "contract_sha256": "3f4f686fca9bfef4f79415e721f60756f2d7692bc2608f926342be8eeb68111d",
+        "summary": "asset content",
+        "schema_visible": true
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/ai_assistant.py:assets:GET:/assets",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/ai_assistant.py",
+        "handler": "assets",
+        "method": "GET",
+        "local_path": "/assets",
+        "contract_sha256": "c8fe74be4a5dec19526117092d5c5c9b5defe2a74bf58175a241ada3ef4e408a",
+        "summary": "assets",
+        "schema_visible": true
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/ai_assistant.py:assistant_live:GET:/live",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/ai_assistant.py",
+        "handler": "assistant_live",
+        "method": "GET",
+        "local_path": "/live",
+        "contract_sha256": "a8f8d55589ecd612215387b56b3e65cf0734877f3c002b147178ee0232e013be",
+        "summary": "assistant live",
+        "schema_visible": true
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/ai_assistant.py:assistant_status:GET:/status",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/ai_assistant.py",
+        "handler": "assistant_status",
+        "method": "GET",
+        "local_path": "/status",
+        "contract_sha256": "6c0ce738c151667286b9b00f55e7dc1d8c4152addd3a0bebc1fd599b75c74637",
+        "summary": "assistant status",
+        "schema_visible": true
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/ai_assistant.py:chat:POST:/chat",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/ai_assistant.py",
+        "handler": "chat",
+        "method": "POST",
+        "local_path": "/chat",
+        "contract_sha256": "d6e9386dad2790ade9e5f371d5ac20dca53b891f58f5dc1d4d8880319baf0b21",
+        "summary": "chat",
+        "schema_visible": true
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/ai_assistant.py:conversation:GET:/conversations/{conversation_id}",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/ai_assistant.py",
+        "handler": "conversation",
+        "method": "GET",
+        "local_path": "/conversations/{conversation_id}",
+        "contract_sha256": "a0da5c6067cb7c0999c3d257a8639533a41d44787d515aad7243d0c42fa2a914",
+        "summary": "conversation",
+        "schema_visible": true
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/ai_assistant.py:conversations:GET:/conversations",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/ai_assistant.py",
+        "handler": "conversations",
+        "method": "GET",
+        "local_path": "/conversations",
+        "contract_sha256": "1bd6fc74202779fc014519ed15eede7afd28113d929b22aae1d48f4bd12c90c3",
+        "summary": "conversations",
+        "schema_visible": true
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/ai_assistant.py:speech:POST:/speech",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/ai_assistant.py",
+        "handler": "speech",
+        "method": "POST",
+        "local_path": "/speech",
+        "contract_sha256": "f2809fbe78b98b2e74b471776dbe53d8aa7ea4716381fbda69173f8cf0b784c8",
+        "summary": "speech",
+        "schema_visible": true
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/ai_assistant.py:transcribe:POST:/transcribe",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/ai_assistant.py",
+        "handler": "transcribe",
+        "method": "POST",
+        "local_path": "/transcribe",
+        "contract_sha256": "5ede0f2a5dd733b05f96b67d1b9c244a260699a6425efa7605c4b79cc0b0ba4c",
+        "summary": "transcribe",
+        "schema_visible": true
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/ai_assistant.py:upload_attachment:POST:/attachments",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/ai_assistant.py",
+        "handler": "upload_attachment",
+        "method": "POST",
+        "local_path": "/attachments",
+        "contract_sha256": "fb63988c25964d53d178ab3aaa605662bdaa5ebc475a4309ab85d73c1025bd32",
+        "summary": "upload attachment",
+        "schema_visible": true
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
         "id": "route:backend/app/presentation/api/v1/routes/analytics.py:get_analytics_summary:GET:/summary",
         "kind": "source_route",
         "source": "backend/app/presentation/api/v1/routes/analytics.py",
@@ -34103,6 +34969,76 @@
       "adapter_requirements": [],
       "implementation": {
         "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/branding_images.py:read_image:GET:/{kind}/{owner_id}",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/branding_images.py",
+        "handler": "read_image",
+        "method": "GET",
+        "local_path": "/{kind}/{owner_id}",
+        "contract_sha256": "4e49d51e73bce18c16c08636ff970e3a49205070588fc06bf01a38787e68948b",
+        "summary": "read image",
+        "schema_visible": true
+      },
+      "workflow": "branding.private-image-transport",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Private authenticated image delivery and frontend transport for company logos and group banners. Business mutations are separately classified; this entry enables no MCP tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/branding_images.py:remove_image:DELETE:/{kind}/{owner_id}",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/branding_images.py",
+        "handler": "remove_image",
+        "method": "DELETE",
+        "local_path": "/{kind}/{owner_id}",
+        "contract_sha256": "d2ada14f62c38e2b7ba8a537e68fbeb1e55dafa3e60e8c91d52e55b631351be4",
+        "summary": "remove image",
+        "schema_visible": true
+      },
+      "workflow": "branding.remove-image",
+      "disposition": "manual_removal",
+      "phase": null,
+      "rationale": "Company logo or group banner removal remains an explicit website workflow; excluded from MCP removal capabilities.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      },
+      "exclusion_boundary": "no_removal"
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/branding_images.py:upload_image:PUT:/{kind}/{owner_id}",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/branding_images.py",
+        "handler": "upload_image",
+        "method": "PUT",
+        "local_path": "/{kind}/{owner_id}",
+        "contract_sha256": "1d8f1453abb4e096120483ac1c533c3107039bff1d0d28c0837ceeb50e2f8385",
+        "summary": "upload image",
+        "schema_visible": true
+      },
+      "workflow": "branding.update-image",
+      "disposition": "implement",
+      "phase": 6,
+      "rationale": "Existing authenticated branding upload workflow requires a future named, tenant-authorized staged-upload adapter with revision checks and durable audit. No adapter is enabled by this classification.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "planned",
         "adapter": null,
         "evidence": []
       }
@@ -43749,7 +44685,7 @@
         "handler": "list_passport_groups",
         "method": "GET",
         "local_path": "/groups",
-        "contract_sha256": "69e51fb6d53e35d9b38fb95f0cfaebce5916cef4a321ce1a61edc65101dfc2a2",
+        "contract_sha256": "2e04efab5c258eb610fb8fe57b6caceefea93400d0e0d30c1a9e0a9906205de2",
         "summary": "List client groups that contain passport submissions",
         "schema_visible": true
       },

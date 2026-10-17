@@ -1,6 +1,6 @@
 /** Liquid particle engine adapted from Sculpture Hero by guglielmogiannattasio.it, supplied via 21st.dev. */
 
-import { clamp, type Rect, type EngineOptions } from './types';
+import { clamp, type Rect, type EngineOptions, type SculpturePresentation } from './types';
 import { QUAD_VS, FLOW_FS, SIM_FS, PART_VS, PART_FS, IMAGE_FS } from './shaders';
 
 type Prog = { p: WebGLProgram; u: Record<string, WebGLUniformLocation | null> }
@@ -44,6 +44,8 @@ const SETTLE_FRAMES = 270
 export class LiquidEngine {
   /** Audio is sampled locally; the render loop reads a ref without React updates. */
   readVoiceLevel: (() => number) | null = null
+  readPresentation: (() => SculpturePresentation | null) | null = null
+  private replyBlend = 0
   private voiceEnvelope = 0
   private voicePhase = 0
   lastImage: HTMLImageElement | null = null
@@ -132,7 +134,8 @@ export class LiquidEngine {
     this.lowPower =
       (nav.hardwareConcurrency || 8) <= 4 ||
       (nav.deviceMemory || 8) <= 4 ||
-      window.matchMedia("(pointer: coarse)").matches
+      window.matchMedia("(pointer: coarse)").matches ||
+      window.matchMedia("(max-width: 639px)").matches
     this.initGL()
     canvas.addEventListener("webglcontextlost", this.onLost, false)
   }
@@ -251,7 +254,7 @@ export class LiquidEngine {
   /** One particle per material pixel of a grid laid over the image. */
   private buildParticles(img: HTMLImageElement) {
     const gl = this.gl
-    const baseGrid = this.lowPower ? 640 : 1000
+    const baseGrid = this.lowPower ? 420 : 760
     const gw = Math.round(baseGrid * Math.sqrt(clamp(this.opts.density, 0.15, 2)))
     const gh = Math.max(1, Math.round(gw / this.aspect))
     this.gridW = gw
@@ -380,7 +383,7 @@ export class LiquidEngine {
     this.cssW = Math.max(1, cssW)
     this.cssH = Math.max(1, cssH)
     this.rect = rect
-    let dpr = Math.min(window.devicePixelRatio || 1, this.lowPower ? 1.5 : 2)
+    let dpr = Math.min(window.devicePixelRatio || 1, this.lowPower ? 1.25 : 1.75)
     const px = this.cssW * this.cssH * dpr * dpr
     if (px > 4.5e6) dpr = Math.max(1, Math.sqrt(4.5e6 / (this.cssW * this.cssH)))
     const w = Math.round(this.cssW * dpr)
@@ -447,7 +450,11 @@ export class LiquidEngine {
   }
 
   private applyVoice(dt: number) {
-    const level = clamp(this.readVoiceLevel?.() ?? 0, 0, 1)
+    // Idle motion comes from the image's ambient field. Keep its envelope below
+    // the interaction threshold so silent scenes skip both simulation passes.
+    const ambient = this.opts.ambient && !this.opts.reducedMotion ? 0.005 : 0
+    const level = Math.max(ambient, clamp(this.readVoiceLevel?.() ?? 0, 0, 1))
+    this.replyBlend += ((this.readPresentation?.()?.reply ? 1 : 0) - this.replyBlend) * (1 - Math.pow(0.97, dt))
     const smoothing = level > this.voiceEnvelope ? 0.22 : 0.06
     this.voiceEnvelope += (level - this.voiceEnvelope) * (1 - Math.pow(1 - smoothing, dt))
     if (this.opts.reducedMotion || this.voiceEnvelope < 0.015) {
@@ -456,7 +463,7 @@ export class LiquidEngine {
     }
     // A continuous figure eight sweeps the same liquid field as the original cursor.
     // Voice energy controls the sweep, disturbance radius, and particle strength.
-    this.voicePhase += dt * (0.012 + this.voiceEnvelope * 0.038)
+    this.voicePhase += dt * (0.003 + this.voiceEnvelope * 0.047)
     const r = this.rect
     const x = r.x + r.w * (0.5 + Math.sin(this.voicePhase) * 0.31)
     const y = r.y + r.h * (0.5 + Math.sin(this.voicePhase * 2) * 0.24)
@@ -616,6 +623,10 @@ export class LiquidEngine {
     const [ir, ig, ib] = this.imgBg
     const dpr = this.canvas.width / this.cssW
     const pres = Math.max(this.presence, this.burst)
+    const presentation = this.readPresentation?.()
+    const reveal = clamp(presentation?.reveal ?? 0, 0, 1)
+    const revealWidth = presentation?.revealWidth ?? this.cssW * .7
+    const revealHeight = presentation?.revealHeight ?? this.cssH * .65
     const mx = this.mouse.x - r.x
     const my = this.mouse.y - r.y
 
@@ -645,11 +656,13 @@ export class LiquidEngine {
     gl.uniform1f(I.u.uAmbient, amb)
     gl.uniform1f(I.u.uIntroVis, introVis)
     gl.uniform1f(I.u.uRest, rest)
+    gl.uniform1f(I.u.uReply, this.replyBlend)
+    gl.uniform1f(I.u.uReveal, reveal)
     gl.uniform1f(I.u.uAlphaMode, this.alphaMode ? 1 : 0)
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
 
     // particles are invisible at rest in "image" mode: skip them entirely
-    if (!this.n || (!this.stateDirty && rest === 0 && introVis >= 1)) return
+    if (!this.n || (!this.stateDirty && rest === 0 && introVis >= 1 && reveal === 0)) return
 
     const P = this.pPart
     gl.useProgram(P.p)
@@ -679,7 +692,10 @@ export class LiquidEngine {
     gl.uniform1f(P.u.uAmbient, amb)
     gl.uniform1f(P.u.uStreak, (o.streaks ? 1 : 0) * (0.45 + 0.55 * introVis))
     gl.uniform1f(P.u.uIntroVis, introVis)
-    gl.uniform1f(P.u.uRest, rest)
+    gl.uniform1f(P.u.uRest, Math.max(rest, reveal))
+    gl.uniform1f(P.u.uReply, this.replyBlend)
+    gl.uniform1f(P.u.uReveal, reveal)
+    gl.uniform2f(P.u.uRevealSize, revealWidth, revealHeight)
     gl.uniform1f(P.u.uDpr, dpr)
     if (this.alphaMode) gl.uniform3f(P.u.uTint, 1, 1, 1)
     else gl.uniform3f(P.u.uTint, br / Math.max(ir, 0.001), bg / Math.max(ig, 0.001), bb / Math.max(ib, 0.001))

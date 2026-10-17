@@ -13,6 +13,7 @@ from app.presentation.api.v1.routes.admin_accounts import router as admin_accoun
 from app.presentation.api.v1.routes.admin_whatsapp_templates import (
     router as admin_whatsapp_templates_router,
 )
+from app.presentation.api.v1.routes.ai_assistant import router as ai_assistant_router
 from app.presentation.api.v1.routes.analytics import router as analytics_router
 from app.presentation.api.v1.routes.attendance_runtime import router as attendance_runtime_router
 from app.presentation.api.v1.routes.audit_logs import router as audit_logs_router
@@ -271,3 +272,4 @@ api_v1_router.include_router(
 )
 api_v1_router.include_router(whatsapp_router, prefix="/whatsapp", tags=["WhatsApp"])
 api_v1_router.include_router(branding_images_router, prefix="/branding", tags=["Workspace Branding"])
+api_v1_router.include_router(ai_assistant_router, prefix="/ai-assistant", tags=["AI Assistant"])

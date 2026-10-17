@@ -154,6 +154,9 @@ uniform float uStreak;
 uniform float uIntroVis;
 uniform float uRest;
 uniform vec3 uTint;
+uniform float uReply;
+uniform float uReveal;
+uniform vec2 uRevealSize;
 out vec2 vLocal;
 out float vHalfLen;
 out float vR;
@@ -176,6 +179,26 @@ void main(){
 
   vec2 base = uRect.xy + hm.xy*uRect.zw + st.xy;
   base -= ambientField(hm.xy, uTime)*10.0*uAmbient;
+  if(uReveal > 0.0){
+    vec2 extent = max(vec2(1.0), uRevealSize*uReveal);
+    float perimeter = 2.0*(extent.x+extent.y);
+    float seed = fract(float(id)*0.61803398875);
+    float distance = mod(seed*perimeter + uTime*9.0 + sin(seed*37.0+uTime)*3.0, perimeter);
+    vec2 edge;
+    if(distance < extent.x) edge = vec2(distance-extent.x*.5, -extent.y*.5);
+    else if(distance < extent.x+extent.y) edge = vec2(extent.x*.5, distance-extent.x-extent.y*.5);
+    else if(distance < extent.x*2.0+extent.y) edge = vec2(extent.x*1.5+extent.y-distance, extent.y*.5);
+    else edge = vec2(-extent.x*.5, perimeter-distance-extent.y*.5);
+    vec2 jitter = vec2(sin(seed*129.0+uTime*1.9), cos(seed*93.0+uTime*1.6))*(2.0+fract(seed*83.0)*8.0);
+    vec2 target = uRes*.5 + edge + jitter;
+    // Displace material only when the growing rectangle reaches it. During
+    // the later reveal, redistribute it evenly around the moving perimeter.
+    vec2 delta = base-uRes*.5;
+    vec2 halfExtent = extent*.5;
+    float collision = min(halfExtent.x/max(abs(delta.x),.1), halfExtent.y/max(abs(delta.y),.1));
+    vec2 pushed = uRes*.5 + delta*max(1.0,collision);
+    base = mix(pushed, target, smoothstep(.4, .95, uReveal));
+  }
 
   vec2 v = st.zw;
   float sp = length(v);
@@ -192,6 +215,7 @@ void main(){
   vHalfLen = len*0.5;
   vR = r;
   vec3 col = cl.rgb*uTint;
+  col = mix(col, vec3(col.r*.52, col.g*1.02, col.b*1.2), uReply*.78);
   // fast material catches the light, like liquid metal
   float glint = smoothstep(2.0, 16.0, sp);
   col = mix(col, min(col*1.18 + vec3(0.07,0.075,0.085), vec3(1.0)), glint*0.75);
@@ -243,6 +267,8 @@ uniform float uAmbient;
 uniform float uIntroVis;
 uniform float uRest;
 uniform float uAlphaMode;
+uniform float uReply;
+uniform float uReveal;
 ${NOISE}
 ${ENERGY}
 void main(){
@@ -267,8 +293,9 @@ void main(){
   float E = energyAt(rp, uMouse, uRadius, uPresence, fl.b);
   float show = (1.0 - max(E, uRest))*uIntroVis;
   vec3 mat = uAlphaMode > 0.5 ? col : col*(uBg/max(uImgBg, vec3(0.001)));
+  mat = mix(mat, vec3(mat.r*.52, mat.g*1.02, mat.b*1.2), uReply*.78);
   // premultiplied: empty areas stay transparent so the page (and the backdrop word) shows through
-  float A = k*show;
+  float A = k*show*(1.0-smoothstep(0.0,.55,uReveal));
   o = vec4(mat*A, A);
 }
 `
