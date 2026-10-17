@@ -75,10 +75,12 @@ for (const width of [320, 1440]) test(`fresh private draft resumes and submits a
   const stored = await page.evaluate(() => localStorage.getItem("gc.traveller.draft.v1:synthetic-fresh-trip"));
   expect(stored).not.toMatch(/TEST1234|family@example|9999999999|STAFF-ONE/);
   await page.reload(); await page.getByRole("button", { name: /Continue from where you left/ }).click();
-  await expect(page.getByLabel("Passport Number", { exact: true })).toHaveValue("TEST1234"); await expect(page.getByText("WhatsApp number verified")).toBeVisible();
+  await expect(page.getByLabel("Staff Code", { exact: true })).toHaveValue("STAFF-ONE"); await expect(page.getByText("WhatsApp number verified")).toBeVisible();
+  await expect(page.getByLabel("Passport Number", { exact: true })).toHaveCount(0);
   expect(Array.from(state.drafts.values())[0].documents).toEqual([]);
   await page.getByLabel("Upload personal details page").setInputFiles({ name: "synthetic-resumed.jpg", mimeType: "image/jpeg", buffer: pixel });
   await expect.poll(() => Array.from(state.drafts.values())[0].documents.length).toBe(1);
+  await expect(page.getByLabel("Passport Number", { exact: true })).toHaveValue("TEST1234");
   await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: info.outputPath(`fresh-review-${width}.png`), fullPage: true });
   await page.getByRole("button", { name: "Confirm details and submit" }).click(); await expect(page.getByRole("heading", { name: "You’re all set" })).toBeVisible();
