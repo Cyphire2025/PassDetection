@@ -3,6 +3,18 @@ import nextConfig from "./next.config";
 import { VISA_FACE_DETECTION_ASSET_VERSION, visaFaceDetectionAssetUrl } from "./config/visa-face-detection-assets";
 
 describe("Next response policy", () => {
+  it("allows same-origin microphone input only on the standalone AI preview", async () => {
+    const headers = await nextConfig.headers?.();
+    const defaults = headers?.find((entry) => entry.source.startsWith("/((?!_next/static"));
+    const preview = headers?.find((entry) => entry.source === "/ai");
+    expect(defaults?.headers).toContainEqual({
+      key: "Permissions-Policy", value: "camera=self, microphone=(), geolocation=()",
+    });
+    expect(preview?.headers).toContainEqual({
+      key: "Permissions-Policy", value: "camera=(self), microphone=(self), geolocation=()",
+    });
+    expect(headers?.indexOf(preview!)).toBeGreaterThan(headers?.indexOf(defaults!) ?? -1);
+  });
   it("caches only explicitly versioned face assets while unversioned assets revalidate", async () => {
     const headers = await nextConfig.headers?.();
     const versioned = headers?.find((entry) => entry.source === "/mediapipe/face_detection/:path*");

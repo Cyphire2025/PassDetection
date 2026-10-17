@@ -1,0 +1,62 @@
+.page {
+  --paper: #ebe9e5;
+  --ink: #282723;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  overflow: clip;
+  background: var(--paper);
+  color: var(--ink);
+}
+.header { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 28px clamp(24px, 4.2vw, 72px); }
+.brand { display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 550; letter-spacing: -.04em; }
+.monogram { display: flex; align-items: baseline; gap: 2px; font-size: 29px; font-weight: 600; letter-spacing: -.1em; line-height: 1; }
+.monogram span { align-self: flex-start; margin-top: -2px; font-size: 16px; letter-spacing: 0; }
+.previewBadge { display: flex; align-items: center; gap: 8px; color: #66635c; font-size: 10px; text-transform: uppercase; letter-spacing: .14em; }
+.previewBadge > span { width: 5px; height: 5px; border-radius: 50%; background: #928572; }
+.experience { flex: 1; width: 100%; display: flex; flex-direction: column; align-items: center; padding-top: clamp(16px, 3.6svh, 48px); }
+.introduction { position: relative; z-index: 1; padding: 0 24px; text-align: center; }
+.eyebrow { color: #78746b; font-size: 10px; letter-spacing: .17em; text-transform: uppercase; margin: 0 0 17px; }
+.introduction h1 { font-size: clamp(34px, 4vw, 61px); font-weight: 400; letter-spacing: -.055em; line-height: 1.12; margin: 0; }
+.introduction em { font-family: Georgia, "Times New Roman", serif; font-weight: 400; letter-spacing: -.06em; }
+.sculpture { position: relative; width: min(100%, 1400px); height: clamp(290px, 46svh, 520px); margin-top: 0; }
+.controls { --voice-level: 0; position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; padding: 12px 24px 32px; }
+.microphoneWrap { position: relative; display: grid; place-items: center; width: 80px; height: 80px; margin-bottom: 14px; }
+.microphone { position: relative; width: 62px; height: 62px; display: grid; place-items: center; border: 0; border-radius: 50%; background: #2d2b27; color: #f2eee7; cursor: pointer; box-shadow: 0 4px 10px #2827230a; transition: transform .25s ease, background .25s ease, box-shadow .25s ease; }
+.microphone:hover { background: #474138; transform: translateY(-2px); box-shadow: 0 6px 18px #28272316; }
+.microphone:active { transform: scale(.96); }
+.microphone:focus-visible { outline: 2px solid #82715a; outline-offset: 6px; }
+.voiceRing { position: absolute; inset: 1px; border: 1px solid #b4a58f; border-radius: 50%; opacity: 0; transform: scale(.75); }
+.controls[data-listening="true"] .voiceRing { opacity: calc(.2 + var(--voice-level) * .55); transform: scale(calc(1 + var(--voice-level) * .3)); }
+.controls[data-listening="true"] .microphone { background: #78644b; }
+.status { min-height: 51px; text-align: center; }
+.status p { margin: 0 0 6px; font-size: 14px; font-weight: 500; letter-spacing: -.02em; }
+.status span { color: #78736b; font-size: 11px; line-height: 1.6; }
+.error { max-width: 380px; margin: 10px 0 0; color: #934f3d; font-size: 12px; line-height: 1.6; text-align: center; }
+.footer { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 16px clamp(24px, 4.2vw, 72px) 25px; color: #817b71; font-size: 10px; letter-spacing: .02em; }
+.signature { color: #6c665d; font-size: 12px; white-space: nowrap; }
+.signature em { font-family: Georgia, "Times New Roman", serif; font-size: 16px; }
+@media (min-width: 1600px) { .experience { justify-content: center; } }
+@media (max-width: 639px) {
+  .header { padding: 24px 23px; }
+  .brand { gap: 9px; font-size: 12px; }
+  .monogram { font-size: 25px; }
+  .previewBadge { font-size: 8px; letter-spacing: .09em; }
+  .experience { padding-top: 36px; }
+  .eyebrow { font-size: 8px; letter-spacing: .13em; margin-bottom: 17px; }
+  .introduction h1 { font-size: clamp(31px, 8.5vw, 49px); }
+  .sculpture { height: clamp(280px, 41svh, 420px); margin-top: 6px; }
+  .controls { padding-top: 0; padding-bottom: 25px; }
+  .footer { justify-content: center; padding: 12px 24px 25px; text-align: center; font-size: 9px; line-height: 1.6; }
+  .signature { display: none; }
+}
+@media (max-height: 730px) and (min-width: 640px) {
+  .header { padding-top: 20px; padding-bottom: 20px; }
+  .experience { padding-top: 10px; }
+  .sculpture { height: 40svh; min-height: 230px; }
+  .controls { padding-top: 0; padding-bottom: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .microphone { transition: none; }
+  .controls[data-listening="true"] .voiceRing { opacity: .5; transform: none; }
+}
