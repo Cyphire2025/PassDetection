@@ -41,6 +41,7 @@ export async function* decodeAssistantStream(body: ReadableStream<Uint8Array>, s
 }
 
 export const assistantApi = {
+  availability: async (signal?: AbortSignal) => (await apiClient.get<{ enabled: boolean; allowed: boolean }>(`${BASE}/availability`, { signal })).data,
   status: async (signal?: AbortSignal, refreshSession = true) => {
     // A first anonymous visit is a public preview, not an expired staff session.
     // Keep coordinated cookie refresh once this workspace has confirmed an account.

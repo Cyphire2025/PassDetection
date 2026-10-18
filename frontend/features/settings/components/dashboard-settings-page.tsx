@@ -10,6 +10,7 @@ import {
   Settings2,
   ShieldCheck,
   SlidersHorizontal,
+  Sparkles,
 } from "lucide-react";
 import { useState } from "react";
 import dynamic from "next/dynamic";
@@ -21,6 +22,10 @@ const PlatformSettingsPanel = dynamic(
     loading: () => <div role="status" className="p-6 text-sm text-slate-500">Loading platform settings…</div>,
   },
 );
+
+const AssistantSettingsPanel = dynamic(() => import("@/features/ai/components/assistant-settings-panel").then((module) => module.AssistantSettingsPanel), {
+  loading: () => <div role="status" className="p-6 text-sm text-slate-500">Loading AI settings…</div>,
+});
 
 const WhatsAppTemplateSettingsPanel = dynamic(
   () => import("./whatsapp-template-settings-panel").then(
@@ -36,6 +41,7 @@ const WhatsAppTemplateSettingsPanel = dynamic(
 );
 
 const SECTIONS = [
+  { id: "ai", title: "AI assistant", description: "Models, connection and access", icon: Sparkles },
   {
     id: "appearance",
     title: "Appearance & navigation",
@@ -69,6 +75,14 @@ const SECTIONS = [
 ] as const;
 type Section = (typeof SECTIONS)[number]["id"];
 
+function visibleSections(role: string | undefined) {
+  return SECTIONS.filter(({ id }) => {
+    if (id === "ai") return role === "super_admin";
+    if (id === "whatsapp") return role === "super_admin" || role === "agency_admin";
+    return true;
+  });
+}
+
 export function DashboardSettingsPage() {
   const [section, setSection] = useState<Section>("appearance");
   const [templatesVisited, setTemplatesVisited] = useState(false);
@@ -87,7 +101,7 @@ export function DashboardSettingsPage() {
           aria-label="Settings sections"
           className="grid gap-1 sm:grid-cols-2 xl:sticky xl:top-0 xl:grid-cols-1"
         >
-          {SECTIONS.filter(({ id }) => id !== "whatsapp" || canViewTemplates).map(({ id, title, description, icon: Icon }) => (
+          {visibleSections(user?.role).map(({ id, title, description, icon: Icon }) => (
             <button
               key={id}
               type="button"
@@ -115,6 +129,7 @@ export function DashboardSettingsPage() {
         </nav>
         <div className="min-w-0" aria-live="polite">
           {section === "appearance" && <AppearanceSettings />}
+          <AssistantSettingsSection active={section === "ai"} />
           {/* Load policy data on demand, preserving drafts within this authority. */}
           {policiesVisited && <div hidden={section !== "policies" && section !== "data"}>
             <PlatformSettingsPanel
@@ -159,6 +174,10 @@ export function DashboardSettingsPage() {
       </div>
     </div>
   );
+}
+
+function AssistantSettingsSection({ active }: { active: boolean }) {
+  return active ? <AssistantSettingsPanel /> : null;
 }
 
 function VisitedTemplateSettings({ visited, authorized, active, userId }: {

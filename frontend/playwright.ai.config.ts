@@ -10,7 +10,7 @@ const production = process.env.AI_PREVIEW_PRODUCTION === "1";
 
 export default defineConfig({
   ...base,
-  testMatch: "**/ai-voice-preview.spec.ts",
+  testMatch: ["**/ai-voice-preview.spec.ts", "**/ai-assistant-workspace.spec.ts", "**/ai-assistant-access.spec.ts"],
   workers: 1,
   projects: base.projects?.map((project) => ({
     ...project, use: { ...project.use, viewport: { width: 1440, height: 960 } },
@@ -23,7 +23,7 @@ export default defineConfig({
     },
     {
       command: `npm run ${production ? "start" : "dev"} -- --hostname 127.0.0.1 --port ${appPort}`,
-      url: `http://127.0.0.1:${appPort}/ai`, reuseExistingServer: false, timeout: 120_000,
+      url: `http://127.0.0.1:${appPort}/login`, reuseExistingServer: false, timeout: 120_000,
       env: {
         ...isolatedE2eProcessEnvironment(process.env),
         API_BASE_URL: apiOrigin,

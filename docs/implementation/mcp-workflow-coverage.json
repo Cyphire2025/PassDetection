@@ -89,6 +89,24 @@
     },
     {
       "surface": {
+        "id": "frontend:frontend/features/ai/api.ts:availability",
+        "kind": "frontend_callable",
+        "source": "frontend/features/ai/api.ts",
+        "handler": "availability"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party authenticated assistant workspace and superadmin-only encrypted provider configuration. Kept outside MCP to avoid recursive model calls, credential access and hidden provider charges; business data uses separately authorized observational readers.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
         "id": "frontend:frontend/features/ai/api.ts:conversation",
         "kind": "frontend_callable",
         "source": "frontend/features/ai/api.ts",
@@ -224,6 +242,78 @@
       "disposition": "internal_dependency",
       "phase": null,
       "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/ai/settings-api.ts:check",
+        "kind": "frontend_callable",
+        "source": "frontend/features/ai/settings-api.ts",
+        "handler": "check"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party authenticated assistant workspace and superadmin-only encrypted provider configuration. Kept outside MCP to avoid recursive model calls, credential access and hidden provider charges; business data uses separately authorized observational readers.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/ai/settings-api.ts:get",
+        "kind": "frontend_callable",
+        "source": "frontend/features/ai/settings-api.ts",
+        "handler": "get"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party authenticated assistant workspace and superadmin-only encrypted provider configuration. Kept outside MCP to avoid recursive model calls, credential access and hidden provider charges; business data uses separately authorized observational readers.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/ai/settings-api.ts:people",
+        "kind": "frontend_callable",
+        "source": "frontend/features/ai/settings-api.ts",
+        "handler": "people"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party authenticated assistant workspace and superadmin-only encrypted provider configuration. Kept outside MCP to avoid recursive model calls, credential access and hidden provider charges; business data uses separately authorized observational readers.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/ai/settings-api.ts:save",
+        "kind": "frontend_callable",
+        "source": "frontend/features/ai/settings-api.ts",
+        "handler": "save"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party authenticated assistant workspace and superadmin-only encrypted provider configuration. Kept outside MCP to avoid recursive model calls, credential access and hidden provider charges; business data uses separately authorized observational readers.",
       "adapter_requirements": [],
       "implementation": {
         "status": "not_applicable",
@@ -15778,6 +15868,30 @@
     },
     {
       "surface": {
+        "id": "openapi:GET:/api/v1/ai-assistant/availability",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/ai-assistant/availability",
+        "operation_id": "assistant_availability_api_v1_ai_assistant_availability_get",
+        "tags": [
+          "AI Assistant"
+        ],
+        "summary": "Assistant Availability"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party authenticated assistant workspace and superadmin-only encrypted provider configuration. Kept outside MCP to avoid recursive model calls, credential access and hidden provider charges; business data uses separately authorized observational readers.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
         "id": "openapi:GET:/api/v1/ai-assistant/conversations",
         "kind": "openapi_operation",
         "source": "backend/contracts/api.openapi.json",
@@ -15841,6 +15955,54 @@
       "disposition": "internal_dependency",
       "phase": null,
       "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:GET:/api/v1/ai-assistant/settings",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/ai-assistant/settings",
+        "operation_id": "get_ai_settings_api_v1_ai_assistant_settings_get",
+        "tags": [
+          "AI Assistant"
+        ],
+        "summary": "Get Ai Settings"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party authenticated assistant workspace and superadmin-only encrypted provider configuration. Kept outside MCP to avoid recursive model calls, credential access and hidden provider charges; business data uses separately authorized observational readers.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:GET:/api/v1/ai-assistant/settings/people",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/ai-assistant/settings/people",
+        "operation_id": "assistant_people_api_v1_ai_assistant_settings_people_get",
+        "tags": [
+          "AI Assistant"
+        ],
+        "summary": "Assistant People"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party authenticated assistant workspace and superadmin-only encrypted provider configuration. Kept outside MCP to avoid recursive model calls, credential access and hidden provider charges; business data uses separately authorized observational readers.",
       "adapter_requirements": [],
       "implementation": {
         "status": "not_applicable",
@@ -22805,6 +22967,30 @@
     },
     {
       "surface": {
+        "id": "openapi:POST:/api/v1/ai-assistant/settings/check",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "POST",
+        "path": "/api/v1/ai-assistant/settings/check",
+        "operation_id": "check_ai_connection_api_v1_ai_assistant_settings_check_post",
+        "tags": [
+          "AI Assistant"
+        ],
+        "summary": "Check Ai Connection"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party authenticated assistant workspace and superadmin-only encrypted provider configuration. Kept outside MCP to avoid recursive model calls, credential access and hidden provider charges; business data uses separately authorized observational readers.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
         "id": "openapi:POST:/api/v1/ai-assistant/speech",
         "kind": "openapi_operation",
         "source": "backend/contracts/api.openapi.json",
@@ -28711,6 +28897,30 @@
     },
     {
       "surface": {
+        "id": "openapi:PUT:/api/v1/ai-assistant/settings",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "PUT",
+        "path": "/api/v1/ai-assistant/settings",
+        "operation_id": "update_ai_settings_api_v1_ai_assistant_settings_put",
+        "tags": [
+          "AI Assistant"
+        ],
+        "summary": "Update Ai Settings"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party authenticated assistant workspace and superadmin-only encrypted provider configuration. Kept outside MCP to avoid recursive model calls, credential access and hidden provider charges; business data uses separately authorized observational readers.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
         "id": "openapi:PUT:/api/v1/branding/{kind}/{owner_id}",
         "kind": "openapi_operation",
         "source": "backend/contracts/api.openapi.json",
@@ -29614,6 +29824,23 @@
     },
     {
       "surface": {
+        "id": "page:frontend/app/(dashboard)/@assistant/(.)ai/page.tsx",
+        "kind": "frontend_page",
+        "source": "frontend/app/(dashboard)/@assistant/(.)ai/page.tsx"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party authenticated assistant workspace and superadmin-only encrypted provider configuration. Kept outside MCP to avoid recursive model calls, credential access and hidden provider charges; business data uses separately authorized observational readers.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
         "id": "page:frontend/app/(dashboard)/admin/mcp/connect/page.tsx",
         "kind": "frontend_page",
         "source": "frontend/app/(dashboard)/admin/mcp/connect/page.tsx"
@@ -30398,6 +30625,23 @@
     },
     {
       "surface": {
+        "id": "page:frontend/app/(dashboard)/settings/ai/page.tsx",
+        "kind": "frontend_page",
+        "source": "frontend/app/(dashboard)/settings/ai/page.tsx"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party authenticated assistant workspace and superadmin-only encrypted provider configuration. Kept outside MCP to avoid recursive model calls, credential access and hidden provider charges; business data uses separately authorized observational readers.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
         "id": "page:frontend/app/(dashboard)/settings/page.tsx",
         "kind": "frontend_page",
         "source": "frontend/app/(dashboard)/settings/page.tsx"
@@ -30960,7 +31204,7 @@
         "id": "registration:backend/app/presentation/api/v1/router.py",
         "kind": "route_registration",
         "source": "backend/app/presentation/api/v1/router.py",
-        "contract_sha256": "63e03b609528e6094b0b7e498993c574f0002f2ee303079d80c224409bc9805a"
+        "contract_sha256": "7c1da246299d8c3a1c8c4b3f88cd194cc9467c58d126dd1ac566c73f1209dba9"
       },
       "workflow": "application.route-registration",
       "disposition": "internal_dependency",
@@ -31038,6 +31282,42 @@
       "disposition": "internal_dependency",
       "phase": null,
       "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/ai_assistant_settings.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/ai_assistant_settings.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party authenticated assistant workspace and superadmin-only encrypted provider configuration. Kept outside MCP to avoid recursive model calls, credential access and hidden provider charges; business data uses separately authorized observational readers.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "registration:backend/app/presentation/api/v1/routes/ai_assistant_voice.py",
+        "kind": "route_registration",
+        "source": "backend/app/presentation/api/v1/routes/ai_assistant_voice.py",
+        "contract_sha256": "4e04d0007d4abc70091becc77a1fcc3f46dba2f8a761b65a57c81217032bb7be"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party authenticated assistant workspace and superadmin-only encrypted provider configuration. Kept outside MCP to avoid recursive model calls, credential access and hidden provider charges; business data uses separately authorized observational readers.",
       "adapter_requirements": [],
       "implementation": {
         "status": "not_applicable",
@@ -34265,6 +34545,29 @@
     },
     {
       "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/ai_assistant.py:assistant_availability:GET:/availability",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/ai_assistant.py",
+        "handler": "assistant_availability",
+        "method": "GET",
+        "local_path": "/availability",
+        "contract_sha256": "ad487c09cfc7124de1ea9cbd528e3bd9446322508e0823a06ffbdf9f7e0671c8",
+        "summary": "assistant availability",
+        "schema_visible": true
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party authenticated assistant workspace and superadmin-only encrypted provider configuration. Kept outside MCP to avoid recursive model calls, credential access and hidden provider charges; business data uses separately authorized observational readers.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
         "id": "route:backend/app/presentation/api/v1/routes/ai_assistant.py:assistant_live:GET:/live",
         "kind": "source_route",
         "source": "backend/app/presentation/api/v1/routes/ai_assistant.py",
@@ -34294,7 +34597,7 @@
         "handler": "assistant_status",
         "method": "GET",
         "local_path": "/status",
-        "contract_sha256": "6c0ce738c151667286b9b00f55e7dc1d8c4152addd3a0bebc1fd599b75c74637",
+        "contract_sha256": "f40c9147aee658dff253d9a9d9cd07a90d028380a356028345946e88d940b47b",
         "summary": "assistant status",
         "schema_visible": true
       },
@@ -34317,7 +34620,7 @@
         "handler": "chat",
         "method": "POST",
         "local_path": "/chat",
-        "contract_sha256": "d6e9386dad2790ade9e5f371d5ac20dca53b891f58f5dc1d4d8880319baf0b21",
+        "contract_sha256": "135e1f3be8571746162d07a7643ce18344c2bd9492bd4a3810ee04cef7fc22f4",
         "summary": "chat",
         "schema_visible": true
       },
@@ -34386,7 +34689,7 @@
         "handler": "speech",
         "method": "POST",
         "local_path": "/speech",
-        "contract_sha256": "f2809fbe78b98b2e74b471776dbe53d8aa7ea4716381fbda69173f8cf0b784c8",
+        "contract_sha256": "9204aa6281aeeb3669751c4308c54d99fe78c79375cd2cdc56ca87c3f909eef8",
         "summary": "speech",
         "schema_visible": true
       },
@@ -34409,7 +34712,7 @@
         "handler": "transcribe",
         "method": "POST",
         "local_path": "/transcribe",
-        "contract_sha256": "5ede0f2a5dd733b05f96b67d1b9c244a260699a6425efa7605c4b79cc0b0ba4c",
+        "contract_sha256": "8de6e2a4396109b80e10cf4f893d9523a588518f6c8149e4a1b6f7bee49c605c",
         "summary": "transcribe",
         "schema_visible": true
       },
@@ -34440,6 +34743,121 @@
       "disposition": "internal_dependency",
       "phase": null,
       "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/ai_assistant_settings.py:assistant_people:GET:/settings/people",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/ai_assistant_settings.py",
+        "handler": "assistant_people",
+        "method": "GET",
+        "local_path": "/settings/people",
+        "contract_sha256": "d97f40217d96fc2fe08854c607440a8e8b530fa7e495580a355142c5b60bf250",
+        "summary": "assistant people",
+        "schema_visible": true
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party authenticated assistant workspace and superadmin-only encrypted provider configuration. Kept outside MCP to avoid recursive model calls, credential access and hidden provider charges; business data uses separately authorized observational readers.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/ai_assistant_settings.py:check_ai_connection:POST:/settings/check",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/ai_assistant_settings.py",
+        "handler": "check_ai_connection",
+        "method": "POST",
+        "local_path": "/settings/check",
+        "contract_sha256": "1edcb4aa4ee7c895dd2f7e8518c68a400028e57d12e13a876cf9632bb15f49e9",
+        "summary": "check ai connection",
+        "schema_visible": true
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party authenticated assistant workspace and superadmin-only encrypted provider configuration. Kept outside MCP to avoid recursive model calls, credential access and hidden provider charges; business data uses separately authorized observational readers.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/ai_assistant_settings.py:get_ai_settings:GET:/settings",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/ai_assistant_settings.py",
+        "handler": "get_ai_settings",
+        "method": "GET",
+        "local_path": "/settings",
+        "contract_sha256": "9558673d7c8e730dbd82c94cb4637ffdff0cc81224812b36c9cfdee3510403f8",
+        "summary": "get ai settings",
+        "schema_visible": true
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party authenticated assistant workspace and superadmin-only encrypted provider configuration. Kept outside MCP to avoid recursive model calls, credential access and hidden provider charges; business data uses separately authorized observational readers.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/ai_assistant_settings.py:update_ai_settings:PUT:/settings",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/ai_assistant_settings.py",
+        "handler": "update_ai_settings",
+        "method": "PUT",
+        "local_path": "/settings",
+        "contract_sha256": "0ad154bf7aa40a37ef63cf737b619d99d0c82010bb1ce3a492cec0a4f6d9fa83",
+        "summary": "update ai settings",
+        "schema_visible": true
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party authenticated assistant workspace and superadmin-only encrypted provider configuration. Kept outside MCP to avoid recursive model calls, credential access and hidden provider charges; business data uses separately authorized observational readers.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/ai_assistant_voice.py:assistant_voice:WEBSOCKET:/voice",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/ai_assistant_voice.py",
+        "handler": "assistant_voice",
+        "method": "WEBSOCKET",
+        "local_path": "/voice",
+        "contract_sha256": "1122009d6bb13c861589251eb8658d36005aff6a1dc69a4aeddcaea50e1a2b5c",
+        "summary": "assistant voice",
+        "schema_visible": true
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party authenticated assistant workspace and superadmin-only encrypted provider configuration. Kept outside MCP to avoid recursive model calls, credential access and hidden provider charges; business data uses separately authorized observational readers.",
       "adapter_requirements": [],
       "implementation": {
         "status": "not_applicable",

@@ -1,7 +1,9 @@
 import { expect, test } from "@playwright/test";
 import { syntheticMicrophone } from "./support/ai-voice-fixtures";
+import { assistantAuth } from "./support/assistant-auth";
 
 test.beforeEach(async ({ page }) => {
+  await assistantAuth(page);
   await page.route('**/api/v1/ai-assistant/status', (route) => route.fulfill({ json: { configured: false, speech_configured: false, model: 'gpt-6-luna', reasoning_effort: 'high', access: 'read_only', name: 'Synthetic administrator' } }));
   await page.route('**/api/v1/ai-assistant/live', (route) => route.fulfill({ json: { observed_at: new Date().toISOString(), agencies: [] } }));
 });
@@ -9,7 +11,7 @@ test.beforeEach(async ({ page }) => {
 test.use({ launchOptions: { args: ["--use-fake-device-for-media-stream", "--use-fake-ui-for-media-stream"] } });
 
 
-test("standalone public preview renders the original sculpture on desktop and phone", async ({ page }, testInfo) => {
+test("authorized workspace renders the enlarged horizontal sculpture on desktop and phone", async ({ page }, testInfo) => {
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   const response = await page.goto("/ai");

@@ -39,6 +39,14 @@ BACKEND_FRONTEND_INPUTS = frozenset({
     "frontend/features/passports/api/upload-links.api.ts",
 })
 FRONTEND_BACKEND_INPUTS = frozenset({
+    "backend/app/application/assistant/settings_contracts.py",
+    "backend/app/infrastructure/assistant/gemini_provider.py",
+    "backend/app/infrastructure/assistant/gemini_live.py",
+    "backend/app/infrastructure/assistant/settings_store.py",
+    "backend/app/presentation/api/v1/routes/ai_assistant_settings.py",
+    "backend/app/presentation/api/v1/routes/ai_assistant_voice.py",
+    "backend/app/presentation/assistant/native_session.py",
+    "backend/app/presentation/assistant/read_scope.py",
     "backend/app/application/assistant/contracts.py",
     "backend/app/core/assistant_config.py",
     "backend/app/infrastructure/assistant/provider.py",

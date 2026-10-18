@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
 from datetime import UTC, datetime
 from typing import Any
@@ -11,6 +12,7 @@ from uuid import UUID, uuid4
 from botocore.exceptions import BotoCoreError, ClientError
 
 from app.application.assistant.contracts import AssistantError, public_asset
+from app.domain.entities.entities import User, UserRole
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 
 MAX_RECORD_BYTES = 192 * 1024
@@ -23,10 +25,20 @@ def _index_key(created_at: str, identifier: str) -> str:
     return f"{9_999_999_999_999_999_999 - stamp:019d}-{UUID(identifier)}.json"
 
 
+def account_scope(user: User) -> str:
+    return "super_admin" if user.role == UserRole.SUPER_ADMIN else f"{user.role.value}:{user.agency_id}"
+
+
+def assistant_store(user: User) -> "AssistantStore":
+    return AssistantStore(user.id, scope=None if user.role == UserRole.SUPER_ADMIN else account_scope(user))
+
+
 class AssistantStore:
-    def __init__(self, user_id: UUID, storage: MinioStorageRepository | None = None):
+    def __init__(self, user_id: UUID, storage: MinioStorageRepository | None = None, *, scope: str | None = None):
         self.storage = storage or MinioStorageRepository()
         self.prefix = f"assistant/v1/accounts/{user_id}/"
+        if scope:
+            self.prefix += "scopes/" + hashlib.sha256(scope.encode()).hexdigest()[:24] + "/"
 
     async def _put(self, suffix: str, content: bytes, mime: str) -> None:
         # IfNoneMatch makes published records immutable, including duplicate submissions.

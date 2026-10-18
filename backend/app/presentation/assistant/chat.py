@@ -17,11 +17,11 @@ from app.application.assistant.contracts import (
     public_asset,
     request_fingerprint,
 )
+from app.application.assistant.provider_contract import AssistantProvider
 from app.core.assistant_config import AssistantSettings
 from app.domain.entities.entities import User
 from app.domain.exceptions.exceptions import AuthorizationError
 from app.infrastructure.assistant.limits import assistant_admission
-from app.infrastructure.assistant.provider import OpenAIAssistantProvider
 from app.infrastructure.assistant.store import AssistantStore
 from app.presentation.assistant.images import generate_assets
 from app.presentation.assistant.reads import DashboardReader, data_catalog, fresh_actor
@@ -153,7 +153,7 @@ async def chat_events(
     body: ChatRequest,
     settings: AssistantSettings,
     store: AssistantStore,
-    provider: OpenAIAssistantProvider,
+    provider: AssistantProvider,
 ) -> AsyncIterator[dict[str, Any]]:
     provider.require_ready()
     async with assistant_admission(user.id, operation="chat", limit=settings.daily_requests):
@@ -267,10 +267,11 @@ async def chat_events(
                         if name == "get_workspace_overview":
                             result = await reader.overview()
                         elif name == "list_dashboard_views":
-                            await fresh_actor(user)
+                            catalog_actor = await fresh_actor(user)
                             result = data_catalog(
                                 str(arguments.get("query", ""))[:120],
                                 offset=max(0, min(200, int(arguments.get("offset", 0)))),
+                                actor=catalog_actor,
                             )
                         elif name == "read_dashboard":
                             result = await reader.read(**arguments)
@@ -350,8 +351,8 @@ async def chat_events(
             "attachments": [
                 public_asset(await store.asset(identifier)) for identifier in body.attachment_ids
             ],
-            "model": "gpt-6-luna",
-            "reasoning_effort": "high",
+            "model": settings.model,
+            "reasoning_effort": settings.reasoning_effort,
             "fingerprint": request_fingerprint(body),
         }
         await store.save_turn(body.conversation_id, body.request_id, turn)

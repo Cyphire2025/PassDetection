@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import time
 from collections.abc import AsyncIterator
 from contextlib import suppress
 from typing import Any
@@ -15,13 +16,14 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.assistant.contracts import AssistantError, ChatRequest, SpeechRequest
-from app.core.assistant_config import get_assistant_settings
+from app.core.assistant_config import AssistantSettings
 from app.core.logging.logger import get_logger
 from app.domain.entities.entities import User, UserRole
 from app.infrastructure.assistant.attachments import MAX_UPLOAD, prepare_attachment
 from app.infrastructure.assistant.limits import assistant_admission
-from app.infrastructure.assistant.provider import OpenAIAssistantProvider
-from app.infrastructure.assistant.store import AssistantStore
+from app.infrastructure.assistant.provider_factory import assistant_provider
+from app.infrastructure.assistant.settings_store import load_snapshot, runtime_settings
+from app.infrastructure.assistant.store import account_scope, assistant_store
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.security.upload_security import UploadSecurityContext
 from app.presentation.assistant.cancellation import client_bound
@@ -43,27 +45,52 @@ def _http(exc: AssistantError) -> HTTPException:
 async def assistant_user(
     user: User = Depends(get_current_active_user), session: AsyncSession = Depends(get_db_session)
 ) -> User:
-    if user.role != UserRole.SUPER_ADMIN:
-        raise HTTPException(403, "The assistant is currently available to administrators only.")
+    if not (await load_snapshot(session)).allows(user):
+        raise HTTPException(403, "AI access is unavailable for this account. Contact your super administrator.")
     # Do not retain an auth transaction/connection while a model is thinking.
     await session.rollback()
     return user
 
 
+async def assistant_runtime(session: AsyncSession = Depends(get_db_session)) -> AssistantSettings:
+    try:
+        settings = await runtime_settings(session)
+        await session.rollback()
+        return settings
+    except AssistantError as exc:
+        raise _http(exc) from None
+
+
+@router.get("/availability")
+async def assistant_availability(response: Response,
+    user: User = Depends(get_current_active_user), session: AsyncSession = Depends(get_db_session),
+) -> dict[str, bool]:
+    response.headers.update(PRIVATE_HEADERS)
+    try:
+        snapshot = await load_snapshot(session)
+        return {"enabled": snapshot.configuration.enabled, "allowed": snapshot.allows(user)}
+    except AssistantError as exc:
+        raise _http(exc) from None
+
+
 @router.get("/status")
 async def assistant_status(
-    response: Response, user: User = Depends(assistant_user)
+    response: Response, user: User = Depends(assistant_user), settings: AssistantSettings = Depends(assistant_runtime),
 ) -> dict[str, Any]:
     response.headers.update(PRIVATE_HEADERS)
-    settings = get_assistant_settings()
     return {
         "configured": settings.configured,
         "speech_configured": settings.configured and bool(settings.speech_model),
         "model": settings.model,
-        "reasoning_effort": "high",
+        "reasoning_effort": settings.reasoning_effort,
+        "provider": settings.provider,
+        "native_voice": settings.provider == "gemini",
+        "settings_revision": settings.revision,
+        "can_manage_settings": user.role == UserRole.SUPER_ADMIN,
         "access": "read_only",
         "name": user.full_name,
         "account_id": str(user.id),
+        "account_scope": account_scope(user),
         "file_limit_bytes": MAX_UPLOAD,
         "attachment_limit": 4,
         "image_limit": 4,
@@ -91,7 +118,7 @@ async def conversations(
 ) -> dict[str, Any]:
     response.headers.update(PRIVATE_HEADERS)
     try:
-        return await AssistantStore(user.id).conversations(cursor)
+        return await assistant_store(user).conversations(cursor)
     except AssistantError as exc:
         raise _http(exc) from None
 
@@ -105,7 +132,7 @@ async def conversation(
 ) -> dict[str, Any]:
     response.headers.update(PRIVATE_HEADERS)
     try:
-        return await AssistantStore(user.id).turns(conversation_id, cursor)
+        return await assistant_store(user).turns(conversation_id, cursor)
     except AssistantError as exc:
         raise _http(exc) from None
 
@@ -118,14 +145,14 @@ async def assets(
 ) -> dict[str, Any]:
     response.headers.update(PRIVATE_HEADERS)
     try:
-        return await AssistantStore(user.id).assets(cursor)
+        return await assistant_store(user).assets(cursor)
     except AssistantError as exc:
         raise _http(exc) from None
 
 
 @router.get("/assets/{asset_id}/content")
 async def asset_content(asset_id: UUID, user: User = Depends(assistant_user)) -> Response:
-    store = AssistantStore(user.id)
+    store = assistant_store(user)
     try:
         record = await store.asset(asset_id)
         content = await store.content(asset_id)
@@ -165,7 +192,7 @@ async def upload_attachment(
                     agency_id=user.agency_id,
                 ),
             )
-            asset = await AssistantStore(user.id).save_asset(
+            asset = await assistant_store(user).save_asset(
                 content, name=name, mime=mime, kind="uploaded", text=text
             )
             return asset
@@ -175,7 +202,7 @@ async def upload_attachment(
         await file.close()
 
 
-async def _stream(events: AsyncIterator[dict[str, Any]], request: Request) -> AsyncIterator[str]:
+async def _stream(events: AsyncIterator[dict[str, Any]], request: Request, user: User | None = None) -> AsyncIterator[str]:
     queue: asyncio.Queue[dict[str, Any] | None] = asyncio.Queue(maxsize=12)
 
     async def produce() -> None:
@@ -211,8 +238,16 @@ async def _stream(events: AsyncIterator[dict[str, Any]], request: Request) -> As
                 await queue.put(None)
 
     task = asyncio.create_task(produce())
+    last_authorization = time.monotonic()
     try:
         while not await request.is_disconnected():
+            if user is not None and time.monotonic() - last_authorization >= 5:
+                try:
+                    await fresh_actor(user)
+                except AssistantError as exc:
+                    yield "event: assistant\ndata: " + json.dumps({"type": "error", "code": exc.code, "message": exc.message}) + "\n\n"
+                    return
+                last_authorization = time.monotonic()
             try:
                 event = await asyncio.wait_for(queue.get(), timeout=12)
             except TimeoutError:
@@ -240,22 +275,21 @@ async def _stream(events: AsyncIterator[dict[str, Any]], request: Request) -> As
     },
 )
 async def chat(
-    body: ChatRequest, request: Request, user: User = Depends(assistant_user)
+    body: ChatRequest, request: Request, user: User = Depends(assistant_user), settings: AssistantSettings = Depends(assistant_runtime),
 ) -> StreamingResponse:
-    settings = get_assistant_settings()
-    provider = OpenAIAssistantProvider(settings)
+    provider = assistant_provider(settings)
     try:
         provider.require_ready()
     except AssistantError as exc:
         raise _http(exc) from None
-    store = AssistantStore(user.id)
+    store = assistant_store(user)
     events = (
         image_events(request, user, body, settings, store, provider)
         if body.mode == "image"
         else chat_events(request, user, body, settings, store, provider)
     )
     return StreamingResponse(
-        _stream(events, request),
+        _stream(events, request, user),
         media_type="text/event-stream",
         headers={**PRIVATE_HEADERS, "X-Accel-Buffering": "no"},
     )
@@ -267,10 +301,10 @@ async def transcribe(
     response: Response,
     file: UploadFile = File(...),
     user: User = Depends(assistant_user),
+    settings: AssistantSettings = Depends(assistant_runtime),
 ) -> dict[str, str]:
     response.headers.update(PRIVATE_HEADERS)
-    settings = get_assistant_settings()
-    provider = OpenAIAssistantProvider(settings)
+    provider = assistant_provider(settings)
     try:
         provider.require_ready()
         async with assistant_admission(user.id, operation="speech", limit=300):
@@ -294,17 +328,16 @@ async def transcribe(
 
 @router.post("/speech", dependencies=[Depends(require_cookie_csrf)])
 async def speech(
-    body: SpeechRequest, request: Request, user: User = Depends(assistant_user)
+    body: SpeechRequest, request: Request, user: User = Depends(assistant_user), settings: AssistantSettings = Depends(assistant_runtime),
 ) -> Response:
-    settings = get_assistant_settings()
     try:
         async with assistant_admission(user.id, operation="speech", limit=300):
             await fresh_actor(user)
             content = await client_bound(
-                request, OpenAIAssistantProvider(settings).speak(body.text)
+                request, assistant_provider(settings).speak(body.text)
             )
             mime = (
-                "audio/wav" if settings.speech_model.startswith("gpt-realtime-") else "audio/mpeg"
+                "audio/wav" if settings.provider == "gemini" or settings.speech_model.startswith("gpt-realtime-") else "audio/mpeg"
             )
             return Response(content, media_type=mime, headers=PRIVATE_HEADERS)
     except AssistantError as exc:

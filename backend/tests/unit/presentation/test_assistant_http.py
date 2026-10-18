@@ -17,6 +17,7 @@ from app.core.assistant_config import AssistantSettings
 from app.core.config.settings import get_settings
 from app.domain.entities.entities import User, UserRole
 from app.infrastructure.assistant import attachments
+from app.infrastructure.assistant.settings_store import AssistantSnapshot
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.security.upload_security import UploadSecurityContext, UploadSecurityService
 from app.infrastructure.security.upload_validator import MalwareScannerUnavailableError
@@ -33,10 +34,9 @@ async def test_status_is_private_admin_only_and_chat_requires_configuration(monk
     app.dependency_overrides[get_current_active_user] = lambda: actor
     session = SimpleNamespace(rollback=AsyncMock())
     app.dependency_overrides[get_db_session] = lambda: session
-    monkeypatch.setattr(
-        ai_assistant,
-        "get_assistant_settings",
-        lambda: AssistantSettings(openai_api_key="", _env_file=None),
+    monkeypatch.setattr(ai_assistant, "load_snapshot", AsyncMock(return_value=AssistantSnapshot()))
+    app.dependency_overrides[ai_assistant.assistant_runtime] = lambda: AssistantSettings(
+        openai_api_key="", _env_file=None
     )
     async with httpx.AsyncClient(
         transport=httpx.ASGITransport(app=app), base_url="http://testserver"

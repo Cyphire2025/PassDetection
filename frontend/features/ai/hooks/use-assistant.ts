@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { assistantApi, assistantMessage } from "../api";
-import type { Asset, AssistantStatus, Message, StreamEvent, Turn } from "../types";
+import type { Asset, AssistantStatus, Message, NativeEvent, StreamEvent, Turn } from "../types";
 
 function turnMessages(turn: Turn): Message[] {
   return [{ id: `${turn.id}-user`, role: "user", text: turn.user, attachments: turn.attachments },
@@ -29,10 +29,11 @@ export function useAssistant(onAnswer: (text: string) => void, onImage: (image: 
   const refresh = useCallback(async (signal?: AbortSignal) => {
     try {
       const value = await assistantApi.status(signal, Boolean(account.current));
-      if (account.current && value.account_id && account.current !== value.account_id) {
+      const accountKey = value.account_id ? `${value.account_id}:${value.account_scope || "default"}` : null;
+      if (account.current && accountKey && account.current !== accountKey) {
         controller.current?.abort(); setMessages([]); setConversationId(null); setOlderCursor(null); historySequence.current++;
       }
-      account.current = value.account_id || null;
+      account.current = accountKey;
       setStatus(value); setAccess("ready");
       const live = await assistantApi.live(signal);
       setObservedAt(live.observed_at);
@@ -58,6 +59,39 @@ export function useAssistant(onAnswer: (text: string) => void, onImage: (image: 
   }, [refresh]);
 
   const stop = useCallback(() => { controller.current?.abort(); }, []);
+  const beginNative = useCallback(() => {
+    if (controller.current) return null;
+    const id = conversationId || crypto.randomUUID();
+    setConversationId(id); setError(""); return id;
+  }, [conversationId]);
+  const finishNative = useCallback(() => {
+    setMessages((current) => current.map((message) => message.streaming
+      ? { ...message, streaming: false, error: "Voice session ended before this reply finished. Reopen the conversation to check saved replies." }
+      : message));
+  }, []);
+  const receiveNative = useCallback((event: NativeEvent) => {
+    if (!("turn_id" in event)) return;
+    const id = event.turn_id;
+    if (event.type === "turn_complete") {
+      setMessages((current) => [...current.filter((item) => item.id !== id && item.id !== `${id}-user`), ...turnMessages(event.turn)]);
+      return;
+    }
+    if (event.type === "image") callbacks.current.onImage(event.image);
+    setMessages((current) => {
+      let next = current;
+      if (!next.some((item) => item.id === id)) next = [...next,
+        { id: `${id}-user`, role: "user", text: "" }, { id, role: "assistant", text: "", streaming: true }];
+      return next.map((message) => {
+        if (event.type === "input_transcript" && message.id === `${id}-user`) return { ...message, text: message.text + event.text };
+        if (message.id !== id) return message;
+        if (event.type === "text_delta") return { ...message, text: message.text + event.text };
+        if (event.type === "source") return { ...message, sources: [...message.sources || [], event.source] };
+        if (event.type === "image") return { ...message, images: [...message.images || [], event.image] };
+        if (event.type === "interrupted") return { ...message, streaming: false };
+        return message;
+      });
+    });
+  }, []);
   const send = useCallback(async (text: string, attachments: Asset[] = [], mode: "chat" | "image" = "chat", imageCount = 1) => {
     if (controller.current || !status?.configured || !text.trim()) return false;
     const abort = new AbortController(); controller.current = abort;
@@ -119,5 +153,5 @@ export function useAssistant(onAnswer: (text: string) => void, onImage: (image: 
   }, [conversationId, olderCursor, loadingHistory]);
 
   return { status, access, messages, busy, progress, error, setError, observedAt, conversationId,
-    send, stop, refresh, newConversation, openConversation, olderCursor, loadingHistory, loadEarlier };
+    send, stop, refresh, newConversation, openConversation, olderCursor, loadingHistory, loadEarlier, beginNative, receiveNative, finishNative };
 }

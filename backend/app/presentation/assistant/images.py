@@ -7,11 +7,11 @@ from typing import Any
 from fastapi import Request
 
 from app.application.assistant.contracts import AssistantError, ChatRequest, request_fingerprint
+from app.application.assistant.provider_contract import AssistantProvider
 from app.core.assistant_config import AssistantSettings
 from app.domain.entities.entities import User
 from app.infrastructure.assistant.attachments import prepare_attachment
 from app.infrastructure.assistant.limits import assistant_admission, reserve_images
-from app.infrastructure.assistant.provider import OpenAIAssistantProvider
 from app.infrastructure.assistant.store import AssistantStore
 from app.infrastructure.security.upload_security import UploadSecurityContext
 from app.presentation.assistant.reads import fresh_actor
@@ -23,7 +23,7 @@ async def generate_assets(
     count: int,
     settings: AssistantSettings,
     store: AssistantStore,
-    provider: OpenAIAssistantProvider,
+    provider: AssistantProvider,
 ) -> AsyncIterator[dict[str, Any]]:
     await reserve_images(user.id, count=count, limit=settings.daily_images)
     generated = await provider.images(prompt, count)
@@ -46,7 +46,7 @@ async def image_events(
     body: ChatRequest,
     settings: AssistantSettings,
     store: AssistantStore,
-    provider: OpenAIAssistantProvider,
+    provider: AssistantProvider,
 ) -> AsyncIterator[dict[str, Any]]:
     provider.require_ready()
     if body.attachment_ids:

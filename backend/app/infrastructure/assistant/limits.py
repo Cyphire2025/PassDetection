@@ -22,10 +22,11 @@ redis.call('ZREMRANGEBYSCORE', KEYS[3], '-inf', now)
 if redis.call('GET', KEYS[1]) then return -1 end
 if redis.call('ZCARD', KEYS[3]) >= 3 then return -3 end
 local count = tonumber(redis.call('GET', KEYS[2]) or '0')
+local lease = tonumber(ARGV[3] or '240')
 if count >= tonumber(ARGV[2]) then return -2 end
-redis.call('SET', KEYS[1], ARGV[1], 'EX', 240)
-redis.call('ZADD', KEYS[3], now + 240, ARGV[1])
-redis.call('EXPIRE', KEYS[3], 300)
+redis.call('SET', KEYS[1], ARGV[1], 'EX', lease)
+redis.call('ZADD', KEYS[3], now + lease, ARGV[1])
+if redis.call('TTL', KEYS[3]) < lease + 60 then redis.call('EXPIRE', KEYS[3], lease + 60) end
 redis.call('INCR', KEYS[2]); redis.call('EXPIRE', KEYS[2], 90000)
 return count + 1
 """
@@ -87,13 +88,15 @@ async def reserve_images(user_id: UUID, *, count: int, limit: int) -> None:
 
 
 @asynccontextmanager
-async def assistant_admission(user_id: UUID, *, operation: str, limit: int) -> AsyncIterator[None]:
+async def assistant_admission(user_id: UUID, *, operation: str, limit: int, timeout_seconds: int = 210) -> AsyncIterator[None]:
+    if not 1 <= timeout_seconds <= 600:
+        raise ValueError("Assistant operation timeout must be bounded to ten minutes")
     redis = _redis()
     token = str(uuid4())
     lock = f"assistant:v1:active:{user_id}"
     try:
         result = await _eval(
-            redis, ADMIT, [lock, _daily_key(user_id, operation), ACTIVE_KEY], [token, str(limit)]
+            redis, ADMIT, [lock, _daily_key(user_id, operation), ACTIVE_KEY], [token, str(limit), str(timeout_seconds + 30)]
         )
     except Exception:
         await redis.aclose()
@@ -112,7 +115,7 @@ async def assistant_admission(user_id: UUID, *, operation: str, limit: int) -> A
         }[result]
         raise AssistantError(code, message, 429)
     try:
-        async with asyncio.timeout(210):
+        async with asyncio.timeout(timeout_seconds):
             yield
     finally:
         try:

@@ -15,9 +15,12 @@ from sqlalchemy import select
 
 from app.application.assistant.contracts import AssistantError
 from app.application.mcp.read_projection import ReadProjection
+from app.application.security.access_level_actor import actual_user_agency_id, actual_user_role
+from app.application.security.authorization_policy import AuthorizationPolicy
 from app.core.config.settings import get_settings
 from app.domain.entities.entities import User, UserRole
 from app.domain.mcp_dashboard_reads import DASHBOARD_READS
+from app.infrastructure.assistant.settings_store import load_snapshot
 from app.infrastructure.database.models import (
     AgencyModel,
     AttendanceSessionModel,
@@ -28,6 +31,7 @@ from app.infrastructure.database.models import (
 )
 from app.infrastructure.database.session import AsyncSessionFactory
 from app.infrastructure.repositories.user_repository import UserRepository
+from app.presentation.assistant.read_scope import view_allowed
 from app.presentation.mcp.dashboard_read_tools import (
     dashboard_handler,
     dashboard_parameters,
@@ -39,29 +43,26 @@ from app.presentation.mcp.observational_session import observational_session
 async def fresh_actor(user: User) -> User:
     async with AsyncSessionFactory() as session:
         actor = await UserRepository(session).get_by_id(user.id)
-    if (
-        actor is None
-        or not actor.is_active
-        or actor.role != UserRole.SUPER_ADMIN
-        or user.role != UserRole.SUPER_ADMIN
-        or actor.session_version != user.session_version
-    ):
-        raise AssistantError(
-            "access_denied", "Sign in with your administrator account to use the assistant.", 403
-        )
-    return actor
+        if (actor is None or not actor.is_active or actor.credential_state != "active" or actor.role != actual_user_role(user)
+            or actor.agency_id != actual_user_agency_id(user) or actor.session_version != user.session_version):
+            raise AssistantError("access_denied", "Your AI access changed. Sign in again.", 403)
+        effective = replace(actor, role=user.role, agency_id=user.agency_id,
+                            actual_role=user.actual_role, actual_agency_id=user.actual_agency_id)
+        if not (await load_snapshot(session)).allows(effective):
+            raise AssistantError("access_denied", "AI access is unavailable for this account.", 403)
+        return effective
 
 
-def data_catalog(query: str = "", *, offset: int = 0) -> dict[str, Any]:
+def data_catalog(query: str = "", *, offset: int = 0, actor: User | None = None) -> dict[str, Any]:
     terms = query.casefold().split()[:8]
     views = [
         (name, definition)
         for name, definition in DASHBOARD_READS.items()
-        if not terms
+        if view_allowed(actor, name) and (not terms
         or any(
             term in f"{name} {definition.description} {' '.join(definition.sections)}".casefold()
             for term in terms
-        )
+        ))
     ]
     selected = views[offset : offset + 8]
     return {
@@ -87,9 +88,10 @@ class DashboardReader:
         actor = await fresh_actor(self.user)
         async with AsyncSessionFactory() as session:
             async with observational_session(session):
-                agencies = (
-                    await session.execute(select(AgencyModel.id, AgencyModel.name).limit(100))
-                ).all()
+                statement = select(AgencyModel.id, AgencyModel.name)
+                if actor.role != UserRole.SUPER_ADMIN:
+                    statement = statement.where(AgencyModel.id == actor.agency_id)
+                agencies = (await session.execute(statement.limit(100))).all()
         return {
             "agencies": [{"id": str(row.id), "name": row.name} for row in agencies],
             "account": actor.full_name,
@@ -112,10 +114,14 @@ class DashboardReader:
         if definition is None:
             raise AssistantError("unknown_view", "Choose a documented dashboard view.", 422)
         actor = await fresh_actor(self.user)
+        if not view_allowed(actor, view):
+            raise AssistantError("view_denied", "This view is outside your dashboard access.", 403)
         arguments = validate_dashboard_parameters(definition, parameters)
         selected_agency = (
             UUID(agency_id) if agency_id else arguments.get("agency_id") or actor.agency_id
         )
+        if actor.role != UserRole.SUPER_ADMIN and selected_agency != actor.agency_id:
+            raise AssistantError("scope_mismatch", "Choose a record from your own agency.", 403)
         async with AsyncSessionFactory() as session:
             if definition.group_parameter and arguments.get(definition.group_parameter) is not None:
                 group = await session.get(ClientGroupModel, arguments[definition.group_parameter])
@@ -128,6 +134,7 @@ class DashboardReader:
                         "scope_mismatch", "This group is unavailable in the selected agency.", 422
                     )
                 selected_agency = group.agency_id
+                await AuthorizationPolicy(session).require_view_group(actor, group)
             resource_model = (
                 PassportSubmissionModel
                 if view.startswith("passport_") and "submission_id" in arguments
@@ -168,6 +175,9 @@ class DashboardReader:
                         "scope_mismatch", "This record is unavailable in the selected agency.", 422
                     )
                 selected_agency = resource_agency
+                if resource_model is PassportSubmissionModel:
+                    passport = await session.get(PassportSubmissionModel, arguments["submission_id"])
+                    await AuthorizationPolicy(session).require_view_passport(actor, passport)
             if selected_agency is not None:
                 agency = await session.get(AgencyModel, selected_agency)
                 if agency is None:

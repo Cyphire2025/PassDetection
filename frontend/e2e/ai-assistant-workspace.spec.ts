@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { syntheticMicrophone } from "./support/ai-voice-fixtures";
+import { assistantAuth } from "./support/assistant-auth";
 
 const timestamp = "2026-10-18T00:00:00Z";
 const conversationId = "b6c548e0-6e77-4d1b-b107-6799b9d31201";
@@ -22,6 +23,7 @@ function wave() {
 }
 
 async function workspace(page: Page, speech = false) {
+  await assistantAuth(page);
   await page.route("**/api/v1/ai-assistant/**", async (route) => {
     const path = new URL(route.request().url()).pathname;
     if (path.endsWith("/status")) return route.fulfill({ json: { configured: true, speech_configured: speech, model: "gpt-6-luna", reasoning_effort: "high", access: "read_only", name: "Synthetic administrator" } });
@@ -73,7 +75,7 @@ test("typed questions, file attachments, source labels and saved history work to
   await page.route("**/api/v1/ai-assistant/status", (route) => route.fulfill({ status: 403, json: { detail: "Access revoked" } }));
   await page.evaluate(() => document.dispatchEvent(new Event("visibilitychange")));
   await expect(page.getByRole("region", { name: "Conversation", exact: true })).not.toBeAttached();
-  await expect(page.getByText("Administrator access is needed for this workspace.")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "AI access is unavailable" })).toBeVisible();
   expect(errors).toEqual([]);
 });
 
@@ -120,33 +122,21 @@ test("spoken output drives the actual playback analyser and can be interrupted",
 });
 
 test("denied administrator access keeps company information and uploads unavailable", async ({ page }) => {
+  await assistantAuth(page);
   await page.route("**/api/v1/ai-assistant/status", (route) => route.fulfill({ status: 403, json: { detail: "Administrator access required" } }));
   await page.goto("/ai");
-  await expect(page.getByText("Administrator access is needed for this workspace.")).toBeVisible();
-  await page.getByRole("textbox", { name: "Message Global Connects" }).fill("Show passenger data");
-  await expect(page.getByRole("button", { name: "Send message" })).toBeDisabled();
-  await page.getByRole("button", { name: "Add files or create images" }).click();
-  await expect(page.getByRole("button", { name: /Add files.*PDF/ })).toBeDisabled();
-  await page.keyboard.press("Escape");
-  await page.getByRole("button", { name: "Open library" }).click();
-  await expect(page.getByRole("link", { name: "Sign in to Global Connects" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "AI access is unavailable" })).toBeVisible();
+  await expect(page.getByRole("textbox", { name: "Message Global Connects" })).not.toBeAttached();
+  await expect(page.getByRole("button", { name: "Open library" })).not.toBeAttached();
 });
 
-test("anonymous visitors keep the local voice preview without staff session refresh or navigation", async ({ page }) => {
+test("anonymous visitors are sent to sign in before the private AI page mounts", async ({ page }) => {
   const refreshes: string[] = [];
   page.on("request", (request) => { if (request.url().includes("/auth/refresh")) refreshes.push(request.url()); });
   await page.route("**/api/v1/ai-assistant/status", (route) => route.fulfill({ status: 401, json: { detail: "Authentication required" } }));
-  await syntheticMicrophone(page);
   await page.goto("/ai");
-  await expect(page.getByText("Sign in to ask about your Global Connects workspace.")).toBeVisible();
-  await expect(page.getByRole("link", { name: "Sign in", exact: true })).toHaveAttribute("href", "/session-restore?from=%2Fai");
-  await page.getByRole("button", { name: "Start microphone" }).click();
-  await expect(page.getByRole("button", { name: "Finish voice message" })).toBeVisible();
-  await page.keyboard.press("Escape");
-  await expect(page.getByRole("button", { name: "Start microphone" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Send message" })).toBeDisabled();
-  expect(new URL(page.url()).pathname).toBe("/ai");
-  expect(refreshes).toEqual([]);
+  await expect(page).toHaveURL(/(session-restore|login)/);
+  await expect(page.getByRole("button", { name: "Start microphone" })).not.toBeAttached();
 });
 
 test("a spoken question is transcribed, answered in chat, and microphone cancellation discards audio", async ({ page }) => {

@@ -20,6 +20,7 @@ export function useAssistantAudio(onTranscript: (text: string) => void) {
   const speechRequest = useRef<AbortController | null>(null);
   const transcriptRequest = useRef<AbortController | null>(null);
   const recordingState = useRef<{ discarded: boolean } | null>(null);
+  const continuousInput = useRef(false);
   const mounted = useRef(true);
   const transcript = useRef(onTranscript);
   const { stop: stopMicrophone, start: startMicrophone, getStream, clearError: clearMicrophoneError } = microphone;
@@ -101,7 +102,8 @@ export function useAssistantAudio(onTranscript: (text: string) => void) {
     stopMicrophone();
   }, [stopMicrophone]);
 
-  const startInput = useCallback(async (connected: boolean) => {
+  const startInput = useCallback(async (connected: boolean, continuous = false) => {
+    continuousInput.current = continuous;
     stopPlayback(); warmAudio(); setError("");
     await startMicrophone();
     const stream = getStream();
@@ -129,7 +131,7 @@ export function useAssistantAudio(onTranscript: (text: string) => void) {
   }, [startMicrophone, getStream, stopMicrophone, stopInput, stopPlayback, warmAudio]);
 
   useEffect(() => {
-    if (microphone.status !== "listening") return;
+    if (microphone.status !== "listening" || continuousInput.current) return;
     let frame = 0; const started = performance.now(); let lastSpeech = started; let heard = false;
     const inspect = () => {
       const now = performance.now();

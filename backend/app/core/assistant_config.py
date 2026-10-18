@@ -12,14 +12,18 @@ class AssistantSettings(BaseSettings):
 
     # Deliberately do not inherit credentials belonging to other application features.
     openai_api_key: SecretStr = SecretStr("")
-    model: Literal["gpt-6-luna"] = "gpt-6-luna"
-    reasoning_effort: Literal["high"] = "high"
+    gemini_api_key: SecretStr = SecretStr("")
+    provider: Literal["openai", "gemini"] = "openai"
+    revision: int = 0
+    model: str = "gpt-6-luna"
+    reasoning_effort: Literal["low", "medium", "high"] = "high"
+    live_model: str = "gemini-3.8-live"
     speech_model: Literal[
-        "", "gpt-realtime-2.1-mini", "gpt-realtime-2.1", "gpt-4o-mini-tts", "tts-1", "tts-1-hd"
+        "", "gpt-realtime-2.1-mini", "gpt-realtime-2.1", "gpt-4o-mini-tts", "tts-1", "tts-1-hd", "gemini-3.1-flash-tts-preview"
     ] = ""
     transcription_model: Literal["gpt-transcribe", "gpt-4o-mini-transcribe"] = "gpt-transcribe"
-    voice: Literal["marin", "cedar", "alloy", "coral", "sage"] = "marin"
-    image_model: Literal["gpt-image-2.5-flare", "gpt-image-2", "gpt-image-1.5"] = (
+    voice: str = "marin"
+    image_model: str = (
         "gpt-image-2.5-flare"
     )
     max_output_tokens: int = Field(default=8192, ge=1024, le=16384)
@@ -29,7 +33,8 @@ class AssistantSettings(BaseSettings):
 
     @property
     def configured(self) -> bool:
-        return bool(self.openai_api_key.get_secret_value().strip())
+        key = self.gemini_api_key if self.provider == "gemini" else self.openai_api_key
+        return bool(key.get_secret_value().strip())
 
 
 @lru_cache(maxsize=1)
