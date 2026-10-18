@@ -17,5 +17,6 @@ export type NativeEvent =
   | { type: "source"; source: Source; turn_id: string }
   | { type: "image"; image: Asset; turn_id: string }
   | { type: "interrupted"; turn_id: string }
+  | { type: "answer_reset"; turn_id: string }
   | { type: "turn_complete"; turn: Turn; turn_id: string }
   | { type: "error"; code: string; message: string };

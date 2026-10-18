@@ -19,8 +19,8 @@ from app.application.security.access_level_actor import actual_user_agency_id, a
 from app.application.security.authorization_policy import AuthorizationPolicy
 from app.core.config.settings import get_settings
 from app.domain.entities.entities import User, UserRole
-from app.domain.mcp_dashboard_reads import DASHBOARD_READS
 from app.infrastructure.assistant.settings_store import load_snapshot
+from app.infrastructure.database.gc_mobile_models import ClientOrganizationModel
 from app.infrastructure.database.models import (
     AgencyModel,
     AttendanceSessionModel,
@@ -31,12 +31,16 @@ from app.infrastructure.database.models import (
 )
 from app.infrastructure.database.session import AsyncSessionFactory
 from app.infrastructure.repositories.user_repository import UserRepository
-from app.presentation.assistant.read_scope import view_allowed
-from app.presentation.mcp.dashboard_read_tools import (
+from app.presentation.assistant.catalog import (
+    ASSISTANT_READS,
+    capability_guide,
     dashboard_handler,
-    dashboard_parameters,
     validate_dashboard_parameters,
 )
+from app.presentation.assistant.catalog import (
+    data_catalog as data_catalog,
+)
+from app.presentation.assistant.read_scope import view_allowed
 from app.presentation.mcp.observational_session import observational_session
 
 
@@ -51,32 +55,6 @@ async def fresh_actor(user: User) -> User:
         if not (await load_snapshot(session)).allows(effective):
             raise AssistantError("access_denied", "AI access is unavailable for this account.", 403)
         return effective
-
-
-def data_catalog(query: str = "", *, offset: int = 0, actor: User | None = None) -> dict[str, Any]:
-    terms = query.casefold().split()[:8]
-    views = [
-        (name, definition)
-        for name, definition in DASHBOARD_READS.items()
-        if view_allowed(actor, name) and (not terms
-        or any(
-            term in f"{name} {definition.description} {' '.join(definition.sections)}".casefold()
-            for term in terms
-        ))
-    ]
-    selected = views[offset : offset + 8]
-    return {
-        "views": [
-            {
-                "name": name,
-                "description": definition.description,
-                "parameters": dashboard_parameters(definition),
-            }
-            for name, definition in selected
-        ],
-        "has_more": len(views) > offset + 8,
-        "next_offset": offset + 8 if len(views) > offset + 8 else None,
-    }
 
 
 class DashboardReader:
@@ -97,6 +75,7 @@ class DashboardReader:
             "account": actor.full_name,
             "observed_at": datetime.now(UTC).isoformat(),
             "access": "read_only",
+            "capabilities": capability_guide(actor),
             "possibly_more_agencies": len(agencies) == 100,
             "notice": "Choose the relevant agency and discover a view before querying. At most 100 agencies are shown. Results are current at the observation time.",
         }
@@ -110,7 +89,7 @@ class DashboardReader:
         data_path: list[str | int] | None = None,
         cursor: str | None = None,
     ) -> dict[str, Any]:
-        definition = DASHBOARD_READS.get(view)
+        definition = ASSISTANT_READS.get(view)
         if definition is None:
             raise AssistantError("unknown_view", "Choose a documented dashboard view.", 422)
         actor = await fresh_actor(self.user)
@@ -122,6 +101,8 @@ class DashboardReader:
         )
         if actor.role != UserRole.SUPER_ADMIN and selected_agency != actor.agency_id:
             raise AssistantError("scope_mismatch", "Choose a record from your own agency.", 403)
+        if view in {"dashboard_summary", "companies"} and selected_agency is None:
+            raise AssistantError("agency_required", "Discover agencies with get_workspace_overview and select agency_id for this read.", 422)
         async with AsyncSessionFactory() as session:
             if definition.group_parameter and arguments.get(definition.group_parameter) is not None:
                 group = await session.get(ClientGroupModel, arguments[definition.group_parameter])
@@ -138,6 +119,8 @@ class DashboardReader:
             resource_model = (
                 PassportSubmissionModel
                 if view.startswith("passport_") and "submission_id" in arguments
+                else ClientOrganizationModel
+                if view in {"company_summary", "company_groups"}
                 else RoomingHotelModel
                 if view == "hotel_checkins"
                 else AttendanceSessionModel
@@ -157,6 +140,8 @@ class DashboardReader:
                 key = (
                     "submission_id"
                     if resource_model is PassportSubmissionModel
+                    else "company_id"
+                    if resource_model is ClientOrganizationModel
                     else "hotel_id"
                     if resource_model is RoomingHotelModel
                     else "session_id"
@@ -244,6 +229,8 @@ class DashboardReader:
                     "total_pages",
                     "total",
                     "total_count",
+                    "group_total",
+                    "returned_count",
                     "incomplete",
                     "truncated",
                 )

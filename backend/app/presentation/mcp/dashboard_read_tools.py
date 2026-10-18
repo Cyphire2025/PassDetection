@@ -88,8 +88,8 @@ def dashboard_handler(definition: DashboardRead) -> Callable[..., Awaitable[Any]
     return cast(Callable[..., Awaitable[Any]], getattr(load_module(), name))
 
 
-def dashboard_parameters(definition: DashboardRead) -> dict[str, Any]:
-    function = dashboard_handler(definition)
+def dashboard_parameters(definition: DashboardRead, *, handler: Callable[..., Awaitable[Any]] | None = None) -> dict[str, Any]:
+    function = handler or dashboard_handler(definition)
     hints = get_type_hints(function, include_extras=True)
     properties, required = {}, []
     for name, parameter in inspect.signature(function).parameters.items():
@@ -110,10 +110,10 @@ def dashboard_parameters(definition: DashboardRead) -> dict[str, Any]:
     return {"type": "object", "properties": properties, "required": required, "additionalProperties": False}
 
 
-def validate_dashboard_parameters(definition: DashboardRead, parameters: dict[str, Any]) -> dict[str, Any]:
+def validate_dashboard_parameters(definition: DashboardRead, parameters: dict[str, Any], *, handler: Callable[..., Awaitable[Any]] | None = None) -> dict[str, Any]:
     if len(parameters) > 30 or len(json.dumps(parameters, default=str)) > 16000:
         raise ValueError("Dashboard parameters exceed the input limit")
-    function = dashboard_handler(definition)
+    function = handler or dashboard_handler(definition)
     signature = inspect.signature(function)
     if set(parameters) - (set(signature.parameters) - INJECTED):
         raise ValueError("Use only the documented dashboard view parameters")

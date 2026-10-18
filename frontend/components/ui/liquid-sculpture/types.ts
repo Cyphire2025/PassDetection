@@ -1,5 +1,6 @@
 export type Rect = { x: number; y: number; w: number; h: number }
 export type SculpturePresentation = { phase: "idle" | "listening" | "thinking" | "speaking"; reply: boolean; reveal: number; revealWidth: number; revealHeight: number }
+export type SculptureHandle = { invalidate: () => void }
 
 export interface EngineOptions {
   interactive: boolean

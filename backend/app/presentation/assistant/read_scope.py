@@ -23,6 +23,7 @@ OFFICE_VIEWS = frozenset(
         "tour_passengers",
         "personal_notifications",
         "global_search",
+        "dashboard_summary",
     }
 )
 

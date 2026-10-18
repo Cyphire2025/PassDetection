@@ -45,6 +45,8 @@ export class LiquidEngine {
   /** Audio is sampled locally; the render loop reads a ref without React updates. */
   readVoiceLevel: (() => number) | null = null
   readPresentation: (() => SculpturePresentation | null) | null = null
+  /** Reveal progress also repaints when reduced motion has stopped the loop. */
+  renderPresentation = () => { if (this.opts.reducedMotion) this.draw() }
   private replyBlend = 0
   private darkBlend = 0
   private voiceEnvelope = 0
@@ -712,6 +714,7 @@ export class LiquidEngine {
     gl.uniform1f(P.u.uIntroVis, introVis)
     gl.uniform1f(P.u.uRest, Math.max(rest, reveal))
     gl.uniform1f(P.u.uReply, this.replyBlend)
+    gl.uniform1f(P.u.uDark, this.darkBlend)
     gl.uniform1f(P.u.uReveal, reveal)
     gl.uniform2f(P.u.uRevealSize, revealWidth, revealHeight)
     gl.uniform1f(P.u.uDpr, dpr)

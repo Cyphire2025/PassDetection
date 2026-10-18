@@ -7,6 +7,7 @@ import base64
 import hashlib
 import json
 import re
+import wave
 from collections.abc import Awaitable, Callable
 from datetime import UTC, datetime
 from typing import Any
@@ -20,8 +21,19 @@ from app.domain.entities.entities import User
 from app.domain.exceptions.exceptions import AuthorizationError
 from app.infrastructure.assistant.gemini_provider import GeminiAssistantProvider
 from app.infrastructure.assistant.store import AssistantStore
-from app.presentation.assistant.chat import INSTRUCTIONS, TOOLS, _function, attachment_inputs
+from app.presentation.assistant.chat import (
+    TOOLS,
+    _function,
+    account_instructions,
+    attachment_inputs,
+)
 from app.presentation.assistant.images import generate_assets
+from app.presentation.assistant.native_recovery import (
+    pending_access_disclaimer,
+    recover_answer,
+    recoverable_access_disclaimer,
+    recovery_speech,
+)
 from app.presentation.assistant.read_tools import run_read_tool
 from app.presentation.assistant.reads import DashboardReader, fresh_actor
 
@@ -59,6 +71,12 @@ class NativeSession:
         self.audio_bytes = 0
         self.turns = 0
         self.images_requested = False
+        self.recoveries = 0
+        self.recovery_on_turn = False
+        self.recovering = False
+        self.recovery_done = asyncio.Event()
+        self.recovery_done.set()
+        self.pending_reply: list[dict[str, Any]] = []
 
     async def context(self) -> tuple[str, list[dict[str, Any]]]:
         await self.store.create_conversation(self.conversation_id, "Voice conversation")
@@ -90,7 +108,7 @@ class NativeSession:
             for identifier in self.attachment_ids
         ]
         instructions = (
-            INSTRUCTIONS
+            account_instructions(self.user)
             + "\nThis is a native audio conversation. Reply naturally by speaking in the user's language. Do not require the user to submit a transcript. Text transcriptions are captions only. Wait for a user question before speaking. Use blocking dashboard tools before stating business facts.\n"
         )
         instructions += (
@@ -114,7 +132,22 @@ class NativeSession:
             length = len(self.output)
         if length > (8000 if kind == "input_transcript" else 32000):
             raise AssistantError("voice_limit", "Please continue with a shorter question.", 413)
-        await self.send({"type": kind, "text": text, "turn_id": str(self.turn_id)})
+        event = {"type": kind, "text": text, "turn_id": str(self.turn_id)}
+        if kind == "input_transcript":
+            await self.send(event)
+        else:
+            await self.reply_event(event)
+
+    async def reply_event(self, event: dict[str, Any]) -> None:
+        if self.recoveries < 4 and pending_access_disclaimer(self.input, self.output):
+            if len(json.dumps(self.pending_reply)) + len(json.dumps(event)) > 1024 * 1024:
+                raise AssistantError("response_limit", "The voice response exceeded its buffer limit.", 413)
+            self.pending_reply.append(event)
+            return
+        for pending in self.pending_reply:
+            await self.send(pending)
+        self.pending_reply.clear()
+        await self.send(event)
 
     async def consume(self, message: dict[str, Any]) -> list[dict[str, Any]]:
         if message.get("error"):
@@ -150,7 +183,7 @@ class NativeSession:
                     raise AssistantError(
                         "voice_limit", "This voice session reached its audio limit.", 413
                     )
-                await self.send(
+                await self.reply_event(
                     {
                         "type": "audio",
                         "data": inline["data"],
@@ -166,7 +199,20 @@ class NativeSession:
         return [dict(call) for call in calls]
 
     async def finish(self, *, interrupted: bool = False) -> None:
+        try:
+            await self.finish_turn(interrupted=interrupted)
+        finally:
+            self.recovering = False
+            self.recovery_done.set()
+
+    async def finish_turn(self, *, interrupted: bool = False) -> None:
         await fresh_actor(self.user)
+        if not interrupted and self.recoveries < 4 and recoverable_access_disclaimer(self.input, self.output):
+            await self.recover_reply()
+        elif not interrupted:
+            for pending in self.pending_reply:
+                await self.send(pending)
+        self.pending_reply.clear()
         self.turns += 1
         if self.turns > 40:
             raise AssistantError("session_limit", "Start another voice session to continue.", 429)
@@ -182,6 +228,7 @@ class NativeSession:
             "attachment_ids": [str(value) for value in self.attachment_ids],
             "model": self.settings.live_model,
             "reasoning_effort": "native",
+            "recovery_model": self.settings.model if self.recovery_on_turn else None,
             "interrupted": interrupted,
             "fingerprint": hashlib.sha256(str(self.turn_id).encode()).hexdigest(),
         }
@@ -189,6 +236,46 @@ class NativeSession:
         await self.send({"type": "turn_complete", "turn": turn, "turn_id": str(self.turn_id)})
         self.turn_id, self.input, self.output = uuid4(), "", ""
         self.sources, self.images, self.images_requested = [], [], False
+        self.recovery_on_turn = False
+
+    async def recover_reply(self) -> None:
+        self.recoveries += 1
+        self.recovery_on_turn = True
+        self.recovering = True
+        self.recovery_done.clear()
+        original = self.output
+        self.pending_reply.clear()
+        await self.send({"type": "answer_reset", "turn_id": str(self.turn_id)})
+        await self.send({"type": "status", "phase": "thinking"})
+        try:
+            try:
+                answer = await recover_answer(self)
+                await fresh_actor(self.user)
+            except AssistantError as exc:
+                if exc.status == 403:
+                    raise
+                answer = "I couldn't complete this dashboard lookup. Please try the question in the message box."
+            except (TimeoutError, ValueError, TypeError):
+                answer = "I couldn't complete this dashboard lookup. Please try the question in the message box."
+            self.output = answer or original
+            await self.send({"type": "text_delta", "text": self.output, "turn_id": str(self.turn_id)})
+            try:
+                pcm = await recovery_speech(self, self.output)
+                await fresh_actor(self.user)
+                self.audio_bytes += len(pcm)
+                if self.audio_bytes > 32 * 1024 * 1024:
+                    raise AssistantError("voice_limit", "This voice session reached its audio limit.", 413)
+                for offset in range(0, len(pcm), 48000):
+                    await self.send({"type": "audio", "data": base64.b64encode(pcm[offset:offset + 48000]).decode(),
+                        "sample_rate": 24000, "turn_id": str(self.turn_id)})
+            except AssistantError as exc:
+                if exc.status == 403:
+                    raise
+                self.output += "\n\nSpoken playback was unavailable. The text answer is saved here."
+            except (TimeoutError, ValueError, EOFError, wave.Error):
+                self.output += "\n\nSpoken playback was unavailable. The text answer is saved here."
+        finally:
+            self.pending_reply.clear()
 
     async def tool_calls(self, calls: list[dict[str, Any]]) -> list[dict[str, Any]]:
         if not isinstance(calls, list) or len(calls) > 3 or self.calls + len(calls) > 32:

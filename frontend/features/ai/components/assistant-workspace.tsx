@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { LiquidSculptureHero } from "@/components/ui/liquid-sculpture-hero";
+import type { SculptureHandle } from "@/components/ui/liquid-sculpture/types";
 import { useAssistant } from "../hooks/use-assistant";
 import { useAssistantAudio } from "../hooks/use-assistant-audio";
 import { useNativeVoice } from "../hooks/use-native-voice";
@@ -54,6 +55,8 @@ export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
   const phase = nativeSession ? native.speaking ? "speaking" : native.thinking || native.connecting ? "thinking" : "listening"
     : listening ? "listening" : audio.speaking ? "speaking" : assistant.busy || audio.transcribing || audio.preparing ? "thinking" : "idle";
   const presentation = useRef<VisualState>({ phase: "idle", reply: false, reveal: 0, revealWidth: 600, revealHeight: 370 });
+  const sculpture = useRef<SculptureHandle>(null);
+  const renderReveal = useCallback(() => sculpture.current?.invalidate(), []);
   const level = useRef(0);
   const voiceControl = useRef<HTMLDivElement>(null);
   useEffect(() => { speechAllowed.current = Boolean(assistant.status?.speech_configured); }, [assistant.status?.speech_configured]);
@@ -114,7 +117,7 @@ export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
     {signedIn ? <>
       <div className={styles.mainArea}>
         <section className={styles.visualArea} aria-label="Voice-reactive particle sculpture">
-          <div className={styles.sculptureStage} data-testid="assistant-stage"><LiquidSculptureHero levelRef={level} presentationRef={presentation} dark={dark} /><ImageReveal asset={activeImage} images={images} presentationRef={presentation} onSelect={setActiveImage} onClosed={closeImage} /></div>
+          <div className={styles.sculptureStage} data-testid="assistant-stage"><LiquidSculptureHero ref={sculpture} levelRef={level} presentationRef={presentation} dark={dark} /><ImageReveal asset={activeImage} images={images} presentationRef={presentation} onSelect={setActiveImage} onClosed={closeImage} onProgress={renderReveal} /></div>
           <div className={styles.voiceStatus} ref={voiceControl} data-listening={listening && !speaking} data-testid="assistant-voice-status">
             <button type="button" className={styles.voiceButton} onClick={() => void microphone()} disabled={assistant.busy || audio.transcribing} aria-label={nativeSession ? "End voice conversation" : requesting ? "Cancel microphone request" : listening ? "Finish voice message" : "Start microphone"} aria-pressed={listening || requesting || nativeSession}>
               {requesting || native.connecting || audio.transcribing ? <Loader2 size={20} className={styles.spinner} /> : listening || nativeSession ? <Square size={17} fill="currentColor" /> : <Mic size={23} strokeWidth={1.5} />}
@@ -127,7 +130,7 @@ export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
       </div>
       <div className={styles.composerDock}>
         {error ? <div className={styles.errorNotice} role="alert"><span>{error}</span><button type="button" onClick={() => { assistant.setError(""); audio.clearError(); native.clearError(); }} aria-label="Dismiss notice"><X size={13} /></button></div> : null}
-        <AssistantComposer key={accountKey} ready={ready} busy={assistant.busy || native.connecting} voiceActive={nativeSession} text={draft} onTextChange={setDraft} onSubmit={(text, files, mode, count) => { if (native.active && mode === "chat") native.sendText(text); else if (nativeSession) native.sendText("Create " + count + " image(s): " + text); else void assistant.send(text, files, mode, count); }} onStop={stopEverything} onWarmAudio={audio.warmAudio} onError={assistant.setError} onAttachmentsChange={setVoiceFiles} />
+        <AssistantComposer key={accountKey} ready={ready} busy={assistant.busy || native.connecting || native.recovering} voiceActive={nativeSession} text={draft} onTextChange={setDraft} onSubmit={(text, files, mode, count) => { if (native.active && mode === "chat") native.sendText(text); else if (nativeSession) native.sendText("Create " + count + " image(s): " + text); else void assistant.send(text, files, mode, count); }} onStop={stopEverything} onWarmAudio={audio.warmAudio} onError={assistant.setError} onAttachmentsChange={setVoiceFiles} />
       </div>
     </> : <div className={styles.accessState} role="status">{assistant.access === "loading" ? <><Loader2 size={22} className={styles.spinner} /><p>Opening your workspace…</p></> : <><h1>{assistant.access === "guest" ? "Sign in to Global Connects" : "AI access is unavailable"}</h1><p>{assistant.access === "guest" ? "Use your authorized workspace account to continue." : "Your super administrator controls access to this workspace."}</p>{assistant.access === "guest" ? <Link href="/session-restore?from=%2Fai">Sign in<ArrowUpRight size={14} /></Link> : <button type="button" onClick={() => void assistant.refresh()}>Check access again</button>}</>}</div>}
     {drawer && signedIn ? <WorkspaceDrawer key={drawer} kind={drawer} signedIn={signedIn} onClose={closeDrawer} onImage={openImage} onConversation={(id) => { stopEverything(); void assistant.openConversation(id); }} onNew={newConversation} /> : null}

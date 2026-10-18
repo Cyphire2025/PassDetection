@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { syntheticMicrophone } from "./support/ai-voice-fixtures";
 import { assistantAuth } from "./support/assistant-auth";
+import { sculptureBoundary } from "./support/sculpture-boundary";
 
 const timestamp = "2026-10-18T00:00:00Z";
 const conversationId = "b6c548e0-6e77-4d1b-b107-6799b9d31201";
@@ -82,6 +83,7 @@ test("typed questions, file attachments, source labels and saved history work to
 test("image generation reveals from the sculpture, selects thumbnails and returns to its origin", async ({ page }, testInfo) => {
   test.setTimeout(120000); // Software WebGL readbacks are slower than the browser's animation clock.
   await workspace(page);
+  await page.emulateMedia({ colorScheme: "dark" });
   await page.goto("/ai");
   await page.getByRole("button", { name: "Add files or create images" }).click();
   await page.getByRole("button", { name: /Create images.*Bring an idea/ }).click();
@@ -98,14 +100,28 @@ test("image generation reveals from the sculpture, selects thumbnails and return
   const frame = await page.getByRole("region", { name: "Image viewer: Travel inspiration 3" }).boundingBox();
   expect(frame!.height / frame!.width).toBeGreaterThan(.55);
   await page.screenshot({ path: testInfo.outputPath("ai-image-reveal.png"), fullPage: true });
+  const first = await sculptureBoundary(page, true);
+  await page.waitForTimeout(1000); // Compare the settled perimeter at two animation times.
+  const moving = await sculptureBoundary(page, true);
+  expect(moving.edgePixels.equals(first.edgePixels)).toBe(false);
+  await page.getByRole("button", { name: "Switch to light mode" }).click();
+  await sculptureBoundary(page, false);
+  await page.screenshot({ path: testInfo.outputPath("ai-image-reveal-light.png"), fullPage: true });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await sculptureBoundary(page, false);
+  await page.screenshot({ path: testInfo.outputPath("ai-image-reveal-mobile.png"), fullPage: true });
   await page.getByRole("button", { name: "Close image", exact: true }).click();
   await expect(reveal).not.toBeAttached();
   await page.getByRole("button", { name: "Open library" }).click();
   await expect(page.getByRole("dialog", { name: "Your library" })).toBeVisible();
+  await page.emulateMedia({ reducedMotion: "reduce" });
   await page.getByRole("button", { name: "View Travel inspiration 2" }).click();
   await expect(page.getByRole("region", { name: "Image viewer: Travel inspiration 2" })).toBeVisible();
+  await expect.poll(() => reveal.evaluate((element) => Number((element as HTMLElement).style.getPropertyValue("--reveal")))).toBe(1);
+  await sculptureBoundary(page, false);
   await page.keyboard.press("Escape");
   await expect(reveal).not.toBeAttached();
+  await expect(page.getByTestId("voice-sculpture")).toHaveAttribute("data-renderer", "webgl");
 });
 
 test("spoken output drives the actual playback analyser and can be interrupted", async ({ page }) => {

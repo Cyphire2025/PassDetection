@@ -158,6 +158,7 @@ uniform vec3 uTint;
 uniform float uReply;
 uniform float uReveal;
 uniform vec2 uRevealSize;
+uniform float uDark;
 out vec2 vLocal;
 out float vHalfLen;
 out float vR;
@@ -165,6 +166,33 @@ out vec3 vCol;
 out float vA;
 ${NOISE}
 ${ENERGY}
+// A rounded rectangle parameterized by arc length keeps the original material
+// evenly spread across all four edges, including the corners.
+vec4 boundary(float distance, vec2 size, float radius){
+  vec2 halfSize = size*.5;
+  float w = max(0.0, size.x-2.0*radius);
+  float h = max(0.0, size.y-2.0*radius);
+  float arc = 1.57079632679*radius;
+  float side = w+h+2.0*arc;
+  float d = mod(distance, side*2.0);
+  bool opposite = d >= side;
+  d = mod(d, side);
+  vec2 point;
+  vec2 normal;
+  if(d < w){ point = vec2(-halfSize.x+radius+d, -halfSize.y); normal = vec2(0.0,-1.0); }
+  else if(d < w+arc){
+    float angle = -1.57079632679+(d-w)/max(radius,.01);
+    normal = vec2(cos(angle),sin(angle));
+    point = vec2(halfSize.x-radius,-halfSize.y+radius)+normal*radius;
+  } else if(d < w+arc+h){ point = vec2(halfSize.x,-halfSize.y+radius+d-w-arc); normal = vec2(1.0,0.0); }
+  else {
+    float angle = (d-w-arc-h)/max(radius,.01);
+    normal = vec2(cos(angle),sin(angle));
+    point = vec2(halfSize.x-radius,halfSize.y-radius)+normal*radius;
+  }
+  if(opposite){ point = -point; normal = -normal; }
+  return vec4(point,normal);
+}
 void main(){
   int id = gl_InstanceID*uIdleStride;
   ivec2 ij = ivec2(id % uTexW, id / uTexW);
@@ -178,6 +206,7 @@ void main(){
   float looseGrain = uIdleStride > 1 ? 1.0 : step(0.982, hm.z);
   float idle = looseGrain*min(0.3, uAmbient*0.27);
   float a = max(max(E, lift), max(max(uRest, idle), 1.0-uIntroVis));
+  a = max(a, smoothstep(0.0,.14,uReveal));
   if(a < 0.01 || hm.w <= 0.0){ gl_Position = vec4(2.0,2.0,2.0,1.0); return; }
 
   vec2 base = uRect.xy + hm.xy*uRect.zw + st.xy;
@@ -189,30 +218,39 @@ void main(){
     *(4.0+hm.w*8.0)*uAmbient*loosen;
   if(uReveal > 0.0){
     vec2 extent = max(vec2(1.0), uRevealSize*uReveal);
-    float perimeter = 2.0*(extent.x+extent.y);
-    float seed = fract(float(id)*0.61803398875);
-    float distance = mod(seed*perimeter + uTime*9.0 + sin(seed*37.0+uTime)*3.0, perimeter);
-    vec2 edge;
-    if(distance < extent.x) edge = vec2(distance-extent.x*.5, -extent.y*.5);
-    else if(distance < extent.x+extent.y) edge = vec2(extent.x*.5, distance-extent.x-extent.y*.5);
-    else if(distance < extent.x*2.0+extent.y) edge = vec2(extent.x*1.5+extent.y-distance, extent.y*.5);
-    else edge = vec2(-extent.x*.5, perimeter-distance-extent.y*.5);
-    vec2 jitter = vec2(sin(seed*129.0+uTime*1.9), cos(seed*93.0+uTime*1.6))*(2.0+fract(seed*83.0)*8.0);
-    vec2 target = uRes*.5 + edge + jitter;
-    // Displace material only when the growing rectangle reaches it. During
-    // the later reveal, redistribute it evenly around the moving perimeter.
+    float radius = min(13.0,min(extent.x,extent.y)*.25);
+    float perimeter = 2.0*(extent.x+extent.y-4.0*radius)+6.28318530718*radius;
+    // hm.z and home UVs belong to each existing sculpture particle. No border
+    // emitter, replacement buffer or extra instances are created for the reveal.
+    float seed = hm.z;
+    float layer = hash(hm.xy*371.0+seed);
+    float travel = seed*perimeter + uTime*(20.0+layer*9.0);
+    vec4 edge = boundary(travel,extent,radius);
+    vec2 tangent = vec2(-edge.w,edge.z);
+    float band = clamp(min(uRevealSize.x,uRevealSize.y)*.105,12.0,44.0);
+    float ripple = sin(travel*.027+uTime*.8+layer*6.28)*2.8
+      + sin(seed*171.0-uTime*.7)*1.8;
+    // All layers remain outside the image. A deep, gently folding band carries
+    // the full material instead of hiding most grains behind an opaque panel.
+    float depth = 3.5 + band*(.12+.88*pow(layer,1.8)) + ripple;
+    vec2 target = uRes*.5+edge.xy+edge.zw*max(2.0,depth)
+      + tangent*sin(seed*283.0+uTime*.9)*2.0;
+    float gather = smoothstep(.04,.94,uReveal);
+    base = mix(base,target,gather);
+    // The expanding panel physically pushes any remaining material it reaches.
+    // Reversing the same progress returns each grain to its own original home.
     vec2 delta = base-uRes*.5;
-    vec2 halfExtent = extent*.5;
+    vec2 halfExtent = extent*.5+vec2(2.0);
     float collision = min(halfExtent.x/max(abs(delta.x),.1), halfExtent.y/max(abs(delta.y),.1));
-    vec2 pushed = uRes*.5 + delta*max(1.0,collision);
-    base = mix(pushed, target, smoothstep(.4, .95, uReveal));
+    base = mix(base,uRes*.5+delta*max(1.0,collision),smoothstep(0.0,.08,uReveal));
   }
 
   vec2 v = st.zw;
   float sp = length(v);
   vec2 dir = sp > 0.001 ? v/sp : vec2(1.0,0.0);
   float r = uDot*hm.w*0.5;
-  float len = min(sp*1.25, 18.0)*uStreak;
+  r = mix(r, max(.45,r*(.72+hm.z*.5)),uReveal);
+  float len = min(sp*1.25, 18.0)*uStreak*(1.0-uReveal);
   vec2 lc = aCorner*vec2(r + len*0.5 + 1.0, r + 1.0);
   vec2 center = base - dir*len*0.5;
   vec2 world = center + dir*lc.x + vec2(-dir.y, dir.x)*lc.y;
@@ -223,6 +261,9 @@ void main(){
   vHalfLen = len*0.5;
   vR = r;
   vec3 col = cl.rgb*uTint;
+  // Retain the sand/silver material in dark mode; the keyed image background
+  // must never tint the displaced grains to the page's near-black colour.
+  col = mix(col, max(col,cl.rgb*.82+vec3(.05,.045,.035)),uDark);
   col = mix(col, vec3(col.r*.52, col.g*1.02, col.b*1.2), uReply*.78);
   // fast material catches the light, like liquid metal
   float glint = smoothstep(2.0, 16.0, sp);

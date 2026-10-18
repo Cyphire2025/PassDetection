@@ -127,3 +127,53 @@ test("native voice sends PCM without transcribe requests, plays audio, and relea
   expect(packets).toBeGreaterThan(1);
   expect(transcribes).toEqual([]);
 });
+
+test("voice lookup recovery replaces a partial reply, pauses input, then resumes with sources and speech", async ({ page }) => {
+  test.setTimeout(90000);
+  await fixture(page);
+  await syntheticMicrophone(page);
+  let packets = 0;
+  const textInputs: string[] = [];
+  let reset: () => void = () => { throw new Error("Synthetic socket is not ready"); };
+  let complete: () => void = () => { throw new Error("Synthetic socket is not ready"); };
+  await page.routeWebSocket("**/api/v1/ai-assistant/voice", (socket) => {
+    reset = () => socket.send(JSON.stringify({ type: "answer_reset", turn_id: "recovery-turn" }));
+    complete = () => {
+      const pcm = Buffer.alloc(24000 * 2 * 2);
+      for (let sample = 0; sample < pcm.length / 2; sample++) pcm.writeInt16LE(Math.round(Math.sin(sample * Math.PI * 2 * 180 / 24000) * 14000), sample * 2);
+      const source = { view: "passport_details", observed_at: "2026-10-18T00:00:00Z", completeness: "complete" };
+      socket.send(JSON.stringify({ type: "source", source, turn_id: "recovery-turn" }));
+      socket.send(JSON.stringify({ type: "text_delta", text: "Ada's saved email is ada@example.test.", turn_id: "recovery-turn" }));
+      socket.send(JSON.stringify({ type: "audio", data: pcm.toString("base64"), sample_rate: 24000, turn_id: "recovery-turn" }));
+      socket.send(JSON.stringify({ type: "turn_complete", turn_id: "recovery-turn", turn: { id: "recovery-turn", user: "Find Ada's saved contact", assistant: "Ada's saved email is ada@example.test.", created_at: "2026-10-18T00:00:00Z", sources: [source], images: [] } }));
+    };
+    socket.onMessage((raw) => {
+      const value = JSON.parse(String(raw));
+      if (value.type === "start") socket.send(JSON.stringify({ type: "ready", conversation_id: value.conversation_id, max_session_seconds: 600 }));
+      if (value.type === "text") textInputs.push(value.text);
+      if (value.type !== "audio" || ++packets !== 3) return;
+      socket.send(JSON.stringify({ type: "input_transcript", text: "Find Ada's saved contact", turn_id: "recovery-turn" }));
+      socket.send(JSON.stringify({ type: "text_delta", text: "An incomplete voice reply.", turn_id: "recovery-turn" }));
+    });
+  });
+  await page.goto("/ai");
+  await page.getByRole("button", { name: "Start microphone" }).click();
+  await expect(page.getByText("An incomplete voice reply.", { exact: true })).toBeVisible();
+  reset();
+  await expect(page.getByRole("button", { name: "Stop response" })).toBeVisible();
+  await expect(page.getByText("An incomplete voice reply.", { exact: true })).not.toBeAttached();
+  const draft = page.getByRole("textbox", { name: "Message Global Connects" });
+  await draft.fill("Keep this draft while checking");
+  await draft.press("Enter");
+  await expect(draft).toHaveValue("Keep this draft while checking");
+  const pausedAt = packets;
+  await page.waitForTimeout(350); // Allow any capture packet already in flight to drain.
+  expect(packets).toBeLessThanOrEqual(pausedAt + 1);
+  expect(textInputs).toEqual([]);
+  complete();
+  await expect(page.getByText("Ada's saved email is ada@example.test.", { exact: true })).toBeVisible();
+  await expect(page.getByText("passport details", { exact: true })).toBeVisible();
+  await expect.poll(() => packets).toBeGreaterThan(pausedAt + 1);
+  await page.getByRole("button", { name: "End voice conversation" }).click();
+  expect(await page.evaluate(() => (window as unknown as { __voiceTest: { tracksStopped: () => boolean } }).__voiceTest.tracksStopped())).toBe(true);
+});

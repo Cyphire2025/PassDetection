@@ -85,6 +85,7 @@ export function useAssistant(onAnswer: (text: string) => void, onImage: (image: 
         if (event.type === "input_transcript" && message.id === `${id}-user`) return { ...message, text: message.text + event.text };
         if (message.id !== id) return message;
         if (event.type === "text_delta") return { ...message, text: message.text + event.text };
+        if (event.type === "answer_reset") return { ...message, text: "", error: undefined, streaming: true };
         if (event.type === "source") return { ...message, sources: [...message.sources || [], event.source] };
         if (event.type === "image") return { ...message, images: [...message.images || [], event.image] };
         if (event.type === "interrupted") return { ...message, streaming: false };

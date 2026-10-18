@@ -49,7 +49,8 @@ async def test_gateway_sends_pcm_directly_and_typed_input_is_a_caption():
     )
     socket = SimpleNamespace(receive_text=AsyncMock(side_effect=lambda: next(messages)))
     upstream = SimpleNamespace(send=AsyncMock())
-    conversation = SimpleNamespace(caption=AsyncMock())
+    conversation = SimpleNamespace(caption=AsyncMock(), recovering=False,
+        recovery_done=SimpleNamespace(wait=AsyncMock()))
     with pytest.raises(AssistantError) as invalid:
         await voice._client_audio(socket, upstream, conversation)
     assert invalid.value.code == "voice_protocol"

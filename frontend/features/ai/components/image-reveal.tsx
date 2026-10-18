@@ -6,9 +6,10 @@ import { useEffect, useRef, useState, type RefObject } from "react";
 import type { Asset, VisualState } from "../types";
 import styles from "./image-reveal.module.css";
 
-export function ImageReveal({ asset, images, presentationRef, onSelect, onClosed }: {
+export function ImageReveal({ asset, images, presentationRef, onSelect, onClosed, onProgress }: {
   asset: Asset | null; images: Asset[]; presentationRef: RefObject<VisualState>;
   onSelect: (image: Asset) => void; onClosed: () => void;
+  onProgress: () => void;
 }) {
   const [rendered, setRendered] = useState<Asset | null>(asset);
   const [closing, setClosing] = useState(false);
@@ -35,10 +36,10 @@ export function ImageReveal({ asset, images, presentationRef, onSelect, onClosed
     const element = root.current;
     if (!element || !rendered) return;
     const updateSize = () => { const panel = element.querySelector<HTMLElement>("[data-image-panel]");
-      if (panel) { presentationRef.current.revealWidth = panel.offsetWidth; presentationRef.current.revealHeight = panel.offsetHeight; } };
+      if (panel) { presentationRef.current.revealWidth = panel.offsetWidth; presentationRef.current.revealHeight = panel.offsetHeight; onProgress(); } };
     updateSize(); const observer = new ResizeObserver(updateSize); observer.observe(element);
     return () => observer.disconnect();
-  }, [rendered, presentationRef]);
+  }, [rendered, presentationRef, onProgress]);
   useEffect(() => {
     if (!rendered || (!loaded && !closing)) return;
     const element = root.current;
@@ -51,6 +52,7 @@ export function ImageReveal({ asset, images, presentationRef, onSelect, onClosed
       const eased = time < .5 ? 4 * time ** 3 : 1 - (-2 * time + 2) ** 3 / 2;
       const value = from + (target - from) * eased;
       progress.current = value; presentationRef.current.reveal = value;
+      onProgress();
       element.style.setProperty("--reveal", String(value));
       if (time < 1) frame = requestAnimationFrame(animate);
       else if (closing) { setRendered(null); closingCallback.current(); previousFocus.current?.focus(); }
@@ -58,7 +60,7 @@ export function ImageReveal({ asset, images, presentationRef, onSelect, onClosed
     };
     frame = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(frame);
-  }, [rendered, loaded, closing, presentationRef]);
+  }, [rendered, loaded, closing, presentationRef, onProgress]);
   useEffect(() => () => { presentationRef.current.reveal = 0; }, [presentationRef]);
   useEffect(() => {
     if (!rendered) return;

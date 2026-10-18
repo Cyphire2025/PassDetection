@@ -95,6 +95,8 @@ async def _client_audio(websocket: WebSocket, upstream: Any, conversation: Nativ
                 raise AssistantError(
                     "voice_limit", "The microphone stream exceeded its safe rate limit.", 413
                 )
+            if conversation.recovering:
+                continue
             await upstream.send(
                 json.dumps(
                     {
@@ -116,6 +118,7 @@ async def _client_audio(websocket: WebSocket, upstream: Any, conversation: Nativ
                 raise AssistantError(
                     "voice_limit", "Start another session to send more typed questions.", 413
                 )
+            await conversation.recovery_done.wait()
             await conversation.caption("input_transcript", value["text"])
             await upstream.send(
                 json.dumps(

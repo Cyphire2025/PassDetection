@@ -1,10 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, type RefObject } from "react";
+import { useEffect, useImperativeHandle, useRef, type Ref, type RefObject } from "react";
 import { LiquidEngine } from "./liquid-sculpture/engine";
 import { paintSculptureMatte } from "./liquid-sculpture/matte";
-import type { EngineOptions, SculpturePresentation } from "./liquid-sculpture/types";
+import type { EngineOptions, SculptureHandle, SculpturePresentation } from "./liquid-sculpture/types";
 import styles from "./liquid-sculpture/sculpture.module.css";
 
 const SCULPTURE = "/ai/liquid-sculpture.webp";
@@ -20,11 +20,12 @@ function engineOptions(reducedMotion: boolean): EngineOptions {
 }
 
 /** Voice-driven adaptation of Sculpture Hero by guglielmogiannattasio.it / 21st.dev. */
-export function LiquidSculptureHero({ levelRef, presentationRef, dark = false }: { levelRef: RefObject<number>; presentationRef?: RefObject<SculpturePresentation>; dark?: boolean }) {
+export function LiquidSculptureHero({ levelRef, presentationRef, dark = false, ref }: { levelRef: RefObject<number>; presentationRef?: RefObject<SculpturePresentation>; dark?: boolean; ref?: Ref<SculptureHandle> }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const matteRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<LiquidEngine | null>(null);
+  useImperativeHandle(ref, () => ({ invalidate: () => engineRef.current?.renderPresentation() }), []);
 
   useEffect(() => {
     const root = rootRef.current;
