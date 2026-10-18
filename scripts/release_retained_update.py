@@ -30,6 +30,7 @@ from mcp_direct_containers import LocalDocker, clone_payload
 from mcp_direct_release import bound_original, wait_for_idle
 from mcp_direct_state import APPLICATION, INFRASTRUCTURE, WORKERS, private_json
 from release_artifacts import verify_manifest
+from release_assistant_proxy_contract import PROXY_PATH, validate_assistant_proxy
 from release_code_update import COMPATIBILITY_PATHS, environment, task_contract, validate_readiness
 from release_manifest import load_release_manifest
 import release_pdf_checking_profile as pdf_profile
@@ -108,10 +109,12 @@ def select_live(rows: list[dict], root: Path = ROOT, *, schema: str = SCHEMA,
     return selected
 
 
-def forbidden_changes(paths: list[str], mode: str, *, route_allowlist_validated: bool = False) -> list[str]:
+def forbidden_changes(paths: list[str], mode: str, *, route_allowlist_validated: bool = False,
+                      assistant_proxy_validated: bool = False) -> list[str]:
     require(mode in {'full', 'fast'}, 'explicit_release_mode_required')
     return [path for path in paths if not (
         path == ROUTE_ALLOWLIST and route_allowlist_validated
+        or path == PROXY_PATH and assistant_proxy_validated
         or mode == 'full' and path.startswith(FULL_BUILD_PATHS))]
 
 
@@ -126,8 +129,11 @@ def validate_route_allowlist(source: Path) -> None:
     expected = {'unknown'}
     app = source / 'frontend/app'
     for page in app.rglob('page.tsx'):
-        segments = [part for part in page.relative_to(app).parts[:-1]
-                    if not (part.startswith('(') and part.endswith(')'))]
+        segments = []
+        for part in page.relative_to(app).parts[:-1]:
+            if part.startswith('@') or part.startswith('(') and part.endswith(')'):
+                continue
+            segments.append(part[3:] if part.startswith('(.)') else part)
         require(all(re.fullmatch(r'(?:[a-z][a-z0-9-]*|\[[A-Za-z][A-Za-z0-9]*\])', part)
                     for part in segments), 'unreviewed_route_template_grammar')
         expected.add('/' + '/'.join(segments))
@@ -266,7 +272,12 @@ class RetainedUpdate:
                     *COMPATIBILITY_PATHS, *ADDITIONAL_CONTRACT_PATHS).splitlines()
         allowlist_checked = ROUTE_ALLOWLIST in paths
         if allowlist_checked: validate_route_allowlist(self.source)
-        require(not forbidden_changes(paths, self.mode, route_allowlist_validated=allowlist_checked),
+        proxy_checked = PROXY_PATH in paths
+        if proxy_checked:
+            validate_assistant_proxy(git('show', f'{previous}:{PROXY_PATH}'),
+                                     git('show', f'{self.revision}:{PROXY_PATH}'))
+        require(not forbidden_changes(paths, self.mode, route_allowlist_validated=allowlist_checked,
+                                      assistant_proxy_validated=proxy_checked),
                 'persistent_config_or_build_contract_requires_separate_release')
         contract = load_release_manifest(self.source / 'backend/app/core/config/release_manifest.json')
         require(contract['schema_revision'] == self.candidate_schema and contract['worker_nodes'] == WORKERS,
