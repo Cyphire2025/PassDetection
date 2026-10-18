@@ -30,7 +30,7 @@ from mcp_direct_containers import LocalDocker, clone_payload
 from mcp_direct_release import bound_original, wait_for_idle
 from mcp_direct_state import APPLICATION, INFRASTRUCTURE, WORKERS, private_json
 from release_artifacts import verify_manifest
-from release_assistant_proxy_contract import PROXY_PATH, validate_assistant_proxy
+from release_assistant_proxy_contract import PROXY_PATH, stage_assistant_proxy, validate_assistant_proxy
 from release_code_update import COMPATIBILITY_PATHS, environment, task_contract, validate_readiness
 from release_manifest import load_release_manifest
 import release_pdf_checking_profile as pdf_profile
@@ -364,6 +364,8 @@ class RetainedUpdate:
         require(environment(bound_original(rows['frontend'])).get('NEXT_PUBLIC_APP_REVISION') == revision,
                 'frontend_runtime_revision_changed')
         if public:
+            if revision == self.revision:
+                self.verify_assistant_proxy(rows['nginx'])
             wait_full_readiness(lambda: json.loads(command(
                 'curl', '--fail', '--silent', '--show-error', '--max-time', '30',
                 ORIGIN + '/api/v1/health/ready')), revision)
@@ -382,6 +384,13 @@ walk(root);if(!found)throw Error('revision asset absent');console.log(JSON.strin
             raw = subprocess.check_output(['curl', '--fail', '--silent', '--show-error', '--max-time', '30', ORIGIN + asset['path']], timeout=40)
             require(hashlib.sha256(raw).hexdigest() == asset['sha256'], 'public_frontend_revision_asset_mismatch')
         self.retention()
+
+    def verify_assistant_proxy(self, proxy: dict) -> None:
+        source = (self.source / PROXY_PATH).read_text(encoding='utf-8')
+        if '/api/v1/ai-assistant/voice' in source:
+            command('docker', 'exec', proxy['Id'], 'nginx', '-t')
+            runtime = command('docker', 'exec', proxy['Id'], 'cat', '/etc/nginx/conf.d/default.conf')
+            require(stage_assistant_proxy(runtime, source) == runtime, 'running_assistant_voice_proxy_missing')
 
     def candidate_environment(self, original: dict) -> dict[str, str]:
         result = runtime_environment(original, self.revision, schema=self.candidate_schema)
@@ -410,6 +419,14 @@ walk(root);if(!found)throw Error('revision asset absent');console.log(JSON.strin
                 shutil.copytree(origin, proxy / filename)
             else:
                 (proxy / filename).write_text(proxy_configuration(origin.read_text(), live, self.project))
+        # Conf.d is inherited to preserve operator-owned configuration. Reconcile
+        # the single reviewed voice addition into that copy, never its live source.
+        default = proxy / 'conf.d/default.conf'
+        inherited = default.read_text(encoding='utf-8')
+        rendered = stage_assistant_proxy(inherited, (self.source / PROXY_PATH).read_text(encoding='utf-8'))
+        if rendered != inherited:
+            default.write_text(rendered, encoding='utf-8')
+        require(default.read_text(encoding='utf-8') == rendered, 'staged_proxy_content_changed')
         candidates = {}
         for name in sorted(ACTIVE):
             old = live[name]

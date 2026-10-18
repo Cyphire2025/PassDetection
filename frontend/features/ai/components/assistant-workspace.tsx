@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, ArrowUpRight, Library, Loader2, MessageSquare, Mic, Plus, Settings2, Square, VolumeX, X } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, Library, Loader2, MessageSquare, Mic, Moon, Plus, Settings2, Square, Sun, VolumeX, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -8,6 +8,7 @@ import { LiquidSculptureHero } from "@/components/ui/liquid-sculpture-hero";
 import { useAssistant } from "../hooks/use-assistant";
 import { useAssistantAudio } from "../hooks/use-assistant-audio";
 import { useNativeVoice } from "../hooks/use-native-voice";
+import { useAssistantTheme } from "../hooks/use-assistant-theme";
 import type { Asset, VisualState } from "../types";
 import { AssistantComposer } from "./assistant-composer";
 import { ConversationThread } from "./conversation-thread";
@@ -15,10 +16,11 @@ import { ImageReveal } from "./image-reveal";
 import { WorkspaceDrawer } from "./workspace-drawer";
 import styles from "./workspace.module.css";
 
-const MOTES = Array.from({ length: 18 }, (_, index) => ({ left: `${(index * 37 + 11) % 100}%`, top: `${(index * 23 + 13) % 94}%`, delay: `${index * -2.7}s`, duration: `${22 + index % 6 * 5}s`, size: `${index % 5 === 0 ? 5 : index % 3 === 0 ? 3 : 2}px` }));
+const MOTES = Array.from({ length: 54 }, (_, index) => ({ left: `${(index * 61.803 + 9) % 100}%`, top: `${(index * 37.179 + 7) % 100}%`, delay: `${index * -2.7}s`, duration: `${24 + index % 9 * 4}s`, size: `${index % 11 === 0 ? 5 : index % 4 === 0 ? 3.5 : 1.5 + index % 3 * .5}px` }));
 
 export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
   const router = useRouter();
+  const { dark, toggle: toggleTheme } = useAssistantTheme();
   const [drawer, setDrawer] = useState<"library" | "history" | null>(null);
   const [draft, setDraft] = useState("");
   const [activeImage, setActiveImage] = useState<Asset | null>(null);
@@ -96,12 +98,13 @@ export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
   const label = native.connecting ? "Connecting voice…" : phase === "listening" ? "Listening to you" : phase === "speaking" ? "Speaking with you" : phase === "thinking" ? assistant.progress || "Thinking…" : "";
   const error = native.error || audio.error || assistant.error;
 
-  return <main className={styles.page} data-phase={phase} data-has-conversation={assistant.messages.length > 0} data-image-open={Boolean(activeImage)}>
-    <div className={styles.atmosphere} aria-hidden="true">{MOTES.map((mote, index) => <i key={index} className={index % 5 === 0 ? styles.doubleMote : undefined} style={{ left: mote.left, top: mote.top, animationDelay: mote.delay, animationDuration: mote.duration, width: mote.size, height: mote.size }} />)}</div>
+  return <main className={styles.page} aria-label="Global Connects AI workspace" data-theme={dark ? "dark" : "light"} data-phase={phase} data-has-conversation={assistant.messages.length > 0} data-image-open={Boolean(activeImage)}>
+    <div className={styles.atmosphere} aria-hidden="true" data-testid="assistant-atmosphere">{MOTES.map((mote, index) => <i key={index} className={index % 13 === 0 ? styles.doubleMote : undefined} style={{ left: mote.left, top: mote.top, animationDelay: mote.delay, animationDuration: mote.duration, width: mote.size, height: mote.size }} />)}</div>
     <header className={styles.header}>
       <div className={styles.brandGroup}><button type="button" onClick={back} className={styles.backButton} aria-label="Back to workspace"><ArrowLeft size={19} /></button><div className={styles.brand} aria-label="Global Connects"><span className={styles.monogram}>gc<ArrowUpRight size={16} strokeWidth={2.5} /></span><span>Global Connects<small>YOUR TRAVEL WORKSPACE</small></span></div></div>
       {signedIn ? <div className={styles.headerActions}>
         <span className={styles.connectionDot} data-connected={Boolean(assistant.observedAt)} aria-label={assistant.observedAt ? "Workspace connected" : "Connecting workspace"} />
+        <button type="button" className={styles.iconButton} onClick={toggleTheme} aria-label={dark ? "Switch to light mode" : "Switch to dark mode"} aria-pressed={dark}>{dark ? <Sun size={18} /> : <Moon size={18} />}</button>
         <button type="button" className={styles.iconButton} onClick={() => setDrawer("library")} aria-label="Open library"><Library size={18} /></button>
         <button type="button" className={styles.iconButton} onClick={() => setDrawer("history")} aria-label="Open conversations"><MessageSquare size={18} /></button>
         <button type="button" className={styles.iconButton} onClick={newConversation} aria-label="New conversation" disabled={assistant.busy}><Plus size={20} /></button>
@@ -110,12 +113,11 @@ export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
     </header>
     {signedIn ? <>
       <div className={styles.mainArea}>
-        <section className={styles.visualArea} aria-labelledby="assistant-heading">
-          <div className={styles.introduction}><p className={styles.eyebrow}>GLOBAL CONNECTS INTELLIGENCE</p><h1 id="assistant-heading">Every journey,<br /><em>a little clearer.</em></h1><p className={styles.subtitle}>Your people, documents and travel plans.<br className={styles.mobileBreak} /> Together in one conversation.</p></div>
-          <div className={styles.sculptureStage} data-testid="assistant-stage"><LiquidSculptureHero levelRef={level} presentationRef={presentation} /><ImageReveal asset={activeImage} images={images} presentationRef={presentation} onSelect={setActiveImage} onClosed={closeImage} /></div>
+        <section className={styles.visualArea} aria-label="Voice-reactive particle sculpture">
+          <div className={styles.sculptureStage} data-testid="assistant-stage"><LiquidSculptureHero levelRef={level} presentationRef={presentation} dark={dark} /><ImageReveal asset={activeImage} images={images} presentationRef={presentation} onSelect={setActiveImage} onClosed={closeImage} /></div>
           <div className={styles.voiceStatus} ref={voiceControl} data-listening={listening && !speaking} data-testid="assistant-voice-status">
             <button type="button" className={styles.voiceButton} onClick={() => void microphone()} disabled={assistant.busy || audio.transcribing} aria-label={nativeSession ? "End voice conversation" : requesting ? "Cancel microphone request" : listening ? "Finish voice message" : "Start microphone"} aria-pressed={listening || requesting || nativeSession}>
-              {requesting || native.connecting || audio.transcribing ? <Loader2 size={25} className={styles.spinner} /> : listening || nativeSession ? <Square size={22} fill="currentColor" /> : <Mic size={29} strokeWidth={1.5} />}
+              {requesting || native.connecting || audio.transcribing ? <Loader2 size={20} className={styles.spinner} /> : listening || nativeSession ? <Square size={17} fill="currentColor" /> : <Mic size={23} strokeWidth={1.5} />}
             </button>
             <p role="status" aria-live="polite">{label}</p>
             {speaking ? <button type="button" onClick={() => { stopNative(); audio.stopPlayback(); }} className={styles.quietButton}><VolumeX size={12} />Stop speaking</button> : null}

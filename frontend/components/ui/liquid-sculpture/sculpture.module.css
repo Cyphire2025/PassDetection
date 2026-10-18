@@ -1,6 +1,10 @@
 .root { position: relative; width: 100%; height: 100%; isolation: isolate; }
 .fallback { position: absolute; inset: 2% 0; transition: opacity .6s ease; mix-blend-mode: multiply; animation: breathe 18s ease-in-out infinite alternate; }
 .fallback img { object-fit: contain; }
+.matte { display: none; width: 100%; height: 100%; object-fit: contain; }
+.root[data-theme="dark"] .fallback { mix-blend-mode: normal; }
+.root[data-theme="dark"] .fallback img { opacity: 0; }
+.root[data-theme="dark"][data-matte="ready"] .matte { display: block; }
 .stage { position: absolute; inset: 0; pointer-events: none; }
 .canvas { display: block; width: 100%; height: 100%; opacity: 0; transition: opacity .6s ease; }
 .root[data-renderer="webgl"] .canvas { opacity: 1; }

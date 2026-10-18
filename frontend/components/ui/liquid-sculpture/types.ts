@@ -22,6 +22,7 @@ export interface EngineOptions {
   imgBg: [number, number, number] | null
   /** 0 – 2: how much the whole sculpture flows while the cursor is over it */
   liquid: number
+  dark?: boolean
 }
 
 export function clamp(v: number, a: number, b: number) {

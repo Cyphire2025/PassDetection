@@ -29,3 +29,19 @@ def validate_assistant_proxy(previous: str, candidate: str) -> None:
     if (previous.count(ANCHOR) != 1 or '/api/v1/ai-assistant/voice' in previous
             or candidate != previous.replace(ANCHOR, VOICE_LOCATION + ANCHOR, 1)):
         raise ValueError('assistant_proxy_must_be_exact_addition')
+
+
+def stage_assistant_proxy(inherited: str, source: str) -> str:
+    """Keep operator-owned rules, adding only the reviewed source route."""
+    path = '/api/v1/ai-assistant/voice'
+    if path not in source:
+        return inherited
+    if source.count(path) != 1 or source.count(VOICE_LOCATION) != 1:
+        raise ValueError('assistant_proxy_source_contract_changed')
+    if path in inherited:
+        if inherited.count(path) != 1 or inherited.count(VOICE_LOCATION) != 1:
+            raise ValueError('assistant_proxy_runtime_contract_changed')
+        return inherited
+    result = inherited.replace(ANCHOR, VOICE_LOCATION + ANCHOR, 1)
+    validate_assistant_proxy(inherited, result)
+    return result

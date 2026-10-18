@@ -142,6 +142,7 @@ uniform sampler2D uHome;
 uniform sampler2D uCol;
 uniform sampler2D uFlow;
 uniform int uTexW;
+uniform int uIdleStride;
 uniform vec4 uRect;
 uniform vec2 uRes;
 uniform vec2 uMouse;
@@ -165,7 +166,7 @@ out float vA;
 ${NOISE}
 ${ENERGY}
 void main(){
-  int id = gl_InstanceID;
+  int id = gl_InstanceID*uIdleStride;
   ivec2 ij = ivec2(id % uTexW, id / uTexW);
   vec4 hm = texelFetch(uHome, ij, 0);
   vec4 st = texelFetch(uState, ij, 0);
@@ -174,11 +175,18 @@ void main(){
   float wakeE = texture(uFlow, hm.xy).b;
   float E = energyAt(hm.xy*uRect.zw, uMouse, uRadius, uPresence, wakeE);
   float lift = smoothstep(0.35, 2.5, length(st.xy));
-  float a = max(max(E, lift), max(uRest, 1.0-uIntroVis));
+  float looseGrain = uIdleStride > 1 ? 1.0 : step(0.982, hm.z);
+  float idle = looseGrain*min(0.3, uAmbient*0.27);
+  float a = max(max(E, lift), max(max(uRest, idle), 1.0-uIntroVis));
   if(a < 0.01 || hm.w <= 0.0){ gl_Position = vec4(2.0,2.0,2.0,1.0); return; }
 
   vec2 base = uRect.xy + hm.xy*uRect.zw + st.xy;
-  base -= ambientField(hm.xy, uTime)*10.0*uAmbient;
+  base -= ambientField(hm.xy, uTime)*18.0*uAmbient;
+  // Different seeds give the loose grains their own slow orbit. The material
+  // stays horizontal and breathes without pretending that the microphone is on.
+  float loosen = looseGrain*(1.0-E)*(1.0-uReveal);
+  base += vec2(sin(hm.z*1537.0+uTime*.75), cos(hm.z*971.0+uTime*.61))
+    *(4.0+hm.w*8.0)*uAmbient*loosen;
   if(uReveal > 0.0){
     vec2 extent = max(vec2(1.0), uRevealSize*uReveal);
     float perimeter = 2.0*(extent.x+extent.y);
@@ -267,6 +275,7 @@ uniform float uAmbient;
 uniform float uIntroVis;
 uniform float uRest;
 uniform float uAlphaMode;
+uniform float uDark;
 uniform float uReply;
 uniform float uReveal;
 ${NOISE}
@@ -282,17 +291,28 @@ void main(){
   vec2 toM = rp - uMouse;
   float fall = exp(-dot(toM,toM)/(uRadius*uRadius))*uPresence;
   vec2 disp = -toM*0.22*uStrength*fall - vel*10.0*uStrength;
-  disp += ambientField(uv, uTime)*10.0*uAmbient;
+  disp += ambientField(uv, uTime)*18.0*uAmbient;
   vec2 suv = uv + disp/size;
   vec4 tx = texture(uImg, suv);
-  vec3 col = tx.rgb;
+  // Most pixels are empty. Key them before the detail filter, avoiding four
+  // extra texture samples across the clear background on every idle frame.
+  float key = uAlphaMode > 0.5 ? tx.a : smoothstep(mix(.012,.018,uDark), mix(.05,.13,uDark), length(tx.rgb-uImgBg));
+  if(key < 0.001){ o = vec4(0.0); return; }
+  vec2 texel = 1.0/vec2(textureSize(uImg, 0));
+  vec3 around = texture(uImg, suv+vec2(texel.x,0.0)).rgb
+    + texture(uImg, suv-vec2(texel.x,0.0)).rgb
+    + texture(uImg, suv+vec2(0.0,texel.y)).rgb
+    + texture(uImg, suv-vec2(0.0,texel.y)).rgb;
+  vec3 col = clamp(tx.rgb + (tx.rgb*4.0-around)*0.18, 0.0, 1.0);
   vec2 e = smoothstep(vec2(0.0), vec2(0.004,0.01), suv) * smoothstep(vec2(1.0), vec2(0.996,0.99), suv);
   // cut-out images carry their own alpha; flat-background images are keyed by colour
-  float key = uAlphaMode > 0.5 ? tx.a : smoothstep(0.012, 0.05, length(col-uImgBg));
   float k = key*e.x*e.y;
   float E = energyAt(rp, uMouse, uRadius, uPresence, fl.b);
   float show = (1.0 - max(E, uRest))*uIntroVis;
   vec3 mat = uAlphaMode > 0.5 ? col : col*(uBg/max(uImgBg, vec3(0.001)));
+  // Remove the pale source matte from partially covered edges on a dark page.
+  // Core material and highlights keep their original warm metallic colours.
+  if(uAlphaMode < .5) mat = mix(mat, clamp((col-uImgBg*(1.0-key))/max(key,.06),0.0,1.0), uDark);
   mat = mix(mat, vec3(mat.r*.52, mat.g*1.02, mat.b*1.2), uReply*.78);
   // premultiplied: empty areas stay transparent so the page (and the backdrop word) shows through
   float A = k*show*(1.0-smoothstep(0.0,.55,uReveal));

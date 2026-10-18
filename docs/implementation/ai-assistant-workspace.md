@@ -6,11 +6,19 @@ circle reveal from the launcher. Back reverses the reveal and restores the
 mounted dashboard. Direct visits open the same workspace. Both journeys require
 a signed-in, authorized account.
 
-The larger horizontal particle sculpture keeps gentle idle movement. Its
+The larger horizontal voice-reactive particle sculpture (VRPS) keeps gentle idle movement. Its
 microphone sits underneath. Actual input/playback RMS drives deformation, with
 a smooth cool color blend for speaking replies. Sparse background particles and
 reduced-motion support remain. Typed chat, private attachments, formatted answers,
 history, the image reveal, thumbnail selection and private library are retained.
+The workspace has no introductory headline. The smaller microphone remains below
+VRPS. A local AI-page appearance toggle follows the device preference initially
+and persists an explicit light/dark choice. It does not alter the dashboard theme.
+Both appearances use the same warm material, including a keyed Canvas2D fallback.
+Higher display-density rendering and a finer material grid preserve detail at the
+larger size. Canvas pixels remain capped at eight million, and quiet scenes draw
+only a sparse grain layer without running the interaction simulation. Hidden tabs
+pause rendering; reduced motion disables the ambient deformation and star drift.
 
 ## Configuration
 
@@ -72,6 +80,11 @@ The browser sends 16-bit little-endian PCM at 16 kHz through the same-origin
 /api/v1/ai-assistant/voice WebSocket. The backend verifies the HttpOnly cookie and
 exact Origin/Host, then connects to Google's fixed Live endpoint with a server-side
 header key. Query/header user credentials and redirects are rejected.
+Retained Fast releases preserve operator proxy configuration while adding the
+exact reviewed voice location to their candidate copy. Source admission alone
+does not install it: post-release checks must inspect the running Nginx location
+and syntax, then qualify Gemini model metadata and a setup-only native handshake.
+Those diagnostics keep the saved credential in the server process.
 
 Gemini understands the original audio and streams spoken PCM at 24 kHz. Optional
 input/output transcription serves chat captions and private history; no HTTP

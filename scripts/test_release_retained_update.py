@@ -43,6 +43,64 @@ def live_rows():
 
 
 class Contracts(unittest.TestCase):
+    def test_public_release_proof_rejects_missing_or_changed_running_voice_route(self):
+        from release_assistant_proxy_contract import ANCHOR, PROXY_PATH, VOICE_LOCATION
+
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory)
+            target = source / PROXY_PATH
+            target.parent.mkdir(parents=True)
+            old = 'server {\n' + ANCHOR + '    }\n}\n'
+            current = old.replace(ANCHOR, VOICE_LOCATION + ANCHOR)
+            target.write_text(current)
+            release = object.__new__(RetainedUpdate)
+            release.source = source
+            proxy = {'Id': 'retained-exact-proxy'}
+            with patch('release_retained_update.command', side_effect=['syntax ok', current]) as run:
+                release.verify_assistant_proxy(proxy)
+                self.assertEqual(run.call_args_list[0].args, ('docker', 'exec', proxy['Id'], 'nginx', '-t'))
+            for runtime in (old, current.replace('proxy_set_header Cookie $http_cookie;', '')):
+                with patch('release_retained_update.command', side_effect=['syntax ok', runtime]), self.assertRaises(ValueError):
+                    release.verify_assistant_proxy(proxy)
+
+    def test_stage_installs_voice_route_only_in_retained_candidate_copy(self):
+        from release_assistant_proxy_contract import ANCHOR, PROXY_PATH, VOICE_LOCATION
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            inherited = root / 'operator-proxy'
+            (inherited / 'conf.d').mkdir(parents=True)
+            config = 'upstream backend { server old-backend:8000; }\nupstream frontend { server old-frontend:3000; }\n'
+            (inherited / 'nginx.conf').write_text(config)
+            previous = 'server {\n    add_header X-Operator-Policy retained;\n' + ANCHOR + '    }\n}\n'
+            (inherited / 'conf.d/default.conf').write_text(previous)
+            source = root / 'source'
+            candidate_source = source / PROXY_PATH
+            candidate_source.parent.mkdir(parents=True)
+            candidate_source.write_text(previous.replace(ANCHOR, VOICE_LOCATION + ANCHOR))
+            live = {row['Config']['Labels']['com.docker.compose.service']: row for row in live_rows()}
+            live['nginx']['Mounts'] = [
+                {'Destination': '/etc/nginx/nginx.conf', 'Source': str(inherited / 'nginx.conf'), 'Type': 'bind', 'RW': False},
+                {'Destination': '/etc/nginx/conf.d', 'Source': str(inherited / 'conf.d'), 'Type': 'bind', 'RW': False},
+            ]
+            release = object.__new__(RetainedUpdate)
+            release.directory, release.source, release.project = root / 'attempt', source, 'candidate'
+            release.record = {'live': live}
+            release.candidate_environment = Mock(return_value={})
+            release.create_candidate = Mock(side_effect=lambda old, options: old['Id'])
+            release.client = SimpleNamespace(inspect=Mock(return_value={'Id': 'synthetic'}))
+            release.event = Mock()
+            with patch('release_retained_update.ROOT', root), patch('release_retained_update.clone_payload'):
+                release.stage({'backend': 'synthetic-backend', 'frontend': 'synthetic-frontend'})
+            staged = release.directory / 'runtime-nginx/candidate/conf.d/default.conf'
+            self.assertEqual(staged.read_text().replace(VOICE_LOCATION, '', 1), previous)
+            self.assertEqual(staged.read_text().count(VOICE_LOCATION), 1)
+            self.assertEqual((inherited / 'conf.d/default.conf').read_text(), previous)
+            self.assertEqual((inherited / 'nginx.conf').read_text(), config)
+            nginx_options = [call.args[1] for call in release.create_candidate.call_args_list
+                             if call.args[0] is live['nginx']][0]
+            self.assertEqual(nginx_options['nginx_mount_overrides']['/etc/nginx/conf.d'], str(staged.parent))
+
     def test_fast_backend_replaces_runtime_owned_sources_with_chown_only(self):
         # Model CHOWN-only Linux access on Windows too, while exercising the
         # generated builder program against real replacement files/directories.

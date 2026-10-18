@@ -44,7 +44,7 @@ test("header orb opens and shrinks while retaining the dashboard and its microph
   await orb.click();
   const overlay = page.getByTestId("assistant-overlay");
   await expect(overlay).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Every journey, a little clearer." })).toBeVisible();
+  await expect(page.getByRole("main", { name: "Global Connects AI workspace" })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.dataset.aiNavigationProof)).toBe("same-document");
   expect(await page.evaluate(() => (document as Document & { featurePolicy: { allowsFeature: (name: string) => boolean } }).featurePolicy.allowsFeature("microphone"))).toBe(true);
   await expect(overlay).toHaveCSS("clip-path", "none");
@@ -108,10 +108,19 @@ test("native voice sends PCM without transcribe requests, plays audio, and relea
     });
   });
   await page.goto("/ai");
+  await page.getByTestId("assistant-voice-status").evaluate((element) => {
+    // Observe the actual rendered level throughout the short audio reply. A
+    // caption assertion may resolve after playback has already finished.
+    const probe = window as unknown as { __nativePlaybackPeak: number };
+    probe.__nativePlaybackPeak = 0;
+    new MutationObserver(() => {
+      probe.__nativePlaybackPeak = Math.max(probe.__nativePlaybackPeak, Number((element as HTMLElement).style.getPropertyValue("--voice-level")));
+    }).observe(element, { attributes: true, attributeFilter: ["style"] });
+  });
   await page.getByRole("button", { name: "Start microphone" }).click();
   await expect(page.getByRole("button", { name: "End voice conversation" })).toBeVisible();
   await expect(page.getByText("There are three pending documents.", { exact: true })).toBeVisible();
-  await expect.poll(() => page.getByTestId("assistant-voice-status").evaluate((element) => Number((element as HTMLElement).style.getPropertyValue("--voice-level")))).toBeGreaterThan(.1);
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __nativePlaybackPeak: number }).__nativePlaybackPeak)).toBeGreaterThan(.1);
   await page.getByRole("button", { name: "End voice conversation" }).click();
   await expect(page.getByRole("button", { name: "Start microphone" })).toBeVisible();
   expect(await page.evaluate(() => (window as unknown as { __voiceTest: { tracksStopped: () => boolean } }).__voiceTest.tracksStopped())).toBe(true);

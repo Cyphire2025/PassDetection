@@ -2,7 +2,7 @@
 .panel { position: relative; width: min(76%, 620px); aspect-ratio: 1.5; max-height: 88%; border-radius: 13px; overflow: hidden; background: #d8d1c4; clip-path: inset(calc((1 - var(--reveal)) * 50%) round 13px); box-shadow: 0 15px 55px #493b1a26; pointer-events: auto; isolation: isolate; }
 .panel > img { object-fit: cover; animation: appear .65s ease-out; }
 .imageShade { position: absolute; inset: 45% 0 0; background: linear-gradient(transparent, #18140d6b); pointer-events: none; }
-.loadError { position: absolute; inset: 0; display: grid; place-content: center; margin: 0; padding: 30px; font-size: 13px; line-height: 1.7; text-align: center; color: #5c503c; background: #e4ddcf; }
+.loadError { position: absolute; inset: 0; display: grid; place-content: center; margin: 0; padding: 30px; font-size: 13px; line-height: 1.7; text-align: center; color: var(--ai-text); background: var(--ai-surface); }
 .close { position: absolute; top: 12px; right: 12px; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; border: 1px solid #ffffff38; background: #eae6ddc4; backdrop-filter: blur(10px); color: #5b5140; opacity: var(--reveal); transition: background .3s; }
 .close:hover { background: #fff9e8; }.close:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
 .download { position: absolute; top: 12px; right: 55px; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: #eae6ddc4; backdrop-filter: blur(10px); color: #5b5140; opacity: var(--reveal); text-decoration: none; }.download:hover { background: #fff9e8; }

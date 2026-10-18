@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, type RefObject } from "react";
 import { LiquidEngine } from "./liquid-sculpture/engine";
+import { paintSculptureMatte } from "./liquid-sculpture/matte";
 import type { EngineOptions, SculpturePresentation } from "./liquid-sculpture/types";
 import styles from "./liquid-sculpture/sculpture.module.css";
 
@@ -10,18 +11,20 @@ const SCULPTURE = "/ai/liquid-sculpture.webp";
 
 function engineOptions(reducedMotion: boolean): EngineOptions {
   return {
-    interactive: false, strength: 1.1, radius: 280, density: 0.85,
+    interactive: false, strength: 1.1, radius: 280, density: 1.05,
     dotSize: 1, spread: 0.85, turbulence: 0.9, returnSpeed: 1.2,
-    streaks: true, restStyle: "image", ambient: true, ambientIntensity: 0.65,
-    speed: 0.48, intro: false, reducedMotion, bg: [235 / 255, 233 / 255, 229 / 255],
+    streaks: true, restStyle: "image", ambient: true, ambientIntensity: 1,
+    speed: 0.75, intro: false, reducedMotion, bg: [235 / 255, 233 / 255, 229 / 255],
     imgBg: null, liquid: 0.85,
   };
 }
 
 /** Voice-driven adaptation of Sculpture Hero by guglielmogiannattasio.it / 21st.dev. */
-export function LiquidSculptureHero({ levelRef, presentationRef }: { levelRef: RefObject<number>; presentationRef?: RefObject<SculpturePresentation> }) {
+export function LiquidSculptureHero({ levelRef, presentationRef, dark = false }: { levelRef: RefObject<number>; presentationRef?: RefObject<SculpturePresentation>; dark?: boolean }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
+  const matteRef = useRef<HTMLCanvasElement>(null);
+  const engineRef = useRef<LiquidEngine | null>(null);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -37,7 +40,10 @@ export function LiquidSculptureHero({ levelRef, presentationRef }: { levelRef: R
     let image: HTMLImageElement | null = null;
     let imageRequest = 0;
     let intersecting = true;
-    const fail = () => { root.dataset.renderer = "image"; };
+    const fail = () => {
+      root.dataset.renderer = "image";
+      if (image && matteRef.current && root.dataset.matte !== "ready" && paintSculptureMatte(matteRef.current, image)) root.dataset.matte = "ready";
+    };
 
     const resize = () => {
       const width = root.clientWidth;
@@ -65,7 +71,7 @@ export function LiquidSculptureHero({ levelRef, presentationRef }: { levelRef: R
               if (!disposed && request === imageRequest) root.dataset.renderer = "webgl";
             };
             engine.setImage(next);
-          }
+          } else fail();
         } catch { fail(); }
       };
       next.onerror = fail;
@@ -74,6 +80,7 @@ export function LiquidSculptureHero({ levelRef, presentationRef }: { levelRef: R
 
     try {
       engine = new LiquidEngine(canvas, engineOptions(motion.matches), fail);
+      engineRef.current = engine;
       engine.readVoiceLevel = () => levelRef.current;
       engine.readPresentation = () => presentationRef?.current ?? null;
     } catch { fail(); }
@@ -96,14 +103,17 @@ export function LiquidSculptureHero({ levelRef, presentationRef }: { levelRef: R
       motion.removeEventListener("change", onMotion);
       document.removeEventListener("visibilitychange", visible);
       engine?.destroy();
+      engineRef.current = null;
       canvas.remove();
     };
   }, [levelRef, presentationRef]);
+  useEffect(() => { engineRef.current?.setOptions({ dark }); }, [dark]);
 
   return (
-    <div className={styles.root} ref={rootRef} data-testid="voice-sculpture">
+    <div className={styles.root} ref={rootRef} data-testid="voice-sculpture" data-theme={dark ? "dark" : "light"}>
       <div className={styles.fallback}>
         <Image src={SCULPTURE} alt="An interwoven horizontal sculpture of silver and sand-colored filaments" fill priority sizes="(max-width: 639px) 100vw, 1200px" unoptimized />
+        <canvas ref={matteRef} className={styles.matte} aria-hidden="true" />
       </div>
       <div ref={stageRef} className={styles.stage} />
     </div>

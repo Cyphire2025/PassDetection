@@ -17,7 +17,8 @@ test("authorized workspace renders the enlarged horizontal sculpture on desktop 
   const response = await page.goto("/ai");
   expect(response?.status()).toBe(200);
   expect(response?.headers()["permissions-policy"]).toContain("microphone=(self)");
-  await expect(page.getByRole("heading", { name: "Every journey, a little clearer." })).toBeVisible();
+  await expect(page.getByRole("main", { name: "Global Connects AI workspace" })).toBeVisible();
+  await expect(page.getByText("Every journey,", { exact: false })).toHaveCount(0);
   await expect(page.getByTestId("voice-sculpture")).toHaveAttribute("data-renderer", "webgl");
   await expect(page.getByRole("button", { name: "Start microphone" })).toHaveAttribute("aria-pressed", "false");
   await page.screenshot({ path: testInfo.outputPath("ai-desktop.png"), fullPage: true });
@@ -73,7 +74,7 @@ test("microphone denial is recoverable and keyboard escape releases input", asyn
   expect(await page.evaluate(() => (window as unknown as { __voiceTest: { tracksStopped: () => boolean } }).__voiceTest.tracksStopped())).toBe(true);
 });
 
-test("unavailable WebGL still shows the sculpture and a working microphone", async ({ page }) => {
+test("unavailable WebGL still shows the sculpture and a working microphone", async ({ page }, testInfo) => {
   await syntheticMicrophone(page);
   await page.addInitScript(() => {
     const original = HTMLCanvasElement.prototype.getContext;
@@ -88,13 +89,17 @@ test("unavailable WebGL still shows the sculpture and a working microphone", asy
   await page.getByRole("button", { name: "Start microphone" }).click();
   await expect(page.getByRole("button", { name: "Finish voice message" })).toBeVisible();
   await page.getByRole("button", { name: "Finish voice message" }).click();
+  await page.getByRole("button", { name: "Switch to dark mode" }).click();
+  await expect(page.getByTestId("voice-sculpture")).toHaveAttribute("data-matte", "ready");
+  await expect(page.getByRole("main")).toHaveCSS("background-color", "rgb(17, 19, 21)");
+  await page.screenshot({ path: testInfo.outputPath("ai-dark-fallback.png") });
 });
 
 test("reduced motion preserves the sculpture without voice deformation", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await syntheticMicrophone(page);
   await page.goto("/ai");
-  await expect(page.getByRole("heading", { name: "Every journey, a little clearer." })).toBeVisible();
+  await expect(page.getByRole("main", { name: "Global Connects AI workspace" })).toBeVisible();
   await page.getByRole("button", { name: "Start microphone" }).click();
   await expect(page.getByRole("button", { name: "Finish voice message" })).toBeVisible();
   await page.keyboard.press("Escape");
@@ -110,4 +115,49 @@ test("native browser microphone permission works on the AI route", async ({ page
   await expect(page.getByTestId("assistant-voice-status")).toContainText("Listening to you");
   await page.keyboard.press("Escape");
   await expect(page.getByRole("button", { name: "Start microphone" })).toBeVisible();
+});
+
+test("silent VRPS stays alive and dark appearance persists across reloads", async ({ page }, testInfo) => {
+  await page.route("**/api/v1/ai-assistant/assets**", (route) => route.fulfill({ json: { items: [], next_cursor: null } }));
+  await page.emulateMedia({ colorScheme: "light" });
+  await page.goto("/ai");
+  const workspace = page.getByRole("main", { name: "Global Connects AI workspace" });
+  await expect(workspace).toHaveAttribute("data-theme", "light");
+  const sculpture = page.getByTestId("voice-sculpture");
+  await expect(sculpture).toHaveAttribute("data-renderer", "webgl");
+  const canvas = sculpture.locator("canvas").last();
+  const still = await canvas.screenshot();
+  await page.waitForTimeout(1800);
+  expect(still.equals(await canvas.screenshot())).toBe(false);
+  await expect(page.getByRole("button", { name: "Start microphone" })).toHaveAttribute("aria-pressed", "false");
+  await page.getByRole("button", { name: "Switch to dark mode" }).click();
+  await expect(workspace).toHaveAttribute("data-theme", "dark");
+  await expect(workspace).toHaveCSS("background-color", "rgb(17, 19, 21)");
+  await expect(page.getByTestId("assistant-atmosphere").locator("i")).toHaveCount(54);
+  await page.getByRole("button", { name: "Open library" }).click();
+  await expect(page.getByRole("dialog", { name: "Your library" })).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath("ai-dark-library.png") });
+  await page.getByRole("button", { name: "Close panel", exact: true }).click();
+  await page.screenshot({ path: testInfo.outputPath("ai-dark-desktop.png") });
+  await page.reload();
+  await expect(workspace).toHaveAttribute("data-theme", "dark");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(sculpture).toHaveAttribute("data-renderer", "webgl");
+  await expect(workspace).toHaveCSS("background-color", "rgb(17, 19, 21)");
+  await expect(page.getByRole("button", { name: "Switch to light mode" })).toBeInViewport();
+  await expect(page.getByRole("button", { name: "Start microphone" })).toBeInViewport();
+  await page.screenshot({ path: testInfo.outputPath("ai-dark-mobile.png") });
+});
+
+test.describe("retina rendering", () => {
+  test.use({ deviceScaleFactor: 2 });
+  test("sculpture keeps native display density on desktop and phone", async ({ page }) => {
+    await page.goto("/ai");
+    const sculpture = page.getByTestId("voice-sculpture");
+    await expect(sculpture).toHaveAttribute("data-renderer", "webgl");
+    for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+      await page.setViewportSize(viewport);
+      await expect.poll(() => sculpture.locator("canvas").last().evaluate((element) => (element as HTMLCanvasElement).width / element.clientWidth)).toBeGreaterThanOrEqual(1.9);
+    }
+  });
 });

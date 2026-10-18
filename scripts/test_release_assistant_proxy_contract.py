@@ -5,7 +5,9 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from release_assistant_proxy_contract import ANCHOR, PROXY_PATH, VOICE_LOCATION, validate_assistant_proxy
+from release_assistant_proxy_contract import (
+    ANCHOR, PROXY_PATH, VOICE_LOCATION, stage_assistant_proxy, validate_assistant_proxy,
+)
 from release_retained_update import ROUTE_ALLOWLIST, forbidden_changes, validate_route_allowlist
 
 
@@ -56,3 +58,20 @@ class AssistantProxyContract(unittest.TestCase):
             (root / ROUTE_ALLOWLIST).write_text(json.dumps(['/ai', '/@assistant', '/settings/ai', 'unknown']))
             with self.assertRaises(ValueError):
                 validate_route_allowlist(root)
+
+    def test_staging_adds_route_to_inherited_copy_and_preserves_operator_rules(self):
+        inherited = self.old.replace('listen 443 ssl;', 'listen 443 ssl;\n    add_header X-Operator-Policy retained;')
+        staged = stage_assistant_proxy(inherited, self.new)
+        self.assertEqual(staged.replace(VOICE_LOCATION, '', 1), inherited)
+        self.assertEqual(staged.count(VOICE_LOCATION), 1)
+        self.assertEqual(stage_assistant_proxy(staged, self.new), staged)
+        self.assertEqual(stage_assistant_proxy(inherited, self.old), inherited)
+
+    def test_staging_never_accepts_a_changed_or_duplicate_voice_route(self):
+        for inherited, source in [
+            (self.old, self.new.replace('proxy_read_timeout 30s;', 'proxy_read_timeout 300s;')),
+            (self.new.replace('proxy_set_header Cookie $http_cookie;', ''), self.new),
+            (self.new + VOICE_LOCATION, self.new),
+        ]:
+            with self.subTest(inherited=inherited, source=source), self.assertRaises(ValueError):
+                stage_assistant_proxy(inherited, source)

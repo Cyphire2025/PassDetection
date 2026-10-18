@@ -46,6 +46,7 @@ export class LiquidEngine {
   readVoiceLevel: (() => number) | null = null
   readPresentation: (() => SculpturePresentation | null) | null = null
   private replyBlend = 0
+  private darkBlend = 0
   private voiceEnvelope = 0
   private voicePhase = 0
   lastImage: HTMLImageElement | null = null
@@ -131,7 +132,10 @@ export class LiquidEngine {
     if (!gl) throw new Error("WebGL2 unavailable")
     this.gl = gl
     const nav = navigator as Navigator & { deviceMemory?: number }
+    const rendererInfo = gl.getExtension("WEBGL_debug_renderer_info")
+    const renderer = rendererInfo ? String(gl.getParameter(rendererInfo.UNMASKED_RENDERER_WEBGL)) : ""
     this.lowPower =
+      /swiftshader|llvmpipe|softpipe|software/i.test(renderer) ||
       (nav.hardwareConcurrency || 8) <= 4 ||
       (nav.deviceMemory || 8) <= 4 ||
       window.matchMedia("(pointer: coarse)").matches ||
@@ -254,7 +258,9 @@ export class LiquidEngine {
   /** One particle per material pixel of a grid laid over the image. */
   private buildParticles(img: HTMLImageElement) {
     const gl = this.gl
-    const baseGrid = this.lowPower ? 420 : 760
+    // The sculpture is now a full-width focal point. Sample its material at a
+    // finer grid instead of stretching the previous coarse particle cells.
+    const baseGrid = this.lowPower ? 680 : 1320
     const gw = Math.round(baseGrid * Math.sqrt(clamp(this.opts.density, 0.15, 2)))
     const gh = Math.max(1, Math.round(gw / this.aspect))
     this.gridW = gw
@@ -383,9 +389,9 @@ export class LiquidEngine {
     this.cssW = Math.max(1, cssW)
     this.cssH = Math.max(1, cssH)
     this.rect = rect
-    let dpr = Math.min(window.devicePixelRatio || 1, this.lowPower ? 1.25 : 1.75)
+    let dpr = Math.min(window.devicePixelRatio || 1, this.lowPower ? 2.25 : 2.5)
     const px = this.cssW * this.cssH * dpr * dpr
-    if (px > 4.5e6) dpr = Math.max(1, Math.sqrt(4.5e6 / (this.cssW * this.cssH)))
+    if (px > 8e6) dpr = Math.max(1, Math.sqrt(8e6 / (this.cssW * this.cssH)))
     const w = Math.round(this.cssW * dpr)
     const h = Math.round(this.cssH * dpr)
     if (this.canvas.width !== w || this.canvas.height !== h) {
@@ -450,6 +456,8 @@ export class LiquidEngine {
   }
 
   private applyVoice(dt: number) {
+    const dark = this.opts.dark ? 1 : 0
+    this.darkBlend = this.opts.reducedMotion ? dark : this.darkBlend + (dark - this.darkBlend) * (1 - Math.pow(.89, dt))
     // Idle motion comes from the image's ambient field. Keep its envelope below
     // the interaction threshold so silent scenes skip both simulation passes.
     const ambient = this.opts.ambient && !this.opts.reducedMotion ? 0.005 : 0
@@ -479,6 +487,12 @@ export class LiquidEngine {
   private frame = (now: number) => {
     if (!this.running) return
     const rawMs = now - this.last
+    // Software GPUs can report dozens of CPU cores. Keep their detailed material
+    // grid in the mobile tier and reserve main-thread time for audio and controls.
+    if (this.lowPower && rawMs < 31) {
+      this.raf = requestAnimationFrame(this.frame)
+      return
+    }
     const dt = clamp(rawMs / 16.6667, 0.25, 3)
     this.last = now
     const o = this.opts
@@ -659,10 +673,12 @@ export class LiquidEngine {
     gl.uniform1f(I.u.uReply, this.replyBlend)
     gl.uniform1f(I.u.uReveal, reveal)
     gl.uniform1f(I.u.uAlphaMode, this.alphaMode ? 1 : 0)
+    gl.uniform1f(I.u.uDark, this.darkBlend)
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
 
-    // particles are invisible at rest in "image" mode: skip them entirely
-    if (!this.n || (!this.stateDirty && rest === 0 && introVis >= 1 && reveal === 0)) return
+    // A sparse layer of material drifts independently even in silence. It uses
+    // the vertex shader, so idle scenes still avoid the two simulation passes.
+    if (!this.n || (!this.stateDirty && amb === 0 && rest === 0 && introVis >= 1 && reveal === 0)) return
 
     const P = this.pPart
     gl.useProgram(P.p)
@@ -681,6 +697,8 @@ export class LiquidEngine {
     gl.bindTexture(gl.TEXTURE_2D, this.flowTex[this.flowIdx])
     gl.uniform1i(P.u.uFlow, 3)
     gl.uniform1i(P.u.uTexW, TEX_W)
+    const idleStride = !this.stateDirty && rest === 0 && introVis >= 1 && reveal === 0 ? 64 : 1
+    gl.uniform1i(P.u.uIdleStride, idleStride)
     gl.uniform4f(P.u.uRect, r.x, r.y, r.w, r.h)
     gl.uniform2f(P.u.uRes, this.cssW, this.cssH)
     gl.uniform2f(P.u.uMouse, mx, my)
@@ -699,7 +717,7 @@ export class LiquidEngine {
     gl.uniform1f(P.u.uDpr, dpr)
     if (this.alphaMode) gl.uniform3f(P.u.uTint, 1, 1, 1)
     else gl.uniform3f(P.u.uTint, br / Math.max(ir, 0.001), bg / Math.max(ig, 0.001), bb / Math.max(ib, 0.001))
-    gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, this.n)
+    gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, Math.ceil(this.n / idleStride))
     gl.disable(gl.BLEND)
   }
 
