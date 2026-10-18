@@ -91,7 +91,7 @@ test("unavailable WebGL still shows the sculpture and a working microphone", asy
   await page.getByRole("button", { name: "Finish voice message" }).click();
   await page.getByRole("button", { name: "Switch to dark mode" }).click();
   await expect(page.getByTestId("voice-sculpture")).toHaveAttribute("data-matte", "ready");
-  await expect(page.getByRole("main")).toHaveCSS("background-color", "rgb(17, 19, 21)");
+  await expect(page.getByRole("main")).toHaveCSS("background-color", "rgb(0, 0, 0)");
   await page.screenshot({ path: testInfo.outputPath("ai-dark-fallback.png") });
 });
 
@@ -132,7 +132,7 @@ test("silent VRPS stays alive and dark appearance persists across reloads", asyn
   await expect(page.getByRole("button", { name: "Start microphone" })).toHaveAttribute("aria-pressed", "false");
   await page.getByRole("button", { name: "Switch to dark mode" }).click();
   await expect(workspace).toHaveAttribute("data-theme", "dark");
-  await expect(workspace).toHaveCSS("background-color", "rgb(17, 19, 21)");
+  await expect(workspace).toHaveCSS("background-color", "rgb(0, 0, 0)");
   await expect(page.getByTestId("assistant-atmosphere").locator("i")).toHaveCount(54);
   await page.getByRole("button", { name: "Open library" }).click();
   await expect(page.getByRole("dialog", { name: "Your library" })).toBeVisible();
@@ -143,7 +143,7 @@ test("silent VRPS stays alive and dark appearance persists across reloads", asyn
   await expect(workspace).toHaveAttribute("data-theme", "dark");
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(sculpture).toHaveAttribute("data-renderer", "webgl");
-  await expect(workspace).toHaveCSS("background-color", "rgb(17, 19, 21)");
+  await expect(workspace).toHaveCSS("background-color", "rgb(0, 0, 0)");
   await expect(page.getByRole("button", { name: "Switch to light mode" })).toBeInViewport();
   await expect(page.getByRole("button", { name: "Start microphone" })).toBeInViewport();
   await page.screenshot({ path: testInfo.outputPath("ai-dark-mobile.png") });

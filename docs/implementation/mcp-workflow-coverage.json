@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "reviewed_at": "2026-10-18",
+  "reviewed_at": "2026-10-19",
   "scope": "Source route declarations, committed HTTP operations, frontend API/direct-transport callables, browser pages and routing registries. Surfaces are not unique tool counts.",
   "truth_contract": "All allowed workflows begin planned; only retained executable adapter and evidence may change implementation state. The ledger is never a runtime permission allowlist.",
   "owners": {
@@ -134,6 +134,24 @@
       "disposition": "internal_dependency",
       "phase": null,
       "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/ai/api.ts:deleteConversation",
+        "kind": "frontend_callable",
+        "source": "frontend/features/ai/api.ts",
+        "handler": "deleteConversation"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Explicitly confirmed removal of the authenticated owner's private assistant conversation, with cookie CSRF and owner/scope checks. This first-party UI operation is not exposed to MCP or model tools. Dashboard business records and library assets are outside its fixed deletion prefixes.",
       "adapter_requirements": [],
       "implementation": {
         "status": "not_applicable",
@@ -14756,6 +14774,30 @@
         "evidence": []
       },
       "exclusion_boundary": "no_removal"
+    },
+    {
+      "surface": {
+        "id": "openapi:DELETE:/api/v1/ai-assistant/conversations/{conversation_id}",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "DELETE",
+        "path": "/api/v1/ai-assistant/conversations/{conversation_id}",
+        "operation_id": "delete_conversation_api_v1_ai_assistant_conversations__conversation_id__delete",
+        "tags": [
+          "AI Assistant"
+        ],
+        "summary": "Delete Conversation"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Explicitly confirmed removal of the authenticated owner's private assistant conversation, with cookie CSRF and owner/scope checks. This first-party UI operation is not exposed to MCP or model tools. Dashboard business records and library assets are outside its fixed deletion prefixes.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
     },
     {
       "surface": {
@@ -34674,6 +34716,29 @@
       "disposition": "internal_dependency",
       "phase": null,
       "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/ai_assistant.py:delete_conversation:DELETE:/conversations/{conversation_id}",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/ai_assistant.py",
+        "handler": "delete_conversation",
+        "method": "DELETE",
+        "local_path": "/conversations/{conversation_id}",
+        "contract_sha256": "9331a7cbda47d656bb995582c45ea71c19492a085bb8c4ec8f9ebf961b3827bc",
+        "summary": "delete conversation",
+        "schema_visible": true
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Explicitly confirmed removal of the authenticated owner's private assistant conversation, with cookie CSRF and owner/scope checks. This first-party UI operation is not exposed to MCP or model tools. Dashboard business records and library assets are outside its fixed deletion prefixes.",
       "adapter_requirements": [],
       "implementation": {
         "status": "not_applicable",

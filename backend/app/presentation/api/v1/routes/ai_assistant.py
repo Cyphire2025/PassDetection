@@ -137,6 +137,21 @@ async def conversation(
         raise _http(exc) from None
 
 
+@router.delete("/conversations/{conversation_id}", status_code=204, dependencies=[Depends(require_cookie_csrf)])
+async def delete_conversation(
+    conversation_id: UUID, user: User = Depends(assistant_user),
+) -> Response:
+    try:
+        await fresh_actor(user)
+        async with asyncio.timeout(30):
+            await assistant_store(user).delete_conversation(conversation_id)
+    except AssistantError as exc:
+        raise _http(exc) from None
+    except TimeoutError:
+        raise _http(AssistantError("deletion_incomplete", "Deletion could not finish. Please try again.")) from None
+    return Response(status_code=204, headers=PRIVATE_HEADERS)
+
+
 @router.get("/assets")
 async def assets(
     response: Response,

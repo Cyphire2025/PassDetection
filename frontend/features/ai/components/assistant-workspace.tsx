@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, ArrowUpRight, Library, Loader2, MessageSquare, Mic, Moon, Plus, Settings2, Square, Sun, VolumeX, X } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, ChevronLeft, Library, Loader2, MessageSquare, Mic, Moon, Plus, Settings2, Square, Sun, VolumeX, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -27,6 +27,9 @@ export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
   const [activeImage, setActiveImage] = useState<Asset | null>(null);
   const [images, setImages] = useState<Asset[]>([]);
   const [voiceFiles, setVoiceFiles] = useState<Asset[]>([]);
+  const [conversationOpen, setConversationOpen] = useState(true);
+  const conversationPanel = useRef<HTMLDivElement>(null);
+  const conversationTab = useRef<HTMLButtonElement>(null);
   const speechAllowed = useRef(false);
   const sendVoice = useRef<(text: string) => void>(() => undefined);
   const audio = useAssistantAudio(useCallback((text: string) => sendVoice.current(text), []));
@@ -44,7 +47,7 @@ export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
   const accountKey = `${assistant.status?.account_id || "public"}:${assistant.status?.account_scope || "default"}`;
   const [workspaceAccount, setWorkspaceAccount] = useState(accountKey);
   if (workspaceAccount !== accountKey) {
-    setWorkspaceAccount(accountKey); setImages([]); setActiveImage(null); setDrawer(null); setVoiceFiles([]);
+    setWorkspaceAccount(accountKey); setImages([]); setActiveImage(null); setDrawer(null); setVoiceFiles([]); setConversationOpen(true);
   }
   const ready = signedIn && Boolean(assistant.status?.configured);
   const nativeEnabled = Boolean(assistant.status?.native_voice);
@@ -85,9 +88,16 @@ export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
   const { stopInput, stopPlayback } = audio;
   const { stop: stopAssistant } = assistant;
   const stopEverything = useCallback(() => { stopNative(); stopInput(true); stopPlayback(); stopAssistant(); }, [stopNative, stopInput, stopPlayback, stopAssistant]);
+  const hideConversation = () => { setConversationOpen(false); requestAnimationFrame(() => conversationTab.current?.focus({ preventScroll: true })); };
+  const showConversation = () => { setConversationOpen(true); requestAnimationFrame(() => conversationPanel.current?.querySelector<HTMLButtonElement>("[data-conversation-close]")?.focus({ preventScroll: true })); };
+  const deleteConversation = async (id: string) => {
+    if (id === assistant.conversationId) stopEverything();
+    const cleared = await assistant.deleteConversation(id);
+    if (cleared) { setActiveImage(null); setImages([]); }
+  };
   const back = useCallback(() => { stopEverything(); if (onBack) onBack(); else router.push("/dashboard"); }, [onBack, router, stopEverything]);
   useEffect(() => { window.addEventListener("assistant-request-back", back); return () => window.removeEventListener("assistant-request-back", back); }, [back]);
-  const newConversation = () => { stopEverything(); assistant.newConversation(); setActiveImage(null); setImages([]); };
+  const newConversation = () => { stopEverything(); assistant.newConversation(); setActiveImage(null); setImages([]); setConversationOpen(true); };
   const microphone = async () => {
     if (nativeSession || listening || requesting) { stopNative(); audio.stopInput(); return; }
     audio.warmAudio(); native.warm();
@@ -101,7 +111,8 @@ export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
   const label = native.connecting ? "Connecting voice…" : phase === "listening" ? "Listening to you" : phase === "speaking" ? "Speaking with you" : phase === "thinking" ? assistant.progress || "Thinking…" : "";
   const error = native.error || audio.error || assistant.error;
 
-  return <main className={styles.page} aria-label="Global Connects AI workspace" data-theme={dark ? "dark" : "light"} data-phase={phase} data-has-conversation={assistant.messages.length > 0} data-image-open={Boolean(activeImage)}>
+  const panelOpen = assistant.messages.length > 0 && conversationOpen;
+  return <main className={styles.page} aria-label="Global Connects AI workspace" data-theme={dark ? "dark" : "light"} data-phase={phase} data-has-conversation={assistant.messages.length > 0} data-conversation-open={panelOpen} data-image-open={Boolean(activeImage)}>
     <div className={styles.atmosphere} aria-hidden="true" data-testid="assistant-atmosphere">{MOTES.map((mote, index) => <i key={index} className={index % 13 === 0 ? styles.doubleMote : undefined} style={{ left: mote.left, top: mote.top, animationDelay: mote.delay, animationDuration: mote.duration, width: mote.size, height: mote.size }} />)}</div>
     <header className={styles.header}>
       <div className={styles.brandGroup}><button type="button" onClick={back} className={styles.backButton} aria-label="Back to workspace"><ArrowLeft size={19} /></button><div className={styles.brand} aria-label="Global Connects"><span className={styles.monogram}>gc<ArrowUpRight size={16} strokeWidth={2.5} /></span><span>Global Connects<small>YOUR TRAVEL WORKSPACE</small></span></div></div>
@@ -126,13 +137,16 @@ export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
             {speaking ? <button type="button" onClick={() => { stopNative(); audio.stopPlayback(); }} className={styles.quietButton}><VolumeX size={12} />Stop speaking</button> : null}
           </div>
         </section>
-        {assistant.messages.length ? <ConversationThread messages={assistant.messages} progress={assistant.progress} speaking={speaking} speechReady={Boolean(assistant.status?.speech_configured)} onSpeak={(text) => { stopNative(); audio.warmAudio(); void audio.speak(text); }} onImage={openImage} hasEarlier={Boolean(assistant.olderCursor)} loadingHistory={assistant.loadingHistory} onLoadEarlier={() => void assistant.loadEarlier()} /> : null}
+        <div className={styles.conversationPanel} ref={conversationPanel} id="assistant-conversation-panel" aria-hidden={!panelOpen} inert={!panelOpen}>
+          {assistant.messages.length ? <ConversationThread messages={assistant.messages} progress={assistant.progress} speaking={speaking} speechReady={Boolean(assistant.status?.speech_configured)} onSpeak={(text) => { stopNative(); audio.warmAudio(); void audio.speak(text); }} onImage={openImage} hasEarlier={Boolean(assistant.olderCursor)} loadingHistory={assistant.loadingHistory} onLoadEarlier={() => void assistant.loadEarlier()} onHide={hideConversation} /> : null}
+        </div>
+        <div className={styles.composerDock}>
+          {error ? <div className={styles.errorNotice} role="alert"><span>{error}</span><button type="button" onClick={() => { assistant.setError(""); audio.clearError(); native.clearError(); }} aria-label="Dismiss notice"><X size={13} /></button></div> : null}
+          <AssistantComposer key={accountKey} ready={ready} busy={assistant.busy || native.connecting || native.recovering} voiceActive={nativeSession} text={draft} onTextChange={setDraft} onSubmit={(text, files, mode, count) => { if (native.active && mode === "chat") native.sendText(text); else if (nativeSession) native.sendText("Create " + count + " image(s): " + text); else void assistant.send(text, files, mode, count); }} onStop={stopEverything} onWarmAudio={audio.warmAudio} onError={assistant.setError} onAttachmentsChange={setVoiceFiles} />
+        </div>
       </div>
-      <div className={styles.composerDock}>
-        {error ? <div className={styles.errorNotice} role="alert"><span>{error}</span><button type="button" onClick={() => { assistant.setError(""); audio.clearError(); native.clearError(); }} aria-label="Dismiss notice"><X size={13} /></button></div> : null}
-        <AssistantComposer key={accountKey} ready={ready} busy={assistant.busy || native.connecting || native.recovering} voiceActive={nativeSession} text={draft} onTextChange={setDraft} onSubmit={(text, files, mode, count) => { if (native.active && mode === "chat") native.sendText(text); else if (nativeSession) native.sendText("Create " + count + " image(s): " + text); else void assistant.send(text, files, mode, count); }} onStop={stopEverything} onWarmAudio={audio.warmAudio} onError={assistant.setError} onAttachmentsChange={setVoiceFiles} />
-      </div>
+      {assistant.messages.length ? <button ref={conversationTab} type="button" className={styles.conversationTab} onClick={showConversation} aria-label="Show conversation" aria-controls="assistant-conversation-panel" aria-expanded={panelOpen} aria-hidden={panelOpen} tabIndex={panelOpen ? -1 : 0}><ChevronLeft size={18} /><MessageSquare size={14} /></button> : null}
     </> : <div className={styles.accessState} role="status">{assistant.access === "loading" ? <><Loader2 size={22} className={styles.spinner} /><p>Opening your workspace…</p></> : <><h1>{assistant.access === "guest" ? "Sign in to Global Connects" : "AI access is unavailable"}</h1><p>{assistant.access === "guest" ? "Use your authorized workspace account to continue." : "Your super administrator controls access to this workspace."}</p>{assistant.access === "guest" ? <Link href="/session-restore?from=%2Fai">Sign in<ArrowUpRight size={14} /></Link> : <button type="button" onClick={() => void assistant.refresh()}>Check access again</button>}</>}</div>}
-    {drawer && signedIn ? <WorkspaceDrawer key={drawer} kind={drawer} signedIn={signedIn} onClose={closeDrawer} onImage={openImage} onConversation={(id) => { stopEverything(); void assistant.openConversation(id); }} onNew={newConversation} /> : null}
+    {drawer && signedIn ? <WorkspaceDrawer key={drawer} kind={drawer} signedIn={signedIn} onClose={closeDrawer} onImage={openImage} onConversation={(id) => { stopEverything(); setConversationOpen(true); void assistant.openConversation(id); }} onNew={newConversation} onDelete={deleteConversation} /> : null}
   </main>;
 }

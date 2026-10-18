@@ -54,6 +54,7 @@ export const assistantApi = {
   live: async (signal?: AbortSignal) => (await apiClient.get<{ observed_at: string; agencies: { id: string; name: string }[] }>(`${BASE}/live`, { signal })).data,
   conversations: async (cursor?: string) => (await apiClient.get<PageResult<Conversation>>(`${BASE}/conversations`, { params: { cursor } })).data,
   conversation: async (id: string, cursor?: string) => (await apiClient.get<PageResult<Turn>>(`${BASE}/conversations/${id}`, { params: { cursor } })).data,
+  deleteConversation: async (id: string) => { await apiClient.delete(`${BASE}/conversations/${id}`); },
   assets: async (cursor?: string) => (await apiClient.get<PageResult<Asset>>(`${BASE}/assets`, { params: { cursor } })).data,
   upload: async (file: File, signal?: AbortSignal) => {
     const form = new FormData(); form.append("file", file);

@@ -1,16 +1,17 @@
 "use client";
 
 import Image from "next/image";
-import { ArrowDown, Check, Copy, FileText, Volume2 } from "lucide-react";
+import { ArrowDown, Check, ChevronRight, Copy, FileText, Volume2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { Asset, Message } from "../types";
 import { MessageContent } from "./message-content";
 import styles from "./thread.module.css";
 
-export function ConversationThread({ messages, progress, speaking, speechReady, onSpeak, onImage, hasEarlier, loadingHistory, onLoadEarlier }: {
+export function ConversationThread({ messages, progress, speaking, speechReady, onSpeak, onImage, hasEarlier, loadingHistory, onLoadEarlier, onHide }: {
   messages: Message[]; progress: string; speaking: boolean; speechReady: boolean;
   onSpeak: (text: string) => void; onImage: (asset: Asset) => void;
   hasEarlier: boolean; loadingHistory: boolean; onLoadEarlier: () => void;
+  onHide: () => void;
 }) {
   const scroll = useRef<HTMLDivElement>(null);
   const follow = useRef(true);
@@ -20,7 +21,7 @@ export function ConversationThread({ messages, progress, speaking, speechReady, 
   useEffect(() => { if (!copied) return; const timer = setTimeout(() => setCopied(null), 1800); return () => clearTimeout(timer); }, [copied]);
   const toEnd = () => { follow.current = true; setAtEnd(true); scroll.current?.scrollTo({ top: scroll.current.scrollHeight, behavior: "smooth" }); };
   return <section className={styles.thread} aria-label="Conversation">
-    <div className={styles.threadHeader}><span>YOUR CONVERSATION</span><span className={styles.private}>Private workspace</span></div>
+    <div className={styles.threadHeader}><span>YOUR CONVERSATION</span><div className={styles.headerActions}><span className={styles.private}>Private workspace</span><button type="button" onClick={onHide} className={styles.hideButton} aria-label="Hide conversation" aria-controls="assistant-conversation-panel" aria-expanded="true" data-conversation-close><ChevronRight size={18} /></button></div></div>
     <div className={styles.messages} ref={scroll} tabIndex={0} onScroll={() => {
       const element = scroll.current; if (!element) return;
       follow.current = element.scrollHeight - element.scrollTop - element.clientHeight < 80; setAtEnd(follow.current);

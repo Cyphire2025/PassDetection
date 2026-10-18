@@ -128,6 +128,15 @@ export function useAssistant(onAnswer: (text: string) => void, onImage: (image: 
   }, [conversationId, status?.configured]);
 
   const newConversation = useCallback(() => { stop(); historySequence.current++; setConversationId(null); setOlderCursor(null); setMessages([]); setError(""); }, [stop]);
+  const deleteConversation = useCallback(async (id: string) => {
+    const owner = account.current;
+    const sequence = ++historySequence.current;
+    await assistantApi.deleteConversation(id);
+    // A late delete response cannot clear a newly opened chat or another account.
+    const clear = owner === account.current && sequence === historySequence.current && id === conversationId;
+    if (clear) newConversation();
+    return clear;
+  }, [conversationId, newConversation]);
   const openConversation = useCallback(async (id: string) => {
     if (controller.current) return;
     const sequence = ++historySequence.current;
@@ -154,5 +163,5 @@ export function useAssistant(onAnswer: (text: string) => void, onImage: (image: 
   }, [conversationId, olderCursor, loadingHistory]);
 
   return { status, access, messages, busy, progress, error, setError, observedAt, conversationId,
-    send, stop, refresh, newConversation, openConversation, olderCursor, loadingHistory, loadEarlier, beginNative, receiveNative, finishNative };
+    send, stop, refresh, newConversation, deleteConversation, openConversation, olderCursor, loadingHistory, loadEarlier, beginNative, receiveNative, finishNative };
 }

@@ -1,4 +1,4 @@
-"""Append-only records in a new private prefix; no existing application object is replaced."""
+"""Immutable private assistant records with explicit, owner-scoped chat deletion."""
 
 from __future__ import annotations
 
@@ -13,16 +13,18 @@ from botocore.exceptions import BotoCoreError, ClientError
 
 from app.application.assistant.contracts import AssistantError, public_asset
 from app.domain.entities.entities import User, UserRole
+from app.infrastructure.assistant.conversation_records import (
+    delete_conversation,
+    deletion_record,
+    ensure_active,
+)
+from app.infrastructure.assistant.conversation_records import (
+    index_key as _index_key,
+)
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 
 MAX_RECORD_BYTES = 192 * 1024
 MAX_ASSET_BYTES = 8 * 1024 * 1024
-
-
-def _index_key(created_at: str, identifier: str) -> str:
-    # S3 lists lexically. Inverting microseconds makes each bounded page newest first.
-    stamp = int(datetime.fromisoformat(created_at).timestamp() * 1_000_000)
-    return f"{9_999_999_999_999_999_999 - stamp:019d}-{UUID(identifier)}.json"
 
 
 def account_scope(user: User) -> str:
@@ -142,13 +144,12 @@ class AssistantStore:
                 if row["Key"].startswith(self.prefix + suffix) and row["Key"].endswith(".json")
             ]
             # At most four outstanding object reads per list request.
-            records = []
+            records: list[dict[str, Any]] = []
             for start in range(0, len(keys), 4):
-                records.extend(
-                    await asyncio.gather(
-                        *(self._read(key[len(self.prefix) :]) for key in keys[start : start + 4])
-                    )
+                batch = await asyncio.gather(
+                    *(self._listed_record(key[len(self.prefix) :]) for key in keys[start : start + 4])
                 )
+                records.extend(record for record in batch if record is not None)
             return {"items": records, "next_cursor": listing.get("NextContinuationToken")}
         except AssistantError:
             raise
@@ -157,7 +158,17 @@ class AssistantStore:
                 "storage_unavailable", "Your assistant workspace is temporarily unavailable."
             ) from None
 
+    async def _listed_record(self, suffix: str) -> dict[str, Any] | None:
+        try:
+            return await self._read(suffix)
+        except AssistantError as exc:
+            # Deletion in another tab may remove an index after it was listed.
+            if exc.status != 404:
+                raise
+            return None
+
     async def create_conversation(self, conversation_id: UUID, title: str) -> None:
+        await ensure_active(self, conversation_id)
         try:
             record = await self._read(f"threads/{conversation_id}.json")
         except AssistantError as exc:
@@ -170,6 +181,7 @@ class AssistantStore:
             }
             await self._json(f"threads/{conversation_id}.json", record)
         await self._index("conversations/", record)
+        await ensure_active(self, conversation_id, cleanup=True)
 
     async def _index(self, prefix: str, record: dict[str, Any]) -> None:
         try:
@@ -182,6 +194,7 @@ class AssistantStore:
         self, conversation_id: UUID, request_id: UUID, fingerprint: str
     ) -> None:
         # Claim before a billable call. Interrupted submissions are never silently repeated.
+        await ensure_active(self, conversation_id)
         try:
             await self._json(
                 f"requests/{conversation_id}/{request_id}.json",
@@ -199,23 +212,39 @@ class AssistantStore:
                     409,
                 ) from None
             raise
+        await ensure_active(self, conversation_id, cleanup=True)
 
     async def conversations(self, cursor: str | None = None) -> dict[str, Any]:
-        return await self._list("conversations/", cursor=cursor)
+        page = await self._list("conversations/", cursor=cursor)
+        visible = []
+        for record in page["items"]:
+            if await deletion_record(self, UUID(record["id"])) is None:
+                visible.append(record)
+        return {**page, "items": visible}
+
+    async def delete_conversation(self, conversation_id: UUID) -> None:
+        await delete_conversation(self, conversation_id)
 
     async def turns(self, conversation_id: UUID, cursor: str | None = None) -> dict[str, Any]:
-        return await self._list(f"timeline/{conversation_id}/", cursor=cursor, limit=50)
+        await ensure_active(self, conversation_id)
+        page = await self._list(f"timeline/{conversation_id}/", cursor=cursor, limit=50)
+        await ensure_active(self, conversation_id)
+        return page
 
     async def turn(self, conversation_id: UUID, request_id: UUID) -> dict[str, Any]:
+        await ensure_active(self, conversation_id)
         record = await self._read(f"turns/{conversation_id}/{request_id}.json")
         await self._index(f"timeline/{conversation_id}/", record)
+        await ensure_active(self, conversation_id, cleanup=True)
         return record
 
     async def save_turn(
         self, conversation_id: UUID, request_id: UUID, record: dict[str, Any]
     ) -> None:
+        await ensure_active(self, conversation_id)
         await self._json(f"turns/{conversation_id}/{request_id}.json", record)
         await self._index(f"timeline/{conversation_id}/", record)
+        await ensure_active(self, conversation_id, cleanup=True)
 
     async def save_asset(
         self,

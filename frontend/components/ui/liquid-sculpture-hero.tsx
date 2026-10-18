@@ -11,10 +11,10 @@ const SCULPTURE = "/ai/liquid-sculpture.webp";
 
 function engineOptions(reducedMotion: boolean): EngineOptions {
   return {
-    interactive: false, strength: 1.1, radius: 280, density: 1.05,
+    interactive: true, strength: 1.1, radius: 280, density: 1.05,
     dotSize: 1, spread: 0.85, turbulence: 0.9, returnSpeed: 1.2,
-    streaks: true, restStyle: "image", ambient: true, ambientIntensity: 1,
-    speed: 0.75, intro: false, reducedMotion, bg: [235 / 255, 233 / 255, 229 / 255],
+    streaks: true, restStyle: "image", ambient: true, ambientIntensity: 1.25,
+    speed: 0.9, intro: false, reducedMotion, bg: [235 / 255, 233 / 255, 229 / 255],
     imgBg: null, liquid: 0.85,
   };
 }
@@ -94,6 +94,16 @@ export function LiquidSculptureHero({ levelRef, presentationRef, dark = false, r
     });
     intersection.observe(root);
     const onMotion = () => engine?.setOptions({ reducedMotion: motion.matches });
+    // Listen on the shared stage so the image viewer can receive clicks while
+    // the same particles behind its boundary still respond to pointer movement.
+    const pointerSurface = root.parentElement ?? root;
+    const pointer = (event: PointerEvent) => {
+      const bounds = root.getBoundingClientRect();
+      const type = event.type === "pointerleave" ? "leave" : event.type === "pointerdown" ? "down" : event.type === "pointerup" || event.type === "pointercancel" ? "up" : "move";
+      engine?.pointer(type, event.clientX-bounds.left, event.clientY-bounds.top, event.pointerType !== "mouse");
+    };
+    const pointerEvents = ["pointermove", "pointerdown", "pointerup", "pointercancel", "pointerleave"] as const;
+    for (const event of pointerEvents) pointerSurface.addEventListener(event, pointer, { passive: true });
     motion.addEventListener("change", onMotion);
     document.addEventListener("visibilitychange", visible);
     load();
@@ -102,6 +112,7 @@ export function LiquidSculptureHero({ levelRef, presentationRef, dark = false, r
       observer.disconnect();
       intersection.disconnect();
       motion.removeEventListener("change", onMotion);
+      for (const event of pointerEvents) pointerSurface.removeEventListener(event, pointer);
       document.removeEventListener("visibilitychange", visible);
       engine?.destroy();
       engineRef.current = null;

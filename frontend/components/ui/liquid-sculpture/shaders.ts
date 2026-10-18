@@ -38,6 +38,9 @@ uniform sampler2D uPrev;
 uniform vec2 uTexel;
 uniform vec2 uMouse;
 uniform vec2 uVel;
+uniform vec2 uPointer;
+uniform vec2 uPointerVel;
+uniform float uPointerPresence;
 uniform vec2 uSize;
 uniform float uRadius;
 uniform float uPresence;
@@ -56,6 +59,10 @@ void main(){
   float sp = clamp(length(uVel)*2.5, 0.0, 1.0);
   v += uVel*f*0.22;
   p = max(p, f*sp);
+  vec2 pd = (vUv-uPointer)*uSize;
+  float pf = exp(-dot(pd,pd)/(uRadius*uRadius*.58))*uPointerPresence;
+  v += uPointerVel*pf*.19;
+  p = max(p,pf*clamp(length(uPointerVel)*2.5,0.0,1.0));
   v *= uDecay;
   p *= uDecay;
   v = sign(v)*max(abs(v)-1.2/127.0, 0.0);
@@ -83,6 +90,8 @@ uniform float uReturn;
 uniform float uTime;
 uniform float uDt;
 uniform float uIntro;
+uniform vec2 uPointer;
+uniform float uPointerPresence;
 ${NOISE}
 vec2 curl(vec2 p){
   const float e = 0.35;
@@ -121,6 +130,12 @@ void main(){
   vec2 q = p*0.0095 + vec2(uTime*0.35, -uTime*0.2);
   vec2 c = curl(q) + 0.5*curl(q*2.3 + 7.1);
   acc += c*(e*1.2*uSpread + uIntro*1.5)*uTurb*light;
+  // A real pointer remains independent of the voice-driven figure eight.
+  vec2 pd = p-uPointer;
+  float pf = exp(-dot(pd,pd)/(uRadius*uRadius*.58))*uPointerPresence;
+  vec2 pn = pd*inversesqrt(dot(pd,pd)+16.0);
+  acc += (pn*1.35+vec2(-pn.y,pn.x)*.7)*pf*uSpread*light;
+  acc += c*pf*.6*uTurb;
   // elastic return home
   float k = (0.006 + 0.02*uReturn)*(0.65+sd*0.7)*(1.0 - uIntro*0.75);
   acc -= off*k;
@@ -159,6 +174,10 @@ uniform float uReply;
 uniform float uReveal;
 uniform vec2 uRevealSize;
 uniform float uDark;
+uniform vec2 uPointer;
+uniform vec2 uPointerVel;
+uniform float uPointerPresence;
+uniform float uVoice;
 out vec2 vLocal;
 out float vHalfLen;
 out float vR;
@@ -201,7 +220,8 @@ void main(){
   vec4 cl = texelFetch(uCol, ij, 0);
 
   float wakeE = texture(uFlow, hm.xy).b;
-  float E = energyAt(hm.xy*uRect.zw, uMouse, uRadius, uPresence, wakeE);
+  float E = max(energyAt(hm.xy*uRect.zw, uMouse, uRadius, uPresence, wakeE),
+    energyAt(hm.xy*uRect.zw,uPointer-uRect.xy,uRadius*.76,uPointerPresence,0.0));
   float lift = smoothstep(0.35, 2.5, length(st.xy));
   float looseGrain = uIdleStride > 1 ? 1.0 : step(0.982, hm.z);
   float idle = looseGrain*min(0.3, uAmbient*0.27);
@@ -219,30 +239,45 @@ void main(){
   if(uReveal > 0.0){
     vec2 extent = max(vec2(1.0), uRevealSize*uReveal);
     float radius = min(13.0,min(extent.x,extent.y)*.25);
-    float perimeter = 2.0*(extent.x+extent.y-4.0*radius)+6.28318530718*radius;
     // hm.z and home UVs belong to each existing sculpture particle. No border
     // emitter, replacement buffer or extra instances are created for the reveal.
     float seed = hm.z;
     float layer = hash(hm.xy*371.0+seed);
-    float travel = seed*perimeter + uTime*(20.0+layer*9.0);
-    vec4 edge = boundary(travel,extent,radius);
+    float band = clamp(min(uRevealSize.x,uRevealSize.y)*.09,13.0,37.0);
+    float depth = 7.0+band*(.08+.92*pow(layer,1.25));
+    // Travel on the OUTER lane's arc length. Offsetting an inner path made the
+    // corners unnaturally fast and sparse, especially in the outer layers.
+    vec2 laneSize = extent+vec2(depth*2.0);
+    float laneRadius = radius+depth;
+    float perimeter = 2.0*(laneSize.x+laneSize.y-4.0*laneRadius)+6.28318530718*laneRadius;
+    float stream = hash(hm.xy*187.0+seed*7.0);
+    float direction = stream < .5 ? -1.0 : 1.0;
+    float travel = seed*perimeter+uTime*direction*(8.0+stream*10.0)
+      + sin(seed*197.0+uTime*.38)*7.0;
+    vec4 edge = boundary(travel,laneSize,laneRadius);
     vec2 tangent = vec2(-edge.w,edge.z);
-    float band = clamp(min(uRevealSize.x,uRevealSize.y)*.105,12.0,44.0);
-    float ripple = sin(travel*.027+uTime*.8+layer*6.28)*2.8
-      + sin(seed*171.0-uTime*.7)*1.8;
-    // All layers remain outside the image. A deep, gently folding band carries
-    // the full material instead of hiding most grains behind an opaque panel.
-    float depth = 3.5 + band*(.12+.88*pow(layer,1.8)) + ripple;
-    vec2 target = uRes*.5+edge.xy+edge.zw*max(2.0,depth)
-      + tangent*sin(seed*283.0+uTime*.9)*2.0;
+    float orbit = seed*331.0+uTime*(.65+stream*.45);
+    float swell = sin(travel*.018-uTime*.6)*2.0;
+    vec2 eddy = tangent*cos(orbit)*3.6+edge.zw*(sin(orbit)*3.5+swell);
+    // Voice lifts local folds without turning the entire cloud into a rigid belt.
+    eddy += edge.zw*sin(travel*.025-uTime*1.2)*(1.0+uVoice*7.0);
+    vec2 target = uRes*.5+edge.xy+eddy;
+    vec2 pointerDelta = target-uPointer;
+    float pointerFall = exp(-dot(pointerDelta,pointerDelta)/(uRadius*uRadius*.5))*uPointerPresence;
+    vec2 pointerNormal = pointerDelta*inversesqrt(dot(pointerDelta,pointerDelta)+36.0);
+    target += (pointerNormal*22.0+vec2(-pointerNormal.y,pointerNormal.x)*8.0
+      + clamp(uPointerVel,vec2(-24.0),vec2(24.0))*.5)*pointerFall;
     float gather = smoothstep(.04,.94,uReveal);
     base = mix(base,target,gather);
     // The expanding panel physically pushes any remaining material it reaches.
     // Reversing the same progress returns each grain to its own original home.
     vec2 delta = base-uRes*.5;
-    vec2 halfExtent = extent*.5+vec2(2.0);
-    float collision = min(halfExtent.x/max(abs(delta.x),.1), halfExtent.y/max(abs(delta.y),.1));
-    base = mix(base,uRes*.5+delta*max(1.0,collision),smoothstep(0.0,.08,uReveal));
+    vec2 q = abs(delta)-(extent*.5-vec2(radius));
+    vec2 outside = max(q,vec2(0.0));
+    float distance = length(outside)+min(max(q.x,q.y),0.0)-radius;
+    vec2 normal = length(outside) > .001 ? sign(delta)*normalize(outside)
+      : q.x > q.y ? vec2(sign(delta.x+.001),0.0) : vec2(0.0,sign(delta.y+.001));
+    base += normal*max(0.0,2.0-distance)*smoothstep(0.0,.08,uReveal);
   }
 
   vec2 v = st.zw;
@@ -250,7 +285,7 @@ void main(){
   vec2 dir = sp > 0.001 ? v/sp : vec2(1.0,0.0);
   float r = uDot*hm.w*0.5;
   r = mix(r, max(.45,r*(.72+hm.z*.5)),uReveal);
-  float len = min(sp*1.25, 18.0)*uStreak*(1.0-uReveal);
+  float len = min(sp*1.15, 13.0)*uStreak*(1.0-uReveal);
   vec2 lc = aCorner*vec2(r + len*0.5 + 1.0, r + 1.0);
   vec2 center = base - dir*len*0.5;
   vec2 world = center + dir*lc.x + vec2(-dir.y, dir.x)*lc.y;
@@ -267,7 +302,7 @@ void main(){
   col = mix(col, vec3(col.r*.52, col.g*1.02, col.b*1.2), uReply*.78);
   // fast material catches the light, like liquid metal
   float glint = smoothstep(2.0, 16.0, sp);
-  col = mix(col, min(col*1.18 + vec3(0.07,0.075,0.085), vec3(1.0)), glint*0.75);
+  col = mix(col, min(col*1.14 + vec3(0.05,0.055,0.065), vec3(1.0)), glint*0.55);
   vCol = col;
   vA = a;
 }
@@ -285,7 +320,8 @@ out vec4 o;
 void main(){
   vec2 q = vec2(max(abs(vLocal.x)-vHalfLen, 0.0), vLocal.y);
   float d = length(q) - vR;
-  float a = clamp(0.5 - d*uDpr, 0.0, 1.0);
+  float feather = max(.72/uDpr,fwidth(d)*.65);
+  float a = 1.0-smoothstep(-feather,feather,d);
   // comet tail: the trailing end thins out
   float tail = vHalfLen > 0.0 ? clamp(0.5 - vLocal.x/(2.0*(vHalfLen+vR)), 0.0, 1.0) : 0.0;
   a *= 1.0 - tail*0.55;
@@ -319,6 +355,9 @@ uniform float uAlphaMode;
 uniform float uDark;
 uniform float uReply;
 uniform float uReveal;
+uniform vec2 uPointer;
+uniform vec2 uPointerVel;
+uniform float uPointerPresence;
 ${NOISE}
 ${ENERGY}
 void main(){
@@ -333,6 +372,9 @@ void main(){
   float fall = exp(-dot(toM,toM)/(uRadius*uRadius))*uPresence;
   vec2 disp = -toM*0.22*uStrength*fall - vel*10.0*uStrength;
   disp += ambientField(uv, uTime)*18.0*uAmbient;
+  vec2 pointerDelta = rp-uPointer;
+  float pointerFall = exp(-dot(pointerDelta,pointerDelta)/(uRadius*uRadius*.58))*uPointerPresence;
+  disp -= pointerDelta*.15*pointerFall+uPointerVel*.32*pointerFall;
   vec2 suv = uv + disp/size;
   vec4 tx = texture(uImg, suv);
   // Most pixels are empty. Key them before the detail filter, avoiding four
@@ -344,11 +386,12 @@ void main(){
     + texture(uImg, suv-vec2(texel.x,0.0)).rgb
     + texture(uImg, suv+vec2(0.0,texel.y)).rgb
     + texture(uImg, suv-vec2(0.0,texel.y)).rgb;
-  vec3 col = clamp(tx.rgb + (tx.rgb*4.0-around)*0.18, 0.0, 1.0);
+  vec3 col = clamp(tx.rgb + (tx.rgb*4.0-around)*0.055, 0.0, 1.0);
   vec2 e = smoothstep(vec2(0.0), vec2(0.004,0.01), suv) * smoothstep(vec2(1.0), vec2(0.996,0.99), suv);
   // cut-out images carry their own alpha; flat-background images are keyed by colour
   float k = key*e.x*e.y;
-  float E = energyAt(rp, uMouse, uRadius, uPresence, fl.b);
+  float E = max(energyAt(rp, uMouse, uRadius, uPresence, fl.b),
+    energyAt(rp,uPointer,uRadius*.76,uPointerPresence,0.0));
   float show = (1.0 - max(E, uRest))*uIntroVis;
   vec3 mat = uAlphaMode > 0.5 ? col : col*(uBg/max(uImgBg, vec3(0.001)));
   // Remove the pale source matte from partially covered edges on a dark page.
