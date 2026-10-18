@@ -85,6 +85,14 @@ exact reviewed voice location to their candidate copy. Source admission alone
 does not install it: post-release checks must inspect the running Nginx location
 and syntax, then qualify Gemini model metadata and a setup-only native handshake.
 Those diagnostics keep the saved credential in the server process.
+The production worker uses a route-aware WebSocket protocol: accepted AI voice
+connections permit at most 32 KiB per incoming message, covering 100 ms PCM
+packets (about 4.3 KiB in JSON) and bounded typed input. Every other route retains
+the 1 KiB transport ceiling. Queue depth remains four and compression stays off.
+Real loopback tests use the same options as Gunicorn; socket mocks and TestClient
+alone cannot qualify this pre-ASGI limit. Post-release qualification sends a
+synthetic microphone-sized packet through the running release's worker options
+and checks that mobile/dashboard limits still reject oversized messages.
 
 Gemini understands the original audio and streams spoken PCM at 24 kHz. Optional
 input/output transcription serves chat captions and private history; no HTTP

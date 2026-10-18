@@ -43,6 +43,22 @@ def live_rows():
 
 
 class Contracts(unittest.TestCase):
+    def test_release_qualifies_actual_candidate_transport_before_public_ingress(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory)
+            target = source / 'backend/app/infrastructure/bounded_websocket_protocol.py'
+            target.parent.mkdir(parents=True)
+            target.write_text('synthetic module')
+            release = object.__new__(RetainedUpdate)
+            release.source = source
+            backend = {'Id': 'candidate-exact-backend'}
+            with patch('release_retained_update.command', return_value='{"status":"passed"}') as run:
+                release.verify_assistant_transport(backend)
+                self.assertEqual(run.call_args.args, ('docker', 'exec', backend['Id'], 'python',
+                                                      'scripts/verify_assistant_transport.py'))
+            with patch('release_retained_update.command', return_value='{"status":"failed"}'), self.assertRaises(ValueError):
+                release.verify_assistant_transport(backend)
+
     def test_public_release_proof_rejects_missing_or_changed_running_voice_route(self):
         from release_assistant_proxy_contract import ANCHOR, PROXY_PATH, VOICE_LOCATION
 

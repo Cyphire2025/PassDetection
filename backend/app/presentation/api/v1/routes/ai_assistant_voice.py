@@ -234,6 +234,7 @@ async def assistant_voice(websocket: WebSocket) -> None:
                         "max_session_seconds": 600,
                     }
                 )
+                logger.info("assistant_voice_ready")
                 tasks = {
                     asyncio.create_task(
                         _client_audio(websocket, upstream, conversation),
@@ -250,8 +251,9 @@ async def assistant_voice(websocket: WebSocket) -> None:
                 done, _ = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
                 for task in done:
                     await task
-    except WebSocketDisconnect:
-        pass
+    except WebSocketDisconnect as exc:
+        if exc.code not in {1000, 1001}:
+            logger.warning("assistant_voice_disconnected", close_code=exc.code)
     except (AuthenticationError, AuthorizationError):
         if websocket.application_state == WebSocketState.CONNECTED:
             with suppress(Exception):

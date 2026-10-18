@@ -357,6 +357,8 @@ class RetainedUpdate:
     def proof(self, rows: dict, revision: str, *, public: bool) -> None:
         self.wait_health(rows)
         backend = rows['backend']['Id']
+        if revision == self.revision and not public:
+            self.verify_assistant_transport(rows['backend'])
         code = "import json,urllib.request; print(json.dumps(json.load(urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health/ready',timeout=20))))"
         wait_full_readiness(lambda: json.loads(command('docker', 'exec', backend, 'python', '-c', code)), revision)
         frontend = "Promise.all(['/login','/assets/upload-samples/visa-photo.png'].map(async p=>{let r=await fetch('http://127.0.0.1:3000'+p);if(r.status!==200)throw Error('probe')})).catch(()=>process.exit(1))"
@@ -391,6 +393,12 @@ walk(root);if(!found)throw Error('revision asset absent');console.log(JSON.strin
             command('docker', 'exec', proxy['Id'], 'nginx', '-t')
             runtime = command('docker', 'exec', proxy['Id'], 'cat', '/etc/nginx/conf.d/default.conf')
             require(stage_assistant_proxy(runtime, source) == runtime, 'running_assistant_voice_proxy_missing')
+
+    def verify_assistant_transport(self, backend: dict) -> None:
+        if (self.source / 'backend/app/infrastructure/bounded_websocket_protocol.py').is_file():
+            result = json.loads(command('docker', 'exec', backend['Id'], 'python',
+                                        'scripts/verify_assistant_transport.py', timeout=30))
+            require(result.get('status') == 'passed', 'assistant_transport_bounds_not_qualified')
 
     def candidate_environment(self, original: dict) -> dict[str, str]:
         result = runtime_environment(original, self.revision, schema=self.candidate_schema)
