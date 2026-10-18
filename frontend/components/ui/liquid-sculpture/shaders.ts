@@ -1,5 +1,7 @@
 /** Liquid sculpture shaders adapted from Sculpture Hero by guglielmogiannattasio.it, supplied via 21st.dev. */
 
+import { STATE_MOTION } from './state-motion';
+
 const NOISE = `
 float hash(vec2 p){ p = fract(p*vec2(123.34,456.21)); p += dot(p,p+45.32); return fract(p.x*p.y); }
 float vnoise(vec2 p){ vec2 i=floor(p); vec2 f=fract(p); vec2 u=f*f*f*(f*(f*6.0-15.0)+10.0);
@@ -28,6 +30,15 @@ layout(location=0) in vec2 aPos;
 out vec2 vUv;
 void main(){ vUv = aPos*0.5+0.5; gl_Position = vec4(aPos,0.0,1.0); }
 `
+
+const AMBIENT_FS = `#version 300 es
+precision highp float;
+in vec2 vUv;
+out vec4 o;
+uniform float uTime;
+${NOISE}
+void main(){o=vec4(ambientField(vUv,uTime),0.0,1.0);}
+`;
 
 /* Flow map (cursor wake). RGBA8: velocity encoded around 128, energy in B. */
 const FLOW_FS = `#version 300 es
@@ -177,12 +188,18 @@ uniform float uDark;
 uniform vec2 uPointer;
 uniform vec2 uPointerVel;
 uniform float uPointerPresence;
-uniform float uVoice;
+uniform sampler2D uMorphBefore;
+uniform sampler2D uAmbientFlow;
+uniform sampler2D uMorphAfter;
+uniform float uMorph;
+uniform float uMorphMix;
+uniform vec2 uMorphSize;
 out vec2 vLocal;
 out float vHalfLen;
 out float vR;
 out vec3 vCol;
 out float vA;
+${STATE_MOTION}
 ${NOISE}
 ${ENERGY}
 // A rounded rectangle parameterized by arc length keeps the original material
@@ -227,15 +244,30 @@ void main(){
   float idle = looseGrain*min(0.3, uAmbient*0.27);
   float a = max(max(E, lift), max(max(uRest, idle), 1.0-uIntroVis));
   a = max(a, smoothstep(0.0,.14,uReveal));
+  a = max(a,uMorph);
   if(a < 0.01 || hm.w <= 0.0){ gl_Position = vec4(2.0,2.0,2.0,1.0); return; }
 
   vec2 base = uRect.xy + hm.xy*uRect.zw + st.xy;
-  base -= ambientField(hm.xy, uTime)*18.0*uAmbient;
+  base -= texture(uAmbientFlow,hm.xy).xy*18.0*uAmbient;
   // Different seeds give the loose grains their own slow orbit. The material
   // stays horizontal and breathes without pretending that the microphone is on.
   float loosen = looseGrain*(1.0-E)*(1.0-uReveal);
   base += vec2(sin(hm.z*1537.0+uTime*.75), cos(hm.z*971.0+uTime*.61))
     *(4.0+hm.w*8.0)*uAmbient*loosen;
+  if(uMorph > 0.0){
+    vec4 target=mix(texelFetch(uMorphBefore,ij,0),texelFetch(uMorphAfter,ij,0),uMorphMix);
+    float yaw=sin(uTime*.26)*.13;
+    vec2 shaped=uRes*.5+vec2(target.x*cos(yaw)+target.z*sin(yaw),target.y)*uMorphSize;
+    float talking=max(0.0,1.0-abs(uPhase-3.0))*uVoice;
+    shaped.y+=target.w*talking*uMorphSize.y*.19;
+    shaped.x+=sin(hm.z*51.0+uTime*.5)*1.1;
+    shaped.y+=cos(hm.z*37.0+uTime*.4)*1.0;
+    vec2 delta=shaped-uPointer;
+    float fall=exp(-dot(delta,delta)/(uRadius*uRadius*.4))*uPointerPresence;
+    shaped+=delta*inversesqrt(dot(delta,delta)+64.0)*fall*15.0;
+    base=mix(base,shaped,uMorph);
+  }
+  base-=stateMotion((base-uRect.xy)/uRect.zw,uTime);
   if(uReveal > 0.0){
     vec2 extent = max(vec2(1.0), uRevealSize*uReveal);
     float radius = min(13.0,min(extent.x,extent.y)*.25);
@@ -243,8 +275,9 @@ void main(){
     // emitter, replacement buffer or extra instances are created for the reveal.
     float seed = hm.z;
     float layer = hash(hm.xy*371.0+seed);
-    float band = clamp(min(uRevealSize.x,uRevealSize.y)*.09,13.0,37.0);
-    float depth = 7.0+band*(.08+.92*pow(layer,1.25));
+    float strand=floor(layer*7.0);
+    float band=clamp(min(uRevealSize.x,uRevealSize.y)*.14,20.0,55.0);
+    float depth=8.0+strand*band/6.0;
     // Travel on the OUTER lane's arc length. Offsetting an inner path made the
     // corners unnaturally fast and sparse, especially in the outer layers.
     vec2 laneSize = extent+vec2(depth*2.0);
@@ -256,9 +289,14 @@ void main(){
       + sin(seed*197.0+uTime*.38)*7.0;
     vec4 edge = boundary(travel,laneSize,laneRadius);
     vec2 tangent = vec2(-edge.w,edge.z);
-    float orbit = seed*331.0+uTime*(.65+stream*.45);
-    float swell = sin(travel*.018-uTime*.6)*2.0;
-    vec2 eddy = tangent*cos(orbit)*3.6+edge.zw*(sin(orbit)*3.5+swell);
+    float phase=travel/perimeter*6.28318530718;
+    float weave=sin(phase*5.0+strand*1.7-uTime*.4)*7.0
+      +sin(phase*9.0-strand*.83+uTime*.25)*3.5;
+    float knot=pow(.5+.5*sin(phase*3.0+strand+uTime*.23),9.0);
+    float orbit=seed*331.0+uTime*(.65+stream*.45);
+    // Fine crossing filaments open into moving knots and small drifting eddies.
+    float fibre=(fract(layer*7.0)-.5)*(1.3+knot*7.0);
+    vec2 eddy=tangent*cos(orbit)*(1.0+knot*4.0)+edge.zw*(weave+fibre+sin(orbit)*knot*3.0);
     // Voice lifts local folds without turning the entire cloud into a rigid belt.
     eddy += edge.zw*sin(travel*.025-uTime*1.2)*(1.0+uVoice*7.0);
     vec2 target = uRes*.5+edge.xy+eddy;
@@ -284,8 +322,9 @@ void main(){
   float sp = length(v);
   vec2 dir = sp > 0.001 ? v/sp : vec2(1.0,0.0);
   float r = uDot*hm.w*0.5;
-  r = mix(r, max(.45,r*(.72+hm.z*.5)),uReveal);
-  float len = min(sp*1.15, 13.0)*uStreak*(1.0-uReveal);
+  r = mix(r, max(.25,r*(.32+hm.z*.22)),uReveal);
+  r = mix(r,max(.34,r*.58),uMorph*(1.0-uReveal));
+  float len = min(sp*1.15, 13.0)*uStreak*(1.0-uReveal)*(1.0-uMorph*.85);
   vec2 lc = aCorner*vec2(r + len*0.5 + 1.0, r + 1.0);
   vec2 center = base - dir*len*0.5;
   vec2 world = center + dir*lc.x + vec2(-dir.y, dir.x)*lc.y;
@@ -352,12 +391,15 @@ uniform float uAmbient;
 uniform float uIntroVis;
 uniform float uRest;
 uniform float uAlphaMode;
+uniform sampler2D uAmbientFlow;
 uniform float uDark;
 uniform float uReply;
 uniform float uReveal;
 uniform vec2 uPointer;
 uniform vec2 uPointerVel;
 uniform float uPointerPresence;
+uniform float uMorph;
+${STATE_MOTION}
 ${NOISE}
 ${ENERGY}
 void main(){
@@ -371,7 +413,8 @@ void main(){
   vec2 toM = rp - uMouse;
   float fall = exp(-dot(toM,toM)/(uRadius*uRadius))*uPresence;
   vec2 disp = -toM*0.22*uStrength*fall - vel*10.0*uStrength;
-  disp += ambientField(uv, uTime)*18.0*uAmbient;
+  disp += texture(uAmbientFlow,uv).xy*18.0*uAmbient;
+  disp += stateMotion(uv,uTime);
   vec2 pointerDelta = rp-uPointer;
   float pointerFall = exp(-dot(pointerDelta,pointerDelta)/(uRadius*uRadius*.58))*uPointerPresence;
   disp -= pointerDelta*.15*pointerFall+uPointerVel*.32*pointerFall;
@@ -399,7 +442,7 @@ void main(){
   if(uAlphaMode < .5) mat = mix(mat, clamp((col-uImgBg*(1.0-key))/max(key,.06),0.0,1.0), uDark);
   mat = mix(mat, vec3(mat.r*.52, mat.g*1.02, mat.b*1.2), uReply*.78);
   // premultiplied: empty areas stay transparent so the page (and the backdrop word) shows through
-  float A = k*show*(1.0-smoothstep(0.0,.55,uReveal));
+  float A = k*show*(1.0-smoothstep(0.0,.55,uReveal))*(1.0-uMorph);
   o = vec4(mat*A, A);
 }
 `
@@ -407,4 +450,4 @@ void main(){
 /* ── helpers ─────────────────────────────────────────────────────────── */
 
 
-export { QUAD_VS, FLOW_FS, SIM_FS, PART_VS, PART_FS, IMAGE_FS };
+export { QUAD_VS, AMBIENT_FS, FLOW_FS, SIM_FS, PART_VS, PART_FS, IMAGE_FS };

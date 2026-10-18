@@ -21,7 +21,7 @@ from app.core.logging.logger import get_logger
 from app.domain.entities.entities import User
 from app.domain.exceptions.exceptions import AuthenticationError, AuthorizationError
 from app.infrastructure.assistant.gemini_live import live_connection, live_setup
-from app.infrastructure.assistant.limits import assistant_admission
+from app.infrastructure.assistant.limits import assistant_admission, reserve_daily_units
 from app.infrastructure.assistant.settings_store import load_snapshot, runtime_settings
 from app.infrastructure.assistant.store import assistant_store
 from app.infrastructure.database.session import AsyncSessionFactory
@@ -66,13 +66,13 @@ async def authorize_voice(websocket: WebSocket) -> tuple[User, AssistantSettings
     return user, runtime
 
 
-async def _client_audio(websocket: WebSocket, upstream: Any, conversation: NativeSession) -> None:
+async def _client_audio(websocket: WebSocket, upstream: Any, conversation: NativeSession, max_seconds: int = 600) -> None:
     total, started = 0, time.monotonic()
     messages, text_total, text_turns = 0, 0, 0
     while True:
         raw = await asyncio.wait_for(websocket.receive_text(), timeout=20)
         messages += 1
-        if len(raw) > 40000 or messages > 12000:
+        if len(raw) > 40000 or messages > max(12000, max_seconds * 20):
             raise AssistantError(
                 "voice_limit", "The microphone stream exceeded its safe size limit.", 413
             )
@@ -89,7 +89,7 @@ async def _client_audio(websocket: WebSocket, upstream: Any, conversation: Nativ
                 not pcm
                 or len(pcm) % 2
                 or len(pcm) > 24000
-                or total > 24 * 1024 * 1024
+                or total > max(24 * 1024 * 1024, max_seconds * 40000)
                 or total > 64000 + (time.monotonic() - started) * 40000
             ):
                 raise AssistantError(
@@ -118,6 +118,7 @@ async def _client_audio(websocket: WebSocket, upstream: Any, conversation: Nativ
                 raise AssistantError(
                     "voice_limit", "Start another session to send more typed questions.", 413
                 )
+            await reserve_daily_units(conversation.user.id, operation="chat", count=1, limit=conversation.settings.daily_requests)
             await conversation.recovery_done.wait()
             await conversation.caption("input_transcript", value["text"])
             await upstream.send(
@@ -183,6 +184,7 @@ async def _authorization_heartbeat(
 async def assistant_voice(websocket: WebSocket) -> None:
     tasks: set[asyncio.Task[None]] = set()
     send_lock = asyncio.Lock()
+    expires_at = 0.0
 
     async def send(payload: dict[str, Any]) -> None:
         async with send_lock, asyncio.timeout(5):
@@ -207,7 +209,10 @@ async def assistant_voice(websocket: WebSocket) -> None:
             raise AssistantError(
                 "attachment_limit", "Use up to four attachments in a voice session.", 422
             )
-        async with assistant_admission(user.id, operation="live", limit=30, timeout_seconds=600):
+        seconds = settings.usage_limits.voice_connection_minutes * 60
+        expires_at = time.monotonic() + seconds
+        async with assistant_admission(user.id, operation="voice_chats", limit=settings.usage_limits.daily_voice_chats,
+                                       timeout_seconds=seconds, distinct_id=conversation_id) as admission:
             store = assistant_store(user)
             conversation = NativeSession(
                 _request(websocket),
@@ -230,17 +235,18 @@ async def assistant_voice(websocket: WebSocket) -> None:
                         "provider_configuration",
                         "Gemini did not accept this voice model. Check AI settings and API project access.",
                     )
+                admission.commit()
                 await send(
                     {
                         "type": "ready",
                         "conversation_id": str(conversation_id),
-                        "max_session_seconds": 600,
+                        "max_session_seconds": seconds,
                     }
                 )
                 logger.info("assistant_voice_ready")
                 tasks = {
                     asyncio.create_task(
-                        _client_audio(websocket, upstream, conversation),
+                        _client_audio(websocket, upstream, conversation, seconds),
                         name="assistant-voice-input",
                     ),
                     asyncio.create_task(
@@ -271,7 +277,12 @@ async def assistant_voice(websocket: WebSocket) -> None:
         if websocket.application_state == WebSocketState.CONNECTED:
             with suppress(Exception):
                 await send({"type": "error", "code": exc.code, "message": exc.message})
-    except (TimeoutError, WebSocketException, ValueError, KeyError, TypeError) as exc:
+    except TimeoutError:
+        if websocket.application_state == WebSocketState.CONNECTED:
+            with suppress(Exception):
+                message = "This voice connection reached its time limit." if expires_at and time.monotonic() >= expires_at else "The voice connection timed out."
+                await send({"type": "error", "code": "voice_timeout", "message": message + " Reconnect in this chat to continue without using another daily voice chat."})
+    except (WebSocketException, ValueError, KeyError, TypeError) as exc:
         logger.warning("assistant_voice_interrupted", error_type=type(exc).__name__)
         if websocket.application_state == WebSocketState.CONNECTED:
             with suppress(Exception):

@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useEffect, useImperativeHandle, useRef, type Ref, type RefObject } from "react";
 import { LiquidEngine } from "./liquid-sculpture/engine";
 import { paintSculptureMatte } from "./liquid-sculpture/matte";
-import type { EngineOptions, SculptureHandle, SculpturePresentation } from "./liquid-sculpture/types";
+import { DEFAULT_APPEARANCE, type EngineOptions, type SculptureHandle, type SculpturePresentation, type SculptureAppearance } from "./liquid-sculpture/types";
 import styles from "./liquid-sculpture/sculpture.module.css";
 
 const SCULPTURE = "/ai/liquid-sculpture.webp";
@@ -20,11 +20,13 @@ function engineOptions(reducedMotion: boolean): EngineOptions {
 }
 
 /** Voice-driven adaptation of Sculpture Hero by guglielmogiannattasio.it / 21st.dev. */
-export function LiquidSculptureHero({ levelRef, presentationRef, dark = false, ref }: { levelRef: RefObject<number>; presentationRef?: RefObject<SculpturePresentation>; dark?: boolean; ref?: Ref<SculptureHandle> }) {
+export function LiquidSculptureHero({ levelRef, presentationRef, dark = false, appearance = DEFAULT_APPEARANCE, onRendererChange, ref }: { levelRef: RefObject<number>; presentationRef?: RefObject<SculpturePresentation>; dark?: boolean; appearance?: SculptureAppearance; onRendererChange?: (renderer: "webgl" | "image") => void; ref?: Ref<SculptureHandle> }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const matteRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<LiquidEngine | null>(null);
+  const rendererCallback = useRef(onRendererChange);
+  useEffect(() => { rendererCallback.current = onRendererChange; }, [onRendererChange]);
   useImperativeHandle(ref, () => ({ invalidate: () => engineRef.current?.renderPresentation() }), []);
 
   useEffect(() => {
@@ -43,6 +45,7 @@ export function LiquidSculptureHero({ levelRef, presentationRef, dark = false, r
     let intersecting = true;
     const fail = () => {
       root.dataset.renderer = "image";
+      queueMicrotask(() => { if (!disposed) rendererCallback.current?.("image"); });
       if (image && matteRef.current && root.dataset.matte !== "ready" && paintSculptureMatte(matteRef.current, image)) root.dataset.matte = "ready";
     };
 
@@ -52,8 +55,9 @@ export function LiquidSculptureHero({ levelRef, presentationRef, dark = false, r
       const aspect = image ? image.naturalWidth / image.naturalHeight : 1983 / 793;
       const imageWidth = Math.min(width, height * aspect * 0.96);
       const imageHeight = imageWidth / aspect;
-      engine?.resize(width, height, {
-        x: (width - imageWidth) / 2, y: (height - imageHeight) / 2,
+      const drawWidth = stage.clientWidth, drawHeight = stage.clientHeight;
+      engine?.resize(drawWidth, drawHeight, {
+        x: (drawWidth - imageWidth) / 2, y: (drawHeight - imageHeight) / 2,
         w: imageWidth, h: imageHeight,
       });
     };
@@ -69,7 +73,7 @@ export function LiquidSculptureHero({ levelRef, presentationRef, dark = false, r
           resize();
           if (engine) {
             engine.onFirstFrame = () => {
-              if (!disposed && request === imageRequest) root.dataset.renderer = "webgl";
+              if (!disposed && request === imageRequest) { root.dataset.renderer = "webgl"; rendererCallback.current?.("webgl"); }
             };
             engine.setImage(next);
           } else fail();
@@ -96,9 +100,9 @@ export function LiquidSculptureHero({ levelRef, presentationRef, dark = false, r
     const onMotion = () => engine?.setOptions({ reducedMotion: motion.matches });
     // Listen on the shared stage so the image viewer can receive clicks while
     // the same particles behind its boundary still respond to pointer movement.
-    const pointerSurface = root.parentElement ?? root;
+    const pointerSurface = root.parentElement?.parentElement ?? root;
     const pointer = (event: PointerEvent) => {
-      const bounds = root.getBoundingClientRect();
+      const bounds = stage.getBoundingClientRect();
       const type = event.type === "pointerleave" ? "leave" : event.type === "pointerdown" ? "down" : event.type === "pointerup" || event.type === "pointercancel" ? "up" : "move";
       engine?.pointer(type, event.clientX-bounds.left, event.clientY-bounds.top, event.pointerType !== "mouse");
     };
@@ -120,9 +124,10 @@ export function LiquidSculptureHero({ levelRef, presentationRef, dark = false, r
     };
   }, [levelRef, presentationRef]);
   useEffect(() => { engineRef.current?.setOptions({ dark }); }, [dark]);
+  useEffect(() => { engineRef.current?.setAppearance(appearance); }, [appearance]);
 
   return (
-    <div className={styles.root} ref={rootRef} data-testid="voice-sculpture" data-theme={dark ? "dark" : "light"}>
+    <div className={styles.root} ref={rootRef} data-testid="voice-sculpture" data-theme={dark ? "dark" : "light"} data-shape={appearance.mode}>
       <div className={styles.fallback}>
         <Image src={SCULPTURE} alt="An interwoven horizontal sculpture of silver and sand-colored filaments" fill priority sizes="(max-width: 639px) 100vw, 1200px" unoptimized />
         <canvas ref={matteRef} className={styles.matte} aria-hidden="true" />

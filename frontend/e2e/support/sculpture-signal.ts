@@ -21,6 +21,6 @@ export async function sculptureSignal(page: Page) {
       const location = gl.getUniformLocation(program, name);
       return location ? Number(gl.getUniform(program, location)) : 0;
     };
-    return { pointer: uniform("uPointerPresence"), voice: uniform("uVoice"), particles: canvas.__particles ?? 0, error: gl.getError() };
+    return { pointer: uniform("uPointerPresence"), voice: uniform("uVoice"), morph: uniform("uMorph"), morphMix: uniform("uMorphMix"), phase: uniform("uPhase"), stateMotion: uniform("uStateMotion"), particles: canvas.__particles ?? 0, error: gl.getError() };
   });
 }

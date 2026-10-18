@@ -20,6 +20,24 @@ larger size. Canvas pixels remain capped at eight million, and quiet scenes draw
 only a sparse grain layer without running the interaction simulation. Hidden tabs
 pause rendering; reduced motion disables the ambient deformation and star drift.
 
+The output panel starts collapsed, with one large chevron on its edge tab. Its
+slide/fade retains messages and draft text; the composer tracks the sculpture's
+column. The last chat ID is remembered per account and authorization scope in
+this browser. On return its messages are fetched from the authenticated API;
+transcripts never enter browser storage. New chat and successful deletion clear
+the remembered selection. Late restore responses cannot replace a newly opened
+chat or another account's workspace.
+
+The appearance control selects the sculpture, the actual company logo, editable
+text, one of five emojis, or a stylized face. Existing particle IDs/colours/count
+remain; target textures interpolate between forms and back into the sculpture.
+Playback RMS drives lip/jaw opening, rather than phoneme-aligned visemes. Shared
+state motion adds listening ripples, thinking folds and speech waves. Shape
+transitions use elapsed wall time and respect reduced motion. Canvas overscan
+extends below the logical sculpture stage to avoid clipping at the microphone.
+Image boundaries gather the same particles into crossing filaments with gaps,
+moving knots and local eddies; opposite streams retain corner arc-length spacing.
+
 ## Configuration
 
 Super administrators open **Settings → AI assistant**, or **/settings/ai**.
@@ -107,10 +125,28 @@ applies to compatible typed chat models. Native file questions use a bounded,
 tool-free file reader and return observations to the voice model.
 
 Voice checks access every five seconds and ends when settings revision changes.
-Limits are ten minutes/session, 40 turns and 32 tool calls, 30 sessions/account/UTC
-day, three global operations and one per account. Chat retains 200 daily requests,
-images 12 daily outputs. Long native Redis leases cannot be shortened by later
-short operations. End the session when finished; open audio/context may be billed.
+Superadmin **Usage limits** in /settings/ai controls daily voice chats, typed
+requests, images, uploads, standalone speech requests and maximum voice connection
+duration (1–60 minutes). Defaults are 30/200/12/80/300 and ten minutes. Zero daily
+allowance disables that operation. Limits are per authorized account and take
+effect on settings save; the existing optimistic revision, CSRF, recent MFA and
+encrypted provider-key protections apply. Legacy environment defaults are retained
+until explicitly saved. No migration is required.
+
+GET /api/v1/ai-assistant/settings/usage is superadmin-only and returns that actor's
+usage, applied limits, observation time and next UTC midnight reset. The UI polls
+every thirty seconds, refreshes on focus/save and formats reset time locally.
+Redis errors show unavailable usage, not fabricated zeros.
+
+Voice counts distinct conversation IDs each UTC day, atomically shared across
+workers. Reconnecting an already-counted chat does not increment or require spare
+daily capacity; a zero allowance still blocks it. Reservations that fail before
+Gemini setup completes are refunded under the owning lease. A new voice_chats
+counter replaces the historical microphone-start counter without deleting it.
+Forty turns and 32 tool calls per connection, three global operations and one per
+account remain safety ceilings. Audio-byte/rate bounds scale with the configured
+duration. Long Redis leases cannot be shortened by later short operations. End
+the connection when finished; provider audio/context can remain billable.
 
 Raw microphone audio is not saved. Caption turns persist privately when complete
 or interrupted. A disconnected partial reply is marked unfinished in the browser,

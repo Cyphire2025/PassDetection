@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { LiquidSculptureHero } from "@/components/ui/liquid-sculpture-hero";
-import type { SculptureHandle } from "@/components/ui/liquid-sculpture/types";
+import { DEFAULT_APPEARANCE, type SculptureHandle } from "@/components/ui/liquid-sculpture/types";
 import { useAssistant } from "../hooks/use-assistant";
 import { useAssistantAudio } from "../hooks/use-assistant-audio";
 import { useNativeVoice } from "../hooks/use-native-voice";
@@ -15,6 +15,7 @@ import { AssistantComposer } from "./assistant-composer";
 import { ConversationThread } from "./conversation-thread";
 import { ImageReveal } from "./image-reveal";
 import { WorkspaceDrawer } from "./workspace-drawer";
+import { SculptureAppearanceControl } from "./sculpture-appearance";
 import styles from "./workspace.module.css";
 
 const MOTES = Array.from({ length: 54 }, (_, index) => ({ left: `${(index * 61.803 + 9) % 100}%`, top: `${(index * 37.179 + 7) % 100}%`, delay: `${index * -2.7}s`, duration: `${24 + index % 9 * 4}s`, size: `${index % 11 === 0 ? 5 : index % 4 === 0 ? 3.5 : 1.5 + index % 3 * .5}px` }));
@@ -27,7 +28,9 @@ export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
   const [activeImage, setActiveImage] = useState<Asset | null>(null);
   const [images, setImages] = useState<Asset[]>([]);
   const [voiceFiles, setVoiceFiles] = useState<Asset[]>([]);
-  const [conversationOpen, setConversationOpen] = useState(true);
+  const [appearance, setAppearance] = useState(DEFAULT_APPEARANCE);
+  const [sculptureRenderer, setSculptureRenderer] = useState<"webgl" | "image" | null>(null);
+  const [conversationOpen, setConversationOpen] = useState(false);
   const conversationPanel = useRef<HTMLDivElement>(null);
   const conversationTab = useRef<HTMLButtonElement>(null);
   const speechAllowed = useRef(false);
@@ -47,7 +50,7 @@ export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
   const accountKey = `${assistant.status?.account_id || "public"}:${assistant.status?.account_scope || "default"}`;
   const [workspaceAccount, setWorkspaceAccount] = useState(accountKey);
   if (workspaceAccount !== accountKey) {
-    setWorkspaceAccount(accountKey); setImages([]); setActiveImage(null); setDrawer(null); setVoiceFiles([]); setConversationOpen(true);
+    setWorkspaceAccount(accountKey); setImages([]); setActiveImage(null); setDrawer(null); setVoiceFiles([]); setConversationOpen(false); setAppearance(DEFAULT_APPEARANCE);
   }
   const ready = signedIn && Boolean(assistant.status?.configured);
   const nativeEnabled = Boolean(assistant.status?.native_voice);
@@ -97,7 +100,7 @@ export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
   };
   const back = useCallback(() => { stopEverything(); if (onBack) onBack(); else router.push("/dashboard"); }, [onBack, router, stopEverything]);
   useEffect(() => { window.addEventListener("assistant-request-back", back); return () => window.removeEventListener("assistant-request-back", back); }, [back]);
-  const newConversation = () => { stopEverything(); assistant.newConversation(); setActiveImage(null); setImages([]); setConversationOpen(true); };
+  const newConversation = () => { stopEverything(); assistant.newConversation(); setActiveImage(null); setImages([]); setConversationOpen(false); };
   const microphone = async () => {
     if (nativeSession || listening || requesting) { stopNative(); audio.stopInput(); return; }
     audio.warmAudio(); native.warm();
@@ -119,6 +122,7 @@ export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
       {signedIn ? <div className={styles.headerActions}>
         <span className={styles.connectionDot} data-connected={Boolean(assistant.observedAt)} aria-label={assistant.observedAt ? "Workspace connected" : "Connecting workspace"} />
         <button type="button" className={styles.iconButton} onClick={toggleTheme} aria-label={dark ? "Switch to light mode" : "Switch to dark mode"} aria-pressed={dark}>{dark ? <Sun size={18} /> : <Moon size={18} />}</button>
+        <SculptureAppearanceControl key={accountKey} value={appearance} onChange={setAppearance} renderer={sculptureRenderer} />
         <button type="button" className={styles.iconButton} onClick={() => setDrawer("library")} aria-label="Open library"><Library size={18} /></button>
         <button type="button" className={styles.iconButton} onClick={() => setDrawer("history")} aria-label="Open conversations"><MessageSquare size={18} /></button>
         <button type="button" className={styles.iconButton} onClick={newConversation} aria-label="New conversation" disabled={assistant.busy}><Plus size={20} /></button>
@@ -128,7 +132,7 @@ export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
     {signedIn ? <>
       <div className={styles.mainArea}>
         <section className={styles.visualArea} aria-label="Voice-reactive particle sculpture">
-          <div className={styles.sculptureStage} data-testid="assistant-stage"><LiquidSculptureHero ref={sculpture} levelRef={level} presentationRef={presentation} dark={dark} /><ImageReveal asset={activeImage} images={images} presentationRef={presentation} onSelect={setActiveImage} onClosed={closeImage} onProgress={renderReveal} /></div>
+          <div className={styles.sculptureStage} data-testid="assistant-stage"><LiquidSculptureHero ref={sculpture} levelRef={level} presentationRef={presentation} dark={dark} appearance={appearance} onRendererChange={setSculptureRenderer} /><ImageReveal asset={activeImage} images={images} presentationRef={presentation} onSelect={setActiveImage} onClosed={closeImage} onProgress={renderReveal} /></div>
           <div className={styles.voiceStatus} ref={voiceControl} data-listening={listening && !speaking} data-testid="assistant-voice-status">
             <button type="button" className={styles.voiceButton} onClick={() => void microphone()} disabled={assistant.busy || audio.transcribing} aria-label={nativeSession ? "End voice conversation" : requesting ? "Cancel microphone request" : listening ? "Finish voice message" : "Start microphone"} aria-pressed={listening || requesting || nativeSession}>
               {requesting || native.connecting || audio.transcribing ? <Loader2 size={20} className={styles.spinner} /> : listening || nativeSession ? <Square size={17} fill="currentColor" /> : <Mic size={23} strokeWidth={1.5} />}
@@ -145,7 +149,7 @@ export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
           <AssistantComposer key={accountKey} ready={ready} busy={assistant.busy || native.connecting || native.recovering} voiceActive={nativeSession} text={draft} onTextChange={setDraft} onSubmit={(text, files, mode, count) => { if (native.active && mode === "chat") native.sendText(text); else if (nativeSession) native.sendText("Create " + count + " image(s): " + text); else void assistant.send(text, files, mode, count); }} onStop={stopEverything} onWarmAudio={audio.warmAudio} onError={assistant.setError} onAttachmentsChange={setVoiceFiles} />
         </div>
       </div>
-      {assistant.messages.length ? <button ref={conversationTab} type="button" className={styles.conversationTab} onClick={showConversation} aria-label="Show conversation" aria-controls="assistant-conversation-panel" aria-expanded={panelOpen} aria-hidden={panelOpen} tabIndex={panelOpen ? -1 : 0}><ChevronLeft size={18} /><MessageSquare size={14} /></button> : null}
+      {assistant.messages.length ? <button ref={conversationTab} type="button" className={styles.conversationTab} onClick={showConversation} aria-label="Show conversation" aria-controls="assistant-conversation-panel" aria-expanded={panelOpen} aria-hidden={panelOpen} tabIndex={panelOpen ? -1 : 0}><ChevronLeft size={28} strokeWidth={1.6} /></button> : null}
     </> : <div className={styles.accessState} role="status">{assistant.access === "loading" ? <><Loader2 size={22} className={styles.spinner} /><p>Opening your workspace…</p></> : <><h1>{assistant.access === "guest" ? "Sign in to Global Connects" : "AI access is unavailable"}</h1><p>{assistant.access === "guest" ? "Use your authorized workspace account to continue." : "Your super administrator controls access to this workspace."}</p>{assistant.access === "guest" ? <Link href="/session-restore?from=%2Fai">Sign in<ArrowUpRight size={14} /></Link> : <button type="button" onClick={() => void assistant.refresh()}>Check access again</button>}</>}</div>}
     {drawer && signedIn ? <WorkspaceDrawer key={drawer} kind={drawer} signedIn={signedIn} onClose={closeDrawer} onImage={openImage} onConversation={(id) => { stopEverything(); setConversationOpen(true); void assistant.openConversation(id); }} onNew={newConversation} onDelete={deleteConversation} /> : null}
   </main>;

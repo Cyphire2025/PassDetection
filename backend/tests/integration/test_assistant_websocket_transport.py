@@ -78,7 +78,7 @@ def native_gateway_app(monkeypatch) -> FastAPI:
 
     @asynccontextmanager
     async def admission(*args, **kwargs):
-        yield
+        yield SimpleNamespace(commit=lambda: None)
 
     monkeypatch.setattr(voice, "authorize_voice", AsyncMock(return_value=(actor, settings)))
     monkeypatch.setattr(voice, "assistant_store", lambda _actor: store)

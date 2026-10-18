@@ -92,6 +92,11 @@ test("unavailable WebGL still shows the sculpture and a working microphone", asy
   await page.getByRole("button", { name: "Switch to dark mode" }).click();
   await expect(page.getByTestId("voice-sculpture")).toHaveAttribute("data-matte", "ready");
   await expect(page.getByRole("main")).toHaveCSS("background-color", "rgb(0, 0, 0)");
+  await page.getByRole("button", { name: "Sculpture appearance", exact: true }).click();
+  const appearance=page.getByRole("dialog", { name: "Sculpture appearance", exact: true });
+  await expect(appearance).toContainText("Shape changes are unavailable here");
+  await expect(appearance.getByRole("button", { name: "Text", exact: true })).toBeDisabled();
+  await page.getByRole("button", { name: "Close sculpture appearance", exact: true }).click();
   await page.screenshot({ path: testInfo.outputPath("ai-dark-fallback.png") });
 });
 

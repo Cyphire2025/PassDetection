@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { assistantApi, assistantMessage } from "../api";
+import { rememberedConversation, rememberConversation } from "../last-conversation";
 import type { Asset, AssistantStatus, Message, NativeEvent, StreamEvent, Turn } from "../types";
 
 function turnMessages(turn: Turn): Message[] {
@@ -23,6 +24,7 @@ export function useAssistant(onAnswer: (text: string) => void, onImage: (image: 
   const historySequence = useRef(0);
   const controller = useRef<AbortController | null>(null);
   const account = useRef<string | null>(null);
+  const restoredAccount = useRef<string | null>(null);
   const callbacks = useRef({ onAnswer, onImage });
   useEffect(() => { callbacks.current = { onAnswer, onImage }; }, [onAnswer, onImage]);
 
@@ -35,6 +37,28 @@ export function useAssistant(onAnswer: (text: string) => void, onImage: (image: 
       }
       account.current = accountKey;
       setStatus(value); setAccess("ready");
+      if (accountKey && restoredAccount.current !== accountKey) {
+        const remembered = rememberedConversation(accountKey);
+        if (!remembered) restoredAccount.current = accountKey;
+        if (remembered) {
+          const sequence = ++historySequence.current;
+          try {
+            const page = await assistantApi.conversation(remembered);
+            if (!signal?.aborted && sequence === historySequence.current && account.current === accountKey) {
+              setMessages(page.items.sort((a, b) => a.created_at.localeCompare(b.created_at)).flatMap(turnMessages));
+              setConversationId(remembered); setOlderCursor(page.next_cursor);
+              restoredAccount.current = accountKey;
+            }
+          } catch (cause) {
+            if (!signal?.aborted && sequence === historySequence.current && account.current === accountKey) {
+              restoredAccount.current = accountKey;
+              const status = (cause as { status?: number }).status;
+              if (status === 404 || status === 410 || status === 403) rememberConversation(accountKey, null);
+              else if (!signal?.aborted) setError("Your last chat could not be restored. Open Conversations to try again.");
+            }
+          }
+        }
+      }
       const live = await assistantApi.live(signal);
       setObservedAt(live.observed_at);
     } catch (cause) {
@@ -42,7 +66,7 @@ export function useAssistant(onAnswer: (text: string) => void, onImage: (image: 
       const httpStatus = (cause as { status?: number; response?: { status: number } }).status ?? (cause as { response?: { status: number } }).response?.status;
       const code = (cause as { code?: string }).code;
       if (httpStatus === 401 || httpStatus === 403 || code === "AUTH_SESSION_EXPIRED") {
-        controller.current?.abort(); setMessages([]); setConversationId(null); setOlderCursor(null); setStatus(null); account.current = null; historySequence.current++;
+        controller.current?.abort(); setMessages([]); setConversationId(null); setOlderCursor(null); setStatus(null); account.current = null; restoredAccount.current = null; historySequence.current++;
       }
       setAccess(httpStatus === 401 || code === "AUTH_SESSION_EXPIRED" ? "guest" : httpStatus === 403 ? "denied" : "offline");
       setObservedAt(null);
@@ -62,6 +86,7 @@ export function useAssistant(onAnswer: (text: string) => void, onImage: (image: 
   const beginNative = useCallback(() => {
     if (controller.current) return null;
     const id = conversationId || crypto.randomUUID();
+    historySequence.current++; restoredAccount.current = account.current; rememberConversation(account.current, id);
     setConversationId(id); setError(""); return id;
   }, [conversationId]);
   const finishNative = useCallback(() => {
@@ -98,6 +123,7 @@ export function useAssistant(onAnswer: (text: string) => void, onImage: (image: 
     const abort = new AbortController(); controller.current = abort;
     const id = crypto.randomUUID();
     const conversation = conversationId || crypto.randomUUID();
+    historySequence.current++; restoredAccount.current = account.current; rememberConversation(account.current, conversation);
     setConversationId(conversation); setBusy(true); setError(""); setProgress(mode === "image" ? "Creating your images" : "Thinking through your request");
     setMessages((current) => [...current, { id: `${id}-user`, role: "user", text, attachments },
       { id, role: "assistant", text: "", images: [], sources: [], streaming: true }]);
@@ -127,7 +153,7 @@ export function useAssistant(onAnswer: (text: string) => void, onImage: (image: 
     return true;
   }, [conversationId, status?.configured]);
 
-  const newConversation = useCallback(() => { stop(); historySequence.current++; setConversationId(null); setOlderCursor(null); setMessages([]); setError(""); }, [stop]);
+  const newConversation = useCallback(() => { stop(); historySequence.current++; restoredAccount.current = account.current; rememberConversation(account.current, null); setConversationId(null); setOlderCursor(null); setMessages([]); setError(""); }, [stop]);
   const deleteConversation = useCallback(async (id: string) => {
     const owner = account.current;
     const sequence = ++historySequence.current;
@@ -139,6 +165,7 @@ export function useAssistant(onAnswer: (text: string) => void, onImage: (image: 
   }, [conversationId, newConversation]);
   const openConversation = useCallback(async (id: string) => {
     if (controller.current) return;
+    restoredAccount.current = account.current;
     const sequence = ++historySequence.current;
     try {
       const page = await assistantApi.conversation(id);
@@ -146,6 +173,7 @@ export function useAssistant(onAnswer: (text: string) => void, onImage: (image: 
       setMessages(page.items.sort((a, b) => a.created_at.localeCompare(b.created_at)).flatMap(turnMessages));
       setOlderCursor(page.next_cursor);
       setConversationId(id); setError("");
+      rememberConversation(account.current, id);
     } catch { setError("This conversation could not be opened. Please try again."); }
   }, []);
   const loadEarlier = useCallback(async () => {

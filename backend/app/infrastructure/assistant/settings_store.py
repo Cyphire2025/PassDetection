@@ -26,6 +26,7 @@ from app.application.assistant.settings_contracts import (
     AssistantSettingsUpdate,
 )
 from app.core.assistant_config import AssistantSettings, get_assistant_settings
+from app.core.assistant_usage import AssistantUsageLimits
 from app.core.config.settings import get_settings
 from app.domain.entities.entities import User, UserRole
 from app.infrastructure.database.models import PlatformSettingModel, UserModel
@@ -33,6 +34,11 @@ from app.infrastructure.repositories.audit_log_repository import AuditLogReposit
 
 SETTINGS_KEY = "ai_assistant_workspace_v1"
 OFFICE_ROLES = frozenset({UserRole.AGENCY_ADMIN, UserRole.AGENCY_MANAGER, UserRole.AGENCY_STAFF})
+
+
+def _legacy_limits() -> AssistantUsageLimits:
+    base = get_assistant_settings()
+    return base.usage_limits.model_copy(update={"daily_requests": base.daily_requests, "daily_images": base.daily_images})
 
 
 def _cipher() -> Fernet:
@@ -93,9 +99,9 @@ async def load_snapshot(session: AsyncSession) -> AssistantSnapshot:
     if row is None:
         base = get_assistant_settings()
         config = (
-            AssistantConfiguration(provider="openai")
+            AssistantConfiguration(provider="openai", usage_limits=_legacy_limits())
             if base.configured
-            else AssistantConfiguration()
+            else AssistantConfiguration(usage_limits=_legacy_limits())
         )
         return AssistantSnapshot(configuration=config)
     try:
@@ -109,9 +115,9 @@ async def load_snapshot(session: AsyncSession) -> AssistantSnapshot:
             for name, key in keys.items()
         ):
             raise ValueError("Invalid keys")
-        return AssistantSnapshot(
-            revision, AssistantConfiguration.model_validate(value["configuration"]), keys
-        )
+        configuration = dict(value["configuration"])
+        configuration.setdefault("usage_limits", _legacy_limits().model_dump())
+        return AssistantSnapshot(revision, AssistantConfiguration.model_validate(configuration), keys)
     except (ValidationError, ValueError, KeyError, TypeError):
         raise AssistantError(
             "settings_unavailable", "AI settings need administrator attention."
@@ -133,6 +139,9 @@ async def runtime_settings(session: AsyncSession) -> AssistantSettings:
         "provider": config.provider,
         "revision": snapshot.revision,
         "reasoning_effort": config.reasoning_effort,
+        "usage_limits": config.usage_limits,
+        "daily_requests": config.usage_limits.daily_requests,
+        "daily_images": config.usage_limits.daily_images,
     }
     values[f"{config.provider}_api_key"] = provider_key(snapshot, config.provider)
     if config.provider == "gemini":

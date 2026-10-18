@@ -37,7 +37,9 @@ def test_voice_rejects_missing_cookie_cross_origin_and_query_credentials_before_
             pass
 
 
-async def test_gateway_sends_pcm_directly_and_typed_input_is_a_caption():
+async def test_gateway_sends_pcm_directly_and_typed_input_is_a_caption(monkeypatch):
+    reserved = AsyncMock()
+    monkeypatch.setattr(voice, "reserve_daily_units", reserved)
     pcm = base64.b64encode(b"\x00\x00" * 1600).decode()
     messages = iter(
         [
@@ -49,7 +51,7 @@ async def test_gateway_sends_pcm_directly_and_typed_input_is_a_caption():
     )
     socket = SimpleNamespace(receive_text=AsyncMock(side_effect=lambda: next(messages)))
     upstream = SimpleNamespace(send=AsyncMock())
-    conversation = SimpleNamespace(caption=AsyncMock(), recovering=False,
+    conversation = SimpleNamespace(caption=AsyncMock(), recovering=False, user=SimpleNamespace(id=uuid4()), settings=AssistantSettings(_env_file=None),
         recovery_done=SimpleNamespace(wait=AsyncMock()))
     with pytest.raises(AssistantError) as invalid:
         await voice._client_audio(socket, upstream, conversation)
@@ -61,6 +63,7 @@ async def test_gateway_sends_pcm_directly_and_typed_input_is_a_caption():
     assert sent[1]["clientContent"]["turnComplete"] is True
     assert sent[2]["realtimeInput"]["audioStreamEnd"] is True
     conversation.caption.assert_awaited_once_with("input_transcript", "Check the departure")
+    reserved.assert_awaited_once_with(conversation.user.id, operation="chat", count=1, limit=200)
 
 
 @pytest.mark.parametrize(

@@ -1,8 +1,9 @@
 /** Liquid particle engine adapted from Sculpture Hero by guglielmogiannattasio.it, supplied via 21st.dev. */
 
-import { clamp, type Rect, type EngineOptions, type SculpturePresentation } from './types';
-import { QUAD_VS, FLOW_FS, SIM_FS, PART_VS, PART_FS, IMAGE_FS } from './shaders';
+import { clamp, type Rect, type EngineOptions, type SculpturePresentation, type SculptureAppearance } from './types';
+import { QUAD_VS, AMBIENT_FS, FLOW_FS, SIM_FS, PART_VS, PART_FS, IMAGE_FS } from './shaders';
 import { PointerField } from './pointer-field';
+import { MorphField } from './morph-field';
 
 type Prog = { p: WebGLProgram; u: Record<string, WebGLUniformLocation | null> }
 
@@ -58,6 +59,8 @@ export class LiquidEngine {
 
   private canvas: HTMLCanvasElement
   private gl: WebGL2RenderingContext
+  private morph: MorphField
+  private phaseBlend = 0
   private opts: EngineOptions
   private onFail: () => void
   private lowPower = false
@@ -69,6 +72,9 @@ export class LiquidEngine {
   private pSim!: Prog
   private pPart!: Prog
   private pImg!: Prog
+  private pAmbient!: Prog
+  private ambientTex: WebGLTexture | null = null
+  private ambientFb: WebGLFramebuffer | null = null
   private vao!: WebGLVertexArrayObject
   private quad!: WebGLBuffer
 
@@ -136,6 +142,7 @@ export class LiquidEngine {
     }) as WebGL2RenderingContext | null
     if (!gl) throw new Error("WebGL2 unavailable")
     this.gl = gl
+    this.morph = new MorphField(gl,TEX_W,()=>this.wake())
     const nav = navigator as Navigator & { deviceMemory?: number }
     const rendererInfo = gl.getExtension("WEBGL_debug_renderer_info")
     const renderer = rendererInfo ? String(gl.getParameter(rendererInfo.UNMASKED_RENDERER_WEBGL)) : ""
@@ -169,6 +176,7 @@ export class LiquidEngine {
     this.pSim = compile(gl, QUAD_VS, SIM_FS)
     this.pPart = compile(gl, PART_VS, PART_FS)
     this.pImg = compile(gl, QUAD_VS, IMAGE_FS)
+    this.pAmbient = compile(gl, QUAD_VS, AMBIENT_FS)
 
     this.vao = gl.createVertexArray()!
     gl.bindVertexArray(this.vao)
@@ -186,6 +194,11 @@ export class LiquidEngine {
       this.flowTex.push(t)
       this.flowFb.push(fb)
     }
+    this.ambientTex=this.makeTex(gl.RGBA16F,128,64,gl.RGBA,gl.HALF_FLOAT,null,gl.LINEAR)
+    this.ambientFb=gl.createFramebuffer()
+    gl.bindFramebuffer(gl.FRAMEBUFFER,this.ambientFb)
+    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,this.ambientTex,0)
+    if(gl.checkFramebufferStatus(gl.FRAMEBUFFER)!==gl.FRAMEBUFFER_COMPLETE)throw new Error("Ambient framebuffer incomplete")
     this.clearFlow()
   }
 
@@ -349,10 +362,13 @@ export class LiquidEngine {
     }
     gl.bindFramebuffer(gl.FRAMEBUFFER, null)
     this.homeData = homeArr
+    this.morph.rebuild(n,this.texH)
     this.clearState()
   }
 
   private homeData: Float32Array | null = null
+
+  setAppearance(value:SculptureAppearance) { this.morph.select(value); this.wake() }
 
   private startIntro() {
     const gl = this.gl
@@ -501,8 +517,13 @@ export class LiquidEngine {
     this.last = now
     const o = this.opts
     const ambientOn = o.ambient && !o.reducedMotion
-    this.applyVoice(dt)
-    this.pointerField.step(dt,now)
+    const elapsed=rawMs/16.6667
+    this.applyVoice(Math.min(elapsed,60))
+    this.morph.step(elapsed,o.reducedMotion)
+    const phase=this.readPresentation?.()?.phase ?? "idle"
+    const targetPhase={idle:0,listening:1,thinking:2,speaking:3}[phase]
+    this.phaseBlend=o.reducedMotion?targetPhase:this.phaseBlend+(targetPhase-this.phaseBlend)*(1-Math.pow(.9,elapsed))
+    this.pointerField.step(Math.min(elapsed,60),now)
     const ease = 1 - Math.pow(1 - 0.22, dt)
     this.mouse.x += (this.target.x - this.mouse.x) * ease
     this.mouse.y += (this.target.y - this.mouse.y) * ease
@@ -523,7 +544,7 @@ export class LiquidEngine {
     const interacting = this.presence > 0.001 || this.burst > 0 || this.pointerField.presence > .001
     // settle is counted in simulated frames, so slow devices never snap mid-return
     this.settle = interacting ? 0 : this.settle + dt
-    const active = interacting || this.settle < SETTLE_FRAMES || this.introT < 1
+    const active = interacting || this.settle < SETTLE_FRAMES || this.introT < 1 || this.morph.transitioning
 
     if (!active) {
       if (this.flowDirty) this.clearFlow()
@@ -654,6 +675,18 @@ export class LiquidEngine {
     const mx = this.mouse.x - r.x
     const my = this.mouse.y - r.y
 
+    // The field is smooth and low frequency. Sample it once at a small size,
+    // rather than recalculate noise for millions of pixels and every particle.
+    gl.bindFramebuffer(gl.FRAMEBUFFER,this.ambientFb)
+    gl.viewport(0,0,128,64)
+    gl.disable(gl.BLEND)
+    gl.useProgram(this.pAmbient.p)
+    gl.bindVertexArray(this.vao)
+    gl.uniform1f(this.pAmbient.u.uTime,this.time)
+    gl.drawArrays(gl.TRIANGLE_STRIP,0,4)
+    gl.activeTexture(gl.TEXTURE6)
+    gl.bindTexture(gl.TEXTURE_2D,this.ambientTex)
+
     gl.bindFramebuffer(gl.FRAMEBUFFER, null)
     gl.viewport(0, 0, this.canvas.width, this.canvas.height)
     gl.bindVertexArray(this.vao)
@@ -661,6 +694,7 @@ export class LiquidEngine {
 
     const I = this.pImg
     gl.useProgram(I.p)
+    gl.uniform1i(I.u.uAmbientFlow,6)
     gl.activeTexture(gl.TEXTURE0)
     gl.bindTexture(gl.TEXTURE_2D, this.imgTex)
     gl.uniform1i(I.u.uImg, 0)
@@ -687,17 +721,23 @@ export class LiquidEngine {
     gl.uniform1f(I.u.uReveal, reveal)
     gl.uniform1f(I.u.uAlphaMode, this.alphaMode ? 1 : 0)
     gl.uniform1f(I.u.uDark, this.darkBlend)
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
+    gl.uniform1f(I.u.uMorph,this.morph.amount)
+    gl.uniform1f(I.u.uVoice,rm?0:this.voiceEnvelope)
+    gl.uniform1f(I.u.uPhase,this.phaseBlend)
+    gl.uniform1f(I.u.uStateMotion,rm||!this.morph.selection.stateAnimations?0:1)
+    if(reveal>=.55||this.morph.amount>=.999){gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT)}
+    else gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
 
     // A sparse layer of material drifts independently even in silence. It uses
     // the vertex shader, so idle scenes still avoid the two simulation passes.
-    if (!this.n || (!this.stateDirty && amb === 0 && rest === 0 && introVis >= 1 && reveal === 0)) {
+    if (!this.n || (!this.stateDirty && amb === 0 && rest === 0 && introVis >= 1 && reveal === 0 && !this.morph.active)) {
       this.endDraw()
       return
     }
 
     const P = this.pPart
     gl.useProgram(P.p)
+    gl.uniform1i(P.u.uAmbientFlow,6)
     gl.enable(gl.BLEND)
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
     gl.activeTexture(gl.TEXTURE0)
@@ -713,7 +753,7 @@ export class LiquidEngine {
     gl.bindTexture(gl.TEXTURE_2D, this.flowTex[this.flowIdx])
     gl.uniform1i(P.u.uFlow, 3)
     gl.uniform1i(P.u.uTexW, TEX_W)
-    const idleStride = !this.stateDirty && rest === 0 && introVis >= 1 && reveal === 0 ? 64 : 1
+    const idleStride = !this.stateDirty && rest === 0 && introVis >= 1 && reveal === 0 && !this.morph.active ? 64 : 1
     gl.uniform1i(P.u.uIdleStride, idleStride)
     gl.uniform4f(P.u.uRect, r.x, r.y, r.w, r.h)
     gl.uniform2f(P.u.uRes, this.cssW, this.cssH)
@@ -721,7 +761,10 @@ export class LiquidEngine {
     gl.uniform2f(P.u.uPointer,this.pointerField.x,this.pointerField.y)
     gl.uniform2f(P.u.uPointerVel,this.pointerField.vx,this.pointerField.vy)
     gl.uniform1f(P.u.uPointerPresence,this.pointerField.presence)
-    gl.uniform1f(P.u.uVoice,this.voiceEnvelope)
+    gl.uniform1f(P.u.uVoice,rm?0:this.voiceEnvelope)
+    gl.uniform1f(P.u.uPhase,this.phaseBlend)
+    gl.uniform1f(P.u.uStateMotion,rm||!this.morph.selection.stateAnimations?0:1)
+    this.morph.bind(P.u,r.w,r.h)
     gl.uniform1f(P.u.uRadius, this.radiusPx())
     gl.uniform1f(P.u.uPresence, pres)
     const spacing = r.w / this.gridW
@@ -755,12 +798,13 @@ export class LiquidEngine {
     this.canvas.removeEventListener("webglcontextlost", this.onLost)
     const gl = this.gl
     if (!this.lost) {
+      this.morph.destroy()
       if (this.gpuFrame) gl.deleteSync(this.gpuFrame)
       gl.deleteBuffer(this.quad)
       gl.deleteVertexArray(this.vao)
-      for (const t of [...this.flowTex, ...this.stateTex, this.imgTex, this.homeTex, this.colTex]) if (t) gl.deleteTexture(t)
-      for (const f of [...this.flowFb, ...this.stateFb]) gl.deleteFramebuffer(f)
-      for (const p of [this.pFlow, this.pSim, this.pPart, this.pImg]) if (p) gl.deleteProgram(p.p)
+      for (const t of [...this.flowTex, ...this.stateTex, this.imgTex, this.homeTex, this.colTex,this.ambientTex]) if (t) gl.deleteTexture(t)
+      for (const f of [...this.flowFb, ...this.stateFb,this.ambientFb]) if(f)gl.deleteFramebuffer(f)
+      for (const p of [this.pFlow, this.pSim, this.pPart, this.pImg,this.pAmbient]) if (p) gl.deleteProgram(p.p)
     }
     gl.getExtension("WEBGL_lose_context")?.loseContext()
   }

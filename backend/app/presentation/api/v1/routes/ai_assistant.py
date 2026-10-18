@@ -192,10 +192,11 @@ async def upload_attachment(
     response: Response,
     file: UploadFile = File(...),
     user: User = Depends(assistant_user),
+    settings: AssistantSettings = Depends(assistant_runtime),
 ) -> dict[str, Any]:
     response.headers.update(PRIVATE_HEADERS)
     try:
-        async with assistant_admission(user.id, operation="uploads", limit=80):
+        async with assistant_admission(user.id, operation="uploads", limit=settings.usage_limits.daily_uploads):
             content = await file.read(MAX_UPLOAD + 1)
             content, name, mime, text = await prepare_attachment(
                 content,
@@ -322,7 +323,7 @@ async def transcribe(
     provider = assistant_provider(settings)
     try:
         provider.require_ready()
-        async with assistant_admission(user.id, operation="speech", limit=300):
+        async with assistant_admission(user.id, operation="speech", limit=settings.usage_limits.daily_speech_requests):
             await fresh_actor(user)
             content = await file.read(MAX_UPLOAD + 1)
             mime = (file.content_type or "").split(";")[0]
@@ -346,7 +347,7 @@ async def speech(
     body: SpeechRequest, request: Request, user: User = Depends(assistant_user), settings: AssistantSettings = Depends(assistant_runtime),
 ) -> Response:
     try:
-        async with assistant_admission(user.id, operation="speech", limit=300):
+        async with assistant_admission(user.id, operation="speech", limit=settings.usage_limits.daily_speech_requests):
             await fresh_actor(user)
             content = await client_bound(
                 request, assistant_provider(settings).speak(body.text)

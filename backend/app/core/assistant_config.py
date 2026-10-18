@@ -6,6 +6,8 @@ from typing import Literal
 from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from app.core.assistant_usage import AssistantUsageLimits
+
 
 class AssistantSettings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="AI_ASSISTANT_", extra="ignore")
@@ -27,8 +29,9 @@ class AssistantSettings(BaseSettings):
         "gpt-image-2.5-flare"
     )
     max_output_tokens: int = Field(default=8192, ge=1024, le=16384)
-    daily_requests: int = Field(default=200, ge=1, le=2000)
-    daily_images: int = Field(default=12, ge=0, le=50)
+    daily_requests: int = Field(default=200, ge=0, le=10000)
+    daily_images: int = Field(default=12, ge=0, le=500)
+    usage_limits: AssistantUsageLimits = Field(default_factory=AssistantUsageLimits)
     timeout_seconds: int = Field(default=120, ge=15, le=180)
 
     @property

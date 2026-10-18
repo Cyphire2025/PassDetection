@@ -4,9 +4,10 @@ import { Check, KeyRound, Loader2, RefreshCw, ShieldCheck } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { selectUser, useAuthStore } from "@/stores/auth.store";
 import { assistantMessage } from "../api";
-import { aiSettingsApi, type AssistantConfiguration, type ProviderName, type SettingsSnapshot } from "../settings-api";
+import { aiSettingsApi, DEFAULT_USAGE_LIMITS, type AssistantConfiguration, type ProviderName, type SettingsSnapshot } from "../settings-api";
 import { AssistantAccessSettings } from "./assistant-access-settings";
 import { AssistantModelSettings } from "./assistant-model-settings";
+import { AssistantUsageSettings, validUsageLimits } from "./assistant-usage-settings";
 
 export function AssistantSettingsPanel() {
   const user = useAuthStore(selectUser);
@@ -37,7 +38,7 @@ function AuthorizedAssistantSettings() {
   }, []);
   const dirty = Boolean(saved && configuration && (JSON.stringify(saved.configuration) !== JSON.stringify(configuration) || keys.gemini || keys.openai || remove.gemini || remove.openai));
   const save = async () => {
-    if (!saved || !configuration || saving) return;
+    if (!saved || !configuration || saving || !validUsageLimits(configuration.usage_limits)) return;
     setSaving(true); setError(""); setNotice("");
     try {
       const result = await aiSettingsApi.save({ expected_revision: saved.revision, configuration,
@@ -57,7 +58,7 @@ function AuthorizedAssistantSettings() {
   };
   if (!saved || !configuration) return <div className="rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-500">{error ? <><p role="alert">{error}</p><button type="button" onClick={() => void reload()} className="mt-3 text-blue-700">Try again</button></> : <span role="status" className="inline-flex items-center gap-2"><Loader2 size={15} className="animate-spin" />Loading AI settings…</span>}</div>;
   const provider = configuration.provider;
-  return <div className="space-y-5" data-testid="assistant-settings">
+  return <div className="space-y-5" data-testid="assistant-settings"><fieldset disabled={saving} className="contents space-y-5">
     <section className="rounded-xl border border-slate-200 bg-white p-6">
       <div className="flex items-center justify-between gap-5">
         <div><h2 className="text-base font-semibold text-slate-950">Global Connects AI</h2><p className="mt-2 max-w-xl text-sm leading-6 text-slate-500">Manage your private dashboard assistant, provider connection and team access.</p></div>
@@ -72,9 +73,10 @@ function AuthorizedAssistantSettings() {
       <div className="mt-4 flex flex-wrap items-center gap-4"><button type="button" onClick={() => void check()} disabled={checking || saving || dirty || !saved.credentials[provider]} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-700 disabled:opacity-40">{checking ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}Check saved key</button>{saved.credentials[provider] ? <button type="button" disabled={saving} onClick={() => { setKeys({ ...keys, [provider]: "" }); setRemove({ ...remove, [provider]: !remove[provider] }); }} className="text-xs text-rose-700">{remove[provider] ? "Keep saved key" : "Remove saved key"}</button> : null}</div>
     </section>
     <AssistantModelSettings value={configuration} onChange={setConfiguration} />
+    <AssistantUsageSettings value={configuration.usage_limits ?? DEFAULT_USAGE_LIMITS} onChange={(usage_limits) => setConfiguration({ ...configuration, usage_limits })} revision={saved.revision} />
     <AssistantAccessSettings key={saved.revision} value={configuration} people={saved.granted_users} onChange={setConfiguration} />
-    <div className="sticky bottom-0 z-10 rounded-xl border border-slate-200 bg-white/95 p-4 shadow-sm backdrop-blur"><div className="flex flex-wrap items-center justify-between gap-4"><div className="min-w-0 text-sm">{error ? <p role="alert" className="text-rose-700">{error}</p> : notice ? <p role="status" className="inline-flex items-center gap-2 text-emerald-700"><Check size={16} />{notice}</p> : <p className="text-slate-500">{dirty ? "You have unsaved changes." : "Your settings are up to date."}</p>}</div><div className="flex gap-3"><button type="button" onClick={() => void reload()} disabled={saving} className="rounded-lg border border-slate-200 px-4 py-2.5 text-sm text-slate-600">Reload</button><button type="button" onClick={() => void save()} disabled={saving || !dirty} className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white disabled:opacity-40">{saving ? <Loader2 size={15} className="animate-spin" /> : null}Save AI settings</button></div></div></div>
-  </div>;
+    <div className="sticky bottom-0 z-10 rounded-xl border border-slate-200 bg-white/95 p-4 shadow-sm backdrop-blur"><div className="flex flex-wrap items-center justify-between gap-4"><div className="min-w-0 text-sm">{error ? <p role="alert" className="text-rose-700">{error}</p> : notice ? <p role="status" className="inline-flex items-center gap-2 text-emerald-700"><Check size={16} />{notice}</p> : <p className="text-slate-500">{dirty ? "You have unsaved changes." : "Your settings are up to date."}</p>}</div><div className="flex gap-3"><button type="button" onClick={() => void reload()} disabled={saving} className="rounded-lg border border-slate-200 px-4 py-2.5 text-sm text-slate-600">Reload</button><button type="button" onClick={() => void save()} disabled={saving || !dirty || !validUsageLimits(configuration.usage_limits)} className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white disabled:opacity-40">{saving ? <Loader2 size={15} className="animate-spin" /> : null}Save AI settings</button></div></div></div>
+  </fieldset></div>;
 }
 
 function AssistantEnableSwitch({ enabled, onChange }: { enabled: boolean; onChange: (value: boolean) => void }) {

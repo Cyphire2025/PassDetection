@@ -178,7 +178,7 @@ class NativeSession:
                     not data
                     or len(data) % 2
                     or len(data) > 192000
-                    or self.audio_bytes > 32 * 1024 * 1024
+                    or self.audio_bytes > max(32 * 1024 * 1024, self.settings.usage_limits.voice_connection_minutes * 60 * 56000)
                 ):
                     raise AssistantError(
                         "voice_limit", "This voice session reached its audio limit.", 413
@@ -263,7 +263,7 @@ class NativeSession:
                 pcm = await recovery_speech(self, self.output)
                 await fresh_actor(self.user)
                 self.audio_bytes += len(pcm)
-                if self.audio_bytes > 32 * 1024 * 1024:
+                if self.audio_bytes > max(32 * 1024 * 1024, self.settings.usage_limits.voice_connection_minutes * 60 * 56000):
                     raise AssistantError("voice_limit", "This voice session reached its audio limit.", 413)
                 for offset in range(0, len(pcm), 48000):
                     await self.send({"type": "audio", "data": base64.b64encode(pcm[offset:offset + 48000]).decode(),

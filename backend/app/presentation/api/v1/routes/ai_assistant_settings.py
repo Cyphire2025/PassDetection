@@ -13,6 +13,7 @@ from app.application.assistant.settings_contracts import (
     AssistantSettingsResponse,
     AssistantSettingsUpdate,
 )
+from app.application.assistant.usage_contracts import AssistantUsageResponse
 from app.domain.entities.entities import User, UserRole
 from app.infrastructure.assistant.gemini_provider import GEMINI_ORIGIN
 from app.infrastructure.assistant.settings_store import (
@@ -22,6 +23,7 @@ from app.infrastructure.assistant.settings_store import (
     provider_key,
     save_settings,
 )
+from app.infrastructure.assistant.usage import usage_snapshot
 from app.infrastructure.database.models import UserModel
 from app.infrastructure.database.session import get_db_session
 from app.presentation.dependencies.auth import require_recent_mfa, require_role
@@ -97,6 +99,21 @@ async def update_ai_settings(
     try:
         after = await save_settings(session, user, body)
         return await _response(session, after)
+    except AssistantError as exc:
+        raise _http(exc) from None
+
+
+@router.get("/settings/usage", response_model=AssistantUsageResponse)
+async def assistant_usage(
+    response: Response,
+    user: User = Depends(require_role([UserRole.SUPER_ADMIN])),
+    session: AsyncSession = Depends(get_db_session),
+) -> AssistantUsageResponse:
+    response.headers.update(PRIVATE)
+    try:
+        limits = (await load_snapshot(session)).configuration.usage_limits
+        await session.rollback()
+        return await usage_snapshot(user.id, limits)
     except AssistantError as exc:
         raise _http(exc) from None
 

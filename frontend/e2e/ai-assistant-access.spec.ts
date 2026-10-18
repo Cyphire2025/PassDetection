@@ -1,10 +1,11 @@
 import { expect, test, type Page } from "@playwright/test";
 import { assistantAuth } from "./support/assistant-auth";
 import { syntheticMicrophone } from "./support/ai-voice-fixtures";
+import { DEFAULT_USAGE_LIMITS } from "../features/ai/settings-api";
 
 const configuration = { enabled: true, allowed_roles: [], allowed_user_ids: [], provider: "gemini",
   gemini_model: "gemini-3.8-flash", gemini_live_model: "gemini-3.8-live", gemini_image_model: "gemini-3.1-flash-image",
-  gemini_voice: "Zephyr", reasoning_effort: "high", openai_speech_model: "", openai_voice: "marin" };
+  gemini_voice: "Zephyr", reasoning_effort: "high", openai_speech_model: "", openai_voice: "marin", usage_limits: DEFAULT_USAGE_LIMITS };
 
 async function fixture(page: Page, role = "super_admin", allowed = true) {
   await assistantAuth(page, role);
@@ -18,6 +19,7 @@ async function fixture(page: Page, role = "super_admin", allowed = true) {
       account_id: "synthetic", account_scope: role, settings_revision: state.revision, can_manage_settings: role === "super_admin", access: "read_only" } });
     if (path.endsWith("/live")) return route.fulfill({ json: { observed_at: new Date().toISOString(), agencies: [] } });
     if (path.endsWith("/people")) return route.fulfill({ json: { items: [], has_more: false } });
+    if (path.endsWith("/settings/usage")) return route.fulfill({ json: { observed_at: new Date().toISOString(), resets_at: new Date(Date.now()+3600000).toISOString(), limits: state.configuration.usage_limits, used: { voice_chats: 2, typed_requests: 7, images: 1, uploads: 3, speech_requests: 4 } } });
     if (path.endsWith("/settings")) {
       if (route.request().method() === "PUT") {
         const body = route.request().postDataJSON(); writes.push(body);
@@ -49,6 +51,10 @@ test("header orb opens and shrinks while retaining the dashboard and its microph
   expect(await page.evaluate(() => (document as Document & { featurePolicy: { allowsFeature: (name: string) => boolean } }).featurePolicy.allowsFeature("microphone"))).toBe(true);
   await expect(overlay).toHaveCSS("clip-path", "none");
   await page.screenshot({ path: testInfo.outputPath("ai-expanded-from-header.png"), fullPage: true });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.getByRole("link", { name: "AI settings", exact: true })).toBeInViewport();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  await page.setViewportSize({ width: 1440, height: 960 });
   await page.getByRole("button", { name: "Back to workspace" }).click();
   await expect(page).toHaveURL(/\/dashboard$/);
   await expect(overlay).not.toBeAttached();
@@ -87,6 +93,33 @@ test("ungranted staff cannot see the orb or manage settings", async ({ page }) =
   await expect(page.getByTestId("assistant-settings")).not.toBeAttached();
 });
 
+test("superadmin can edit allowances, inspect current usage and retain limits after reload", async ({ page }, testInfo) => {
+  const { writes } = await fixture(page);
+  await page.goto("/settings/ai");
+  const limits = page.getByRole("region", { name: "Usage limits" });
+  await expect(limits).toBeVisible();
+  await expect(page.getByTestId("usage-voice_chats")).toHaveText("2 / 30");
+  await expect(limits).toContainText("Daily reset:");
+  await page.getByLabel("Voice chats per day", { exact: true }).fill("120");
+  await page.getByLabel("Maximum voice connection (minutes)", { exact: true }).fill("61");
+  await expect(page.getByRole("button", { name: "Save AI settings", exact: true })).toBeDisabled();
+  await page.getByLabel("Maximum voice connection (minutes)", { exact: true }).fill("25");
+  await page.getByLabel("Typed requests per day", { exact: true }).fill("500");
+  await page.getByLabel("Images per day", { exact: true }).fill("30");
+  await page.getByLabel("File uploads per day", { exact: true }).fill("150");
+  await page.getByLabel("Speech requests per day", { exact: true }).fill("600");
+  await page.getByRole("button", { name: "Save AI settings", exact: true }).click();
+  await expect(page.getByTestId("usage-voice_chats")).toHaveText("2 / 120");
+  expect((writes[0].configuration as typeof configuration).usage_limits.voice_connection_minutes).toBe(25);
+  await page.reload();
+  await expect(page.getByLabel("Voice chats per day", { exact: true })).toHaveValue("120");
+  await expect(page.getByTestId("usage-typed_requests")).toHaveText("7 / 500");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await limits.scrollIntoViewIfNeeded();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: testInfo.outputPath("ai-usage-settings-mobile.png"), fullPage: true });
+});
+
 test("native voice sends PCM without transcribe requests, plays audio, and releases input", async ({ page }) => {
   test.setTimeout(90000);
   await fixture(page);
@@ -119,6 +152,7 @@ test("native voice sends PCM without transcribe requests, plays audio, and relea
   });
   await page.getByRole("button", { name: "Start microphone" }).click();
   await expect(page.getByRole("button", { name: "End voice conversation" })).toBeVisible();
+  await page.getByRole("button", { name: "Show conversation", exact: true }).click();
   await expect(page.getByText("There are three pending documents.", { exact: true })).toBeVisible();
   await expect.poll(() => page.evaluate(() => (window as unknown as { __nativePlaybackPeak: number }).__nativePlaybackPeak)).toBeGreaterThan(.1);
   await page.getByRole("button", { name: "End voice conversation" }).click();
@@ -158,6 +192,7 @@ test("voice lookup recovery replaces a partial reply, pauses input, then resumes
   });
   await page.goto("/ai");
   await page.getByRole("button", { name: "Start microphone" }).click();
+  await page.getByRole("button", { name: "Show conversation", exact: true }).click();
   await expect(page.getByText("An incomplete voice reply.", { exact: true })).toBeVisible();
   reset();
   await expect(page.getByRole("button", { name: "Stop response" })).toBeVisible();

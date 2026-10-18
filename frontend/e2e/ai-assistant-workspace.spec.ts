@@ -28,7 +28,7 @@ async function workspace(page: Page, speech = false) {
   await assistantAuth(page);
   await page.route("**/api/v1/ai-assistant/**", async (route) => {
     const path = new URL(route.request().url()).pathname;
-    if (path.endsWith("/status")) return route.fulfill({ json: { configured: true, speech_configured: speech, model: "gpt-6-luna", reasoning_effort: "high", access: "read_only", name: "Synthetic administrator" } });
+    if (path.endsWith("/status")) return route.fulfill({ json: { configured: true, speech_configured: speech, model: "gpt-6-luna", reasoning_effort: "high", access: "read_only", name: "Synthetic administrator", account_id: "workspace-admin", account_scope: "super_admin" } });
     if (path.endsWith("/live")) return route.fulfill({ json: { observed_at: timestamp, agencies: [] } });
     if (path.endsWith("/attachments")) return route.fulfill({ json: file });
     if (path.endsWith("/transcribe")) return route.fulfill({ json: { text: "Which documents are still pending?" } });
@@ -63,6 +63,7 @@ test("typed questions, file attachments, source labels and saved history work to
   const request = page.waitForRequest((request) => request.url().endsWith("/ai-assistant/chat"));
   await page.getByRole("button", { name: "Send message" }).click();
   expect((await request).postDataJSON().attachment_ids).toEqual([file.id]);
+  await page.getByRole("button", { name: "Show conversation", exact: true }).click();
   await expect(page.getByRole("table")).toContainText("Synthetic departure");
   await expect(page.getByText("document review", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Copy reply" })).toBeVisible();
@@ -168,6 +169,7 @@ test("a spoken question is transcribed, answered in chat, and microphone cancell
   const transcribed = page.waitForRequest((request) => request.url().endsWith("/ai-assistant/transcribe"));
   await page.getByRole("button", { name: "Finish voice message" }).click();
   expect((await transcribed).postDataBuffer()!.length).toBeGreaterThan(100);
+  await page.getByRole("button", { name: "Show conversation", exact: true }).click();
   await expect(page.getByRole("table")).toContainText("Synthetic departure");
   await expect(page.getByText("Which documents are still pending?", { exact: true })).toBeVisible();
   const laterUploads: string[] = [];
@@ -189,6 +191,7 @@ test("conversation slides away and restores its draft, focus, and centered compo
   const main = page.getByRole("main");
   const stage = page.getByTestId("assistant-stage");
   await expect(main).toHaveCSS("background-color", "rgb(0, 0, 0)");
+  await page.getByRole("button", { name: "Show conversation", exact: true }).click();
   await expect(page.getByRole("table")).toContainText("Synthetic departure");
   const aligned = async () => {
     const [visual, composer] = await Promise.all([stage.boundingBox(), input.boundingBox()]);
@@ -196,6 +199,10 @@ test("conversation slides away and restores its draft, focus, and centered compo
   };
   await expect.poll(aligned).toBeLessThan(2);
   await input.fill("Keep this draft while the conversation is hidden");
+  await stage.evaluate(async (element) => {
+    // Measure the open column after its actual CSS transition, independent of GPU speed.
+    await Promise.all((element.parentElement?.parentElement?.getAnimations() ?? []).map((animation) => animation.finished));
+  });
   const openWidth = (await stage.boundingBox())!.width;
   await page.screenshot({ path: testInfo.outputPath("ai-black-conversation-open.png") });
   await page.getByRole("button", { name: "Hide conversation" }).click();
@@ -313,4 +320,85 @@ test("the same sculpture particles respond to mouse and voice together, then to 
   await page.getByRole("button", { name: "Close image", exact: true }).click();
   await expect(reveal).not.toBeAttached();
   await expect(page.getByTestId("voice-sculpture")).toHaveAttribute("data-renderer", "webgl");
+});
+
+test("the last chat restores for this account and device with the output collapsed", async ({ page }) => {
+  await workspace(page);
+  await page.goto("/ai");
+  await page.getByRole("button", { name: "Open conversations", exact: true }).click();
+  await page.getByRole("button", { name: /^A saved departure plan/ }).click();
+  await expect(page.getByText("What is pending?", { exact: true })).toBeVisible();
+  await page.reload();
+  const tab=page.getByRole("button", { name: "Show conversation", exact: true });
+  await expect(tab).toBeVisible();
+  await expect(page.locator("#assistant-conversation-panel")).toHaveAttribute("inert", "");
+  expect(await tab.locator("svg").count()).toBe(1);
+  await expect(tab.locator("svg")).toHaveAttribute("width", "28");
+  await tab.click();
+  await expect(page.getByText("What is pending?", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "New conversation", exact: true }).click();
+  await page.reload();
+  await expect(page.getByRole("textbox", { name: "Message Global Connects" })).toBeVisible();
+  await expect(tab).not.toBeAttached();
+  await expect(page.getByText("What is pending?", { exact: true })).not.toBeAttached();
+});
+
+test("original particles morph through logo, text, emoji and an audio-reactive face and return", async ({ page }, testInfo) => {
+  test.setTimeout(180000);
+  await workspace(page,true);
+  await observeSculpture(page);
+  await page.emulateMedia({ colorScheme: "dark" });
+  await page.goto("/ai");
+  const sculpture=page.getByTestId("voice-sculpture");
+  await expect(sculpture).toHaveAttribute("data-renderer", "webgl");
+  const canvas=sculpture.locator("canvas").last();
+  const [source,draw]=await Promise.all([sculpture.boundingBox(),canvas.boundingBox()]);
+  expect(draw!.height).toBeGreaterThan(source!.height+130);
+  await page.getByRole("button", { name: "Sculpture appearance", exact: true }).click();
+  const dialog=page.getByRole("dialog", { name: "Sculpture appearance", exact: true });
+  await dialog.getByRole("button", { name: "Company logo", exact: true }).click();
+  await expect.poll(async()=>(await sculptureSignal(page)).morph).toBe(1);
+  const count=(await sculptureSignal(page)).particles;
+  await page.getByRole("button", { name: "Close sculpture appearance", exact: true }).click();
+  await page.screenshot({ path: testInfo.outputPath("vrps-company-logo.png") });
+  await page.getByRole("button", { name: "Sculpture appearance", exact: true }).click();
+  await dialog.getByRole("button", { name: "Text", exact: true }).click();
+  await page.getByLabel("Your words", { exact: true }).fill("Hello, Global Connects");
+  await dialog.getByRole("button", { name: "Form text", exact: true }).click();
+  await expect(sculpture).toHaveAttribute("data-shape", "text");
+  await expect.poll(async()=>(await sculptureSignal(page)).morphMix).toBe(1);
+  await page.getByRole("button", { name: "Close sculpture appearance", exact: true }).click();
+  await page.screenshot({ path: testInfo.outputPath("vrps-text.png") });
+  await page.getByRole("button", { name: "Sculpture appearance", exact: true }).click();
+  await dialog.getByRole("button", { name: "Emoji", exact: true }).click();
+  await dialog.getByRole("button", { name: "Heart", exact: true }).click();
+  await expect.poll(async()=>(await sculptureSignal(page)).morphMix).toBe(1);
+  await page.getByRole("button", { name: "Close sculpture appearance", exact: true }).click();
+  await page.screenshot({ path: testInfo.outputPath("vrps-heart.png") });
+  await page.getByRole("button", { name: "Sculpture appearance", exact: true }).click();
+  await dialog.getByRole("button", { name: "Talking face", exact: true }).click();
+  await page.getByRole("button", { name: "Close sculpture appearance", exact: true }).click();
+  await page.getByRole("textbox", { name: "Message Global Connects" }).fill("Give me a short overview");
+  await page.getByRole("button", { name: "Send message", exact: true }).click();
+  await expect.poll(async()=>(await sculptureSignal(page)).phase).toBeGreaterThan(2.8);
+  await expect.poll(async()=>(await sculptureSignal(page)).voice).toBeGreaterThan(.2);
+  const speaking=await sculptureSignal(page);
+  expect(speaking.particles).toBe(count);expect(speaking.error).toBe(0);
+  await page.screenshot({ path: testInfo.outputPath("vrps-speaking-face.png") });
+  await page.getByRole("button", { name: "Stop speaking", exact: true }).click();
+  await page.getByRole("button", { name: "Sculpture appearance", exact: true }).click();
+  await dialog.getByRole("button", { name: "Sculpture", exact: true }).click();
+  await page.getByRole("button", { name: "Close sculpture appearance", exact: true }).click();
+  await expect.poll(async()=>(await sculptureSignal(page)).morph).toBe(0);
+  await expect(sculpture).toHaveAttribute("data-renderer", "webgl");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.getByRole("button", { name: "Sculpture appearance", exact: true }).click();
+  await dialog.getByRole("button", { name: "Emoji", exact: true }).click();
+  await dialog.getByRole("button", { name: "Globe", exact: true }).click();
+  await page.getByRole("button", { name: "Close sculpture appearance", exact: true }).click();
+  await expect.poll(async()=>(await sculptureSignal(page)).morph).toBe(1);
+  expect((await sculptureSignal(page)).stateMotion).toBe(0);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  await page.screenshot({ path: testInfo.outputPath("vrps-mobile-globe-reduced-motion.png") });
 });
