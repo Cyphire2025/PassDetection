@@ -119,7 +119,7 @@ test("spoken output drives the actual playback analyser and can be interrupted",
   await expect(page.locator("main[data-phase='idle']")).toBeVisible();
 });
 
-test("guest access keeps company information and uploads unavailable", async ({ page }) => {
+test("denied administrator access keeps company information and uploads unavailable", async ({ page }) => {
   await page.route("**/api/v1/ai-assistant/status", (route) => route.fulfill({ status: 403, json: { detail: "Administrator access required" } }));
   await page.goto("/ai");
   await expect(page.getByText("Administrator access is needed for this workspace.")).toBeVisible();
@@ -130,6 +130,23 @@ test("guest access keeps company information and uploads unavailable", async ({ 
   await page.keyboard.press("Escape");
   await page.getByRole("button", { name: "Open library" }).click();
   await expect(page.getByRole("link", { name: "Sign in to Global Connects" })).toBeVisible();
+});
+
+test("anonymous visitors keep the local voice preview without staff session refresh or navigation", async ({ page }) => {
+  const refreshes: string[] = [];
+  page.on("request", (request) => { if (request.url().includes("/auth/refresh")) refreshes.push(request.url()); });
+  await page.route("**/api/v1/ai-assistant/status", (route) => route.fulfill({ status: 401, json: { detail: "Authentication required" } }));
+  await syntheticMicrophone(page);
+  await page.goto("/ai");
+  await expect(page.getByText("Sign in to ask about your Global Connects workspace.")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Sign in", exact: true })).toHaveAttribute("href", "/session-restore?from=%2Fai");
+  await page.getByRole("button", { name: "Start microphone" }).click();
+  await expect(page.getByRole("button", { name: "Finish voice message" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("button", { name: "Start microphone" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Send message" })).toBeDisabled();
+  expect(new URL(page.url()).pathname).toBe("/ai");
+  expect(refreshes).toEqual([]);
 });
 
 test("a spoken question is transcribed, answered in chat, and microphone cancellation discards audio", async ({ page }) => {

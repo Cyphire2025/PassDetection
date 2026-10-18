@@ -41,7 +41,15 @@ export async function* decodeAssistantStream(body: ReadableStream<Uint8Array>, s
 }
 
 export const assistantApi = {
-  status: async (signal?: AbortSignal) => (await apiClient.get<AssistantStatus>(`${BASE}/status`, { signal })).data,
+  status: async (signal?: AbortSignal, refreshSession = true) => {
+    // A first anonymous visit is a public preview, not an expired staff session.
+    // Keep coordinated cookie refresh once this workspace has confirmed an account.
+    const response = await apiClient.get<AssistantStatus>(`${BASE}/status`, { signal,
+      ...(!refreshSession ? { validateStatus: (status: number) => status === 401 || status >= 200 && status < 300 } : {}),
+    });
+    if (response.status === 401) throw { code: "HTTP_401", status: 401, message: "Sign in to connect your workspace." };
+    return response.data;
+  },
   live: async (signal?: AbortSignal) => (await apiClient.get<{ observed_at: string; agencies: { id: string; name: string }[] }>(`${BASE}/live`, { signal })).data,
   conversations: async (cursor?: string) => (await apiClient.get<PageResult<Conversation>>(`${BASE}/conversations`, { params: { cursor } })).data,
   conversation: async (id: string, cursor?: string) => (await apiClient.get<PageResult<Turn>>(`${BASE}/conversations/${id}`, { params: { cursor } })).data,

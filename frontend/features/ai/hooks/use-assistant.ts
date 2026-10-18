@@ -28,7 +28,7 @@ export function useAssistant(onAnswer: (text: string) => void, onImage: (image: 
 
   const refresh = useCallback(async (signal?: AbortSignal) => {
     try {
-      const value = await assistantApi.status(signal);
+      const value = await assistantApi.status(signal, Boolean(account.current));
       if (account.current && value.account_id && account.current !== value.account_id) {
         controller.current?.abort(); setMessages([]); setConversationId(null); setOlderCursor(null); historySequence.current++;
       }

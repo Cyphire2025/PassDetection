@@ -158,6 +158,12 @@ rectangle collisions move material outwards before spreading it along the edge.
 
 ## Verification and rollout boundary
 
+Anonymous status checks leave the public sculpture and local microphone preview
+available without treating a visitor as an expired staff session. Sign in uses the
+existing session restoration route and returns to `/ai`. Once an account is
+confirmed, coordinated cookie refresh remains enabled for status checks and all
+private operations. The backend remains the authorization boundary.
+
 Feature tests cover real synthetic SQL reads, changed records, agency mismatch,
 live role revocation, forbidden business mutations, rejected tools, private file
 ownership, chronological pagination, immutable/replayed requests, bounded streams,
