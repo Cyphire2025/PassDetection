@@ -56,7 +56,7 @@ async def authorize_voice(websocket: WebSocket) -> tuple[User, AssistantSettings
         snapshot = await load_snapshot(session)
         if not snapshot.allows(user):
             raise AssistantError("access_denied", "AI access is unavailable for this account.", 403)
-        runtime = await runtime_settings(session)
+        runtime = await runtime_settings(session, purpose="voice")
     if runtime.provider != "gemini" or not runtime.configured:
         raise AssistantError(
             "setup_pending",
@@ -133,6 +133,9 @@ async def _client_audio(websocket: WebSocket, upstream: Any, conversation: Nativ
             )
         elif kind == "audio_end" and set(value) == {"type"}:
             await upstream.send(json.dumps({"realtimeInput": {"audioStreamEnd": True}}))
+        elif kind == "end" and set(value) == {"type"}:
+            conversation.ending = True
+            return
         else:
             raise AssistantError("voice_protocol", "The voice request was invalid.", 422)
 
@@ -185,6 +188,7 @@ async def assistant_voice(websocket: WebSocket) -> None:
     tasks: set[asyncio.Task[None]] = set()
     send_lock = asyncio.Lock()
     expires_at = 0.0
+    conversation: NativeSession | None = None
 
     async def send(payload: dict[str, Any]) -> None:
         async with send_lock, asyncio.timeout(5):
@@ -309,6 +313,13 @@ async def assistant_voice(websocket: WebSocket) -> None:
             task.cancel()
         if tasks:
             await asyncio.gather(*tasks, return_exceptions=True)
+        if conversation is not None:
+            with suppress(Exception):
+                async with asyncio.timeout(5):
+                    if conversation.input or conversation.output:
+                        await conversation.finish(interrupted=True)
+                    if conversation.ending:
+                        await send({"type": "voice_saved", "conversation_id": str(conversation.conversation_id)})
         with suppress(Exception):
             await websocket.close(
                 code=1000 if websocket.application_state == WebSocketState.CONNECTED else 1008

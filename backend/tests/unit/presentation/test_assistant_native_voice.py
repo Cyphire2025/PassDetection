@@ -163,3 +163,10 @@ async def test_live_heartbeat_ends_on_configuration_or_account_scope_changes(mon
         await voice._authorization_heartbeat(SimpleNamespace(), actor, settings, send)
     assert ended.value.status == 403
     send.assert_not_awaited()
+
+
+async def test_explicit_voice_end_returns_without_an_extra_provider_request():
+    socket = SimpleNamespace(receive_text=AsyncMock(return_value='{"type":"end"}'))
+    upstream = SimpleNamespace(send=AsyncMock())
+    await voice._client_audio(socket, upstream, SimpleNamespace())
+    upstream.send.assert_not_awaited()

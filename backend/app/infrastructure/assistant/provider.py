@@ -66,7 +66,7 @@ class OpenAIAssistantProvider:
     ) -> AsyncIterator[dict[str, Any]]:
         payload = {
             "model": self.settings.model,
-            "reasoning": {"effort": "high"},
+            "reasoning": {"effort": self.settings.reasoning_effort},
             "instructions": instructions,
             "input": inputs,
             "tools": tools,
@@ -119,7 +119,7 @@ class OpenAIAssistantProvider:
     async def transcribe(self, content: bytes, mime: str) -> str:
         try:
             async with self._client() as client:
-                extension = "m4a" if "mp4" in mime else "ogg" if "ogg" in mime else "webm"
+                extension = {"audio/mp4": "m4a", "audio/ogg": "ogg", "audio/wav": "wav", "audio/mpeg": "mp3"}.get(mime.split(";")[0], "webm")
                 response = await client.post(
                     "/audio/transcriptions",
                     data={"model": self.settings.transcription_model},

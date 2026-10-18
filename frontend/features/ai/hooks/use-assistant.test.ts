@@ -4,7 +4,7 @@ import { assistantApi } from "../api";
 import { useAssistant } from "./use-assistant";
 import { rememberedConversation, rememberConversation } from "../last-conversation";
 
-vi.mock("../api", () => ({ assistantApi: { status: vi.fn(), live: vi.fn(), conversation: vi.fn(), deleteConversation: vi.fn() }, assistantMessage: (_: unknown, fallback: string) => fallback }));
+vi.mock("../api", () => ({ assistantApi: { status: vi.fn(), live: vi.fn(), conversation: vi.fn(), deleteConversation: vi.fn(), stream: vi.fn() }, assistantMessage: (_: unknown, fallback: string) => fallback }));
 
 const status = { configured: true, speech_configured: true, model: "gemini-3.8-flash", reasoning_effort: "medium", name: "Synthetic administrator", account_id: "owner-a", account_scope: "super_admin", access: "read_only" as const };
 const answer = vi.fn(), image = vi.fn();
@@ -57,6 +57,17 @@ describe("last conversation on this device", () => {
   });
 });
 afterEach(cleanup);
+
+it("surfaces a failed streamed answer outside the collapsed conversation", async () => {
+  vi.mocked(assistantApi.stream).mockImplementation(async (_input, _signal, receive) => { receive({ type: "error", code: "provider_configuration", message: "Check your AI connection." }); });
+  const { result } = renderHook(() => useAssistant(answer, image));
+  await waitFor(() => expect(result.current.access).toBe("ready"));
+  await act(async () => { await result.current.send("A synthetic question"); });
+  expect(result.current.error).toBe("Check your AI connection.");
+  expect(result.current.messages.at(-1)?.error).toBe("Check your AI connection.");
+  expect(result.current.busy).toBe(false);
+  expect(answer).not.toHaveBeenCalled();
+});
 
 async function activeChat() {
   const hook = renderHook(() => useAssistant(answer, image));

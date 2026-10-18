@@ -165,6 +165,37 @@ use a hashed role/agency subdirectory, preventing broader previous-role context
 from carrying into a reduced role or another agency. No existing objects move
 or disappear. Conditional writes and request claim/replay behavior remain.
 
+## Combined OpenAI and Gemini mode
+
+Superadmin can select OpenAI + Gemini in the provider dropdown and manage both
+encrypted API keys in one form. Typed questions use GPT-6 Luna. Native voice uses
+Gemini Live directly, including input and output captions in the same private
+conversation ID. Uploaded-file analysis and lookup recovery inside hybrid voice
+use Luna; recovery read-aloud stays on Gemini. Standalone read-aloud/transcription
+also route to Gemini. Typed image generation remains on OpenAI, while native
+voice image generation uses the selected Gemini image model.
+
+Luna reasoning is independent of Gemini chat reasoning and supports none, low,
+medium, high, xhigh and max. Old settings retain high until changed. The saved
+selection reaches the actual Responses request; it is no longer hard-coded.
+
+Typing during hybrid voice sends an explicit end frame and waits for the server
+to save the current voice turn before closing. Only then does Luna start, with
+the same conversation ID. Failed handoffs preserve the typed draft. Reopening
+voice loads the updated shared history. AI business-read authorization is unchanged.
+
+Both channels use the same most-recent-ten-exchange, 48,000-character context
+budget. Complete older messages remain saved, and prompts disclose omissions.
+Tool outputs use compact JSON; dashboard observations still refresh on each
+authorized lookup. Gemini Live compresses its active context from 24,576 toward
+16,384 tokens without replacing saved transcripts. Captions come from the same
+voice session, avoiding a duplicate transcription or second answer-generation
+request. Stable instructions/tools remain ahead of changing question content,
+allowing OpenAI's automatic prefix caching without caching business facts across
+requests. No extra model call is made solely to summarize history.
+Typed answers are read aloud only on request. Recorded voice questions still
+receive spoken replies automatically. Native audio/caption output stays live.
+
 ## Pricing checked on 2026-10-18
 
 Gemini 3.8 Flash Standard costs $0.75/million input and $3.75/million output tokens,

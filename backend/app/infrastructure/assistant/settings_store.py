@@ -10,7 +10,7 @@ from __future__ import annotations
 import base64
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, Literal
 
 from cryptography.fernet import Fernet, InvalidToken
 from cryptography.hazmat.primitives import hashes
@@ -131,20 +131,26 @@ def provider_key(snapshot: AssistantSnapshot, provider: str) -> SecretStr:
     return base.gemini_api_key if provider == "gemini" else base.openai_api_key
 
 
-async def runtime_settings(session: AsyncSession) -> AssistantSettings:
+async def runtime_settings(session: AsyncSession, *, purpose: Literal["chat", "voice"] = "chat") -> AssistantSettings:
     snapshot = await load_snapshot(session)
     base = get_assistant_settings()
     config = snapshot.configuration
+    provider = ("openai" if purpose == "chat" else "gemini") if config.provider == "hybrid" else config.provider
     values: dict[str, Any] = {
-        "provider": config.provider,
+        "provider": provider,
+        "mode": config.provider,
+        "voice_provider": "gemini" if config.provider in {"gemini", "hybrid"} else "openai",
         "revision": snapshot.revision,
         "reasoning_effort": config.reasoning_effort,
+        "openai_reasoning_effort": config.openai_reasoning_effort,
+        "live_model": config.gemini_live_model,
         "usage_limits": config.usage_limits,
         "daily_requests": config.usage_limits.daily_requests,
         "daily_images": config.usage_limits.daily_images,
     }
-    values[f"{config.provider}_api_key"] = provider_key(snapshot, config.provider)
-    if config.provider == "gemini":
+    for name in (("openai", "gemini") if config.provider == "hybrid" else (provider,)):
+        values[f"{name}_api_key"] = provider_key(snapshot, name)
+    if provider == "gemini":
         values.update(
             model=config.gemini_model,
             live_model=config.gemini_live_model,
@@ -153,7 +159,7 @@ async def runtime_settings(session: AsyncSession) -> AssistantSettings:
             speech_model="gemini-3.1-flash-tts-preview",
         )
     else:
-        values["reasoning_effort"] = "high"
+        values["reasoning_effort"] = config.openai_reasoning_effort
         values.update(
             model="gpt-6-luna",
             speech_model=config.openai_speech_model if snapshot.revision else base.speech_model,

@@ -24,6 +24,7 @@ from app.domain.exceptions.exceptions import AuthorizationError
 from app.infrastructure.assistant.limits import assistant_admission
 from app.infrastructure.assistant.store import AssistantStore
 from app.presentation.assistant.catalog import capability_guide
+from app.presentation.assistant.conversation_context import recent_context
 from app.presentation.assistant.images import generate_assets
 from app.presentation.assistant.reads import DashboardReader, data_catalog, fresh_actor
 
@@ -199,7 +200,7 @@ async def chat_events(
             return
         await store.create_conversation(body.conversation_id, body.text)
         history = await store.turns(body.conversation_id)
-        ordered = sorted(history["items"], key=lambda item: item["created_at"])[-10:]
+        ordered = recent_context(history["items"])
         inputs: list[dict[str, Any]] = []
         for turn in ordered:
             inputs.extend(
@@ -223,7 +224,7 @@ async def chat_events(
         inputs.append(
             {
                 "role": "system",
-                "content": "Conversation context contains only the most recent ten exchanges. Older messages and any attachments beyond the four most recent are omitted. Do not imply access to omitted context.",
+                "content": "Typed and spoken messages share this conversation. Context includes recent exchanges within a 48,000-character budget and at most ten exchanges. Older messages and attachments beyond the four most recent are omitted from this request, while remaining saved in chat. Do not imply access to omitted context.",
             }
         )
         inputs.append(
@@ -355,7 +356,7 @@ async def chat_events(
                         {
                             "type": "function_call_output",
                             "call_id": call["call_id"],
-                            "output": json.dumps(result, ensure_ascii=False, default=str),
+                            "output": json.dumps(result, ensure_ascii=False, default=str, separators=(",", ":")),
                         }
                     )
             else:

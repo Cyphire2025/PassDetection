@@ -16,9 +16,12 @@ class AssistantSettings(BaseSettings):
     openai_api_key: SecretStr = SecretStr("")
     gemini_api_key: SecretStr = SecretStr("")
     provider: Literal["openai", "gemini"] = "openai"
+    mode: Literal["openai", "gemini", "hybrid"] | None = None
+    voice_provider: Literal["openai", "gemini"] | None = None
     revision: int = 0
     model: str = "gpt-6-luna"
-    reasoning_effort: Literal["low", "medium", "high"] = "high"
+    reasoning_effort: Literal["none", "low", "medium", "high", "xhigh", "max"] = "high"
+    openai_reasoning_effort: Literal["none", "low", "medium", "high", "xhigh", "max"] = "high"
     live_model: str = "gemini-3.8-live"
     speech_model: Literal[
         "", "gpt-realtime-2.1-mini", "gpt-realtime-2.1", "gpt-4o-mini-tts", "tts-1", "tts-1-hd", "gemini-3.1-flash-tts-preview"

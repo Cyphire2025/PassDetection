@@ -14,6 +14,7 @@ from collections.abc import Iterator
 from contextlib import asynccontextmanager
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
+from uuid import uuid4
 
 import pytest
 import uvicorn
@@ -32,7 +33,7 @@ SMALL_ROUTES = [
 ]
 
 
-def native_gateway_app(monkeypatch) -> FastAPI:
+def native_gateway_app(monkeypatch, complete=True) -> FastAPI:
     from app.core.assistant_config import AssistantSettings
     from app.domain.entities.entities import User, UserRole
     from app.presentation.api.v1.routes import ai_assistant_voice as voice
@@ -60,7 +61,7 @@ def native_gateway_app(monkeypatch) -> FastAPI:
                         "outputTranscription": {"text": "Ready."},
                         "modelTurn": {"parts": [{"inlineData": {"mimeType": "audio/pcm;rate=24000",
                             "data": base64.b64encode(b"\x01\x00" * 1600).decode()}}]},
-                        "turnComplete": True,
+                        "turnComplete": complete,
                     }})
 
         async def recv(self):
@@ -109,8 +110,8 @@ def transport_origin(request, monkeypatch) -> Iterator[str]:
 
     for path in [VOICE, *SMALL_ROUTES]:
         app.add_api_websocket_route(path, echo)
-    if getattr(request, "param", None) == "native":
-        app = native_gateway_app(monkeypatch)
+    if getattr(request, "param", None) in {"native", "native_partial"}:
+        app = native_gateway_app(monkeypatch, complete=request.param != "native_partial")
     listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     listener.bind(("127.0.0.1", 0))
     listener.listen(8)
@@ -212,3 +213,21 @@ async def test_route_policy_does_not_override_an_asgi_handshake_denial(transport
         async with connect(transport_origin + VOICE + "?credential=synthetic"):
             pass
     assert denied.value.response.status_code == 403
+
+
+@pytest.mark.parametrize("transport_origin", ["native_partial"], indirect=True)
+async def test_explicit_end_saves_partial_captions_before_normal_socket_close(transport_origin):
+    async with asyncio.timeout(8), connect(transport_origin + VOICE) as websocket:
+        await websocket.send(json.dumps({"type":"start","conversation_id":str(uuid4()),"session_id":str(uuid4())}))
+        assert json.loads(await websocket.recv())["type"] == "ready"
+        await websocket.send(json.dumps({"type":"audio","data":base64.b64encode(b"\x00\x00" * 1600).decode()}))
+        while json.loads(await websocket.recv())["type"] != "audio":
+            pass
+        await websocket.send('{"type":"end"}')
+        saved = json.loads(await websocket.recv())
+        assert saved["type"] == "turn_complete"
+        assert saved["turn"]["user"] == "Synthetic connection check"
+        assert "Ready." in saved["turn"]["assistant"] and saved["turn"]["interrupted"] is True
+        assert json.loads(await websocket.recv())["type"] == "voice_saved"
+        await websocket.wait_closed()
+        assert websocket.close_code == 1000

@@ -140,7 +140,8 @@ def configured(**kwargs):
     )
 
 
-async def test_luna_request_uses_high_reasoning_and_streams_without_provider_storage():
+@pytest.mark.parametrize("effort", ["none", "low", "medium", "high", "xhigh", "max"])
+async def test_luna_request_uses_selected_reasoning_and_streams_without_provider_storage(effort):
     received = []
 
     async def provider(request):
@@ -153,12 +154,12 @@ async def test_luna_request_uses_high_reasoning_and_streams_without_provider_sto
     events = [
         item
         async for item in OpenAIAssistantProvider(
-            configured(), httpx.MockTransport(provider)
+            configured(reasoning_effort=effort), httpx.MockTransport(provider)
         ).responses([], [], "Read only")
     ]
     assert events[0] == {"type": "delta", "text": "Current records"}
     assert received[0]["model"] == "gpt-6-luna"
-    assert received[0]["reasoning"] == {"effort": "high"}
+    assert received[0]["reasoning"] == {"effort": effort}
     assert received[0]["store"] is False and received[0]["parallel_tool_calls"] is False
 
 
@@ -253,3 +254,12 @@ async def test_voice_disconnect_closes_upstream_operation_promptly():
     with pytest.raises(AssistantError) as exc:
         await asyncio.wait_for(client_bound(request, operation()), 0.5)
     assert exc.value.code == "client_disconnected" and closed.is_set()
+
+
+@pytest.mark.parametrize("mime,extension", [("audio/wav", "wav"), ("audio/mpeg", "mp3"), ("audio/mp4", "m4a"), ("audio/webm", "webm")])
+async def test_transcription_uses_the_actual_audio_container(mime, extension):
+    async def handler(request):
+        assert f'filename="speech.{extension}"'.encode() in request.content
+        return httpx.Response(200, json={"text":"Synthetic connection check"})
+    provider = OpenAIAssistantProvider(configured(), httpx.MockTransport(handler))
+    assert await provider.transcribe(b"synthetic-audio", mime) == "Synthetic connection check"

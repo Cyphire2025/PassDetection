@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { capturePcm, NativePlayback, pcmBase64 } from "../native-audio";
 import type { NativeEvent } from "../types";
 
-type Session = { socket: WebSocket; playback: NativePlayback; capture?: () => void; frame: number; ready: boolean; paused?: boolean };
+type Session = { socket: WebSocket; playback: NativePlayback; capture?: () => void; frame: number; ready: boolean; paused?: boolean; saved?: boolean; finished?: (saved: boolean) => void };
 
 export function useNativeVoice(onEvent: (event: NativeEvent) => void, onStopped: () => void) {
   const [active, setActive] = useState(false);
@@ -12,6 +12,7 @@ export function useNativeVoice(onEvent: (event: NativeEvent) => void, onStopped:
   const [speaking, setSpeaking] = useState(false);
   const [thinking, setThinking] = useState(false);
   const [recovering, setRecovering] = useState(false);
+  const [ending, setEnding] = useState(false);
   const [error, setError] = useState("");
   const context = useRef<AudioContext | null>(null);
   const session = useRef<Session | null>(null);
@@ -22,15 +23,28 @@ export function useNativeVoice(onEvent: (event: NativeEvent) => void, onStopped:
   const teardown = useCallback((notify: boolean) => {
     const current = session.current; session.current = null;
     if (current) {
+      current.finished?.(false);
       cancelAnimationFrame(current.frame); current.capture?.(); current.playback.dispose();
       current.socket.onmessage = current.socket.onopen = current.socket.onclose = current.socket.onerror = null;
       if (current.socket.readyState < WebSocket.CLOSING) current.socket.close(1000, "Voice session ended");
     }
     playbackLevel.current = 0;
-    setActive(false); setConnecting(false); setSpeaking(false); setThinking(false); setRecovering(false);
+    setActive(false); setConnecting(false); setSpeaking(false); setThinking(false); setRecovering(false); setEnding(false);
     if (notify && current) callbacks.current.onStopped();
   }, []);
   const stop = useCallback(() => teardown(true), [teardown]);
+  const finish = useCallback(async (): Promise<boolean> => {
+    const current = session.current;
+    if (!current) return true;
+    if (!current.ready || current.socket.readyState !== WebSocket.OPEN || current.finished) return false;
+    setEnding(true); current.paused = true; current.capture?.(); current.capture = undefined; current.playback.clear();
+    return new Promise<boolean>((resolve) => {
+      const timer = setTimeout(() => { setError("The voice turn could not finish saving. Your typed draft is still here; try again."); teardown(true); }, 7000);
+      current.finished = (saved) => { clearTimeout(timer); resolve(saved); };
+      try { current.socket.send(JSON.stringify({ type: "end" })); }
+      catch { teardown(true); }
+    });
+  }, [teardown]);
   const warm = useCallback(() => {
     try { context.current ??= new AudioContext(); void context.current.resume().catch(() => undefined); }
     catch { setError("Voice playback is unavailable in this browser. You can still type."); }
@@ -62,6 +76,11 @@ export function useNativeVoice(onEvent: (event: NativeEvent) => void, onStopped:
     socket.onclose = (event) => {
       clearTimeout(timer);
       if (session.current !== current) return;
+      if (current.finished) {
+        const saved = event.code === 1000 && current.saved === true;
+        if (!saved) setError("The voice turn could not finish saving. Your typed draft is still here; try again.");
+        current.finished(saved); current.finished = undefined;
+      }
       if (event.code !== 1000) setError("The voice connection ended. Tap the microphone to reconnect.");
       teardown(true);
     };
@@ -81,6 +100,9 @@ export function useNativeVoice(onEvent: (event: NativeEvent) => void, onStopped:
           });
           if (session.current !== current) { release(); return; }
           current.capture = release; setActive(true); setConnecting(false); measure();
+        } else if (event.type === "voice_saved") {
+          if (event.conversation_id !== conversationId) throw new Error("The voice save confirmation was invalid.");
+          current.saved = true;
         } else if (event.type === "heartbeat") {
           if (socket.readyState === WebSocket.OPEN) socket.send(JSON.stringify({ type: "heartbeat_ack" }));
         } else if (event.type === "audio") {
@@ -119,5 +141,5 @@ export function useNativeVoice(onEvent: (event: NativeEvent) => void, onStopped:
     document.addEventListener("visibilitychange", hidden); window.addEventListener("pagehide", stop); window.addEventListener("keydown", escape);
     return () => { document.removeEventListener("visibilitychange", hidden); window.removeEventListener("pagehide", stop); window.removeEventListener("keydown", escape); teardown(false); void context.current?.close().catch(() => undefined); context.current = null; };
   }, [stop, teardown]);
-  return { active, connecting, speaking, thinking, recovering, error, playbackLevel, warm, start, stop, sendText, clearError };
+  return { active, connecting, speaking, thinking, recovering, ending, error, playbackLevel, warm, start, stop, finish, sendText, clearError };
 }

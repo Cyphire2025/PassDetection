@@ -80,7 +80,7 @@ async def recover_answer(conversation: NativeSession) -> str:
                 for call in calls
             ])
             inputs.extend({"type": "function_call_output", "call_id": item["id"],
-                "output": json.dumps(item["response"]["result"])} for item in responses)
+                "output": json.dumps(item["response"]["result"], separators=(",", ":"))} for item in responses)
     raise AssistantError("query_limit", "Try asking about one dashboard item at a time.", 422)
 
 
@@ -90,7 +90,7 @@ async def recovery_speech(conversation: NativeSession, answer: str) -> bytes:
     if len(spoken) > 280:
         spoken = spoken[:240].rsplit(" ", 1)[0] + ". The full details are in the conversation."
     async with asyncio.timeout(25):
-        content = await conversation.provider.speak(spoken)
+        content = await conversation.speech_provider.speak(spoken)
     with wave.open(io.BytesIO(content), "rb") as audio:
         if audio.getnchannels() != 1 or audio.getsampwidth() != 2 or audio.getframerate() != 24000 or not 0 < audio.getnframes() <= 24000 * 18:
             raise AssistantError("speech_limit", "The text reply is ready; spoken playback was unavailable.")

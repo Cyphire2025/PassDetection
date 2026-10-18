@@ -61,6 +61,15 @@ async def assistant_runtime(session: AsyncSession = Depends(get_db_session)) -> 
         raise _http(exc) from None
 
 
+async def assistant_voice_runtime(session: AsyncSession = Depends(get_db_session)) -> AssistantSettings:
+    try:
+        settings = await runtime_settings(session, purpose="voice")
+        await session.rollback()
+        return settings
+    except AssistantError as exc:
+        raise _http(exc) from None
+
+
 @router.get("/availability")
 async def assistant_availability(response: Response,
     user: User = Depends(get_current_active_user), session: AsyncSession = Depends(get_db_session),
@@ -80,11 +89,13 @@ async def assistant_status(
     response.headers.update(PRIVATE_HEADERS)
     return {
         "configured": settings.configured,
-        "speech_configured": settings.configured and bool(settings.speech_model),
+        "speech_configured": bool(settings.gemini_api_key.get_secret_value()) if settings.voice_provider == "gemini" else settings.configured and bool(settings.speech_model),
         "model": settings.model,
         "reasoning_effort": settings.reasoning_effort,
         "provider": settings.provider,
-        "native_voice": settings.provider == "gemini",
+        "mode": settings.mode or settings.provider,
+        "voice_provider": settings.voice_provider or settings.provider,
+        "native_voice": (settings.voice_provider or settings.provider) == "gemini",
         "settings_revision": settings.revision,
         "can_manage_settings": user.role == UserRole.SUPER_ADMIN,
         "access": "read_only",
@@ -95,7 +106,8 @@ async def assistant_status(
         "attachment_limit": 4,
         "image_limit": 4,
         "daily_requests": settings.daily_requests,
-        "speech_model": settings.speech_model or None,
+        "voice_model": settings.live_model if settings.voice_provider == "gemini" else settings.speech_model or None,
+        "speech_model": "gemini-3.1-flash-tts-preview" if settings.voice_provider == "gemini" else settings.speech_model or None,
     }
 
 
@@ -317,7 +329,7 @@ async def transcribe(
     response: Response,
     file: UploadFile = File(...),
     user: User = Depends(assistant_user),
-    settings: AssistantSettings = Depends(assistant_runtime),
+    settings: AssistantSettings = Depends(assistant_voice_runtime),
 ) -> dict[str, str]:
     response.headers.update(PRIVATE_HEADERS)
     provider = assistant_provider(settings)
@@ -344,7 +356,7 @@ async def transcribe(
 
 @router.post("/speech", dependencies=[Depends(require_cookie_csrf)])
 async def speech(
-    body: SpeechRequest, request: Request, user: User = Depends(assistant_user), settings: AssistantSettings = Depends(assistant_runtime),
+    body: SpeechRequest, request: Request, user: User = Depends(assistant_user), settings: AssistantSettings = Depends(assistant_voice_runtime),
 ) -> Response:
     try:
         async with assistant_admission(user.id, operation="speech", limit=settings.usage_limits.daily_speech_requests):

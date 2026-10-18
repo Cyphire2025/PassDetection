@@ -1,17 +1,19 @@
 import apiClient from "@/lib/api/client";
 
 export type ProviderName = "gemini" | "openai";
+export type ProviderMode = ProviderName | "hybrid";
 export type GrantRole = "agency_admin" | "agency_manager" | "agency_staff";
 export type UsageLimits = { daily_voice_chats: number; voice_connection_minutes: number; daily_requests: number; daily_images: number; daily_uploads: number; daily_speech_requests: number };
 export const DEFAULT_USAGE_LIMITS: UsageLimits = { daily_voice_chats: 30, voice_connection_minutes: 10, daily_requests: 200, daily_images: 12, daily_uploads: 80, daily_speech_requests: 300 };
 export type UsageSnapshot = { observed_at: string; resets_at: string; limits: UsageLimits; used: Record<string, number> };
 export type AssistantConfiguration = {
-  enabled: boolean; allowed_roles: GrantRole[]; allowed_user_ids: string[]; provider: ProviderName;
+  enabled: boolean; allowed_roles: GrantRole[]; allowed_user_ids: string[]; provider: ProviderMode;
   gemini_model: "gemini-3.8-flash" | "gemini-3.1-pro-preview" | "gemini-3.1-flash-lite";
   gemini_live_model: "gemini-3.8-live" | "gemini-3.8-live-extended-thinking" | "gemini-3.1-flash-live-preview";
   gemini_image_model: "gemini-3.1-flash-image" | "gemini-3.1-flash-lite-image";
   gemini_voice: "Zephyr" | "Kore" | "Puck" | "Charon" | "Aoede";
   reasoning_effort: "low" | "medium" | "high";
+  openai_reasoning_effort: "none" | "low" | "medium" | "high" | "xhigh" | "max";
   openai_speech_model: "" | "gpt-realtime-2.1-mini" | "gpt-realtime-2.1";
   openai_voice: "marin" | "cedar" | "alloy" | "coral" | "sage";
   usage_limits: UsageLimits;

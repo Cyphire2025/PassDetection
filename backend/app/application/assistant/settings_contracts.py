@@ -8,6 +8,8 @@ from pydantic import BaseModel, ConfigDict, Field, SecretStr
 from app.core.assistant_usage import AssistantUsageLimits
 
 AssistantProviderName = Literal["gemini", "openai"]
+AssistantMode = Literal["gemini", "openai", "hybrid"]
+OpenAIReasoning = Literal["none", "low", "medium", "high", "xhigh", "max"]
 GrantRole = Literal["agency_admin", "agency_manager", "agency_staff"]
 GeminiChatModel = Literal["gemini-3.8-flash", "gemini-3.1-pro-preview", "gemini-3.1-flash-lite"]
 GeminiLiveModel = Literal[
@@ -22,12 +24,13 @@ class AssistantConfiguration(BaseModel):
     enabled: bool = True
     allowed_roles: list[GrantRole] = Field(default_factory=list, max_length=3)
     allowed_user_ids: list[UUID] = Field(default_factory=list, max_length=200)
-    provider: AssistantProviderName = "gemini"
+    provider: AssistantMode = "gemini"
     gemini_model: GeminiChatModel = "gemini-3.8-flash"
     gemini_live_model: GeminiLiveModel = "gemini-3.8-live"
     gemini_image_model: GeminiImageModel = "gemini-3.1-flash-image"
     gemini_voice: GeminiVoice = "Zephyr"
     reasoning_effort: Literal["low", "medium", "high"] = "high"
+    openai_reasoning_effort: OpenAIReasoning = "high"
     openai_speech_model: Literal["", "gpt-realtime-2.1-mini", "gpt-realtime-2.1"] = ""
     openai_voice: Literal["marin", "cedar", "alloy", "coral", "sage"] = "marin"
     usage_limits: AssistantUsageLimits = Field(default_factory=AssistantUsageLimits)

@@ -34796,7 +34796,7 @@
         "handler": "speech",
         "method": "POST",
         "local_path": "/speech",
-        "contract_sha256": "9204aa6281aeeb3669751c4308c54d99fe78c79375cd2cdc56ca87c3f909eef8",
+        "contract_sha256": "809b9fb1bb71a669335eed5ff88fa01cda623ac459d5c0d03f9352ca585bb94b",
         "summary": "speech",
         "schema_visible": true
       },
@@ -34819,7 +34819,7 @@
         "handler": "transcribe",
         "method": "POST",
         "local_path": "/transcribe",
-        "contract_sha256": "8de6e2a4396109b80e10cf4f893d9523a588518f6c8149e4a1b6f7bee49c605c",
+        "contract_sha256": "fe597fb7258665c77ba9ab7749477a2d06e7b0824024bb88f064fed171cb2732",
         "summary": "transcribe",
         "schema_visible": true
       },

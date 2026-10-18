@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, KeyRound, Loader2, RefreshCw, ShieldCheck } from "lucide-react";
+import { Check, Loader2, ShieldCheck } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { selectUser, useAuthStore } from "@/stores/auth.store";
 import { assistantMessage } from "../api";
@@ -8,6 +8,7 @@ import { aiSettingsApi, DEFAULT_USAGE_LIMITS, type AssistantConfiguration, type 
 import { AssistantAccessSettings } from "./assistant-access-settings";
 import { AssistantModelSettings } from "./assistant-model-settings";
 import { AssistantUsageSettings, validUsageLimits } from "./assistant-usage-settings";
+import { AssistantProviderKey } from "./assistant-provider-key";
 
 export function AssistantSettingsPanel() {
   const user = useAuthStore(selectUser);
@@ -49,10 +50,10 @@ function AuthorizedAssistantSettings() {
     } catch (cause) { setError(assistantMessage(cause, "AI settings could not be saved.")); }
     finally { setSaving(false); }
   };
-  const check = async () => {
+  const check = async (provider: ProviderName) => {
     if (!configuration || checking) return;
     setChecking(true); setError(""); setNotice("");
-    try { setNotice((await aiSettingsApi.check(configuration.provider)).message); }
+    try { setNotice((await aiSettingsApi.check(provider)).message); }
     catch (cause) { setError(assistantMessage(cause, "The connection could not be verified.")); }
     finally { setChecking(false); }
   };
@@ -66,11 +67,11 @@ function AuthorizedAssistantSettings() {
       </div>
       <p className="mt-5 flex items-start gap-2 rounded-lg bg-slate-50 p-3 text-xs leading-6 text-slate-500"><ShieldCheck size={16} className="mt-1 shrink-0" />AI can read permitted dashboard information. It cannot change business records or send messages.</p>
     </section>
-    <section className="rounded-xl border border-slate-200 bg-white p-6"><h3 className="text-sm font-semibold text-slate-900">Provider connection</h3><div className="mt-4 grid grid-cols-2 gap-3">{(["gemini", "openai"] as const).map((item) => <button key={item} type="button" aria-pressed={provider === item} onClick={() => setConfiguration({ ...configuration, provider: item })} className={`rounded-lg border p-4 text-left transition ${provider === item ? "border-blue-300 bg-blue-50/60 ring-1 ring-blue-100" : "border-slate-200 hover:bg-slate-50"}`}><span className="block text-sm font-semibold text-slate-800">{item === "gemini" ? "Google Gemini" : "OpenAI"}</span><span className="mt-1 block text-xs leading-5 text-slate-500">{item === "gemini" ? "AI Studio key · native voice" : "GPT-6 Luna · add when ready"}</span></button>)}</div>
-      <div className="mt-5 flex items-center justify-between gap-4"><label htmlFor="assistant-provider-key" className="text-sm font-medium text-slate-700">{provider === "gemini" ? "Gemini AI Studio API key" : "OpenAI API key"}</label><span className={`rounded-full px-2 py-1 text-xs ${saved.credentials[provider] && !remove[provider] ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>{remove[provider] ? "Removal pending" : saved.credentials[provider] ? "Key stored" : "Not connected"}</span></div>
-      <div className="relative mt-2"><KeyRound size={17} className="absolute left-3 top-3.5 text-slate-400" /><input id="assistant-provider-key" type="password" autoComplete="off" spellCheck={false} value={keys[provider]} onChange={(event) => { setKeys({ ...keys, [provider]: event.target.value }); setRemove({ ...remove, [provider]: false }); }} placeholder={saved.credentials[provider] ? "Paste a new key to replace the saved key" : "Paste your API key"} className="h-12 w-full rounded-lg border border-slate-200 bg-white pl-10 pr-3 text-sm outline-blue-500" /></div>
+    <section className="rounded-xl border border-slate-200 bg-white p-6"><h3 className="text-sm font-semibold text-slate-900">Provider connection</h3>
+      <label htmlFor="assistant-provider-mode" className="mt-5 block text-sm font-medium text-slate-700">Provider mode</label><select id="assistant-provider-mode" className="mt-2 h-12 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-800 outline-blue-500" value={provider} onChange={(event) => { const next = event.target.value; if (next === "openai" || next === "gemini" || next === "hybrid") setConfiguration({ ...configuration, provider: next }); }}><option value="hybrid">OpenAI + Gemini · Luna for text, Gemini for voice</option><option value="gemini">Google Gemini</option><option value="openai">OpenAI</option></select>
+      {provider === "hybrid" ? <p className="mt-3 rounded-lg bg-blue-50 p-3 text-xs leading-6 text-blue-800">One conversation. Luna handles typed questions and document analysis. Gemini Live handles spoken conversations and Gemini reads replies aloud. Both API keys are needed for all features.</p> : null}
+      {(provider === "hybrid" ? ["openai", "gemini"] as const : [provider]).map((item) => <AssistantProviderKey key={item} provider={item} stored={saved.credentials[item]} value={keys[item]} remove={remove[item]} saving={saving} checking={checking} dirty={dirty} onChange={(value) => { setKeys({ ...keys, [item]: value }); setRemove({ ...remove, [item]: false }); }} onRemove={() => { setKeys({ ...keys, [item]: "" }); setRemove({ ...remove, [item]: !remove[item] }); }} onCheck={() => void check(item)} />)}
       <p className="mt-2 text-xs leading-6 text-slate-500">Saved keys are encrypted on the server and stay hidden after saving. An empty field keeps your current key.</p>
-      <div className="mt-4 flex flex-wrap items-center gap-4"><button type="button" onClick={() => void check()} disabled={checking || saving || dirty || !saved.credentials[provider]} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-700 disabled:opacity-40">{checking ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}Check saved key</button>{saved.credentials[provider] ? <button type="button" disabled={saving} onClick={() => { setKeys({ ...keys, [provider]: "" }); setRemove({ ...remove, [provider]: !remove[provider] }); }} className="text-xs text-rose-700">{remove[provider] ? "Keep saved key" : "Remove saved key"}</button> : null}</div>
     </section>
     <AssistantModelSettings value={configuration} onChange={setConfiguration} />
     <AssistantUsageSettings value={configuration.usage_limits ?? DEFAULT_USAGE_LIMITS} onChange={(usage_limits) => setConfiguration({ ...configuration, usage_limits })} revision={saved.revision} />

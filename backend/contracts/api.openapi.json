@@ -1128,6 +1128,19 @@
             "title": "Gemini Voice",
             "type": "string"
           },
+          "openai_reasoning_effort": {
+            "default": "high",
+            "enum": [
+              "none",
+              "low",
+              "medium",
+              "high",
+              "xhigh",
+              "max"
+            ],
+            "title": "Openai Reasoning Effort",
+            "type": "string"
+          },
           "openai_speech_model": {
             "default": "",
             "enum": [
@@ -1154,7 +1167,8 @@
             "default": "gemini",
             "enum": [
               "gemini",
-              "openai"
+              "openai",
+              "hybrid"
             ],
             "title": "Provider",
             "type": "string"

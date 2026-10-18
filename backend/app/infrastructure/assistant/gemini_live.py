@@ -50,6 +50,7 @@ def live_setup(
             "systemInstruction": {"parts": [{"text": instructions}]},
             "inputAudioTranscription": {},
             "outputAudioTranscription": {},
+            "contextWindowCompression": {"triggerTokens": 24576, "slidingWindow": {"targetTokens": 16384}},
             "tools": [{"functionDeclarations": function_declarations(tools, live=True)}],
         }
     }

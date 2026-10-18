@@ -58,6 +58,7 @@ def conversation(monkeypatch):
                 yield {"type": "delta", "text": "Ada's saved email is ada@example.test."}
                 yield {"type": "completed", "response": {"output": []}}
     session.provider = Provider()
+    session.speech_provider = session.provider
     return session, send, store, read
 
 

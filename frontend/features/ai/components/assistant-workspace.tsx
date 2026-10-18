@@ -34,10 +34,11 @@ export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
   const conversationPanel = useRef<HTMLDivElement>(null);
   const conversationTab = useRef<HTMLButtonElement>(null);
   const speechAllowed = useRef(false);
+  const spokenReplyRequested = useRef(false);
   const sendVoice = useRef<(text: string) => void>(() => undefined);
   const audio = useAssistantAudio(useCallback((text: string) => sendVoice.current(text), []));
   const speak = audio.speak;
-  const answer = useCallback((text: string) => { if (speechAllowed.current) void speak(text); }, [speak]);
+  const answer = useCallback((text: string) => { if (speechAllowed.current && spokenReplyRequested.current) void speak(text); spokenReplyRequested.current = false; }, [speak]);
   const newImage = useCallback((image: Asset) => { setImages((current) => [...current.filter((item) => item.id !== image.id), image]); setActiveImage((current) => current || image); }, []);
   const assistant = useAssistant(answer, newImage);
   const stopMicrophone = audio.stopInput;
@@ -66,7 +67,7 @@ export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
   const level = useRef(0);
   const voiceControl = useRef<HTMLDivElement>(null);
   useEffect(() => { speechAllowed.current = Boolean(assistant.status?.speech_configured); }, [assistant.status?.speech_configured]);
-  useEffect(() => { sendVoice.current = (text) => { void send(text); }; }, [send]);
+  useEffect(() => { sendVoice.current = (text) => { spokenReplyRequested.current = true; void send(text); }; }, [send]);
   useEffect(() => { stopNative(); }, [accountKey, stopNative]);
   useEffect(() => {
     if (!signedIn || (nativeSession && audio.microphone.status !== "listening")) stopNative();
@@ -111,6 +112,15 @@ export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
       if (stream) native.start(stream, conversation, voiceFiles.map((file) => file.id));
     } else await audio.startInput(ready);
   };
+  const submit = async (text: string, files: Asset[], mode: "chat" | "image", count: number) => {
+    spokenReplyRequested.current = false;
+    if (assistant.status?.mode === "hybrid") {
+      if (nativeSession && !await native.finish()) return false;
+      audio.stopInput(true); void assistant.send(text, files, mode, count); return true;
+    }
+    if (nativeSession) return native.sendText(mode === "image" ? "Create " + count + " image(s): " + text : text);
+    void assistant.send(text, files, mode, count); return true;
+  };
   const label = native.connecting ? "Connecting voice…" : phase === "listening" ? "Listening to you" : phase === "speaking" ? "Speaking with you" : phase === "thinking" ? assistant.progress || "Thinking…" : "";
   const error = native.error || audio.error || assistant.error;
 
@@ -146,7 +156,7 @@ export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
         </div>
         <div className={styles.composerDock}>
           {error ? <div className={styles.errorNotice} role="alert"><span>{error}</span><button type="button" onClick={() => { assistant.setError(""); audio.clearError(); native.clearError(); }} aria-label="Dismiss notice"><X size={13} /></button></div> : null}
-          <AssistantComposer key={accountKey} ready={ready} busy={assistant.busy || native.connecting || native.recovering} voiceActive={nativeSession} text={draft} onTextChange={setDraft} onSubmit={(text, files, mode, count) => { if (native.active && mode === "chat") native.sendText(text); else if (nativeSession) native.sendText("Create " + count + " image(s): " + text); else void assistant.send(text, files, mode, count); }} onStop={stopEverything} onWarmAudio={audio.warmAudio} onError={assistant.setError} onAttachmentsChange={setVoiceFiles} />
+          <AssistantComposer key={accountKey} ready={ready} busy={assistant.busy || native.connecting || native.recovering || native.ending} voiceActive={nativeSession} text={draft} onTextChange={setDraft} onSubmit={submit} onStop={stopEverything} onWarmAudio={audio.warmAudio} onError={assistant.setError} onAttachmentsChange={setVoiceFiles} />
         </div>
       </div>
       {assistant.messages.length ? <button ref={conversationTab} type="button" className={styles.conversationTab} onClick={showConversation} aria-label="Show conversation" aria-controls="assistant-conversation-panel" aria-expanded={panelOpen} aria-hidden={panelOpen} tabIndex={panelOpen ? -1 : 0}><ChevronLeft size={28} strokeWidth={1.6} /></button> : null}

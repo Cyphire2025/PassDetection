@@ -129,9 +129,15 @@ test("image generation reveals from the sculpture, selects thumbnails and return
 test("spoken output drives the actual playback analyser and can be interrupted", async ({ page }) => {
   test.setTimeout(90000);
   await workspace(page, true);
+  const speechRequests: string[] = [];
+  page.on("request", request => { if (request.url().endsWith("/speech")) speechRequests.push(request.url()); });
   await page.goto("/ai");
   await page.getByRole("textbox", { name: "Message Global Connects" }).fill("Give me a short spoken overview");
   await page.getByRole("button", { name: "Send message" }).click();
+  await page.getByRole("button", { name: "Show conversation", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Read reply aloud", exact: true })).toBeVisible();
+  expect(speechRequests).toEqual([]);
+  await page.getByRole("button", { name: "Read reply aloud", exact: true }).click();
   await expect(page.getByRole("button", { name: "Stop speaking" })).toBeVisible();
   await expect(page.locator("main[data-phase='speaking']")).toBeVisible();
   await expect.poll(() => page.getByTestId("assistant-voice-status").evaluate((element) => Number((element as HTMLElement).style.getPropertyValue("--voice-level")))).toBeGreaterThan(.1);
@@ -155,6 +161,16 @@ test("anonymous visitors are sent to sign in before the private AI page mounts",
   await page.goto("/ai");
   await expect(page).toHaveURL(/(session-restore|login)/);
   await expect(page.getByRole("button", { name: "Start microphone" })).not.toBeAttached();
+});
+
+test("a failed answer is visible while the conversation panel stays collapsed", async ({ page }) => {
+  await workspace(page);
+  await page.route("**/api/v1/ai-assistant/chat", route => route.fulfill({ contentType:"text/event-stream", body:stream([{type:"error",code:"provider_configuration",message:"Check the AI provider connection."}]) }));
+  await page.goto("/ai");
+  await page.getByLabel("Message Global Connects",{exact:true}).fill("A synthetic question");
+  await page.getByRole("button",{name:"Send message",exact:true}).click();
+  await expect(page.getByRole("main",{name:"Global Connects AI workspace"}).getByRole("alert")).toContainText("Check the AI provider connection.");
+  await expect(page.getByRole("main",{name:"Global Connects AI workspace"})).toHaveAttribute("data-conversation-open","false");
 });
 
 test("a spoken question is transcribed, answered in chat, and microphone cancellation discards audio", async ({ page }) => {
@@ -380,6 +396,9 @@ test("original particles morph through logo, text, emoji and an audio-reactive f
   await page.getByRole("button", { name: "Close sculpture appearance", exact: true }).click();
   await page.getByRole("textbox", { name: "Message Global Connects" }).fill("Give me a short overview");
   await page.getByRole("button", { name: "Send message", exact: true }).click();
+  await page.getByRole("button", { name: "Show conversation", exact: true }).click();
+  await page.getByRole("button", { name: "Read reply aloud", exact: true }).click();
+  await page.getByRole("button", { name: "Hide conversation", exact: true }).click();
   await expect.poll(async()=>(await sculptureSignal(page)).phase).toBeGreaterThan(2.8);
   await expect.poll(async()=>(await sculptureSignal(page)).voice).toBeGreaterThan(.2);
   const speaking=await sculptureSignal(page);

@@ -10,11 +10,12 @@ import styles from "./composer.module.css";
 export function AssistantComposer({ ready, busy, voiceActive = false, text, onTextChange: setText, onSubmit, onStop, onWarmAudio, onError, onAttachmentsChange }: {
   ready: boolean; busy: boolean; voiceActive?: boolean;
   text: string; onTextChange: (text: string) => void;
-  onSubmit: (text: string, files: Asset[], mode: "chat" | "image", count: number) => void;
+  onSubmit: (text: string, files: Asset[], mode: "chat" | "image", count: number) => void | boolean | Promise<void | boolean>;
   onStop: () => void; onWarmAudio: () => void; onError: (message: string) => void; onAttachmentsChange?: (files: Asset[]) => void;
 }) {
   const [files, setFiles] = useState<Asset[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [mode, setMode] = useState<"chat" | "image">("chat");
   const [count, setCount] = useState(1);
   const [menu, setMenu] = useState(false);
@@ -43,9 +44,16 @@ export function AssistantComposer({ ready, busy, voiceActive = false, text, onTe
     catch (cause) { if (!abort.signal.aborted) onError(assistantMessage(cause, "This file could not be uploaded. Please try again.")); }
     finally { setUploading(false); if (input.current) input.current.value = ""; }
   };
-  const submit = () => {
-    if (!text.trim() || !ready || busy || uploading) return;
-    onWarmAudio(); onSubmit(text.trim(), files, mode, count); setText(""); setFiles([]);
+  const submit = async () => {
+    if (!text.trim() || !ready || busy || uploading || submitting) return;
+    const submitted = text, identifiers = new Set(files.map((file) => file.id));
+    onWarmAudio(); setSubmitting(true);
+    try {
+      if (await onSubmit(text.trim(), files, mode, count) === false) return;
+      if (textarea.current?.value === submitted) setText("");
+      setFiles((current) => current.filter((file) => !identifiers.has(file.id)));
+    } catch (cause) { onError(assistantMessage(cause, "Your message could not be sent. Your draft is still here.")); }
+    finally { setSubmitting(false); }
   };
   return <div className={styles.composer} data-voice-active={voiceActive}>
     <div className={styles.inputShell}>
@@ -61,7 +69,7 @@ export function AssistantComposer({ ready, busy, voiceActive = false, text, onTe
           {uploading ? <span className={styles.contextLabel}><Loader2 size={12} className={styles.spinner} />Checking your file…</span> : null}
         </div>
         <div className={styles.sendTools}>
-          <button type="button" className={styles.sendButton} onClick={busy ? onStop : submit} disabled={!busy && (!ready || !text.trim() || uploading)} aria-label={busy ? "Stop response" : mode === "image" ? "Create images" : "Send message"}>{busy ? <Square size={13} fill="currentColor" /> : <ArrowUp size={18} />}</button>
+          <button type="button" className={styles.sendButton} onClick={busy ? onStop : () => void submit()} disabled={submitting || !busy && (!ready || !text.trim() || uploading)} aria-label={busy ? "Stop response" : mode === "image" ? "Create images" : "Send message"}>{submitting ? <Loader2 size={15} className={styles.spinner} /> : busy ? <Square size={13} fill="currentColor" /> : <ArrowUp size={18} />}</button>
         </div>
       </div>
     </div>

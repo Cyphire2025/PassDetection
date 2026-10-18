@@ -5,7 +5,7 @@ import { DEFAULT_USAGE_LIMITS } from "../features/ai/settings-api";
 
 const configuration = { enabled: true, allowed_roles: [], allowed_user_ids: [], provider: "gemini",
   gemini_model: "gemini-3.8-flash", gemini_live_model: "gemini-3.8-live", gemini_image_model: "gemini-3.1-flash-image",
-  gemini_voice: "Zephyr", reasoning_effort: "high", openai_speech_model: "", openai_voice: "marin", usage_limits: DEFAULT_USAGE_LIMITS };
+  gemini_voice: "Zephyr", reasoning_effort: "high", openai_reasoning_effort: "high", openai_speech_model: "", openai_voice: "marin", usage_limits: DEFAULT_USAGE_LIMITS };
 
 async function fixture(page: Page, role = "super_admin", allowed = true) {
   await assistantAuth(page, role);
@@ -15,7 +15,7 @@ async function fixture(page: Page, role = "super_admin", allowed = true) {
     const path = new URL(route.request().url()).pathname;
     if (path.endsWith("/availability")) return route.fulfill({ json: { enabled: state.configuration.enabled, allowed: allowed && state.configuration.enabled } });
     if (path.endsWith("/status")) return route.fulfill({ json: { configured: true, speech_configured: true,
-      provider: "gemini", native_voice: true, model: "gemini-3.8-flash", reasoning_effort: "high",
+      provider: state.configuration.provider === "gemini" ? "gemini" : "openai", mode: state.configuration.provider, native_voice: state.configuration.provider !== "openai", voice_provider: state.configuration.provider === "openai" ? "openai" : "gemini", model: state.configuration.provider === "gemini" ? "gemini-3.8-flash" : "gpt-6-luna", reasoning_effort: state.configuration.openai_reasoning_effort,
       account_id: "synthetic", account_scope: role, settings_revision: state.revision, can_manage_settings: role === "super_admin", access: "read_only" } });
     if (path.endsWith("/live")) return route.fulfill({ json: { observed_at: new Date().toISOString(), agencies: [] } });
     if (path.endsWith("/people")) return route.fulfill({ json: { items: [], has_more: false } });
@@ -25,6 +25,7 @@ async function fixture(page: Page, role = "super_admin", allowed = true) {
         const body = route.request().postDataJSON(); writes.push(body);
         state.configuration = body.configuration; state.revision++;
         if (body.gemini_api_key) state.credentials.gemini = true;
+        if (body.openai_api_key) state.credentials.openai = true;
       }
       return route.fulfill({ json: state });
     }
@@ -91,6 +92,86 @@ test("ungranted staff cannot see the orb or manage settings", async ({ page }) =
   await page.goto("/settings/ai");
   await expect(page.getByLabel("Gemini AI Studio API key", { exact: true })).not.toBeAttached();
   await expect(page.getByTestId("assistant-settings")).not.toBeAttached();
+});
+
+test("combined mode saves both connections and the selected Luna reasoning on desktop and phone", async ({ page }, testInfo) => {
+  const { state, writes } = await fixture(page);
+  await page.goto("/settings/ai");
+  await page.getByLabel("Provider mode", { exact: true }).selectOption("hybrid");
+  await page.getByLabel("OpenAI API key", { exact: true }).fill("synthetic-browser-openai-123");
+  await page.getByLabel("Gemini AI Studio API key", { exact: true }).fill("synthetic-browser-gemini-123");
+  const reasoning = page.getByRole("combobox", { name: "Luna reasoning", exact: true });
+  await expect(reasoning.locator("option")).toHaveCount(6);
+  await reasoning.selectOption("low");
+  await page.getByRole("button", { name: "Save AI settings", exact: true }).click();
+  await expect(page.getByText("AI settings saved.", { exact: true })).toBeVisible();
+  expect(writes[0].openai_api_key).toBe("synthetic-browser-openai-123");
+  expect(writes[0].gemini_api_key).toBe("synthetic-browser-gemini-123");
+  expect(state.configuration.openai_reasoning_effort).toBe("low");
+  expect(state.configuration.provider).toBe("hybrid");
+  await page.reload();
+  await expect(reasoning).toHaveValue("low");
+  await expect(page.getByLabel("Provider mode", { exact: true })).toHaveValue("hybrid");
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: testInfo.outputPath("hybrid-settings-mobile.png"), fullPage: true });
+});
+
+test("combined voice saves captions before Luna continues in the same chat", async ({ page }) => {
+  test.setTimeout(90000);
+  const { state } = await fixture(page); state.configuration.provider = "hybrid";
+  await syntheticMicrophone(page);
+  let typed = 0, conversation = "", voiceSaved = false, rejectSave = false;
+  const starts: string[] = [], ends: string[] = [], transcribes: string[] = [];
+  page.on("request", request => { if (request.url().endsWith("/transcribe")) transcribes.push(request.url()); });
+  await page.route("**/api/v1/ai-assistant/chat", route => {
+    const body = route.request().postDataJSON();
+    if (!typed) conversation = body.conversation_id;
+    else { expect(voiceSaved).toBe(true); expect(body.conversation_id).toBe(conversation); }
+    typed++;
+    return route.fulfill({ contentType:"text/event-stream", body: 'data: '+JSON.stringify({type:"text_delta",text:"Luna's typed reply "+typed})+'\n\ndata: '+JSON.stringify({type:"done",request_id:body.request_id})+'\n\n' });
+  });
+  await page.routeWebSocket("**/api/v1/ai-assistant/voice", socket => {
+    let emitted = false;
+    socket.onMessage(raw => {
+      const message = JSON.parse(String(raw));
+      if (message.type === "start") { starts.push(message.conversation_id); socket.send(JSON.stringify({type:"ready",conversation_id:message.conversation_id,max_session_seconds:600})); }
+      if (message.type === "audio" && !emitted) {
+        emitted = true; socket.send(JSON.stringify({type:"input_transcript",text:"My spoken question.",turn_id:"hybrid-voice-turn"}));
+        socket.send(JSON.stringify({type:"text_delta",text:"Gemini's spoken reply.",turn_id:"hybrid-voice-turn"}));
+      }
+      if (message.type === "end") {
+        if (rejectSave) { socket.close({code:1000,reason:"Save unavailable"}); return; }
+        ends.push(message.type); voiceSaved = true;
+        socket.send(JSON.stringify({type:"turn_complete",turn_id:"hybrid-voice-turn",turn:{id:"hybrid-voice-turn",user:"My spoken question.",assistant:"Gemini's spoken reply.",created_at:"2026-10-19T00:00:00Z"}}));
+        socket.send(JSON.stringify({type:"voice_saved",conversation_id:conversation})); socket.close({code:1000,reason:"Saved"});
+      }
+    });
+  });
+  await page.goto("/ai");
+  await page.getByLabel("Message Global Connects", {exact:true}).fill("My typed question.");
+  await page.getByRole("button",{name:"Send message",exact:true}).click();
+  await expect.poll(() => typed).toBe(1);
+  await page.getByRole("button",{name:"Start microphone",exact:true}).click();
+  await expect(page.getByRole("button",{name:"End voice conversation",exact:true})).toBeVisible();
+  await expect.poll(() => starts.length).toBe(1);
+  expect(starts[0]).toBe(conversation);
+  await page.getByLabel("Message Global Connects",{exact:true}).fill("Continue after my voice answer.");
+  await page.getByRole("button",{name:"Send message",exact:true}).click();
+  await expect.poll(() => typed).toBe(2);
+  expect(ends).toEqual(["end"]); expect(transcribes).toEqual([]);
+  await page.getByRole("button",{name:"Show conversation",exact:true}).click();
+  await expect(page.getByText("My spoken question.",{exact:true})).toBeVisible();
+  await expect(page.getByText("Gemini's spoken reply.",{exact:true})).toBeVisible();
+  await expect(page.getByText("Luna's typed reply 2",{exact:true})).toBeVisible();
+  rejectSave = true;
+  await page.getByRole("button",{name:"Start microphone",exact:true}).click();
+  await expect(page.getByRole("button",{name:"End voice conversation",exact:true})).toBeVisible();
+  await page.getByLabel("Message Global Connects",{exact:true}).fill("Keep this draft if saving fails.");
+  await page.getByRole("button",{name:"Send message",exact:true}).click();
+  await expect(page.getByRole("main",{name:"Global Connects AI workspace"}).getByRole("alert")).toContainText("Your typed draft is still here");
+  await expect(page.getByLabel("Message Global Connects",{exact:true})).toHaveValue("Keep this draft if saving fails.");
+  expect(typed).toBe(2);
 });
 
 test("superadmin can edit allowances, inspect current usage and retain limits after reload", async ({ page }, testInfo) => {

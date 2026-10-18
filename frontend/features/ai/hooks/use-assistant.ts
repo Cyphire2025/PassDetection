@@ -75,7 +75,7 @@ export function useAssistant(onAnswer: (text: string) => void, onImage: (image: 
 
   useEffect(() => {
     const abort = new AbortController();
-    void refresh(abort.signal);
+    void Promise.resolve().then(() => { if (!abort.signal.aborted) return refresh(abort.signal); });
     const timer = setInterval(() => { if (!document.hidden) void refresh(abort.signal); }, 30000);
     const visible = () => { if (!document.hidden) void refresh(abort.signal); };
     document.addEventListener("visibilitychange", visible);
@@ -137,7 +137,7 @@ export function useAssistant(onAnswer: (text: string) => void, onImage: (image: 
       else if (event.type === "source") update((message) => ({ ...message, sources: [...message.sources || [], event.source] }));
       else if (event.type === "image") { update((message) => ({ ...message, images: [...message.images || [], event.image] })); callbacks.current.onImage(event.image); }
       else if (event.type === "replay") { answer = event.turn.assistant; update((message) => ({ ...message, text: answer, images: event.turn.images, sources: event.turn.sources })); }
-      else if (event.type === "error") { failed = true; update((message) => ({ ...message, error: event.message })); }
+      else if (event.type === "error") { failed = true; setError(event.message); update((message) => ({ ...message, error: event.message })); }
       else if (event.type === "done") completed = true;
     };
     try {
@@ -145,7 +145,9 @@ export function useAssistant(onAnswer: (text: string) => void, onImage: (image: 
         attachment_ids: attachments.map((file) => file.id), mode, image_count: imageCount }, abort.signal, receive);
       if (completed && !failed && answer) callbacks.current.onAnswer(answer);
     } catch (cause) {
-      update((message) => ({ ...message, error: abort.signal.aborted ? "Response stopped. Reopen this conversation to check whether an answer finished saving." : assistantMessage(cause, "The assistant could not complete this request.") }));
+      const failure = abort.signal.aborted ? "Response stopped. Reopen this conversation to check whether an answer finished saving." : assistantMessage(cause, "The assistant could not complete this request.");
+      if (!abort.signal.aborted) setError(failure);
+      update((message) => ({ ...message, error: failure }));
     } finally {
       controller.current = null; setBusy(false); setProgress("");
       update((message) => ({ ...message, streaming: false }));
