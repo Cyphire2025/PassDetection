@@ -5,6 +5,7 @@ from typing import Any
 
 from websockets.asyncio.client import connect
 
+from app.application.assistant.model_capabilities import gemini_thinking
 from app.core.assistant_config import AssistantSettings
 from app.infrastructure.assistant.gemini_provider import function_declarations
 
@@ -36,13 +37,14 @@ def live_connection(settings: AssistantSettings) -> FixedGeminiConnect:
 def live_setup(
     settings: AssistantSettings, tools: list[dict[str, Any]], instructions: str
 ) -> dict[str, Any]:
-    # 3.8 Live does not accept thinkingConfig. Its Extended Thinking variant is
-    # selected by model ID, rather than sending an incompatible thinking level.
+    # 3.8 Live omits thinkingConfig. Extended Thinking uses its own model ID
+    # and documented levels; older native models use their provider defaults.
     return {
         "setup": {
             "model": "models/" + settings.live_model,
             "generationConfig": {
                 "responseModalities": ["AUDIO"],
+                **gemini_thinking(settings.live_model, settings.live_reasoning or ("low" if "extended-thinking" in settings.live_model else "")),
                 "speechConfig": {
                     "voiceConfig": {"prebuiltVoiceConfig": {"voiceName": settings.voice}}
                 },
@@ -51,6 +53,9 @@ def live_setup(
             "inputAudioTranscription": {},
             "outputAudioTranscription": {},
             "contextWindowCompression": {"triggerTokens": 24576, "slidingWindow": {"targetTokens": 16384}},
-            "tools": [{"functionDeclarations": function_declarations(tools, live=True)}],
+            "tools": [{"functionDeclarations": [
+                {**tool, "behavior": "NON_BLOCKING" if "extended-thinking" in settings.live_model else "BLOCKING"}
+                for tool in function_declarations(tools, live=True)
+            ]}],
         }
     }

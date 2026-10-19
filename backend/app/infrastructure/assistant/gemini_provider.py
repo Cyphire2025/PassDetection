@@ -14,6 +14,7 @@ import httpx
 from PIL import Image
 
 from app.application.assistant.contracts import AssistantError
+from app.application.assistant.model_capabilities import gemini_thinking
 from app.core.assistant_config import AssistantSettings
 from app.infrastructure.assistant.provider import OpenAIAssistantProvider
 
@@ -161,7 +162,7 @@ class GeminiAssistantProvider:
             "tools": [{"functionDeclarations": function_declarations(tools)}],
             "generationConfig": {
                 "maxOutputTokens": self.settings.max_output_tokens,
-                "thinkingConfig": {"thinkingLevel": self.settings.reasoning_effort.upper()},
+                **gemini_thinking(self.settings.model, self.settings.reasoning_effort),
             },
         }
         parts: list[dict[str, Any]] = []

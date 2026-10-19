@@ -1,9 +1,9 @@
 import { expect, test, type Page } from "@playwright/test";
 import { assistantAuth } from "./support/assistant-auth";
 import { syntheticMicrophone } from "./support/ai-voice-fixtures";
-import { DEFAULT_USAGE_LIMITS } from "../features/ai/settings-api";
+import { DEFAULT_USAGE_LIMITS, type AssistantConfiguration } from "../features/ai/settings-api";
 
-const configuration = { enabled: true, allowed_roles: [], allowed_user_ids: [], provider: "gemini",
+const configuration: AssistantConfiguration = { enabled: true, allowed_roles: [], allowed_user_ids: [], provider: "gemini",
   gemini_model: "gemini-3.8-flash", gemini_live_model: "gemini-3.8-live", gemini_image_model: "gemini-3.1-flash-image",
   gemini_voice: "Zephyr", reasoning_effort: "high", openai_reasoning_effort: "high", openai_speech_model: "", openai_voice: "marin", usage_limits: DEFAULT_USAGE_LIMITS };
 
@@ -15,8 +15,16 @@ async function fixture(page: Page, role = "super_admin", allowed = true) {
     const path = new URL(route.request().url()).pathname;
     if (path.endsWith("/availability")) return route.fulfill({ json: { enabled: state.configuration.enabled, allowed: allowed && state.configuration.enabled } });
     if (path.endsWith("/status")) return route.fulfill({ json: { configured: true, speech_configured: true,
-      provider: state.configuration.provider === "gemini" ? "gemini" : "openai", mode: state.configuration.provider, native_voice: state.configuration.provider !== "openai", voice_provider: state.configuration.provider === "openai" ? "openai" : "gemini", model: state.configuration.provider === "gemini" ? "gemini-3.8-flash" : "gpt-6-luna", reasoning_effort: state.configuration.openai_reasoning_effort,
+      provider: state.configuration.provider === "gemini" ? "gemini" : "openai", mode: state.configuration.provider, native_voice: true, voice_configured: true, avatar_appearance: state.configuration.voice_presentation || (state.configuration.voice_name === "cedar" ? "male" : "female"), voice_provider: state.configuration.provider === "openai" ? "openai" : "gemini", model: state.configuration.provider === "gemini" ? "gemini-3.8-flash" : "gpt-6-luna", reasoning_effort: state.configuration.openai_reasoning_effort,
       account_id: "synthetic", account_scope: role, settings_revision: state.revision, can_manage_settings: role === "super_admin", access: "read_only" } });
+    if (path.endsWith("/settings/models")) return route.fulfill({ json: { revision: state.revision, observed_at: "2026-10-19T00:00:00Z", providers: [{ provider: "openai", status: "ready", message: "Connected" }, { provider: "gemini", status: "ready", message: "Connected" }], models: [
+      { id: "openai:gpt-6-luna", model: "gpt-6-luna", provider: "openai", label: "GPT-6 Luna", kind: "chat", available: true, reasoning: ["none", "low", "medium", "high", "xhigh", "max"], voices: [] },
+      { id: "openai:gpt-4.1", model: "gpt-4.1", provider: "openai", label: "GPT-4.1", kind: "chat", available: true, reasoning: [], voices: [] },
+      { id: "gemini:gemini-3.8-flash", model: "gemini-3.8-flash", provider: "gemini", label: "Gemini 3.8 Flash", kind: "chat", available: true, reasoning: ["low", "medium", "high"], voices: [] },
+      { id: "openai:gpt-realtime-2.1", model: "gpt-realtime-2.1", provider: "openai", label: "GPT Realtime 2.1", kind: "voice", available: true, reasoning: ["low", "medium", "high"], voices: [{ id: "marin", label: "Marin", appearance: "female" }, { id: "cedar", label: "Cedar", appearance: "male" }] },
+      { id: "gemini:gemini-3.8-live", model: "gemini-3.8-live", provider: "gemini", label: "Gemini 3.8 Live", kind: "voice", available: true, reasoning: [], voices: [{ id: "Zephyr", label: "Zephyr", appearance: "female" }, { id: "Puck", label: "Puck", appearance: "male" }] },
+    ] } });
+    if (path.endsWith("/settings/mcp-connections")) return route.fulfill({ json: { items: [{ id: "b6c548e0-6e77-4d1b-b107-6799b9d31230", name: "Existing desktop", read_enabled: true, write_enabled: true }] } });
     if (path.endsWith("/live")) return route.fulfill({ json: { observed_at: new Date().toISOString(), agencies: [] } });
     if (path.endsWith("/people")) return route.fulfill({ json: { items: [], has_more: false } });
     if (path.endsWith("/settings/usage")) return route.fulfill({ json: { observed_at: new Date().toISOString(), resets_at: new Date(Date.now()+3600000).toISOString(), limits: state.configuration.usage_limits, used: { voice_chats: 2, typed_requests: 7, images: 1, uploads: 3, speech_requests: 4 } } });
@@ -94,28 +102,52 @@ test("ungranted staff cannot see the orb or manage settings", async ({ page }) =
   await expect(page.getByTestId("assistant-settings")).not.toBeAttached();
 });
 
-test("combined mode saves both connections and the selected Luna reasoning on desktop and phone", async ({ page }, testInfo) => {
+test("models from both providers drive reasoning, voices and the AI-only write switch", async ({ page }, testInfo) => {
   const { state, writes } = await fixture(page);
   await page.goto("/settings/ai");
-  await page.getByLabel("Provider mode", { exact: true }).selectOption("hybrid");
-  await page.getByLabel("OpenAI API key", { exact: true }).fill("synthetic-browser-openai-123");
-  await page.getByLabel("Gemini AI Studio API key", { exact: true }).fill("synthetic-browser-gemini-123");
-  const reasoning = page.getByRole("combobox", { name: "Luna reasoning", exact: true });
-  await expect(reasoning.locator("option")).toHaveCount(6);
+  await expect(page.getByLabel("Provider mode", { exact: true })).not.toBeAttached();
+  const chat = page.getByRole("combobox", { name: "Chat & document model", exact: true });
+  const reasoning = page.getByRole("combobox", { name: "Chat reasoning", exact: true });
+  await expect(chat).toBeEnabled();
+  await chat.selectOption("openai:gpt-6-luna");
+  await expect(reasoning.locator("option")).toHaveCount(7);
+  await reasoning.selectOption("max");
+  await chat.selectOption("openai:gpt-4.1");
+  await expect(reasoning).toBeDisabled();
+  await chat.selectOption("gemini:gemini-3.8-flash");
+  await expect(reasoning.locator("option")).toHaveCount(4);
   await reasoning.selectOption("low");
+  const voiceModel = page.getByRole("combobox", { name: "Native voice model", exact: true });
+  await voiceModel.selectOption("openai:gpt-realtime-2.1");
+  await page.getByRole("combobox", { name: "Voice", exact: true }).selectOption("cedar");
+  await expect(page.getByRole("combobox", { name: "Voice reasoning", exact: true })).toHaveValue("low");
+  const write = page.getByRole("switch", { name: /Allow MCP write access for AI/ });
+  await expect(write).not.toBeChecked(); await write.check();
   await page.getByRole("button", { name: "Save AI settings", exact: true }).click();
   await expect(page.getByText("AI settings saved.", { exact: true })).toBeVisible();
-  expect(writes[0].openai_api_key).toBe("synthetic-browser-openai-123");
-  expect(writes[0].gemini_api_key).toBe("synthetic-browser-gemini-123");
-  expect(state.configuration.openai_reasoning_effort).toBe("low");
-  expect(state.configuration.provider).toBe("hybrid");
-  await page.reload();
-  await expect(reasoning).toHaveValue("low");
-  await expect(page.getByLabel("Provider mode", { exact: true })).toHaveValue("hybrid");
+  expect(writes).toHaveLength(1);
+  expect(state.configuration.chat_model).toBe("gemini:gemini-3.8-flash");
+  expect(state.configuration.chat_reasoning).toBe("low");
+  expect(state.configuration.voice_model).toBe("openai:gpt-realtime-2.1");
+  expect(state.configuration.voice_name).toBe("cedar");
+  expect(state.configuration.mcp_write_enabled).toBe(true);
+  await page.reload(); await expect(reasoning).toHaveValue("low");
+  await expect(write).toBeChecked();
+  await page.getByRole("region", { name: "Models & voice" }).screenshot({ path: testInfo.outputPath("ai-model-settings-desktop.png"), style: "[data-testid='assistant-settings'] .sticky, nextjs-portal { visibility: hidden !important; }" });
+  await page.getByRole("region", { name: "MCP access" }).screenshot({ path: testInfo.outputPath("ai-mcp-access-desktop.png"), style: "[data-testid='assistant-settings'] .sticky, nextjs-portal { visibility: hidden !important; }" });
   await page.setViewportSize({ width: 390, height: 844 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-  await page.screenshot({ path: testInfo.outputPath("hybrid-settings-mobile.png"), fullPage: true });
+  await page.getByRole("region", { name: "Models & voice" }).screenshot({ path: testInfo.outputPath("ai-model-settings-mobile.png"), style: "[data-testid='assistant-settings'] .sticky, nextjs-portal { visibility: hidden !important; }" });
+  await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
+  await page.goto("/ai");
+  await expect(page.getByTestId("human-hologram")).toHaveAttribute("data-appearance", "male");
+  await expect(page.getByTestId("human-hologram")).toHaveAttribute("data-renderer", "webgl");
+  await page.screenshot({ path: testInfo.outputPath("human-hologram-male-mobile.png") });
+  await page.setViewportSize({ width: 1440, height: 960 });
+  await expect.poll(() => page.getByTestId("human-hologram").locator("canvas").evaluate((canvas) => (canvas as HTMLCanvasElement).width >= canvas.clientWidth)).toBe(true);
+  await page.screenshot({ path: testInfo.outputPath("human-hologram-male-desktop.png") });
 });
+
 
 test("combined voice saves captions before Luna continues in the same chat", async ({ page }) => {
   test.setTimeout(90000);
@@ -203,7 +235,7 @@ test("superadmin can edit allowances, inspect current usage and retain limits af
 
 test("native voice sends PCM without transcribe requests, plays audio, and releases input", async ({ page }) => {
   test.setTimeout(90000);
-  await fixture(page);
+  const { state } = await fixture(page); state.configuration.voice_model = "openai:gpt-realtime-2.1";
   await syntheticMicrophone(page);
   const transcribes: string[] = []; let packets = 0;
   page.on("request", (request) => { if (request.url().endsWith("/transcribe")) transcribes.push(request.url()); });

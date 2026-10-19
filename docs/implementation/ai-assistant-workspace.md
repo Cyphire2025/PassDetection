@@ -28,13 +28,15 @@ transcripts never enter browser storage. New chat and successful deletion clear
 the remembered selection. Late restore responses cannot replace a newly opened
 chat or another account's workspace.
 
-The appearance control selects the sculpture, the actual company logo, editable
-text, one of five emojis, or a stylized face. Existing particle IDs/colours/count
-remain; target textures interpolate between forms and back into the sculpture.
-Playback RMS drives lip/jaw opening, rather than phoneme-aligned visemes. Shared
-state motion adds listening ripples, thinking folds and speech waves. Shape
-transitions use elapsed wall time and respect reduced motion. Canvas overscan
-extends below the logical sculpture stage to avoid clipping at the microphone.
+The appearance control offers Human hologram (the default) and Sculpture only.
+The human view samples generated female/male portraits into an anatomical WebGL
+point relief, with depth, subtle parallax and playback-driven movement. The
+selected voice determines presentation. This is not a scanned or fully rigged
+human mesh, and the motion is not phoneme-aligned lip sync. Rendering is bounded
+to 30 fps, resamples across viewport sizes and pauses when hidden. Reduced motion
+and WebGL failure retain a still portrait. Emoji, company-logo and custom-text
+appearance controls are removed.
+
 Image boundaries gather the same particles into crossing filaments with gaps,
 moving knots and local eddies; opposite streams retain corner arc-length spacing.
 
@@ -42,19 +44,23 @@ moving knots and local eddies; opposite streams retain corner arc-length spacing
 
 Super administrators open **Settings → AI assistant**, or **/settings/ai**.
 
-1. Select Google Gemini, paste the AI Studio key and save.
-2. Check saved key verifies model metadata access without generating an answer.
+1. Save an OpenAI key, Gemini key, or both. There is no provider-mode selector.
+2. Choose chat/document and native voice models independently from the combined
+   account-discovered catalog. Refresh retries discovery without losing choices.
+3. Reasoning and voices follow the selected model. Unsupported reasoning is
+   omitted; supported voice reasoning defaults to low when selecting a model.
+4. Check saved key verifies model metadata access without generating an answer.
    It does not establish billing/entitlement for every selected model.
-3. Defaults are Gemini 3.8 Flash with high thinking for typed chat and Gemini 3.8
-   Live for native voice. Voice and image choices are separate settings.
-4. Test a synthetic typed question, spoken dashboard lookup, attachment and image
-   before routine use.
-5. Grant Office roles or specific accounts when ready. Initially only superadmins
-   have access. The off switch blocks everyone, including superadmins.
+5. Select an existing owned MCP connection (automatic when exactly one exists).
+   AI write access defaults off and cannot expand the connection's permissions.
+6. Grant Office roles or specific accounts when ready. Initially only superadmins
+   have AI access. The off switch blocks everyone, including superadmins. AI
+   access does not grant an account new MCP authority.
 
-The separate OpenAI option retains GPT-6 Luna high reasoning and optional
-Realtime narration. Its recorded/transcription path differs from Gemini native
-audio. A saved blank OpenAI speech choice stays disabled.
+Model IDs are discovered from provider APIs. Protocol capability rules for
+endpoint compatibility, reasoning and built-in voices are centralized in
+model_capabilities.py. Unknown reasoning families use provider defaults. Missing
+provider accounts or temporary discovery failures preserve saved selections.
 
 Configuration occupies the existing platform settings row
 ai_assistant_workspace_v1; no migration is required. Saves require superadmin,
@@ -74,30 +80,31 @@ fallbacks. General application provider credentials are never inherited.
 
 ## Live dashboard access
 
-The same-origin backend asks the chosen model to discover and call structured
-read tools. It runs existing reviewed dashboard adapters directly, without MCP
-transport. The model receives bounded, redacted facts, source view, observation
-time and completeness, then answers using those results.
+The assistant discovers and invokes currently permitted tools from the existing
+MCP registry via list_mcp_tools and call_mcp_tool. The bridge checks the current
+actor, selected owned grant, scopes, global/device settings, sections and tool
+allowlist on every call. It invokes the existing audited MCP wrapper with a
+short-lived server-only credential removed afterwards. No grant, scope, global
+MCP policy, connector configuration or tool implementation is changed.
 
-Every lookup rechecks the active account, session version, effective/actual role,
-agency and AI grant. Delegated Office users get a reviewed subset of views.
-Existing agency/group/passport authorization still applies, including staff group
-assignments. Admin/integration/account-management views remain superadmin-only.
-The observational SQL guard forbids business writes; only canonical sensitive
-read auditing can commit. No SQL, shell, arbitrary URL, credential or send tool
-is exposed.
+Only tools explicitly classified observational are exposed while AI writes are
+off. Enabling AI writes permits only writes already authorized by MCP; the human
+must explicitly request an action. Existing preview, validation, idempotency and
+audit workflows remain authoritative. Revocation and effective-role changes fail
+closed. An uncertain operation is not repeated by voice answer recovery. Missing
+MCP access leaves general chat and the account's private attachments available.
 
 Current means current at the observation time, not ingestion of the whole
 database. Broad results require pagination or narrower queries. Prior context is
 bounded to ten exchanges and four attachments. Historical messages, documents and
 tool results are untrusted data, not authority to change instructions.
 
-## Native Gemini audio
+## Native voice
 
 The browser sends 16-bit little-endian PCM at 16 kHz through the same-origin
 /api/v1/ai-assistant/voice WebSocket. The backend verifies the HttpOnly cookie and
-exact Origin/Host, then connects to Google's fixed Live endpoint with a server-side
-header key. Query/header user credentials and redirects are rejected.
+exact Origin/Host, then connects to the selected provider's fixed native endpoint
+with a server-side header key. Query/header user credentials and redirects are rejected.
 Retained Fast releases preserve operator proxy configuration while adding the
 exact reviewed voice location to their candidate copy. Source admission alone
 does not install it: post-release checks must inspect the running Nginx location
@@ -119,9 +126,14 @@ measures its actual level. Interruption clears playback; closing, hiding the pag
 ending voice or a connection error releases capture. AudioWorklet has a bounded
 older-WebKit fallback.
 
-Dashboard tools are explicitly blocking. Gemini 3.8 Live does not support a high
-thinking flag; its Extended Thinking model is a separate selection. High thinking
-applies to compatible typed chat models. Native file questions use a bounded,
+Gemini 3.8 Live uses provider-default reasoning; Extended Thinking is a separate
+model with compatible reasoning controls and nonblocking tool declarations.
+OpenAI Realtime requests automatic audio output with server VAD, interruption and
+350 ms silence detection. Tool results explicitly trigger spoken continuation.
+Audio is never held waiting for ASR captions. GPT-Live uses its separate continuous
+session protocol, with bounded background delegation to the selected chat model
+and the same MCP authorization. Existing-message read-aloud uses Gemini or Realtime;
+GPT-Live is available for native conversations only. Native file questions use a bounded,
 tool-free file reader and return observations to the voice model.
 
 Voice checks access every five seconds and ends when settings revision changes.
@@ -165,24 +177,16 @@ use a hashed role/agency subdirectory, preventing broader previous-role context
 from carrying into a reduced role or another agency. No existing objects move
 or disappear. Conditional writes and request claim/replay behavior remain.
 
-## Combined OpenAI and Gemini mode
+## Independent models and shared history
 
-Superadmin can select OpenAI + Gemini in the provider dropdown and manage both
-encrypted API keys in one form. Typed questions use GPT-6 Luna. Native voice uses
-Gemini Live directly, including input and output captions in the same private
-conversation ID. Uploaded-file analysis and lookup recovery inside hybrid voice
-use Luna; recovery read-aloud stays on Gemini. Standalone read-aloud/transcription
-also route to Gemini. Typed image generation remains on OpenAI, while native
-voice image generation uses the selected Gemini image model.
+Chat and voice can use either provider independently. File analysis, Gemini lookup
+recovery and GPT-Live delegated tasks use the selected chat model and reasoning.
+Provider credentials remain server-side and separate. Saved legacy mode settings
+still load until replaced by explicit model selections.
 
-Luna reasoning is independent of Gemini chat reasoning and supports none, low,
-medium, high, xhigh and max. Old settings retain high until changed. The saved
-selection reaches the actual Responses request; it is no longer hard-coded.
-
-Typing during hybrid voice sends an explicit end frame and waits for the server
-to save the current voice turn before closing. Only then does Luna start, with
-the same conversation ID. Failed handoffs preserve the typed draft. Reopening
-voice loads the updated shared history. AI business-read authorization is unchanged.
+Typing during native voice sends an end frame and waits for the current voice
+turn to save before the selected chat model starts with the same conversation ID.
+Failed handoffs preserve the typed draft. Reopening voice loads shared history.
 
 Both channels use the same most-recent-ten-exchange, 48,000-character context
 budget. Complete older messages remain saved, and prompts disclose omissions.

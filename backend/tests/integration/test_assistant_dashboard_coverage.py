@@ -115,24 +115,19 @@ async def test_counts_people_details_and_topics_are_observational_current_and_na
     assert fresh["data"] == "Updated Ada"
 
 
-async def test_native_voice_uses_same_real_people_and_topic_readers(populated):
-    workspace, people, _ = populated
-    _, actor, agency, _, group, request, store = workspace
+async def test_native_voice_discovers_mcp_and_rejects_retired_read_tools(populated):
+    workspace, _, _ = populated
+    _, actor, _, _, _, request, store = workspace
     sent = []
     async def send(message):
         sent.append(message)
     native = NativeSession(request, actor, AssistantSettings(_env_file=None), store, uuid4(), send)
-    instructions, _ = await native.context()
-    assert "personal data is not categorically blocked" in instructions
-    results = await native.tool_calls([
-        {"id": "people", "name": "read_dashboard", "args": {"view": "passport_view", "parameters": {"group_id": str(group.id)}, "data_path": ["group_total"]}},
-        {"id": "detail", "name": "read_dashboard", "args": {"view": "passport_details", "parameters": {"submission_id": str(people[0].id)}, "data_path": ["client_email"]}},
-        {"id": "topics", "name": "read_dashboard", "args": {"view": "whatsapp_groups", "parameters": {}, "agency_id": str(agency.id)}},
-    ])
-    assert results[0]["response"]["result"]["data"] == 2
-    assert results[1]["response"]["result"]["data"] == "person0@example.test"
-    assert "Synthetic active WhatsApp topic" in json.dumps(results[2])
-    assert len([item for item in sent if item["type"] == "source"]) == 3
+    instructions, tools = await native.context()
+    assert "list_mcp_tools" in instructions
+    assert {tool["name"] for tool in tools} == {"list_mcp_tools", "call_mcp_tool", "create_images"}
+    results = await native.tool_calls([{"id": "old", "name": "read_dashboard", "args": {"view": "passport_view"}}])
+    assert results[0]["response"]["result"]["error"] == "query_rejected"
+    assert not any(item["type"] == "source" for item in sent)
 
 
 async def test_company_directory_summary_and_trips_use_canonical_agency_scope(workspace):

@@ -35,7 +35,7 @@ def conversation(monkeypatch):
     monkeypatch.setattr(native_session, "fresh_actor", AsyncMock(return_value=actor))
     read = AsyncMock(return_value={"view": "passport_details", "observed_at": "2026-10-18T00:00:00Z",
         "completeness": "complete", "data": {"client_email": "ada@example.test"}})
-    monkeypatch.setattr(native_session, "run_read_tool", read)
+    monkeypatch.setattr(native_session.MCPAssistantBridge, "dispatch", read)
     store = SimpleNamespace(create_conversation=AsyncMock(), turns=AsyncMock(return_value={"items": []}), save_turn=AsyncMock())
     send = AsyncMock()
     session = native_session.NativeSession(Request({"type": "http", "headers": []}), actor,
@@ -47,12 +47,12 @@ def conversation(monkeypatch):
 
         async def responses(self, inputs, tools, instructions):
             assert "create_images" not in {tool["name"] for tool in tools}
-            assert "every tool still rechecks authorization" in instructions
+            assert "connection's current write permissions" in instructions
             self.calls += 1
             if self.calls == 1:
                 yield {"type": "completed", "response": {"output": [{"type": "function_call",
-                    "name": "read_dashboard", "call_id": "lookup", "arguments": json.dumps({
-                        "view": "passport_details", "parameters": {"submission_id": str(uuid4())}})}]}}
+                    "name": "call_mcp_tool", "call_id": "lookup", "arguments": json.dumps({
+                        "tool_name": "passport_details", "arguments_json": json.dumps({"submission_id": str(uuid4())})})}]}}
             else:
                 assert "ada@example.test" in json.dumps(inputs)
                 yield {"type": "delta", "text": "Ada's saved email is ada@example.test."}
@@ -110,6 +110,19 @@ async def test_explicit_provider_error_does_not_start_recovery(conversation):
         await session.consume({"error": {"status": "SAFETY"}})
     assert session.provider.calls == 0 and session.recoveries == 0
     store.save_turn.assert_not_awaited()
+
+
+async def test_uncertain_mcp_operation_is_never_repeated_by_voice_recovery(conversation):
+    session, _, store, dispatch = conversation
+    dispatch.side_effect = AssistantError("mcp_operation_failed", "Inspect operation status before retrying.", 503)
+    await session.tool_calls([{"id": "change-1", "name": "call_mcp_tool", "args": {"tool_name": "update_group", "arguments_json": "{}"}}])
+    await refusal(session)
+    await session.consume({"serverContent": {"turnComplete": True}})
+    dispatch.assert_awaited_once()
+    assert session.provider.calls == 0
+    assert session.recoveries == 0
+    store.save_turn.assert_awaited_once()
+    assert not session.attempted_mcp_operation
 
 
 async def test_normal_reply_releases_early_audio_and_uses_no_recovery(conversation):

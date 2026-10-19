@@ -161,13 +161,12 @@ async def test_streamed_luna_lookup_saved_replay_and_interrupted_retry(workspace
                         "output": [
                             {
                                 "type": "function_call",
-                                "name": "read_dashboard",
+                                "name": "call_mcp_tool",
                                 "call_id": "fixture-call",
                                 "arguments": json.dumps(
                                     {
-                                        "view": "group_details",
-                                        "parameters": {"group_id": str(group.id)},
-                                        "agency_id": str(agency.id),
+                                        "tool_name": "group_details",
+                                        "arguments_json": json.dumps({"group_id": str(group.id)}),
                                     }
                                 ),
                             }
@@ -182,6 +181,15 @@ async def test_streamed_luna_lookup_saved_replay_and_interrupted_retry(workspace
                     "type": "completed",
                     "response": {"output": [], "usage": {"input_tokens": 100, "output_tokens": 9}},
                 }
+
+    # The chat loop receives the MCP contract. Real grant and SDK execution are
+    # covered in test_assistant_mcp_bridge; retain SQL projection coverage here.
+    async def dispatch(bridge, name, arguments):
+        assert name == "call_mcp_tool"
+        result = await reads.DashboardReader(Request(request.scope), actor).read(
+            "group_details", {"group_id": str(group.id)}, agency_id=str(agency.id))
+        return {"result": result, "observed_at": result["observed_at"]}
+    monkeypatch.setattr(chat.MCPAssistantBridge, "dispatch", dispatch)
 
     provider = Provider()
     events = [
@@ -230,9 +238,8 @@ async def test_unknown_tools_and_sql_are_not_available_to_the_model(workspace, m
 
         async def responses(self, inputs, tools, instructions):
             assert {tool["name"] for tool in tools} == {
-                "read_dashboard",
-                "list_dashboard_views",
-                "get_workspace_overview",
+                "list_mcp_tools",
+                "call_mcp_tool",
                 "create_images",
             }
             self.calls += 1

@@ -16,6 +16,7 @@ from app.application.assistant.settings_contracts import (
 from app.application.assistant.usage_contracts import AssistantUsageResponse
 from app.domain.entities.entities import User, UserRole
 from app.infrastructure.assistant.gemini_provider import GEMINI_ORIGIN
+from app.infrastructure.assistant.model_catalog import model_catalog
 from app.infrastructure.assistant.settings_store import (
     OFFICE_ROLES,
     AssistantSnapshot,
@@ -26,6 +27,7 @@ from app.infrastructure.assistant.settings_store import (
 from app.infrastructure.assistant.usage import usage_snapshot
 from app.infrastructure.database.models import UserModel
 from app.infrastructure.database.session import get_db_session
+from app.presentation.assistant.mcp_bridge import connection_choices
 from app.presentation.dependencies.auth import require_recent_mfa, require_role
 from app.presentation.dependencies.csrf import require_cookie_csrf
 
@@ -103,6 +105,21 @@ async def update_ai_settings(
         raise _http(exc) from None
 
 
+@router.get("/settings/models")
+async def assistant_models(
+    response: Response,
+    user: User = Depends(require_role([UserRole.SUPER_ADMIN])),
+    session: AsyncSession = Depends(get_db_session),
+) -> dict[str, Any]:
+    response.headers.update(PRIVATE)
+    try:
+        snapshot = await load_snapshot(session)
+        await session.rollback()
+        return await model_catalog(snapshot)
+    except AssistantError as exc:
+        raise _http(exc) from None
+
+
 @router.get("/settings/usage", response_model=AssistantUsageResponse)
 async def assistant_usage(
     response: Response,
@@ -116,6 +133,12 @@ async def assistant_usage(
         return await usage_snapshot(user.id, limits)
     except AssistantError as exc:
         raise _http(exc) from None
+
+
+@router.get("/settings/mcp-connections")
+async def assistant_mcp_connections(response: Response, user: User = Depends(require_role([UserRole.SUPER_ADMIN]))) -> dict[str, Any]:
+    response.headers.update(PRIVATE)
+    return {"items": await connection_choices(user)}
 
 
 @router.get("/settings/people")
@@ -173,9 +196,7 @@ async def check_ai_connection(
             raise AssistantError("setup_pending", "Save this provider's API key first.", 422)
         await session.rollback()
         origin = GEMINI_ORIGIN if body.provider == "gemini" else "https://api.openai.com/v1"
-        path = "/models/" + (
-            snapshot.configuration.gemini_model if body.provider == "gemini" else "gpt-6-luna"
-        )
+        path = "/models"
         headers = (
             {"x-goog-api-key": key.get_secret_value()}
             if body.provider == "gemini"

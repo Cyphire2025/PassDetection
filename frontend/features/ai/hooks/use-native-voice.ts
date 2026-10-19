@@ -72,7 +72,7 @@ export function useNativeVoice(onEvent: (event: NativeEvent) => void, onStopped:
     };
     const timer = setTimeout(() => fail("The voice connection took too long. Please try again."), 25000);
     socket.onopen = () => socket.send(JSON.stringify({ type: "start", session_id: crypto.randomUUID(), conversation_id: conversationId, attachment_ids: attachmentIds }));
-    socket.onerror = () => { clearTimeout(timer); fail("Voice could not connect. Check the Gemini connection in AI settings, or continue by typing."); };
+    socket.onerror = () => { clearTimeout(timer); fail("Voice could not connect. Check the selected voice provider in AI settings, or continue by typing."); };
     socket.onclose = (event) => {
       clearTimeout(timer);
       if (session.current !== current) return;

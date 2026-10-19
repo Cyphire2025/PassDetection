@@ -20,12 +20,17 @@ class AssistantSettings(BaseSettings):
     voice_provider: Literal["openai", "gemini"] | None = None
     revision: int = 0
     model: str = "gpt-6-luna"
-    reasoning_effort: Literal["none", "low", "medium", "high", "xhigh", "max"] = "high"
+    reasoning_effort: str = "high"
     openai_reasoning_effort: Literal["none", "low", "medium", "high", "xhigh", "max"] = "high"
     live_model: str = "gemini-3.8-live"
-    speech_model: Literal[
-        "", "gpt-realtime-2.1-mini", "gpt-realtime-2.1", "gpt-4o-mini-tts", "tts-1", "tts-1-hd", "gemini-3.1-flash-tts-preview"
-    ] = ""
+    speech_model: str = ""
+    chat_model: str = ""
+    chat_reasoning: str = ""
+    live_reasoning: str = ""
+    voice_name: str = ""
+    avatar_appearance: Literal["male", "female"] = "female"
+    mcp_write_enabled: bool = False
+    mcp_connection_id: str | None = None
     transcription_model: Literal["gpt-transcribe", "gpt-4o-mini-transcribe"] = "gpt-transcribe"
     voice: str = "marin"
     image_model: str = (

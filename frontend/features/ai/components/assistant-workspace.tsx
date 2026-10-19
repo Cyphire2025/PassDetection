@@ -15,6 +15,7 @@ import { AssistantComposer } from "./assistant-composer";
 import { ConversationThread } from "./conversation-thread";
 import { ImageReveal } from "./image-reveal";
 import { WorkspaceDrawer } from "./workspace-drawer";
+import { HumanHologram } from "./human-hologram";
 import { SculptureAppearanceControl } from "./sculpture-appearance";
 import styles from "./workspace.module.css";
 
@@ -28,7 +29,7 @@ export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
   const [activeImage, setActiveImage] = useState<Asset | null>(null);
   const [images, setImages] = useState<Asset[]>([]);
   const [voiceFiles, setVoiceFiles] = useState<Asset[]>([]);
-  const [appearance, setAppearance] = useState(DEFAULT_APPEARANCE);
+  const [appearance, setAppearance] = useState({ ...DEFAULT_APPEARANCE, mode: "face" as const } as typeof DEFAULT_APPEARANCE);
   const [sculptureRenderer, setSculptureRenderer] = useState<"webgl" | "image" | null>(null);
   const [conversationOpen, setConversationOpen] = useState(false);
   const conversationPanel = useRef<HTMLDivElement>(null);
@@ -51,10 +52,11 @@ export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
   const accountKey = `${assistant.status?.account_id || "public"}:${assistant.status?.account_scope || "default"}`;
   const [workspaceAccount, setWorkspaceAccount] = useState(accountKey);
   if (workspaceAccount !== accountKey) {
-    setWorkspaceAccount(accountKey); setImages([]); setActiveImage(null); setDrawer(null); setVoiceFiles([]); setConversationOpen(false); setAppearance(DEFAULT_APPEARANCE);
+    setWorkspaceAccount(accountKey); setImages([]); setActiveImage(null); setDrawer(null); setVoiceFiles([]); setConversationOpen(false); setAppearance({ ...DEFAULT_APPEARANCE, mode: "face" });
   }
   const ready = signedIn && Boolean(assistant.status?.configured);
   const nativeEnabled = Boolean(assistant.status?.native_voice);
+  const voiceReady = signedIn && (assistant.status?.voice_configured ?? Boolean(assistant.status?.configured));
   const nativeSession = native.active || native.connecting;
   const listening = audio.microphone.status === "listening";
   const requesting = audio.microphone.status === "requesting";
@@ -104,8 +106,9 @@ export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
   const newConversation = () => { stopEverything(); assistant.newConversation(); setActiveImage(null); setImages([]); setConversationOpen(false); };
   const microphone = async () => {
     if (nativeSession || listening || requesting) { stopNative(); audio.stopInput(); return; }
+    if (nativeEnabled && !voiceReady) { assistant.setError("Save the selected voice model’s API key in AI settings to start voice."); return; }
     audio.warmAudio(); native.warm();
-    if (nativeEnabled && ready) {
+    if (nativeEnabled && voiceReady) {
       const conversation = assistant.beginNative(); if (!conversation) return;
       await audio.startInput(false, true);
       const stream = audio.microphone.getStream();
@@ -114,7 +117,7 @@ export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
   };
   const submit = async (text: string, files: Asset[], mode: "chat" | "image", count: number) => {
     spokenReplyRequested.current = false;
-    if (assistant.status?.mode === "hybrid") {
+    if (nativeEnabled) {
       if (nativeSession && !await native.finish()) return false;
       audio.stopInput(true); void assistant.send(text, files, mode, count); return true;
     }
@@ -142,7 +145,7 @@ export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
     {signedIn ? <>
       <div className={styles.mainArea}>
         <section className={styles.visualArea} aria-label="Voice-reactive particle sculpture">
-          <div className={styles.sculptureStage} data-testid="assistant-stage"><LiquidSculptureHero ref={sculpture} levelRef={level} presentationRef={presentation} dark={dark} appearance={appearance} onRendererChange={setSculptureRenderer} /><ImageReveal asset={activeImage} images={images} presentationRef={presentation} onSelect={setActiveImage} onClosed={closeImage} onProgress={renderReveal} /></div>
+          <div className={styles.sculptureStage} data-testid="assistant-stage">{appearance.mode === "face" ? <HumanHologram appearance={assistant.status?.avatar_appearance || "female"} dark={dark} motion={appearance.stateAnimations} levelRef={level} presentationRef={presentation} /> : <LiquidSculptureHero ref={sculpture} levelRef={level} presentationRef={presentation} dark={dark} appearance={appearance} onRendererChange={setSculptureRenderer} />}<ImageReveal asset={activeImage} images={images} presentationRef={presentation} onSelect={setActiveImage} onClosed={closeImage} onProgress={renderReveal} /></div>
           <div className={styles.voiceStatus} ref={voiceControl} data-listening={listening && !speaking} data-testid="assistant-voice-status">
             <button type="button" className={styles.voiceButton} onClick={() => void microphone()} disabled={assistant.busy || audio.transcribing} aria-label={nativeSession ? "End voice conversation" : requesting ? "Cancel microphone request" : listening ? "Finish voice message" : "Start microphone"} aria-pressed={listening || requesting || nativeSession}>
               {requesting || native.connecting || audio.transcribing ? <Loader2 size={20} className={styles.spinner} /> : listening || nativeSession ? <Square size={17} fill="currentColor" /> : <Mic size={23} strokeWidth={1.5} />}

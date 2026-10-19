@@ -1,4 +1,4 @@
-"""The /ai workspace API. It never grants database, SQL or business-write tools to a model."""
+"""Private assistant API; business access flows through the existing MCP policy."""
 
 from __future__ import annotations
 
@@ -7,6 +7,7 @@ import json
 import time
 from collections.abc import AsyncIterator
 from contextlib import suppress
+from datetime import UTC, datetime
 from typing import Any
 from urllib.parse import quote
 from uuid import UUID
@@ -29,7 +30,8 @@ from app.infrastructure.security.upload_security import UploadSecurityContext
 from app.presentation.assistant.cancellation import client_bound
 from app.presentation.assistant.chat import chat_events
 from app.presentation.assistant.images import image_events
-from app.presentation.assistant.reads import DashboardReader, fresh_actor
+from app.presentation.assistant.mcp_bridge import MCPAssistantBridge
+from app.presentation.assistant.reads import fresh_actor
 from app.presentation.dependencies.auth import get_current_active_user
 from app.presentation.dependencies.csrf import require_cookie_csrf
 
@@ -89,16 +91,20 @@ async def assistant_status(
     response.headers.update(PRIVATE_HEADERS)
     return {
         "configured": settings.configured,
-        "speech_configured": bool(settings.gemini_api_key.get_secret_value()) if settings.voice_provider == "gemini" else settings.configured and bool(settings.speech_model),
+        "speech_configured": bool(settings.gemini_api_key.get_secret_value()) if settings.voice_provider == "gemini" else bool(settings.openai_api_key.get_secret_value()) and bool(settings.speech_model) and not settings.live_model.startswith("gpt-live-"),
         "model": settings.model,
         "reasoning_effort": settings.reasoning_effort,
         "provider": settings.provider,
         "mode": settings.mode or settings.provider,
         "voice_provider": settings.voice_provider or settings.provider,
-        "native_voice": (settings.voice_provider or settings.provider) == "gemini",
+        "native_voice": True,
+        "voice_configured": bool(settings.gemini_api_key.get_secret_value()) if settings.voice_provider == "gemini" else bool(settings.openai_api_key.get_secret_value()),
+        "voice_model": settings.live_model,
+        "voice_name": settings.voice,
+        "avatar_appearance": settings.avatar_appearance,
         "settings_revision": settings.revision,
         "can_manage_settings": user.role == UserRole.SUPER_ADMIN,
-        "access": "read_only",
+        "access": "mcp_write_enabled" if settings.mcp_write_enabled else "read_only",
         "name": user.full_name,
         "account_id": str(user.id),
         "account_scope": account_scope(user),
@@ -106,7 +112,6 @@ async def assistant_status(
         "attachment_limit": 4,
         "image_limit": 4,
         "daily_requests": settings.daily_requests,
-        "voice_model": settings.live_model if settings.voice_provider == "gemini" else settings.speech_model or None,
         "speech_model": "gemini-3.1-flash-tts-preview" if settings.voice_provider == "gemini" else settings.speech_model or None,
     }
 
@@ -117,9 +122,16 @@ async def assistant_live(
 ) -> dict[str, Any]:
     response.headers.update(PRIVATE_HEADERS)
     try:
-        return await DashboardReader(request, user).overview()
+        await fresh_actor(user)
     except AssistantError as exc:
         raise _http(exc) from None
+    try:
+        access = await MCPAssistantBridge(request, user).discover()
+        return {"observed_at": access["observed_at"], "mcp": {"connected": True, "available_tools": access["total"], "write_enabled": access["write_enabled"]}}
+    except AssistantError as exc:
+        # A missing/revoked MCP link removes workspace tools, while general
+        # conversation and this account's own attachments remain available.
+        return {"observed_at": datetime.now(UTC).isoformat(), "mcp": {"connected": False, "code": exc.code, "message": exc.message}}
 
 
 @router.get("/conversations")
@@ -365,7 +377,7 @@ async def speech(
                 request, assistant_provider(settings).speak(body.text)
             )
             mime = (
-                "audio/wav" if settings.provider == "gemini" or settings.speech_model.startswith("gpt-realtime-") else "audio/mpeg"
+                "audio/wav" if settings.provider == "gemini" or "realtime" in settings.speech_model else "audio/mpeg"
             )
             return Response(content, media_type=mime, headers=PRIVATE_HEADERS)
     except AssistantError as exc:

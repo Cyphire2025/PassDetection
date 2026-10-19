@@ -1,0 +1,10 @@
+.root { position: relative; width: 100%; height: 100%; min-height: 100px; isolation: isolate; }
+.canvas { display: block; width: 100%; height: 100%; position: absolute; inset: 0; }
+.fallback { position: absolute; inset: 1% 0; opacity: 1; }
+.fallback img { object-fit: contain; }
+.root[data-renderer="webgl"] .fallback { opacity: 0; pointer-events: none; }
+.root[data-renderer="image"] .canvas { visibility: hidden; }
+.root[data-theme="light"] .fallback { filter: grayscale(.8); mask-image: radial-gradient(ellipse 32% 48% at center, black 50%, transparent 100%); }
+.root[data-theme="dark"] .fallback { mix-blend-mode: screen; }
+[data-image-open="true"] .root { opacity: .15; filter: blur(3px); }
+@media (prefers-reduced-motion: reduce) { .fallback { transition: none; } }

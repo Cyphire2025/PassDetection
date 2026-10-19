@@ -80,7 +80,7 @@ export function WorkspaceDrawer({ kind, signedIn, onClose, onImage, onConversati
           {cursor ? <button type="button" className={styles.loadMore} disabled={loading} onClick={() => void load(cursor)}>{loading ? "Loading…" : "Load more"}</button> : null}
         </div>
       </>}
-      <p className={styles.drawerFooter}>Private to your account. Dashboard access stays read only.</p>
+      <p className={styles.drawerFooter}>Private to your account. Access follows your MCP connection and AI settings.</p>
     </div>
   </div>;
 }

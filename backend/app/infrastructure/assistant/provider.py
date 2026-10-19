@@ -10,6 +10,7 @@ from typing import Any
 import httpx
 
 from app.application.assistant.contracts import AssistantError
+from app.application.assistant.model_capabilities import reasoning_options
 from app.core.assistant_config import AssistantSettings
 from app.infrastructure.assistant.realtime_speech import realtime_speech
 
@@ -66,16 +67,17 @@ class OpenAIAssistantProvider:
     ) -> AsyncIterator[dict[str, Any]]:
         payload = {
             "model": self.settings.model,
-            "reasoning": {"effort": self.settings.reasoning_effort},
             "instructions": instructions,
             "input": inputs,
             "tools": tools,
             "max_output_tokens": self.settings.max_output_tokens,
             "store": False,
             "stream": True,
-            "include": ["reasoning.encrypted_content"],
             "parallel_tool_calls": False,
         }
+        if self.settings.reasoning_effort in reasoning_options("openai", self.settings.model):
+            payload["reasoning"] = {"effort": self.settings.reasoning_effort}
+            payload["include"] = ["reasoning.encrypted_content"]
         terminal = False
         try:
             async with self._client() as client:
@@ -144,7 +146,7 @@ class OpenAIAssistantProvider:
                 "Spoken replies will be available once your voice setup is selected.",
             )
         self.require_ready()
-        if self.settings.speech_model.startswith("gpt-realtime-"):
+        if "realtime" in self.settings.speech_model:
             return await realtime_speech(self.settings, text)
         payload = {
             "model": self.settings.speech_model,

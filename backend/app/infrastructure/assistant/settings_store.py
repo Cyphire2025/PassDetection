@@ -21,6 +21,11 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.assistant.contracts import AssistantError
+from app.application.assistant.model_capabilities import (
+    GEMINI_VOICES,
+    split_model,
+    voice_appearance,
+)
 from app.application.assistant.settings_contracts import (
     AssistantConfiguration,
     AssistantSettingsUpdate,
@@ -135,11 +140,17 @@ async def runtime_settings(session: AsyncSession, *, purpose: Literal["chat", "v
     snapshot = await load_snapshot(session)
     base = get_assistant_settings()
     config = snapshot.configuration
-    provider = ("openai" if purpose == "chat" else "gemini") if config.provider == "hybrid" else config.provider
+    chat_choice = config.chat_model or (f"gemini:{config.gemini_model}" if config.provider == "gemini" else "openai:gpt-6-luna")
+    voice_choice = config.voice_model or (f"openai:{config.openai_speech_model or 'gpt-realtime-2.1-mini'}" if config.provider == "openai" else f"gemini:{config.gemini_live_model}")
+    chat_provider, chat_model = split_model(chat_choice)
+    voice_provider, live_model = split_model(voice_choice)
+    provider = chat_provider if purpose == "chat" else voice_provider
+    chat_effort = config.chat_reasoning if config.chat_model else config.reasoning_effort if chat_provider == "gemini" else config.openai_reasoning_effort
+    voice = config.voice_name or (config.gemini_voice if voice_provider == "gemini" else config.openai_voice)
     values: dict[str, Any] = {
         "provider": provider,
         "mode": config.provider,
-        "voice_provider": "gemini" if config.provider in {"gemini", "hybrid"} else "openai",
+        "voice_provider": voice_provider,
         "revision": snapshot.revision,
         "reasoning_effort": config.reasoning_effort,
         "openai_reasoning_effort": config.openai_reasoning_effort,
@@ -147,8 +158,13 @@ async def runtime_settings(session: AsyncSession, *, purpose: Literal["chat", "v
         "usage_limits": config.usage_limits,
         "daily_requests": config.usage_limits.daily_requests,
         "daily_images": config.usage_limits.daily_images,
+        "chat_model": chat_choice,
+        "chat_reasoning": chat_effort,
+        "live_reasoning": config.voice_reasoning,
+        "mcp_write_enabled": config.mcp_write_enabled,
+        "mcp_connection_id": str(config.mcp_connection_id) if config.mcp_connection_id else None,
     }
-    for name in (("openai", "gemini") if config.provider == "hybrid" else (provider,)):
+    for name in ("openai", "gemini"):
         values[f"{name}_api_key"] = provider_key(snapshot, name)
     if provider == "gemini":
         values.update(
@@ -165,6 +181,11 @@ async def runtime_settings(session: AsyncSession, *, purpose: Literal["chat", "v
             speech_model=config.openai_speech_model if snapshot.revision else base.speech_model,
             voice=config.openai_voice,
         )
+    appearance = config.voice_presentation if voice_provider == "gemini" and voice not in GEMINI_VOICES else voice_appearance(voice_provider, voice)
+    values.update(model=chat_model, live_model=live_model, voice=voice, voice_name=voice,
+                  avatar_appearance=appearance or "female",
+                  reasoning_effort=chat_effort,
+                  speech_model="gemini-3.1-flash-tts-preview" if voice_provider == "gemini" else live_model)
     return base.model_copy(update=values)
 
 

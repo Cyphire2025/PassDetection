@@ -305,6 +305,42 @@
     },
     {
       "surface": {
+        "id": "frontend:frontend/features/ai/settings-api.ts:mcpConnections",
+        "kind": "frontend_callable",
+        "source": "frontend/features/ai/settings-api.ts",
+        "handler": "mcpConnections"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party superadmin-only AI settings discovery: available provider models or existing connections owned by the current account. No credentials, new MCP grants, permission changes or business operations are exposed. This settings helper is not an MCP model tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/ai/settings-api.ts:models",
+        "kind": "frontend_callable",
+        "source": "frontend/features/ai/settings-api.ts",
+        "handler": "models"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party superadmin-only AI settings discovery: available provider models or existing connections owned by the current account. No credentials, new MCP grants, permission changes or business operations are exposed. This settings helper is not an MCP model tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
         "id": "frontend:frontend/features/ai/settings-api.ts:people",
         "kind": "frontend_callable",
         "source": "frontend/features/ai/settings-api.ts",
@@ -16039,6 +16075,54 @@
       "disposition": "internal_dependency",
       "phase": null,
       "rationale": "First-party authenticated assistant workspace and superadmin-only encrypted provider configuration. Kept outside MCP to avoid recursive model calls, credential access and hidden provider charges; business data uses separately authorized observational readers.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:GET:/api/v1/ai-assistant/settings/mcp-connections",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/ai-assistant/settings/mcp-connections",
+        "operation_id": "assistant_mcp_connections_api_v1_ai_assistant_settings_mcp_connections_get",
+        "tags": [
+          "AI Assistant"
+        ],
+        "summary": "Assistant Mcp Connections"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party superadmin-only AI settings discovery: available provider models or existing connections owned by the current account. No credentials, new MCP grants, permission changes or business operations are exposed. This settings helper is not an MCP model tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:GET:/api/v1/ai-assistant/settings/models",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/ai-assistant/settings/models",
+        "operation_id": "assistant_models_api_v1_ai_assistant_settings_models_get",
+        "tags": [
+          "AI Assistant"
+        ],
+        "summary": "Assistant Models"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party superadmin-only AI settings discovery: available provider models or existing connections owned by the current account. No credentials, new MCP grants, permission changes or business operations are exposed. This settings helper is not an MCP model tool.",
       "adapter_requirements": [],
       "implementation": {
         "status": "not_applicable",
@@ -34850,6 +34934,52 @@
       "disposition": "internal_dependency",
       "phase": null,
       "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/ai_assistant_settings.py:assistant_mcp_connections:GET:/settings/mcp-connections",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/ai_assistant_settings.py",
+        "handler": "assistant_mcp_connections",
+        "method": "GET",
+        "local_path": "/settings/mcp-connections",
+        "contract_sha256": "476a80e9d7a7112e331abad2b4f2950516735c67827bbc1939e8316d6a144881",
+        "summary": "assistant mcp connections",
+        "schema_visible": true
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party superadmin-only AI settings discovery: available provider models or existing connections owned by the current account. No credentials, new MCP grants, permission changes or business operations are exposed. This settings helper is not an MCP model tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/ai_assistant_settings.py:assistant_models:GET:/settings/models",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/ai_assistant_settings.py",
+        "handler": "assistant_models",
+        "method": "GET",
+        "local_path": "/settings/models",
+        "contract_sha256": "fd34f878153a68a0179febf6ba9a0a761feb657beeeafcecd08ad5ec0a79e492",
+        "summary": "assistant models",
+        "schema_visible": true
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "First-party superadmin-only AI settings discovery: available provider models or existing connections owned by the current account. No credentials, new MCP grants, permission changes or business operations are exposed. This settings helper is not an MCP model tool.",
       "adapter_requirements": [],
       "implementation": {
         "status": "not_applicable",

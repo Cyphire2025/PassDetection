@@ -3,8 +3,15 @@
 from typing import Literal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, SecretStr
+from pydantic import BaseModel, ConfigDict, Field, SecretStr, model_validator
 
+from app.application.assistant.model_capabilities import (
+    MODEL_ID,
+    model_kind,
+    reasoning_options,
+    split_model,
+    voice_options,
+)
 from app.core.assistant_usage import AssistantUsageLimits
 
 AssistantProviderName = Literal["gemini", "openai"]
@@ -25,6 +32,15 @@ class AssistantConfiguration(BaseModel):
     allowed_roles: list[GrantRole] = Field(default_factory=list, max_length=3)
     allowed_user_ids: list[UUID] = Field(default_factory=list, max_length=200)
     provider: AssistantMode = "gemini"
+    # Empty values preserve saved v1 settings until the administrator selects a model.
+    chat_model: str = Field(default="", max_length=210)
+    voice_model: str = Field(default="", max_length=210)
+    chat_reasoning: str = Field(default="", max_length=16)
+    voice_reasoning: str = Field(default="", max_length=16)
+    voice_name: str = Field(default="", max_length=100)
+    voice_presentation: Literal["male", "female"] | None = None
+    mcp_write_enabled: bool = False
+    mcp_connection_id: UUID | None = None
     gemini_model: GeminiChatModel = "gemini-3.8-flash"
     gemini_live_model: GeminiLiveModel = "gemini-3.8-live"
     gemini_image_model: GeminiImageModel = "gemini-3.1-flash-image"
@@ -34,6 +50,21 @@ class AssistantConfiguration(BaseModel):
     openai_speech_model: Literal["", "gpt-realtime-2.1-mini", "gpt-realtime-2.1"] = ""
     openai_voice: Literal["marin", "cedar", "alloy", "coral", "sage"] = "marin"
     usage_limits: AssistantUsageLimits = Field(default_factory=AssistantUsageLimits)
+
+    @model_validator(mode="after")
+    def validate_model_choices(self) -> "AssistantConfiguration":
+        for selection, effort, kind in ((self.chat_model, self.chat_reasoning, "chat"), (self.voice_model, self.voice_reasoning, "voice")):
+            if not selection:
+                continue
+            provider, model = split_model(selection)
+            if model_kind(provider, model) != kind:
+                raise ValueError(f"Choose a compatible {kind} model.")
+            if effort and effort not in reasoning_options(provider, model):
+                raise ValueError("This reasoning level is unavailable for the selected model.")
+            if kind == "voice" and self.voice_name:
+                if not MODEL_ID.fullmatch(self.voice_name) or provider == "openai" and self.voice_name not in {item["id"] for item in voice_options(provider, model)}:
+                    raise ValueError("Choose a voice supported by the selected voice model.")
+        return self
 
 
 class AssistantSettingsUpdate(BaseModel):

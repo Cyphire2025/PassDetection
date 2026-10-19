@@ -39,6 +39,23 @@ def dedicated_credentials_only(monkeypatch):
     )
 
 
+async def test_chat_and_native_voice_resolve_independent_models_keys_and_appearance(workspace):
+    session, actor, *_ = workspace
+    config = AssistantConfiguration(chat_model="gemini:gemini-3.1-pro-preview", chat_reasoning="medium",
+        voice_model="openai:gpt-realtime-2.1", voice_reasoning="low", voice_name="cedar")
+    await save_settings(session, actor, AssistantSettingsUpdate(expected_revision=0, configuration=config,
+        gemini_api_key="synthetic-gemini-key", openai_api_key="synthetic-openai-key"))
+    chat, voice = await runtime_settings(session), await runtime_settings(session, purpose="voice")
+    assert (chat.provider, chat.model, chat.reasoning_effort) == ("gemini", "gemini-3.1-pro-preview", "medium")
+    assert (voice.provider, voice.live_model, voice.live_reasoning, voice.voice) == ("openai", "gpt-realtime-2.1", "low", "cedar")
+    assert voice.avatar_appearance == chat.avatar_appearance == "male"
+    assert not voice.mcp_write_enabled
+    from app.infrastructure.assistant.provider_factory import native_text_settings
+    delegated = native_text_settings(voice)
+    assert delegated.provider == "gemini" and delegated.model == chat.model
+    assert delegated.gemini_api_key.get_secret_value() == "synthetic-gemini-key"
+
+
 async def test_saved_key_is_encrypted_hidden_and_preserved_with_optimistic_revision(workspace):
     session, actor, _, _, _, _, _ = workspace
     secret = "synthetic-gemini-secret-123456"

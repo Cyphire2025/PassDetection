@@ -1,4 +1,4 @@
-"""Same-origin native Gemini voice gateway. No provider key reaches a browser."""
+"""Same-origin native audio gateway. No provider key reaches a browser."""
 
 from __future__ import annotations
 
@@ -6,7 +6,8 @@ import asyncio
 import base64
 import json
 import time
-from contextlib import suppress
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager, suppress
 from typing import Any
 from uuid import UUID
 
@@ -22,6 +23,8 @@ from app.domain.entities.entities import User
 from app.domain.exceptions.exceptions import AuthenticationError, AuthorizationError
 from app.infrastructure.assistant.gemini_live import live_connection, live_setup
 from app.infrastructure.assistant.limits import assistant_admission, reserve_daily_units
+from app.infrastructure.assistant.openai_duplex import duplex_connection
+from app.infrastructure.assistant.openai_live import openai_live_connection
 from app.infrastructure.assistant.settings_store import load_snapshot, runtime_settings
 from app.infrastructure.assistant.store import assistant_store
 from app.infrastructure.database.session import AsyncSessionFactory
@@ -57,13 +60,31 @@ async def authorize_voice(websocket: WebSocket) -> tuple[User, AssistantSettings
         if not snapshot.allows(user):
             raise AssistantError("access_denied", "AI access is unavailable for this account.", 403)
         runtime = await runtime_settings(session, purpose="voice")
-    if runtime.provider != "gemini" or not runtime.configured:
+    if not runtime.configured:
         raise AssistantError(
             "setup_pending",
-            "Choose Gemini and save its API key in AI settings to use native voice.",
+            "Save the selected voice model's API key in AI settings to use native voice.",
             422,
         )
     return user, runtime
+
+
+@asynccontextmanager
+async def configured_voice_connection(settings: AssistantSettings, tools: list[dict[str, Any]], instructions: str) -> AsyncIterator[Any]:
+    if settings.provider == "openai" and settings.live_model.startswith("gpt-live-"):
+        async with duplex_connection(settings, instructions) as upstream:
+            yield upstream
+        return
+    if settings.provider == "openai":
+        async with openai_live_connection(settings, tools, instructions) as upstream:
+            yield upstream
+        return
+    async with live_connection(settings) as upstream:
+        await upstream.send(json.dumps(live_setup(settings, tools, instructions)))
+        ready = json.loads(await asyncio.wait_for(upstream.recv(), timeout=15))
+        if "setupComplete" not in ready:
+            raise AssistantError("provider_configuration", "Gemini did not accept this voice model. Check AI settings and API project access.")
+        yield upstream
 
 
 async def _client_audio(websocket: WebSocket, upstream: Any, conversation: NativeSession, max_seconds: int = 600) -> None:
@@ -141,22 +162,33 @@ async def _client_audio(websocket: WebSocket, upstream: Any, conversation: Nativ
 
 
 async def _server_audio(upstream: Any, conversation: NativeSession) -> None:
-    async for raw in upstream:
-        if not isinstance(raw, (str, bytes)) or len(raw) > 512 * 1024:
-            raise AssistantError("voice_limit", "The voice response exceeded its safe limit.", 413)
-        value = json.loads(raw)
-        if not isinstance(value, dict):
-            raise AssistantError("voice_protocol", "The voice response was invalid.")
-        calls = await conversation.consume(value)
-        if calls:
-            responses = await conversation.tool_calls(calls)
-            await upstream.send(
-                json.dumps(
-                    {"toolResponse": {"functionResponses": responses}},
-                    ensure_ascii=False,
-                    default=str,
-                )
-            )
+    async def respond(calls: list[dict[str, Any]], *, delegated: bool = False) -> None:
+        responses = await conversation.resolve_delegation(calls) if delegated else await conversation.tool_calls(calls)
+        await upstream.send(json.dumps({"toolResponse": {"functionResponses": responses}}, ensure_ascii=False, default=str))
+
+    pending: asyncio.Task[None] | None = None
+    try:
+        async for raw in upstream:
+            if pending is not None and pending.done():
+                await pending
+                pending = None
+            if not isinstance(raw, (str, bytes)) or len(raw) > 512 * 1024:
+                raise AssistantError("voice_limit", "The voice response exceeded its safe limit.", 413)
+            value = json.loads(raw)
+            if not isinstance(value, dict):
+                raise AssistantError("voice_protocol", "The voice response was invalid.")
+            calls = await conversation.consume(value)
+            if calls:
+                if value.get("backgroundToolCall") and conversation.settings.live_model.startswith("gpt-live-"):
+                    if pending is not None:
+                        raise AssistantError("tool_limit", "A workspace task is already running.", 429)
+                    pending = asyncio.create_task(respond(calls, delegated=True))
+                else:
+                    await respond(calls)
+    finally:
+        if pending is not None:
+            pending.cancel()
+            await asyncio.gather(pending, return_exceptions=True)
 
 
 async def _authorization_heartbeat(
@@ -231,14 +263,7 @@ async def assistant_voice(websocket: WebSocket) -> None:
             await store.claim_request(
                 conversation_id, session_id, "native-audio-session:" + str(session_id)
             )
-            async with live_connection(settings) as upstream:
-                await upstream.send(json.dumps(live_setup(settings, tools, instructions)))
-                ready = json.loads(await asyncio.wait_for(upstream.recv(), timeout=15))
-                if "setupComplete" not in ready:
-                    raise AssistantError(
-                        "provider_configuration",
-                        "Gemini did not accept this voice model. Check AI settings and API project access.",
-                    )
+            async with configured_voice_connection(settings, tools, instructions) as upstream:
                 admission.commit()
                 await send(
                     {

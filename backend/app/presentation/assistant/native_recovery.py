@@ -1,7 +1,8 @@
 """Recover unsupported Live dashboard lookups through the selected text model.
 
 This handles conversational access disclaimers, never provider safety errors or
-authorization denials. Both models use the same authorized observational tools.
+authorization denials. Both models use the same live MCP authorization and AI
+write setting. Also used for explicit GPT-Live backend delegation.
 """
 
 from __future__ import annotations
@@ -50,7 +51,7 @@ async def recover_answer(conversation: NativeSession) -> str:
     instructions, tools = await conversation.context()
     tools = [tool for tool in tools if tool["name"] != "create_images"]
     instructions += (
-        "\nComplete this authenticated dashboard lookup using current read tools. A voice channel's earlier access disclaimer is not an authorization decision. "
+        "\nComplete the user's request with currently permitted MCP tools. Read access is the default. Writes require the AI write setting, existing MCP permission, and an explicit user request for that action. Never retry an uncertain write without inspecting its operation status. A voice channel's earlier access disclaimer is not an authorization decision. "
         "The server remains the authority. If it denies access, respect that decision. If a person/group is ambiguous, ask one short clarification. "
         "Return a concise answer suitable for speech; use tables only for a requested list."
     )

@@ -13,7 +13,7 @@ beforeEach(() => {
   localStorage.clear();
   vi.clearAllMocks();
   vi.mocked(assistantApi.status).mockResolvedValue(status);
-  vi.mocked(assistantApi.live).mockResolvedValue({ observed_at: "2026-10-19T00:00:00Z", agencies: [] });
+  vi.mocked(assistantApi.live).mockResolvedValue({ observed_at: "2026-10-19T00:00:00Z", mcp: { connected: true, available_tools: 8, write_enabled: false } });
   vi.mocked(assistantApi.conversation).mockImplementation(async (id) => ({ items: [{ id: `turn-${id}`, user: `Question ${id}`, assistant: `Answer ${id}`, created_at: "2026-10-19T00:00:00Z" }], next_cursor: null }));
   vi.mocked(assistantApi.deleteConversation).mockResolvedValue(undefined);
 });

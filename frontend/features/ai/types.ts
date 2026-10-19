@@ -1,6 +1,6 @@
 export type AssistantPhase = "idle" | "listening" | "thinking" | "speaking";
 export type { SculpturePresentation as VisualState } from "@/components/ui/liquid-sculpture/types";
-export type AssistantStatus = { configured: boolean; speech_configured: boolean; model: string; reasoning_effort: string; name: string; account_id?: string; account_scope?: string; access: "read_only"; provider?: "gemini" | "openai"; mode?: "gemini" | "openai" | "hybrid"; voice_provider?: "gemini" | "openai"; native_voice?: boolean; settings_revision?: number; can_manage_settings?: boolean };
+export type AssistantStatus = { configured: boolean; speech_configured: boolean; model: string; reasoning_effort: string; name: string; account_id?: string; account_scope?: string; access: "read_only" | "mcp_write_enabled"; avatar_appearance?: "male" | "female"; voice_name?: string; voice_model?: string; provider?: "gemini" | "openai"; mode?: "gemini" | "openai" | "hybrid"; voice_provider?: "gemini" | "openai"; native_voice?: boolean; voice_configured?: boolean; settings_revision?: number; can_manage_settings?: boolean };
 export type Asset = { id: string; name: string; mime: string; size: number; kind: "uploaded" | "generated"; created_at: string; url: string };
 export type Source = { view: string; observed_at: string; completeness: string };
 export type Message = { id: string; role: "user" | "assistant"; text: string; attachments?: Asset[]; images?: Asset[]; sources?: Source[]; error?: string; streaming?: boolean };
