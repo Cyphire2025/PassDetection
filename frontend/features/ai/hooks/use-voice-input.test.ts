@@ -15,6 +15,7 @@ const analyser = {
 };
 
 class TestAudioContext {
+  state = "running";
   resume = async () => undefined;
   close = close;
   createAnalyser = () => analyser;

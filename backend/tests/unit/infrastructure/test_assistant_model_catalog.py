@@ -8,6 +8,7 @@ from pydantic import SecretStr, ValidationError
 
 from app.application.assistant.model_capabilities import (
     gemini_thinking,
+    is_nonconversational_voice_model,
     reasoning_options,
     voice_options,
 )
@@ -63,6 +64,55 @@ async def test_partial_failure_is_redacted_and_preserves_saved_selection(monkeyp
     assert result["providers"][0]["status"] == "unavailable"
     assert result["providers"][1]["status"] == "ready"
     assert "synthetic-secret" not in json.dumps(result)
+
+
+async def test_specialized_realtime_models_are_not_offered_as_conversational_voice(monkeypatch):
+    monkeypatch.setattr(catalog, "provider_key", lambda snapshot, provider: SecretStr("synthetic-" + provider))
+
+    def handler(request):
+        if request.url.host == "api.openai.com":
+            return httpx.Response(200, json={"data": [{"id": name} for name in [
+                "gpt-realtime-translate", "gpt-realtime-translate-2026-10-06",
+                "gpt-realtime-2.1", "gpt-4o-realtime-preview-2025-06-03", "gpt-live-1",
+            ]]})
+        if request.url.path.endswith("/voices"):
+            return httpx.Response(404)
+        # These specialized models really advertise Live API support, but their
+        # output is text. A bidi method alone cannot establish speech support.
+        return httpx.Response(200, json={"models": [
+            {"name": "models/" + name, "supportedGenerationMethods": ["bidiGenerateContent"]}
+            for name in [
+                "gemini-3.5-transcribe-live", "gemini-robotics-er-2-streaming-preview",
+                "gemini-3.8-live", "gemini-2.5-flash-native-audio-preview-09-2025",
+                "gemini-future-conversation",
+            ]
+        ]})
+
+    # A selection saved before the filter stays readable, but cannot re-enter
+    # the selectable catalog through the "preserve saved model" fallback.
+    snapshot = AssistantSnapshot(configuration=AssistantConfiguration(
+        voice_model="openai:gpt-realtime-translate",
+    ))
+    result = await catalog.model_catalog(snapshot, httpx.MockTransport(handler))
+    voices = {item["id"] for item in result["models"] if item["kind"] == "voice"}
+    assert voices == {
+        "openai:gpt-realtime-2.1", "openai:gpt-4o-realtime-preview-2025-06-03",
+        "openai:gpt-live-1", "gemini:gemini-3.8-live",
+        "gemini:gemini-2.5-flash-native-audio-preview-09-2025",
+        "gemini:gemini-future-conversation",
+    }
+    assert all(item["status"] == "ready" for item in result["providers"])
+    assert snapshot.configuration.voice_model == "openai:gpt-realtime-translate"
+
+
+@pytest.mark.parametrize("provider,model", [
+    ("openai", "gpt-realtime-translate"),
+    ("openai", "gpt-realtime-translate-2026-10-06"),
+    ("gemini", "gemini-3.5-transcribe-live"),
+    ("gemini", "gemini-robotics-er-2-streaming-preview"),
+])
+def test_specialized_voice_protocol_is_identifiable_without_discovery(provider, model):
+    assert is_nonconversational_voice_model(provider, model)
 
 
 @pytest.mark.parametrize("model,efforts", [

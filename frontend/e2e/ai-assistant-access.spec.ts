@@ -233,24 +233,32 @@ test("superadmin can edit allowances, inspect current usage and retain limits af
   await page.screenshot({ path: testInfo.outputPath("ai-usage-settings-mobile.png"), fullPage: true });
 });
 
-test("native voice sends PCM without transcribe requests, plays audio, and releases input", async ({ page }) => {
+test("native voice preserves an audible first utterance while connecting and plays audio before captions", async ({ page }) => {
   test.setTimeout(90000);
   const { state } = await fixture(page); state.configuration.voice_model = "openai:gpt-realtime-2.1";
-  await syntheticMicrophone(page);
-  const transcribes: string[] = []; let packets = 0;
+  await syntheticMicrophone(page, true); // Speech on the second channel must survive mono downmixing.
+  const transcribes: string[] = []; let packets = 0, audiblePackets = 0;
+  let connect: () => void = () => { throw new Error("Voice socket is not ready"); };
+  let captions: () => void = () => { throw new Error("No audible input received"); };
   page.on("request", (request) => { if (request.url().endsWith("/transcribe")) transcribes.push(request.url()); });
   await page.routeWebSocket("**/api/v1/ai-assistant/voice", (socket) => {
     socket.onMessage((raw) => {
       const value = JSON.parse(String(raw));
-      if (value.type === "start") socket.send(JSON.stringify({ type: "ready", conversation_id: value.conversation_id, max_session_seconds: 600 }));
+      if (value.type === "start") connect = () => socket.send(JSON.stringify({ type: "ready", conversation_id: value.conversation_id, max_session_seconds: 600 }));
       if (value.type !== "audio") return;
       packets++;
-      if (packets !== 3) return;
+      const input = Buffer.from(value.data, "base64");
+      expect(input.length).toBe(3200); // 100 ms of mono PCM16 at 16 kHz.
+      let energy = 0;
+      for (let index = 0; index < input.length; index += 2) energy += (input.readInt16LE(index) / 32768) ** 2;
+      if (Math.sqrt(energy / (input.length / 2)) < .02 || ++audiblePackets !== 1) return;
       const pcm = Buffer.alloc(24000 * 2 * 2);
       for (let sample = 0; sample < pcm.length / 2; sample++) pcm.writeInt16LE(Math.round(Math.sin(sample * Math.PI * 2 * 180 / 24000) * 14000), sample * 2);
-      socket.send(JSON.stringify({ type: "input_transcript", text: "What is pending?", turn_id: "voice-turn" }));
-      socket.send(JSON.stringify({ type: "text_delta", text: "There are three pending documents.", turn_id: "voice-turn" }));
       socket.send(JSON.stringify({ type: "audio", data: pcm.toString("base64"), sample_rate: 24000, turn_id: "voice-turn" }));
+      captions = () => {
+        socket.send(JSON.stringify({ type: "input_transcript", text: "What is pending?", turn_id: "voice-turn" }));
+        socket.send(JSON.stringify({ type: "text_delta", text: "There are three pending documents.", turn_id: "voice-turn" }));
+      };
     });
   });
   await page.goto("/ai");
@@ -264,10 +272,20 @@ test("native voice sends PCM without transcribe requests, plays audio, and relea
     }).observe(element, { attributes: true, attributeFilter: ["style"] });
   });
   await page.getByRole("button", { name: "Start microphone" }).click();
+  await page.evaluate(() => (window as unknown as { __voiceTest: { setVolume: (value: number) => void } }).__voiceTest.setVolume(.22));
+  await expect(page.getByTestId("assistant-voice-status")).toHaveAttribute("data-input-detected", "true");
+  expect(await page.evaluate(() => (window as unknown as { __voiceTest: { workletsCreated: () => number } }).__voiceTest.workletsCreated())).toBe(1);
+  await expect(page.getByTestId("assistant-voice-status")).toContainText("Connecting voice");
+  expect(packets).toBe(0);
+  await page.evaluate(() => (window as unknown as { __voiceTest: { setVolume: (value: number) => void } }).__voiceTest.setVolume(0));
+  connect();
   await expect(page.getByRole("button", { name: "End voice conversation" })).toBeVisible();
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __nativePlaybackPeak: number }).__nativePlaybackPeak)).toBeGreaterThan(.1);
+  expect(audiblePackets).toBeGreaterThan(0);
+  await expect(page.getByText("There are three pending documents.", { exact: true })).not.toBeAttached();
+  captions();
   await page.getByRole("button", { name: "Show conversation", exact: true }).click();
   await expect(page.getByText("There are three pending documents.", { exact: true })).toBeVisible();
-  await expect.poll(() => page.evaluate(() => (window as unknown as { __nativePlaybackPeak: number }).__nativePlaybackPeak)).toBeGreaterThan(.1);
   await page.getByRole("button", { name: "End voice conversation" }).click();
   await expect(page.getByRole("button", { name: "Start microphone" })).toBeVisible();
   expect(await page.evaluate(() => (window as unknown as { __voiceTest: { tracksStopped: () => boolean } }).__voiceTest.tracksStopped())).toBe(true);

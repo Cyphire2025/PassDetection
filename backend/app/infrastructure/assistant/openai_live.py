@@ -17,10 +17,12 @@ from typing import Any
 from urllib.parse import quote
 
 from websockets.asyncio.client import connect
+from websockets.exceptions import InvalidStatus
 
 from app.application.assistant.contracts import AssistantError
 from app.application.assistant.model_capabilities import reasoning_options
 from app.core.assistant_config import AssistantSettings
+from app.infrastructure.assistant.openai_voice_diagnostics import VoiceDiagnostics
 
 transport_logger = logging.getLogger("assistant.private_openai_live_transport")
 transport_logger.addHandler(logging.NullHandler())
@@ -55,8 +57,9 @@ def realtime_setup(settings: AssistantSettings, tools: list[dict[str, Any]], ins
 
 
 class RealtimeGateway:
-    def __init__(self, socket: Any, settings: AssistantSettings):
+    def __init__(self, socket: Any, settings: AssistantSettings, diagnostics: VoiceDiagnostics | None = None):
         self.socket, self.settings = socket, settings
+        self.diagnostics = diagnostics or VoiceDiagnostics("realtime")
         self.resample_state: Any = None
         self.pending_done = False
         self.input_item: str | None = None
@@ -74,6 +77,7 @@ class RealtimeGateway:
             pcm = base64.b64decode(realtime["audio"]["data"], validate=True)
             converted, self.resample_state = audioop.ratecv(pcm, 2, 1, 16000, 24000, self.resample_state)
             await self.socket.send(json.dumps({"type": "input_audio_buffer.append", "audio": base64.b64encode(converted).decode()}))
+            self.diagnostics.input(len(pcm))
         elif "audioStreamEnd" in realtime:
             # Server VAD commits speech; committing again creates an empty turn.
             return
@@ -115,8 +119,9 @@ class RealtimeGateway:
             kind = event.get("type")
             content: dict[str, Any] = {}
             if kind == "error":
-                raise AssistantError("provider_unavailable", "OpenAI voice could not complete this session. Check AI settings and reconnect.")
+                raise self.diagnostics.error(event, stage="stream")
             if kind == "input_audio_buffer.speech_started":
+                self.diagnostics.speech_started()
                 if self.response_active or self.output_active or self.pending_done:
                     yield json.dumps({"serverContent": {"interrupted": True}})
                 if self.input_item:
@@ -133,6 +138,7 @@ class RealtimeGateway:
             elif event.get("response_id") in self.cancelled_responses:
                 continue
             elif kind == "input_audio_buffer.speech_stopped":
+                self.diagnostics.speech_stopped()
                 content = {"assistantPhase": "thinking"}
             elif kind == "conversation.item.input_audio_transcription.completed":
                 identifier = event.get("item_id", "")
@@ -141,6 +147,7 @@ class RealtimeGateway:
                     content = {"inputTranscription": {"text": event.get("transcript", "")}}
             elif kind in {"response.output_audio.delta", "response.audio.delta"}:
                 self.output_active = True
+                self.diagnostics.output(event["delta"])
                 content = {"modelTurn": {"parts": [{"inlineData": {"mimeType": "audio/pcm;rate=24000", "data": event["delta"]}}]}}
             elif kind in {"response.output_audio_transcript.delta", "response.audio_transcript.delta"}:
                 content = {"outputTranscription": {"text": event.get("delta", "")}}
@@ -150,7 +157,10 @@ class RealtimeGateway:
                     continue
                 self.response_active = False
                 if response.get("status") in {"failed", "incomplete"}:
-                    raise AssistantError("voice_incomplete", "The voice answer could not finish. Please try again.")
+                    details = response.get("status_details") or {}
+                    raise self.diagnostics.error({"status": response["status"], "error": details.get("error"), "reason": details.get("reason")}, stage="response")
+                if response.get("status") == "completed":
+                    self.diagnostics.completed_responses += 1
                 calls = [{"id": item["call_id"], "name": item["name"], "args": json.loads(item["arguments"])}
                          for item in response.get("output", []) if item.get("type") == "function_call"]
                 if calls:
@@ -171,18 +181,25 @@ class RealtimeGateway:
 
 @asynccontextmanager
 async def openai_live_connection(settings: AssistantSettings, tools: list[dict[str, Any]], instructions: str) -> AsyncIterator[RealtimeGateway]:
-    async with FixedRealtimeConnect(
-        "wss://api.openai.com/v1/realtime?model=" + quote(settings.live_model, safe=""),
-        additional_headers={"Authorization": "Bearer " + settings.openai_api_key.get_secret_value()},
-        proxy=None, compression=None, open_timeout=10, close_timeout=3,
-        max_size=512 * 1024, max_queue=4, logger=transport_logger,
-    ) as socket:
-        await socket.send(json.dumps(realtime_setup(settings, tools, instructions)))
-        async with asyncio.timeout(15):
-            while True:
-                event = json.loads(await socket.recv())
-                if event.get("type") == "session.updated":
-                    break
-                if event.get("type") == "error":
-                    raise AssistantError("provider_configuration", "OpenAI did not accept this voice model or voice. Check AI settings and API project access.")
-        yield RealtimeGateway(socket, settings)
+    diagnostics = VoiceDiagnostics("realtime")
+    try:
+        async with FixedRealtimeConnect(
+            "wss://api.openai.com/v1/realtime?model=" + quote(settings.live_model, safe=""),
+            additional_headers={"Authorization": "Bearer " + settings.openai_api_key.get_secret_value()},
+            proxy=None, compression=None, open_timeout=10, close_timeout=3,
+            max_size=512 * 1024, max_queue=4, logger=transport_logger,
+        ) as socket:
+            await socket.send(json.dumps(realtime_setup(settings, tools, instructions)))
+            async with asyncio.timeout(15):
+                while True:
+                    event = json.loads(await socket.recv())
+                    if event.get("type") == "session.updated":
+                        diagnostics.accepted(event.get("session") or {})
+                        break
+                    if event.get("type") == "error":
+                        raise diagnostics.error(event, stage="setup")
+            yield RealtimeGateway(socket, settings, diagnostics)
+    except InvalidStatus as exc:
+        raise diagnostics.http_error(exc.response) from None
+    finally:
+        diagnostics.closed()

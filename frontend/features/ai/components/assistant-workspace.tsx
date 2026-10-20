@@ -124,7 +124,8 @@ export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
     if (nativeSession) return native.sendText(mode === "image" ? "Create " + count + " image(s): " + text : text);
     void assistant.send(text, files, mode, count); return true;
   };
-  const label = native.connecting ? "Connecting voice…" : phase === "listening" ? "Listening to you" : phase === "speaking" ? "Speaking with you" : phase === "thinking" ? assistant.progress || "Thinking…" : "";
+  const listeningLabel = nativeSession ? native.inputHint || (native.inputDetected ? "Listening to you" : "Microphone connected — speak to begin") : "Listening to you";
+  const label = native.connecting ? "Connecting voice…" : phase === "listening" ? listeningLabel : phase === "speaking" ? "Speaking with you" : phase === "thinking" ? assistant.progress || "Thinking…" : "";
   const error = native.error || audio.error || assistant.error;
 
   const panelOpen = assistant.messages.length > 0 && conversationOpen;
@@ -146,7 +147,7 @@ export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
       <div className={styles.mainArea}>
         <section className={styles.visualArea} aria-label="Voice-reactive particle sculpture">
           <div className={styles.sculptureStage} data-testid="assistant-stage">{appearance.mode === "face" ? <HumanHologram appearance={assistant.status?.avatar_appearance || "female"} dark={dark} motion={appearance.stateAnimations} levelRef={level} presentationRef={presentation} /> : <LiquidSculptureHero ref={sculpture} levelRef={level} presentationRef={presentation} dark={dark} appearance={appearance} onRendererChange={setSculptureRenderer} />}<ImageReveal asset={activeImage} images={images} presentationRef={presentation} onSelect={setActiveImage} onClosed={closeImage} onProgress={renderReveal} /></div>
-          <div className={styles.voiceStatus} ref={voiceControl} data-listening={listening && !speaking} data-testid="assistant-voice-status">
+          <div className={styles.voiceStatus} ref={voiceControl} data-listening={listening && !speaking} data-input-detected={nativeSession && native.inputDetected} data-testid="assistant-voice-status">
             <button type="button" className={styles.voiceButton} onClick={() => void microphone()} disabled={assistant.busy || audio.transcribing} aria-label={nativeSession ? "End voice conversation" : requesting ? "Cancel microphone request" : listening ? "Finish voice message" : "Start microphone"} aria-pressed={listening || requesting || nativeSession}>
               {requesting || native.connecting || audio.transcribing ? <Loader2 size={20} className={styles.spinner} /> : listening || nativeSession ? <Square size={17} fill="currentColor" /> : <Mic size={23} strokeWidth={1.5} />}
             </button>

@@ -16,6 +16,7 @@ from starlette.websockets import WebSocketState
 from websockets.exceptions import WebSocketException
 
 from app.application.assistant.contracts import AssistantError
+from app.application.assistant.model_capabilities import is_nonconversational_voice_model
 from app.core.assistant_config import AssistantSettings
 from app.core.config.settings import get_settings
 from app.core.logging.logger import get_logger
@@ -34,6 +35,7 @@ from app.presentation.api.v1.routes.dashboard_realtime import (
     _dashboard_origin_allowed,
 )
 from app.presentation.assistant.native_session import NativeSession
+from app.presentation.assistant.voice_diagnostics import VoiceStreamDiagnostics
 from app.presentation.dependencies.auth import get_current_user
 
 router = APIRouter()
@@ -71,6 +73,12 @@ async def authorize_voice(websocket: WebSocket) -> tuple[User, AssistantSettings
 
 @asynccontextmanager
 async def configured_voice_connection(settings: AssistantSettings, tools: list[dict[str, Any]], instructions: str) -> AsyncIterator[Any]:
+    if is_nonconversational_voice_model(settings.provider, settings.live_model):
+        raise AssistantError(
+            "provider_configuration",
+            "This model cannot provide a spoken conversation. Select a conversational voice model in AI settings.",
+            422,
+        )
     if settings.provider == "openai" and settings.live_model.startswith("gpt-live-"):
         async with duplex_connection(settings, instructions) as upstream:
             yield upstream
@@ -87,8 +95,10 @@ async def configured_voice_connection(settings: AssistantSettings, tools: list[d
         yield upstream
 
 
-async def _client_audio(websocket: WebSocket, upstream: Any, conversation: NativeSession, max_seconds: int = 600) -> None:
-    total, started = 0, time.monotonic()
+async def _client_audio(websocket: WebSocket, upstream: Any, conversation: NativeSession, max_seconds: int = 600, diagnostics: VoiceStreamDiagnostics | None = None, *, session_started: float | None = None) -> None:
+    # Include server-side setup time: the browser captures the first utterance
+    # while the provider connects. The timestamp is never supplied by a client.
+    total, started = 0, time.monotonic() if session_started is None else session_started
     messages, text_total, text_turns = 0, 0, 0
     while True:
         raw = await asyncio.wait_for(websocket.receive_text(), timeout=20)
@@ -116,6 +126,8 @@ async def _client_audio(websocket: WebSocket, upstream: Any, conversation: Nativ
                 raise AssistantError(
                     "voice_limit", "The microphone stream exceeded its safe rate limit.", 413
                 )
+            if diagnostics is not None:
+                diagnostics.input(pcm)
             if conversation.recovering:
                 continue
             await upstream.send(
@@ -217,14 +229,17 @@ async def _authorization_heartbeat(
 
 @router.websocket("/voice")
 async def assistant_voice(websocket: WebSocket) -> None:
+    session_started = time.monotonic()
     tasks: set[asyncio.Task[None]] = set()
     send_lock = asyncio.Lock()
     expires_at = 0.0
     conversation: NativeSession | None = None
+    diagnostics = VoiceStreamDiagnostics()
 
     async def send(payload: dict[str, Any]) -> None:
         async with send_lock, asyncio.timeout(5):
             await websocket.send_json(payload)
+            diagnostics.sent(payload)
 
     try:
         user, settings = await authorize_voice(websocket)
@@ -272,10 +287,11 @@ async def assistant_voice(websocket: WebSocket) -> None:
                         "max_session_seconds": seconds,
                     }
                 )
-                logger.info("assistant_voice_ready")
+                logger.info("assistant_voice_ready", provider=settings.provider, model=settings.live_model)
                 tasks = {
                     asyncio.create_task(
-                        _client_audio(websocket, upstream, conversation, seconds),
+                        _client_audio(websocket, upstream, conversation, seconds, diagnostics,
+                                      session_started=session_started),
                         name="assistant-voice-input",
                     ),
                     asyncio.create_task(
@@ -303,6 +319,7 @@ async def assistant_voice(websocket: WebSocket) -> None:
                     }
                 )
     except AssistantError as exc:
+        logger.warning("assistant_voice_rejected", code=exc.code, status=exc.status)
         if websocket.application_state == WebSocketState.CONNECTED:
             with suppress(Exception):
                 await send({"type": "error", "code": exc.code, "message": exc.message})
@@ -345,6 +362,7 @@ async def assistant_voice(websocket: WebSocket) -> None:
                         await conversation.finish(interrupted=True)
                     if conversation.ending:
                         await send({"type": "voice_saved", "conversation_id": str(conversation.conversation_id)})
+            logger.info("assistant_voice_stream_ended", **diagnostics.summary())
         with suppress(Exception):
             await websocket.close(
                 code=1000 if websocket.application_state == WebSocketState.CONNECTED else 1008

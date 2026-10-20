@@ -16,9 +16,12 @@ from contextlib import asynccontextmanager, suppress
 from typing import Any
 from uuid import uuid4
 
+from websockets.exceptions import InvalidStatus
+
 from app.application.assistant.contracts import AssistantError
 from app.core.assistant_config import AssistantSettings
 from app.infrastructure.assistant.openai_live import FixedRealtimeConnect, transport_logger
+from app.infrastructure.assistant.openai_voice_diagnostics import VoiceDiagnostics
 
 
 def duplex_setup(settings: AssistantSettings, instructions: str) -> dict[str, Any]:
@@ -32,8 +35,9 @@ def duplex_setup(settings: AssistantSettings, instructions: str) -> dict[str, An
 
 
 class DuplexGateway:
-    def __init__(self, socket: Any):
+    def __init__(self, socket: Any, diagnostics: VoiceDiagnostics | None = None):
         self.socket = socket
+        self.diagnostics = diagnostics or VoiceDiagnostics("live")
         self.resample_state: Any = None
         self.question = ""
         self.has_output = False
@@ -48,6 +52,7 @@ class DuplexGateway:
             pcm = base64.b64decode(realtime["audio"]["data"], validate=True)
             converted, self.resample_state = audioop.ratecv(pcm, 2, 1, 16000, 24000, self.resample_state)
             await self.socket.send(json.dumps({"type": "session.input_audio.append", "audio": base64.b64encode(converted).decode()}))
+            self.diagnostics.input(len(pcm))
         elif "toolResponse" in packet:
             for result in packet["toolResponse"]["functionResponses"]:
                 identifier = result["id"]
@@ -79,7 +84,7 @@ class DuplexGateway:
             event = json.loads(raw)
             kind = event.get("type")
             if kind == "error":
-                raise AssistantError("provider_unavailable", "OpenAI Live could not complete this session. Check AI settings and reconnect.")
+                raise self.diagnostics.error(event, stage="stream")
             content: dict[str, Any] = {}
             if kind == "session.input_transcript.delta":
                 # Full-duplex has no response.done. Start a new display exchange
@@ -96,6 +101,7 @@ class DuplexGateway:
                 self.output_end = event.get("end_ms", self.output_end)
                 content = {"outputTranscription": {"text": event.get("delta", "")}}
             elif kind == "session.output_audio.delta":
+                self.diagnostics.output(event["delta"])
                 content = {"modelTurn": {"parts": [{"inlineData": {"mimeType": "audio/pcm;rate=24000", "data": event["delta"]}}]}}
             elif kind == "session.delegation.created":
                 delegation = event["delegation"]
@@ -119,21 +125,28 @@ class DuplexGateway:
 
 @asynccontextmanager
 async def duplex_connection(settings: AssistantSettings, instructions: str) -> AsyncIterator[DuplexGateway]:
-    async with FixedRealtimeConnect("wss://api.openai.com/v1/live/sessions",
-        additional_headers={"Authorization": "Bearer " + settings.openai_api_key.get_secret_value()},
-        proxy=None, compression=None, open_timeout=10, close_timeout=3,
-        max_size=512 * 1024, max_queue=4, logger=transport_logger,
-    ) as socket:
-        await socket.send(json.dumps(duplex_setup(settings, instructions)))
-        async with asyncio.timeout(15):
-            while True:
-                event = json.loads(await socket.recv())
-                if event.get("type") == "session.started":
-                    break
-                if event.get("type") == "error":
-                    raise AssistantError("provider_configuration", "OpenAI did not accept this Live model or voice. Check AI settings and API project access.")
-        try:
-            yield DuplexGateway(socket)
-        finally:
-            with suppress(Exception):
-                await socket.send(json.dumps({"type": "session.close", "event_id": str(uuid4())}))
+    diagnostics = VoiceDiagnostics("live")
+    try:
+        async with FixedRealtimeConnect("wss://api.openai.com/v1/live/sessions",
+            additional_headers={"Authorization": "Bearer " + settings.openai_api_key.get_secret_value()},
+            proxy=None, compression=None, open_timeout=10, close_timeout=3,
+            max_size=512 * 1024, max_queue=4, logger=transport_logger,
+        ) as socket:
+            await socket.send(json.dumps(duplex_setup(settings, instructions)))
+            async with asyncio.timeout(15):
+                while True:
+                    event = json.loads(await socket.recv())
+                    if event.get("type") == "session.started":
+                        diagnostics.accepted(event.get("session") or {})
+                        break
+                    if event.get("type") == "error":
+                        raise diagnostics.error(event, stage="setup")
+            try:
+                yield DuplexGateway(socket, diagnostics)
+            finally:
+                with suppress(Exception):
+                    await socket.send(json.dumps({"type": "session.close", "event_id": str(uuid4())}))
+    except InvalidStatus as exc:
+        raise diagnostics.http_error(exc.response) from None
+    finally:
+        diagnostics.closed()

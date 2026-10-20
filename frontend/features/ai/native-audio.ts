@@ -1,4 +1,6 @@
-/** Native Gemini audio uses raw PCM directly, without an intermediate transcription request. */
+import { audioDeadline } from "./audio-readiness";
+
+/** Native voice uses raw PCM directly, without an intermediate transcription request. */
 export function pcmBase64(buffer: ArrayBuffer): string {
   const bytes = new Uint8Array(buffer);
   let text = "";
@@ -23,8 +25,11 @@ export async function capturePcm(context: AudioContext, stream: MediaStream, sen
   const silent = context.createGain(); silent.gain.value = 0; silent.connect(context.destination);
   let worklet: AudioWorkletNode | null = null;
   try {
-    await context.audioWorklet.addModule("/ai/voice-capture.worklet.js");
-    const node = new AudioWorkletNode(context, "global-connects-pcm", { numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [1] });
+    await audioDeadline(context.audioWorklet.addModule("/ai/voice-capture.worklet.js"), 1500, "Microphone processor did not load.");
+    const node = new AudioWorkletNode(context, "global-connects-pcm", {
+      numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [1],
+      channelCount: 1, channelCountMode: "explicit",
+    });
     worklet = node;
     node.port.onmessage = (event: MessageEvent<ArrayBuffer>) => send(event.data);
     source.connect(node); node.connect(silent);
@@ -58,6 +63,7 @@ export class NativePlayback {
   readonly analyser: AnalyserNode;
   private gain: GainNode;
   private sources = new Set<AudioBufferSourceNode>();
+  private audibleSources = new Set<AudioBufferSourceNode>();
   private scheduledAt = 0;
   constructor(private context: AudioContext, private onSpeaking: (active: boolean) => void) {
     this.analyser = context.createAnalyser(); this.analyser.fftSize = 512;
@@ -66,19 +72,26 @@ export class NativePlayback {
   push(encoded: string, rate: number) {
     if (rate !== 24000) throw new Error("The voice audio format is unsupported.");
     const samples = decodePcm(encoded);
+    // Duplex providers can stream near-silence between spoken replies.
+    let energy = 0; for (const sample of samples) energy += sample * sample;
+    const audible = Math.sqrt(energy / samples.length) > .003;
     if (this.scheduledAt - this.context.currentTime > 20) throw new Error("Voice playback is falling behind. Please reconnect.");
     const buffer = this.context.createBuffer(1, samples.length, rate); buffer.copyToChannel(samples, 0);
     const source = this.context.createBufferSource(); source.buffer = buffer; source.connect(this.analyser);
     this.gain.gain.cancelScheduledValues(this.context.currentTime);
     this.gain.gain.setTargetAtTime(1, this.context.currentTime, .008);
     this.scheduledAt = Math.max(this.context.currentTime + .025, this.scheduledAt);
-    source.start(this.scheduledAt); this.scheduledAt += buffer.duration; this.sources.add(source); this.onSpeaking(true);
-    source.onended = () => { source.disconnect(); this.sources.delete(source); if (!this.sources.size) this.onSpeaking(false); };
+    source.start(this.scheduledAt); this.scheduledAt += buffer.duration; this.sources.add(source);
+    if (audible) { this.audibleSources.add(source); if (this.audibleSources.size === 1) this.onSpeaking(true); }
+    source.onended = () => {
+      source.disconnect(); this.sources.delete(source);
+      if (this.audibleSources.delete(source) && !this.audibleSources.size) this.onSpeaking(false);
+    };
   }
   clear() {
     this.gain.gain.setTargetAtTime(0, this.context.currentTime, .006);
     for (const source of this.sources) { source.onended = () => source.disconnect(); try { source.stop(this.context.currentTime + .025); } catch { source.disconnect(); } }
-    this.sources.clear(); this.scheduledAt = 0; this.onSpeaking(false);
+    this.sources.clear(); this.audibleSources.clear(); this.scheduledAt = 0; this.onSpeaking(false);
   }
   dispose() { this.clear(); this.analyser.disconnect(); this.gain.disconnect(); }
 }

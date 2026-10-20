@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { requireRunningAudio } from "../audio-readiness";
 
 type VoiceStatus = "idle" | "requesting" | "listening" | "error";
 type Capture = {
@@ -18,6 +19,7 @@ function microphoneError(error: unknown): string {
   }
   if (name === "NotFoundError") return "No microphone found. Connect one, then try again.";
   if (name === "NotReadableError") return "Your microphone is busy. Close other apps using it, then try again.";
+  if (error instanceof Error && error.message.startsWith("Browser audio")) return error.message;
   return "The microphone couldn’t start. Please try again.";
 }
 
@@ -70,7 +72,7 @@ export function useVoiceInput() {
       const resume = context.resume();
       void resume.catch(() => undefined);
       const stream = await navigator.mediaDevices.getUserMedia({
-        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+        audio: { channelCount: { ideal: 1 }, echoCancellation: true, noiseSuppression: true, autoGainControl: true },
         video: false,
       });
       if (requestRef.current !== request) {
@@ -78,7 +80,7 @@ export function useVoiceInput() {
         return;
       }
       capture.stream = stream;
-      await resume;
+      await requireRunningAudio(context);
       if (requestRef.current !== request) return;
 
       const analyser = context.createAnalyser();

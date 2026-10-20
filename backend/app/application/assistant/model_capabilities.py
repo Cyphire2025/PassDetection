@@ -126,9 +126,23 @@ def model_kind(provider: str, model: str, methods: list[str] | None = None) -> s
     return "chat" if name.startswith(("gpt-", "o1", "o3", "o4", "ft:gpt-")) else None
 
 
+def is_nonconversational_voice_model(provider: str, model: str) -> bool:
+    """Known specialized families cannot use our conversational audio protocol.
+
+    Gemini transcription/robotics can advertise bidiGenerateContent but output
+    text, not speech. OpenAI translation uses /realtime/translations without
+    assistant response.create turns or tool calls. Keep this separate from
+    model_kind so previously saved selections remain readable and correctable.
+    """
+    name = model.lower()
+    if provider == "gemini":
+        return any(part in name for part in ("transcribe", "robotics", "translate"))
+    return any(part in name for part in ("transcribe", "whisper", "translate"))
+
+
 def model_entry(provider: str, model: str, label: str | None = None, methods: list[str] | None = None) -> dict[str, Any] | None:
     kind = model_kind(provider, model, methods)
-    if kind is None or not MODEL_ID.fullmatch(model):
+    if kind is None or not MODEL_ID.fullmatch(model) or is_nonconversational_voice_model(provider, model):
         return None
     return {"id": f"{provider}:{model}", "model": model, "provider": provider,
             "label": label or model, "kind": kind, "reasoning": reasoning_options(provider, model),
