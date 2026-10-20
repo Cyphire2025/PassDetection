@@ -40,8 +40,8 @@ it("schedules continuous quiet output without hiding listening behind a false sp
   const gain = { gain: { cancelScheduledValues: vi.fn(), setTargetAtTime: vi.fn() }, connect: vi.fn(), disconnect: vi.fn() };
   const analyser = { fftSize: 0, connect: vi.fn(), disconnect: vi.fn() };
   const context = {
-    currentTime: 0, destination: {}, createGain: () => gain, createAnalyser: () => analyser,
-    createBuffer: (_channels: number, length: number, rate: number) => ({ duration: length / rate, copyToChannel: vi.fn() }),
+    currentTime: 0, state: "running", destination: {}, createGain: () => gain, createAnalyser: () => analyser,
+    createBuffer: (_channels: number, length: number, rate: number) => ({ duration: length / rate, getChannelData: () => new Float32Array(length) }),
     createBufferSource: () => {
       const source = { buffer: null, connect: vi.fn(), disconnect: vi.fn(), start: vi.fn(), stop: vi.fn(), onended: null };
       sources.push(source); return source;

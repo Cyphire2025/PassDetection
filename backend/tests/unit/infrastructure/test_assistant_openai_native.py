@@ -80,6 +80,7 @@ async def test_audio_arrives_before_any_caption_and_late_asr_saves_same_turn():
         {"type": "conversation.item.input_audio_transcription.completed", "item_id": "in-1", "transcript": "Hello"},
     ])
     stream = RealtimeGateway(socket, settings()).events()
+    assert json.loads(await anext(stream))["serverContent"] == {"inputAudioStarted": True}
     first = json.loads(await anext(stream))
     assert first["serverContent"]["modelTurn"]["parts"][0]["inlineData"]["data"] == "AQACAA=="
     assert json.loads(await anext(stream))["serverContent"]["inputTranscription"]["text"] == "Hello"
@@ -98,7 +99,9 @@ async def test_interruption_discards_stale_audio_and_old_transcripts():
         {"type": "conversation.item.input_audio_transcription.completed", "item_id": "in-2", "transcript": "New"},
     ])
     stream = RealtimeGateway(socket, settings()).events()
+    assert json.loads(await anext(stream))["serverContent"] == {"inputAudioStarted": True}
     await anext(stream)
+    assert json.loads(await anext(stream))["serverContent"] == {"inputAudioStarted": True}
     assert json.loads(await anext(stream))["serverContent"]["interrupted"]
     assert json.loads(await anext(stream))["serverContent"]["inputTranscription"]["text"] == "New"
     await stream.aclose()
@@ -121,7 +124,9 @@ async def test_interrupting_thinking_discards_the_previous_tool_request():
         {"type": "conversation.item.input_audio_transcription.completed", "item_id": "in-2", "transcript": "New request"},
     ])
     stream = RealtimeGateway(socket, settings()).events()
+    assert json.loads(await anext(stream))["serverContent"] == {"inputAudioStarted": True}
     assert json.loads(await anext(stream))["serverContent"]["inputTranscription"]["text"] == "Old request"
+    assert json.loads(await anext(stream))["serverContent"] == {"inputAudioStarted": True}
     assert json.loads(await anext(stream))["serverContent"]["interrupted"]
     assert json.loads(await anext(stream))["serverContent"]["inputTranscription"]["text"] == "New request"
     await stream.aclose()

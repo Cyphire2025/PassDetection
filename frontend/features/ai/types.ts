@@ -13,6 +13,7 @@ export type NativeEvent =
   | { type: "ready"; conversation_id: string; max_session_seconds: number }
   | { type: "voice_saved"; conversation_id: string }
   | { type: "heartbeat" }
+  | { type: "input_started" }
   | { type: "status"; phase: "thinking" | "listening" }
   | { type: "input_transcript" | "text_delta"; text: string; turn_id: string }
   | { type: "audio"; data: string; sample_rate: number; turn_id: string }

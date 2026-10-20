@@ -5,7 +5,7 @@ import { NativePlayback, pcmBase64 } from "../native-audio";
 import { startNativeCapture } from "../native-capture";
 import type { NativeEvent } from "../types";
 
-type Session = { socket: WebSocket; playback: NativePlayback; capture?: () => void; frame: number; ready: boolean; paused?: boolean; saved?: boolean; finished?: (saved: boolean) => void };
+type Session = { socket: WebSocket; playback: NativePlayback; capture?: () => void; frame: number; ready: boolean; paused?: boolean; saved?: boolean; audioFailedTurn?: string; finished?: (saved: boolean) => void };
 
 export function useNativeVoice(onEvent: (event: NativeEvent) => void, onStopped: () => void) {
   const [active, setActive] = useState(false);
@@ -65,7 +65,8 @@ export function useNativeVoice(onEvent: (event: NativeEvent) => void, onStopped:
     let socket: WebSocket;
     try { socket = new WebSocket(`${location.protocol === "https:" ? "wss:" : "ws:"}//${location.host}/api/v1/ai-assistant/voice`); }
     catch { setConnecting(false); setError("Voice could not connect. You can continue by typing."); callbacks.current.onStopped(); return; }
-    const playback = new NativePlayback(audio, (value) => { if (session.current?.socket === socket) setSpeaking(value); });
+    const playback = new NativePlayback(audio, (value) => { if (session.current?.socket === socket) setSpeaking(value); },
+      (message) => { if (session.current?.socket === socket) setError(message); });
     const current: Session = { socket, playback, frame: 0, ready: false }; session.current = current;
     const fail = (message: string) => { if (session.current !== current) return; setError(message); teardown(true); };
     const capture = startNativeCapture(audio, stream, {
@@ -119,12 +120,22 @@ export function useNativeVoice(onEvent: (event: NativeEvent) => void, onStopped:
         } else if (event.type === "heartbeat") {
           if (socket.readyState === WebSocket.OPEN) socket.send(JSON.stringify({ type: "heartbeat_ack" }));
         } else if (event.type === "audio") {
-          if (typeof event.data !== "string" || event.sample_rate !== 24000) throw new Error("The voice audio format is invalid.");
-          setThinking(false); playback.push(event.data, event.sample_rate);
+          setThinking(false);
+          if (current.audioFailedTurn !== event.turn_id) {
+            try {
+              if (typeof event.data !== "string" || event.sample_rate !== 24000) throw new Error("The voice audio format is invalid.");
+              playback.push(event.data, event.sample_rate);
+            } catch (cause) {
+              current.audioFailedTurn = event.turn_id;
+              setError(cause instanceof Error && cause.message.includes("captions") ? cause.message : "This reply's audio could not play. The full reply will continue in captions.");
+            }
+          }
+        } else if (event.type === "input_started") {
+          playback.clear(); setThinking(false);
         } else if (event.type === "interrupted") {
           playback.clear(); setThinking(false); callbacks.current.onEvent(event);
         } else if (event.type === "answer_reset") {
-          current.paused = true; playback.clear(); setThinking(true); setRecovering(true); callbacks.current.onEvent(event);
+          current.paused = true; current.audioFailedTurn = undefined; playback.clear(); setThinking(true); setRecovering(true); callbacks.current.onEvent(event);
         } else if (event.type === "error") {
           fail(typeof event.message === "string" ? event.message : "The voice session could not continue.");
         } else if (event.type === "status") {

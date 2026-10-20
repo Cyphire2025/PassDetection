@@ -154,6 +154,10 @@ class NativeSession:
                 "session_expired", "This voice session has ended. Tap the microphone to continue."
             )
         content = message.get("serverContent", {})
+        if content.get("inputAudioStarted"):
+            # Playback control has no turn ID: starting speech alone must not
+            # create history or mark an already-saved answer as interrupted.
+            await self.send({"type": "input_started"})
         if content.get("assistantPhase"):
             await self.send({"type": "status", "phase": content["assistantPhase"]})
         if content.get("interrupted"):

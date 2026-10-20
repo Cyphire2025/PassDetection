@@ -122,6 +122,9 @@ class RealtimeGateway:
                 raise self.diagnostics.error(event, stage="stream")
             if kind == "input_audio_buffer.speech_started":
                 self.diagnostics.speech_started()
+                # Provider completion is not playback completion. A generated
+                # reply may still be queued in the browser when speech resumes.
+                yield json.dumps({"serverContent": {"inputAudioStarted": True}})
                 if self.response_active or self.output_active or self.pending_done:
                     yield json.dumps({"serverContent": {"interrupted": True}})
                 if self.input_item:
