@@ -80,8 +80,10 @@ class MCPAssistantBridge:
         selected = snapshot.configuration.mcp_connection_id
         if selected is None:
             choices = await connection_choices(actor)
+            if not choices:
+                raise AssistantError("mcp_connection_unavailable", "No active authorized MCP connection is available for this account. Review MCP connection setup and reconnect from your existing MCP app if needed. AI settings cannot restore revoked or expired authorization.", 422)
             if len(choices) != 1:
-                raise AssistantError("mcp_connection_required", "Select your existing MCP connection in AI settings.", 422)
+                raise AssistantError("mcp_connection_required", "More than one authorized MCP connection is available. Select the connection to use in AI settings.", 422)
             selected = UUID(choices[0]["id"])
         settings = get_settings()
         try:
@@ -90,10 +92,11 @@ class MCPAssistantBridge:
                 raise MCPAuthError()
             access = await tool_access_snapshot(session, settings, grant=grant)
         except MCPAuthError:
-            raise AssistantError("mcp_access_denied", "The selected MCP connection no longer permits this account's access.", 403) from None
+            raise AssistantError("mcp_access_denied", "The selected MCP connection no longer permits this account's access. Select an available connection in AI settings or review MCP connection setup to reconnect from your existing MCP app.", 403) from None
         allowed = access.filter_tools(await server.list_tools())
         write = snapshot.configuration.mcp_write_enabled
-        return grant, [tool for tool in allowed if write or observational(tool)], write
+        tools = [tool for tool in allowed if write or observational(tool)]
+        return grant, tools, any(not observational(tool) for tool in tools)
 
     async def discover(self, query: str = "", offset: int = 0) -> dict[str, Any]:
         if not isinstance(query, str) or len(query) > 120 or type(offset) is not int or not 0 <= offset <= 10000:

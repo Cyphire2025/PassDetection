@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { assistantApi, assistantMessage } from "../api";
 import { rememberedConversation, rememberConversation } from "../last-conversation";
-import type { Asset, AssistantStatus, Message, NativeEvent, StreamEvent, Turn } from "../types";
+import type { Asset, AssistantStatus, McpAccessStatus, Message, NativeEvent, StreamEvent, Turn } from "../types";
 
 function turnMessages(turn: Turn): Message[] {
   return [{ id: `${turn.id}-user`, role: "user", text: turn.user, attachments: turn.attachments },
@@ -18,10 +18,12 @@ export function useAssistant(onAnswer: (text: string) => void, onImage: (image: 
   const [progress, setProgress] = useState("");
   const [error, setError] = useState("");
   const [observedAt, setObservedAt] = useState<string | null>(null);
+  const [mcpAccess, setMcpAccess] = useState<McpAccessStatus | null>(null);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [olderCursor, setOlderCursor] = useState<string | null>(null);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const historySequence = useRef(0);
+  const refreshSequence = useRef(0);
   const controller = useRef<AbortController | null>(null);
   const account = useRef<string | null>(null);
   const restoredAccount = useRef<string | null>(null);
@@ -29,11 +31,14 @@ export function useAssistant(onAnswer: (text: string) => void, onImage: (image: 
   useEffect(() => { callbacks.current = { onAnswer, onImage }; }, [onAnswer, onImage]);
 
   const refresh = useCallback(async (signal?: AbortSignal) => {
+    const refreshId = ++refreshSequence.current;
     try {
       const value = await assistantApi.status(signal, Boolean(account.current));
+      if (signal?.aborted || refreshId !== refreshSequence.current) return;
       const accountKey = value.account_id ? `${value.account_id}:${value.account_scope || "default"}` : null;
       if (account.current && accountKey && account.current !== accountKey) {
         controller.current?.abort(); setMessages([]); setConversationId(null); setOlderCursor(null); historySequence.current++;
+        setMcpAccess(null); setObservedAt(null);
       }
       account.current = accountKey;
       setStatus(value); setAccess("ready");
@@ -59,10 +64,18 @@ export function useAssistant(onAnswer: (text: string) => void, onImage: (image: 
           }
         }
       }
-      const live = await assistantApi.live(signal);
-      setObservedAt(live.observed_at);
+      if (signal?.aborted || refreshId !== refreshSequence.current || account.current !== accountKey) return;
+      const live = await assistantApi.live(signal).catch((cause: unknown) => {
+        const failure = cause as { status?: number; response?: { status?: number }; code?: string };
+        const httpStatus = failure?.status ?? failure?.response?.status;
+        if (httpStatus === 401 || httpStatus === 403 || failure?.code === "AUTH_SESSION_EXPIRED") throw cause;
+        return null;
+      });
+      if (signal?.aborted || refreshId !== refreshSequence.current || account.current !== accountKey) return;
+      setObservedAt(live?.observed_at ?? null);
+      setMcpAccess(live?.mcp ?? { connected: false, code: "mcp_status_unavailable", message: "Workspace access could not be checked. Try again." });
     } catch (cause) {
-      if (signal?.aborted) return;
+      if (signal?.aborted || refreshId !== refreshSequence.current) return;
       const httpStatus = (cause as { status?: number; response?: { status: number } }).status ?? (cause as { response?: { status: number } }).response?.status;
       const code = (cause as { code?: string }).code;
       if (httpStatus === 401 || httpStatus === 403 || code === "AUTH_SESSION_EXPIRED") {
@@ -70,17 +83,19 @@ export function useAssistant(onAnswer: (text: string) => void, onImage: (image: 
       }
       setAccess(httpStatus === 401 || code === "AUTH_SESSION_EXPIRED" ? "guest" : httpStatus === 403 ? "denied" : "offline");
       setObservedAt(null);
+      setMcpAccess(null);
     }
   }, []);
 
+  const cancelRefresh = useCallback(() => { refreshSequence.current++; }, []);
   useEffect(() => {
     const abort = new AbortController();
     void Promise.resolve().then(() => { if (!abort.signal.aborted) return refresh(abort.signal); });
     const timer = setInterval(() => { if (!document.hidden) void refresh(abort.signal); }, 30000);
     const visible = () => { if (!document.hidden) void refresh(abort.signal); };
     document.addEventListener("visibilitychange", visible);
-    return () => { abort.abort(); controller.current?.abort(); clearInterval(timer); document.removeEventListener("visibilitychange", visible); };
-  }, [refresh]);
+    return () => { abort.abort(); cancelRefresh(); controller.current?.abort(); clearInterval(timer); document.removeEventListener("visibilitychange", visible); };
+  }, [refresh, cancelRefresh]);
 
   const stop = useCallback(() => { controller.current?.abort(); }, []);
   const beginNative = useCallback(() => {
@@ -192,6 +207,6 @@ export function useAssistant(onAnswer: (text: string) => void, onImage: (image: 
     finally { setLoadingHistory(false); }
   }, [conversationId, olderCursor, loadingHistory]);
 
-  return { status, access, messages, busy, progress, error, setError, observedAt, conversationId,
+  return { status, access, messages, busy, progress, error, setError, observedAt, mcpAccess, conversationId,
     send, stop, refresh, newConversation, deleteConversation, openConversation, olderCursor, loadingHistory, loadEarlier, beginNative, receiveNative, finishNative };
 }

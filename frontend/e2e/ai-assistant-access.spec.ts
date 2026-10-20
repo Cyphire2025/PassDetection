@@ -25,7 +25,7 @@ async function fixture(page: Page, role = "super_admin", allowed = true) {
       { id: "gemini:gemini-3.8-live", model: "gemini-3.8-live", provider: "gemini", label: "Gemini 3.8 Live", kind: "voice", available: true, reasoning: [], voices: [{ id: "Zephyr", label: "Zephyr", appearance: "female" }, { id: "Puck", label: "Puck", appearance: "male" }] },
     ] } });
     if (path.endsWith("/settings/mcp-connections")) return route.fulfill({ json: { items: [{ id: "b6c548e0-6e77-4d1b-b107-6799b9d31230", name: "Existing desktop", read_enabled: true, write_enabled: true }] } });
-    if (path.endsWith("/live")) return route.fulfill({ json: { observed_at: new Date().toISOString(), agencies: [] } });
+    if (path.endsWith("/live")) return route.fulfill({ json: { observed_at: new Date().toISOString(), mcp: { connected: true, available_tools: 8, write_enabled: false } } });
     if (path.endsWith("/people")) return route.fulfill({ json: { items: [], has_more: false } });
     if (path.endsWith("/settings/usage")) return route.fulfill({ json: { observed_at: new Date().toISOString(), resets_at: new Date(Date.now()+3600000).toISOString(), limits: state.configuration.usage_limits, used: { voice_chats: 2, typed_requests: 7, images: 1, uploads: 3, speech_requests: 4 } } });
     if (path.endsWith("/settings")) {
@@ -89,6 +89,54 @@ test("superadmin can save a key and grants, then disable the launcher", async ({
   await page.getByRole("button", { name: "Save AI settings", exact: true }).click();
   await expect(page.getByRole("button", { name: "Open Global Connects AI", exact: true })).not.toBeAttached();
   expect(await page.evaluate(() => localStorage.getItem("synthetic-browser-key-123456"))).toBeNull();
+});
+
+test("unavailable MCP connections stay visible while chat and AI model settings remain usable", async ({ page }, testInfo) => {
+  const { state, writes } = await fixture(page);
+  state.configuration.mcp_write_enabled = true; state.configuration.mcp_connection_id = null;
+  const permissionWrites: string[] = [];
+  page.on("request", (request) => { if (/^\/api\/v1\/(?:admin\/)?mcp(?:\/|$)/.test(new URL(request.url()).pathname) && request.method() !== "GET") permissionWrites.push(request.url()); });
+  await page.route("**/api/v1/ai-assistant/live", (route) => route.fulfill({ json: { observed_at: new Date().toISOString(), mcp: {
+    connected: false, code: "mcp_connection_unavailable", message: "No active authorized MCP connection is available for this account. Review MCP connection setup and reconnect from your existing MCP app if needed. AI settings cannot restore revoked or expired authorization.",
+  } } }));
+  await page.route("**/api/v1/ai-assistant/settings/mcp-connections", (route) => route.fulfill({ json: { items: [] } }));
+  await page.goto("/ai");
+  await expect(page.getByLabel("Workspace tools unavailable")).toHaveAttribute("data-connected", "false");
+  await expect(page.getByRole("link", { name: "Reconnect existing MCP connection" })).toHaveAttribute("href", "/admin/mcp/setup");
+  await page.getByRole("textbox", { name: "Message Global Connects" }).fill("A general question");
+  await expect(page.getByRole("button", { name: "Send message", exact: true })).toBeEnabled();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.getByRole("link", { name: "Reconnect existing MCP connection" })).toBeInViewport();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: testInfo.outputPath("ai-mcp-unavailable-mobile.png") });
+  await page.goto("/settings/ai");
+  await expect(page.getByText(/No active authorized MCP connection is available/)).toBeVisible();
+  await expect(page.getByRole("combobox", { name: "MCP connection", exact: true })).toBeDisabled();
+  await expect(page.getByRole("switch", { name: /Allow MCP write access for AI/ })).toBeChecked();
+  await page.getByRole("combobox", { name: "Chat & document model", exact: true }).selectOption("openai:gpt-4.1");
+  await page.getByRole("button", { name: "Save AI settings", exact: true }).click();
+  await expect(page.getByText("AI settings saved.", { exact: true })).toBeVisible();
+  expect(writes).toHaveLength(1);
+  expect(state.configuration.mcp_write_enabled).toBe(true);
+  expect(state.configuration.mcp_connection_id).toBeNull();
+  expect(permissionWrites).toEqual([]);
+});
+
+test("failed workspace access checks can retry without losing the chat draft", async ({ page }) => {
+  await fixture(page);
+  let recovered = false;
+  await page.route("**/api/v1/ai-assistant/live", (route) => recovered
+    ? route.fulfill({ json: { observed_at: new Date().toISOString(), mcp: { connected: true, available_tools: 8, write_enabled: false } } })
+    : route.fulfill({ status: 503, json: { detail: "Temporary check failure" } }));
+  await page.goto("/ai");
+  await expect(page.getByLabel("Workspace tools unavailable")).toHaveAttribute("data-connected", "false");
+  await expect(page.getByText("Workspace access could not be checked. Try again.")).toBeVisible();
+  await page.getByRole("textbox", { name: "Message Global Connects" }).fill("Keep this draft");
+  recovered = true;
+  await page.getByRole("button", { name: "Check workspace access again" }).click();
+  await expect(page.getByLabel("Workspace connected", { exact: true })).toHaveAttribute("data-connected", "true");
+  await expect(page.getByRole("textbox", { name: "Message Global Connects" })).toHaveValue("Keep this draft");
+  await expect(page.getByRole("button", { name: "Check workspace access again" })).not.toBeAttached();
 });
 
 test("ungranted staff cannot see the orb or manage settings", async ({ page }) => {

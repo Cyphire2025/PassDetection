@@ -58,6 +58,49 @@ describe("last conversation on this device", () => {
 });
 afterEach(cleanup);
 
+describe("workspace MCP status", () => {
+  it("preserves a disconnected MCP result despite a successful timestamp", async () => {
+    vi.mocked(assistantApi.live).mockResolvedValue({ observed_at: "2026-10-19T00:00:00Z", mcp: { connected: false, code: "mcp_connection_unavailable", message: "Reconnect your existing connection." } });
+    const { result } = renderHook(() => useAssistant(answer, image));
+    await waitFor(() => expect(result.current.mcpAccess?.connected).toBe(false));
+    expect(result.current.observedAt).not.toBeNull();
+    expect(result.current.mcpAccess?.code).toBe("mcp_connection_unavailable");
+    expect(result.current.access).toBe("ready");
+  });
+  it("keeps general chat available after a failed MCP check and recovers on refresh", async () => {
+    vi.mocked(assistantApi.live).mockRejectedValueOnce(new Error("offline"));
+    const { result } = renderHook(() => useAssistant(answer, image));
+    await waitFor(() => expect(result.current.mcpAccess?.code).toBe("mcp_status_unavailable"));
+    expect(result.current.access).toBe("ready");
+    expect(result.current.observedAt).toBeNull();
+    await act(async () => { await result.current.refresh(); });
+    expect(result.current.mcpAccess).toMatchObject({ connected: true, available_tools: 8 });
+  });
+  it("still clears authenticated access when the MCP check reports an expired session", async () => {
+    vi.mocked(assistantApi.live).mockRejectedValueOnce({ status: 401 });
+    const { result } = renderHook(() => useAssistant(answer, image));
+    await waitFor(() => expect(result.current.access).toBe("guest"));
+    expect(result.current.status).toBeNull();
+    expect(result.current.mcpAccess).toBeNull();
+  });
+  it.each(["success", "authentication failure"])("ignores an older refresh %s after a newer denial", async (outcome) => {
+    let resolve!: (value: Awaited<ReturnType<typeof assistantApi.live>>) => void;
+    let reject!: (cause: unknown) => void;
+    vi.mocked(assistantApi.live).mockImplementationOnce(() => new Promise((done, fail) => { resolve = done; reject = fail; }));
+    const { result } = renderHook(() => useAssistant(answer, image));
+    await waitFor(() => expect(assistantApi.live).toHaveBeenCalledOnce());
+    vi.mocked(assistantApi.live).mockResolvedValueOnce({ observed_at: "2026-10-19T00:00:01Z", mcp: { connected: false, code: "mcp_access_denied" } });
+    await act(async () => { await result.current.refresh(); });
+    await act(async () => {
+      if (outcome === "success") resolve({ observed_at: "2026-10-19T00:00:00Z", mcp: { connected: true } });
+      else reject({ status: 401 });
+    });
+    expect(result.current.mcpAccess).toMatchObject({ connected: false, code: "mcp_access_denied" });
+    expect(result.current.observedAt).toBe("2026-10-19T00:00:01Z");
+    expect(result.current.access).toBe("ready");
+  });
+});
+
 it("surfaces a failed streamed answer outside the collapsed conversation", async () => {
   vi.mocked(assistantApi.stream).mockImplementation(async (_input, _signal, receive) => { receive({ type: "error", code: "provider_configuration", message: "Check your AI connection." }); });
   const { result } = renderHook(() => useAssistant(answer, image));

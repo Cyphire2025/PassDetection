@@ -1,5 +1,5 @@
 import apiClient from "@/lib/api/client";
-import type { Asset, AssistantStatus, Conversation, PageResult, StreamEvent, Turn } from "./types";
+import type { Asset, AssistantStatus, Conversation, McpAccessStatus, PageResult, StreamEvent, Turn } from "./types";
 
 const BASE = "/api/v1/ai-assistant";
 
@@ -51,7 +51,7 @@ export const assistantApi = {
     if (response.status === 401) throw { code: "HTTP_401", status: 401, message: "Sign in to connect your workspace." };
     return response.data;
   },
-  live: async (signal?: AbortSignal) => (await apiClient.get<{ observed_at: string; mcp?: { connected: boolean; available_tools?: number; write_enabled?: boolean; message?: string } }>(`${BASE}/live`, { signal })).data,
+  live: async (signal?: AbortSignal) => (await apiClient.get<{ observed_at: string; mcp?: McpAccessStatus }>(`${BASE}/live`, { signal })).data,
   conversations: async (cursor?: string) => (await apiClient.get<PageResult<Conversation>>(`${BASE}/conversations`, { params: { cursor } })).data,
   conversation: async (id: string, cursor?: string) => (await apiClient.get<PageResult<Turn>>(`${BASE}/conversations/${id}`, { params: { cursor } })).data,
   deleteConversation: async (id: string) => { await apiClient.delete(`${BASE}/conversations/${id}`); },

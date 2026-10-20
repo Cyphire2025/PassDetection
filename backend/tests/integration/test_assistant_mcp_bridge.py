@@ -3,10 +3,10 @@
 import json
 from contextlib import asynccontextmanager
 from dataclasses import replace
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 import pytest
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Response
 from mcp.server.auth.middleware.auth_context import get_access_token
 from mcp.types import ToolAnnotations
 from sqlalchemy import func, select
@@ -16,13 +16,15 @@ from app.application.assistant.settings_contracts import (
     AssistantConfiguration,
     AssistantSettingsUpdate,
 )
+from app.application.mcp.credentials import utc
 from app.application.mcp.operations import MCPDatabaseOperation, MCPOperationService
 from app.domain.entities.entities import UserRole
 from app.domain.mcp_policy import MCPCapability, MCPToolPolicy
-from app.infrastructure.assistant.settings_store import save_settings
+from app.infrastructure.assistant.settings_store import load_snapshot, save_settings
 from app.infrastructure.database.mcp_models import MCPControlModel, MCPGrantModel, MCPTokenModel
 from app.infrastructure.database.models import AgencyModel, AuditLogModel
 from app.infrastructure.repositories.user_repository import UserRepository
+from app.presentation.api.v1.routes import ai_assistant
 from app.presentation.assistant import mcp_bridge, reads
 from app.presentation.mcp.invocation import invoke_read
 from app.presentation.mcp.server import ReviewedMCPServer
@@ -175,3 +177,81 @@ async def test_failed_invocation_removes_credential_and_resets_auth_context(link
     assert "private provider" not in failed.value.message
     assert get_access_token() is None
     assert await session.scalar(select(func.count()).select_from(MCPTokenModel)) == before
+
+
+@pytest.mark.parametrize("restriction", ["revoked", "disabled", "expired", "identity", "paused"])
+async def test_no_authorized_connection_explains_setup_without_mutating_access(linked, restriction, monkeypatch):
+    session, _, actor, grants, config, bridge = linked
+    config = config.model_copy(update={"mcp_connection_id": None, "mcp_write_enabled": True})
+    await save_settings(session, actor, AssistantSettingsUpdate(expected_revision=1, configuration=config))
+    control = await session.get(MCPControlModel, 1)
+    if restriction == "paused":
+        control.enabled = False
+    for grant in grants:
+        if restriction == "revoked":
+            grant.revoked_at = datetime.now(UTC)
+        elif restriction == "disabled":
+            grant.enabled = False
+        elif restriction == "expired":
+            grant.created_at = datetime.now(UTC) - timedelta(days=8)
+            grant.expires_at = datetime.now(UTC) - timedelta(days=1)
+        elif restriction == "identity":
+            grant.security_version += 1
+    await session.commit()
+    def authority_state():
+        return [(grant.id, grant.enabled, utc(grant.revoked_at) if grant.revoked_at else None,
+                 utc(grant.expires_at), grant.security_version) for grant in grants]
+
+    before = authority_state()
+    tokens = await session.scalar(select(func.count()).select_from(MCPTokenModel))
+    for operation in (bridge.discover, lambda: bridge.call("connection_status", "{}")):
+        with pytest.raises(AssistantError) as unavailable:
+            await operation()
+        assert unavailable.value.code == "mcp_connection_unavailable"
+        assert "reconnect from your existing MCP app" in unavailable.value.message
+    assert before == authority_state()
+    assert await session.scalar(select(func.count()).select_from(MCPGrantModel)) == 2
+    assert await session.scalar(select(func.count()).select_from(MCPTokenModel)) == tokens
+    assert control.enabled is (restriction != "paused")
+    snapshot = await load_snapshot(session)
+    assert snapshot.revision == 2
+    assert snapshot.configuration == config
+    monkeypatch.setattr(ai_assistant, "fresh_actor", reads.fresh_actor)
+    response = Response()
+    live = await ai_assistant.assistant_live(bridge.request, response, actor)
+    assert live["mcp"]["connected"] is False
+    assert live["mcp"]["code"] == "mcp_connection_unavailable"
+    assert response.headers["Cache-Control"] == "private, no-store"
+
+
+async def test_only_active_owned_connection_is_automatic_without_saving_selection(linked):
+    session, _, actor, grants, config, bridge = linked
+    await save_settings(session, actor, AssistantSettingsUpdate(expected_revision=1, configuration=config.model_copy(update={"mcp_connection_id": None})))
+    grants[1].revoked_at = datetime.now(UTC)
+    await session.commit()
+    assert (await bridge.discover())["total"] == 1
+    assert (await bridge.call("connection_status", "{}"))["result"]["grant_id"] == str(grants[0].id)
+    snapshot = await load_snapshot(session)
+    assert snapshot.configuration.mcp_connection_id is None
+    assert snapshot.revision == 2
+    assert grants[1].revoked_at is not None
+
+
+async def test_live_reports_effective_tools_and_writes_not_just_ai_toggle(linked, monkeypatch):
+    session, _, actor, grants, config, bridge = linked
+    monkeypatch.setattr(ai_assistant, "fresh_actor", reads.fresh_actor)
+    await save_settings(session, actor, AssistantSettingsUpdate(expected_revision=1, configuration=config.model_copy(update={"mcp_write_enabled": True})))
+    live = await ai_assistant.assistant_live(bridge.request, Response(), actor)
+    assert live["mcp"] == {"connected": True, "available_tools": 2, "write_enabled": True}
+    grants[0].write_enabled = False
+    await session.commit()
+    live = await ai_assistant.assistant_live(bridge.request, Response(), actor)
+    assert live["mcp"] == {"connected": True, "available_tools": 1, "write_enabled": False}
+    grants[0].read_enabled = False
+    await session.commit()
+    live = await ai_assistant.assistant_live(bridge.request, Response(), actor)
+    assert live["mcp"]["connected"] is False
+    assert live["mcp"]["write_enabled"] is False
+    assert live["mcp"]["available_tools"] == 0
+    assert live["mcp"]["code"] == "mcp_no_tools"
+    assert (await load_snapshot(session)).configuration.mcp_write_enabled is True

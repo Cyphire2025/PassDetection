@@ -17,6 +17,7 @@ import { ImageReveal } from "./image-reveal";
 import { WorkspaceDrawer } from "./workspace-drawer";
 import { HumanHologram } from "./human-hologram";
 import { SculptureAppearanceControl } from "./sculpture-appearance";
+import { WorkspaceAccessNotice, WorkspaceConnectionIndicator } from "./workspace-mcp-status";
 import styles from "./workspace.module.css";
 
 const MOTES = Array.from({ length: 54 }, (_, index) => ({ left: `${(index * 61.803 + 9) % 100}%`, top: `${(index * 37.179 + 7) % 100}%`, delay: `${index * -2.7}s`, duration: `${24 + index % 9 * 4}s`, size: `${index % 11 === 0 ? 5 : index % 4 === 0 ? 3.5 : 1.5 + index % 3 * .5}px` }));
@@ -134,7 +135,7 @@ export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
     <header className={styles.header}>
       <div className={styles.brandGroup}><button type="button" onClick={back} className={styles.backButton} aria-label="Back to workspace"><ArrowLeft size={19} /></button><div className={styles.brand} aria-label="Global Connects"><span className={styles.monogram}>gc<ArrowUpRight size={16} strokeWidth={2.5} /></span><span>Global Connects<small>YOUR TRAVEL WORKSPACE</small></span></div></div>
       {signedIn ? <div className={styles.headerActions}>
-        <span className={styles.connectionDot} data-connected={Boolean(assistant.observedAt)} aria-label={assistant.observedAt ? "Workspace connected" : "Connecting workspace"} />
+        <WorkspaceConnectionIndicator access={assistant.mcpAccess} />
         <button type="button" className={styles.iconButton} onClick={toggleTheme} aria-label={dark ? "Switch to light mode" : "Switch to dark mode"} aria-pressed={dark}>{dark ? <Sun size={18} /> : <Moon size={18} />}</button>
         <SculptureAppearanceControl key={accountKey} value={appearance} onChange={setAppearance} renderer={sculptureRenderer} />
         <button type="button" className={styles.iconButton} onClick={() => setDrawer("library")} aria-label="Open library"><Library size={18} /></button>
@@ -159,6 +160,7 @@ export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
           {assistant.messages.length ? <ConversationThread messages={assistant.messages} progress={assistant.progress} speaking={speaking} speechReady={Boolean(assistant.status?.speech_configured)} onSpeak={(text) => { stopNative(); audio.warmAudio(); void audio.speak(text); }} onImage={openImage} hasEarlier={Boolean(assistant.olderCursor)} loadingHistory={assistant.loadingHistory} onLoadEarlier={() => void assistant.loadEarlier()} onHide={hideConversation} /> : null}
         </div>
         <div className={styles.composerDock}>
+          <WorkspaceAccessNotice access={assistant.mcpAccess} canManage={assistant.status?.can_manage_settings === true} onRetry={() => void assistant.refresh()} />
           {error ? <div className={styles.errorNotice} role="alert"><span>{error}</span><button type="button" onClick={() => { assistant.setError(""); audio.clearError(); native.clearError(); }} aria-label="Dismiss notice"><X size={13} /></button></div> : null}
           <AssistantComposer key={accountKey} ready={ready} busy={assistant.busy || native.connecting || native.recovering || native.ending} voiceActive={nativeSession} text={draft} onTextChange={setDraft} onSubmit={submit} onStop={stopEverything} onWarmAudio={audio.warmAudio} onError={assistant.setError} onAttachmentsChange={setVoiceFiles} />
         </div>

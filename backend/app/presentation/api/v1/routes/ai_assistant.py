@@ -127,6 +127,8 @@ async def assistant_live(
         raise _http(exc) from None
     try:
         access = await MCPAssistantBridge(request, user).discover()
+        if not access["total"]:
+            return {"observed_at": access["observed_at"], "mcp": {"connected": False, "available_tools": 0, "write_enabled": False, "code": "mcp_no_tools", "message": "The MCP connection currently exposes no tools permitted for this assistant. Review the connection's access and AI settings."}}
         return {"observed_at": access["observed_at"], "mcp": {"connected": True, "available_tools": access["total"], "write_enabled": access["write_enabled"]}}
     except AssistantError as exc:
         # A missing/revoked MCP link removes workspace tools, while general
