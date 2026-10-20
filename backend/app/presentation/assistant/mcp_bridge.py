@@ -36,7 +36,7 @@ from app.presentation.mcp.permission_listing import tool_access_snapshot
 
 MCP_TOOLS = [
     {"type": "function", "name": "list_mcp_tools", "strict": False,
-     "description": "Discover currently permitted MCP tools and their exact argument schemas. Search by topic or name, and paginate before concluding access is unavailable. These tools are the authority for workspace access.",
+     "description": "Discover currently permitted MCP tools and their exact argument schemas. Search by topic or name; use an empty query to browse all tools. A search with no matches returns the permitted inventory instead. Paginate before concluding access is unavailable. These tools are the authority for workspace access.",
      "parameters": {"type": "object", "properties": {"query": {"type": "string", "maxLength": 120}, "offset": {"type": "integer", "minimum": 0}}, "additionalProperties": False}},
     {"type": "function", "name": "call_mcp_tool", "strict": False,
      "description": "Invoke a tool discovered with list_mcp_tools, using its exact schema. arguments_json is a JSON object encoded as a string. Only perform a write when the user requested that action. MCP authorization, validation, audit and idempotency remain authoritative.",
@@ -117,12 +117,21 @@ class MCPAssistantBridge:
         async with AsyncSessionFactory() as session:
             _, tools, write = await self._authority(session)
         terms = query.casefold().split()
-        matches = [tool for tool in tools if all(term in (tool.name + " " + (tool.description or "")).casefold() for term in terms)]
+        # Models commonly combine separate intents ("agencies groups"). Requiring
+        # every word in one description hides valid tools; a miss is not denial.
+        scored = [(tool, sum(term in (tool.name + " " + (tool.description or "")).casefold() for term in terms)) for tool in tools]
+        matches = [tool for tool, score in sorted(scored, key=lambda item: -item[1]) if score or not terms]
+        matching_total = len(matches)
+        fallback = bool(terms and not matches)
+        if fallback:
+            matches = tools
         page = matches[offset:offset + 8]
         return {"tools": [{"name": tool.name, "description": tool.description, "input_schema": tool.input_schema, "read_only": observational(tool)} for tool in page],
                 "total": len(matches), "next_offset": offset + 8 if offset + 8 < len(matches) else None,
+                "available_total": len(tools), "matching_total": matching_total, "search_fallback": fallback,
                 "write_enabled": write, "observed_at": datetime.now(UTC).isoformat(),
-                "notice": "These tools use your signed-in dashboard account and current workspace MCP permissions. Each invocation rechecks live access; no external MCP app connection is needed."}
+                "notice": ("No search terms matched. Showing the permitted inventory; paginate it or search one topic. " if fallback else "")
+                    + "These tools use your signed-in dashboard account and current workspace MCP permissions. Each invocation rechecks live access; no external MCP app connection is needed."}
 
     async def call(self, tool_name: str, arguments_json: str) -> dict[str, Any]:
         if not isinstance(tool_name, str) or len(tool_name) > 120 or not isinstance(arguments_json, str) or len(arguments_json) > 18000:
