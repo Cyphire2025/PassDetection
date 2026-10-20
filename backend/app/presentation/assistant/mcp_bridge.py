@@ -1,8 +1,7 @@
-"""Assistant adapter for the existing MCP registry and unmodified authorization.
+"""Signed-in assistant access to the shared, audited MCP tool registry.
 
-No grants, device permissions or global MCP settings are created or changed here.
-A short-lived server-only access credential invokes the same audited MCP wrapper;
-its hash is removed afterwards. A connection must belong to the signed-in actor.
+External OAuth connections and global permissions are never changed. Invocation
+uses a private first-party authority; discovery is observational and creates none.
 """
 
 from __future__ import annotations
@@ -11,7 +10,6 @@ import asyncio
 import json
 from datetime import UTC, datetime, timedelta
 from typing import Any
-from uuid import UUID
 
 from fastapi import Request
 from mcp.server.auth.middleware.auth_context import auth_context_var
@@ -21,13 +19,17 @@ from mcp.types import Tool
 from sqlalchemy import delete, select
 
 from app.application.assistant.contracts import AssistantError
+from app.application.mcp.assistant_authority import (
+    ensure_assistant_authority,
+    validate_assistant_authority,
+)
 from app.application.mcp.authorization import MCPAuthorizationService
 from app.application.mcp.credentials import MCPAuthError, new_credential, utc
 from app.core.config.settings import get_settings
+from app.domain.assistant_identity import ASSISTANT_CLIENT_ID
 from app.domain.entities.entities import User, UserRole
-from app.infrastructure.assistant.settings_store import SETTINGS_KEY, load_snapshot
+from app.infrastructure.assistant.settings_store import load_snapshot
 from app.infrastructure.database.mcp_models import MCPGrantModel, MCPTokenModel
-from app.infrastructure.database.models import PlatformSettingModel
 from app.infrastructure.database.session import AsyncSessionFactory
 from app.presentation.assistant.reads import fresh_actor
 from app.presentation.mcp.permission_listing import tool_access_snapshot
@@ -51,6 +53,7 @@ async def connection_choices(user: User) -> list[dict[str, Any]]:
     async with AsyncSessionFactory() as session:
         grants = (await session.scalars(select(MCPGrantModel).where(
             MCPGrantModel.user_id == user.id, MCPGrantModel.enabled.is_(True),
+            MCPGrantModel.client_id != ASSISTANT_CLIENT_ID,
             MCPGrantModel.revoked_at.is_(None), MCPGrantModel.expires_at > datetime.now(UTC),
         ).order_by(MCPGrantModel.created_at.desc()))).all()
         settings = get_settings()
@@ -69,34 +72,44 @@ class MCPAssistantBridge:
     def __init__(self, request: Request, user: User):
         self.request, self.user = request, user
 
-    async def _authority(self, session: Any) -> tuple[Any, list[Tool], bool]:
+    async def _authority(self, session: Any) -> tuple[User, list[Tool], bool]:
         actor = await fresh_actor(self.user)
-        if actor.role != UserRole.SUPER_ADMIN:
-            raise AssistantError("mcp_access_denied", "An existing MCP connection owned by this account is required.", 403)
+        if actor.role != UserRole.SUPER_ADMIN or actor.actual_role is not None and actor.actual_role != actor.role:
+            raise AssistantError("mcp_access_denied", "Workspace MCP tools require this account's super administrator access.", 403)
         server = getattr(self.request.app.state, "mcp_server", None)
         if server is None:
             raise AssistantError("mcp_unavailable", "The workspace MCP service is unavailable.", 503)
-        snapshot = await load_snapshot(session)
-        selected = snapshot.configuration.mcp_connection_id
-        if selected is None:
-            choices = await connection_choices(actor)
-            if not choices:
-                raise AssistantError("mcp_connection_unavailable", "No active authorized MCP connection is available for this account. Review MCP connection setup and reconnect from your existing MCP app if needed. AI settings cannot restore revoked or expired authorization.", 422)
-            if len(choices) != 1:
-                raise AssistantError("mcp_connection_required", "More than one authorized MCP connection is available. Select the connection to use in AI settings.", 422)
-            selected = UUID(choices[0]["id"])
         settings = get_settings()
         try:
-            grant = await MCPAuthorizationService(session, settings).require_grant(selected)
-            if grant.user_id != actor.id or actor.actual_role is not None and actor.actual_role != actor.role:
-                raise MCPAuthError()
-            access = await tool_access_snapshot(session, settings, grant=grant)
-        except MCPAuthError:
-            raise AssistantError("mcp_access_denied", "The selected MCP connection no longer permits this account's access. Select an available connection in AI settings or review MCP connection setup to reconnect from your existing MCP app.", 403) from None
+            await validate_assistant_authority(session, settings, actor, getattr(self.request.state, "auth_claims", {}))
+            snapshot = await load_snapshot(session)
+            access = await tool_access_snapshot(session, settings)
+        except MCPAuthError as exc:
+            raise self._access_error(exc) from None
         allowed = access.filter_tools(await server.list_tools())
         write = snapshot.configuration.mcp_write_enabled
         tools = [tool for tool in allowed if write or observational(tool)]
-        return grant, tools, any(not observational(tool) for tool in tools)
+        return actor, tools, any(not observational(tool) for tool in tools)
+
+    @staticmethod
+    def _access_error(exc: MCPAuthError) -> AssistantError:
+        if exc.error == "assistant_mfa_required":
+            return AssistantError("mcp_sign_in_required", "Sign in to the dashboard with two-step verification to use workspace tools.", 403)
+        if exc.error == "temporarily_unavailable":
+            return AssistantError("mcp_unavailable", "Workspace MCP access is currently paused or unavailable.", 503)
+        return AssistantError("mcp_access_denied", "Your signed-in account cannot currently use workspace MCP tools. Review your account and AI access settings.", 403)
+
+    async def status(self) -> dict[str, Any]:
+        try:
+            async with AsyncSessionFactory() as session:
+                if not (await load_snapshot(session)).configuration.enabled:
+                    raise AssistantError("mcp_ai_disabled", "Enable the AI assistant in settings to use workspace tools.", 403)
+            access = await self.discover()
+            if not access["total"]:
+                raise AssistantError("mcp_no_tools", "Current MCP permissions expose no tools for the assistant. Review workspace permissions and AI settings.", 403)
+            return {"observed_at": access["observed_at"], "mcp": {"connected": True, "available_tools": access["total"], "write_enabled": access["write_enabled"]}}
+        except AssistantError as exc:
+            return {"observed_at": datetime.now(UTC).isoformat(), "mcp": {"connected": False, "available_tools": 0, "write_enabled": False, "code": exc.code, "message": exc.message}}
 
     async def discover(self, query: str = "", offset: int = 0) -> dict[str, Any]:
         if not isinstance(query, str) or len(query) > 120 or type(offset) is not int or not 0 <= offset <= 10000:
@@ -109,7 +122,7 @@ class MCPAssistantBridge:
         return {"tools": [{"name": tool.name, "description": tool.description, "input_schema": tool.input_schema, "read_only": observational(tool)} for tool in page],
                 "total": len(matches), "next_offset": offset + 8 if offset + 8 < len(matches) else None,
                 "write_enabled": write, "observed_at": datetime.now(UTC).isoformat(),
-                "notice": "These are the connection's currently permitted tools. Each invocation rechecks live permissions."}
+                "notice": "These tools use your signed-in dashboard account and current workspace MCP permissions. Each invocation rechecks live access; no external MCP app connection is needed."}
 
     async def call(self, tool_name: str, arguments_json: str) -> dict[str, Any]:
         if not isinstance(tool_name, str) or len(tool_name) > 120 or not isinstance(arguments_json, str) or len(arguments_json) > 18000:
@@ -120,19 +133,22 @@ class MCPAssistantBridge:
                 raise ValueError()
         except ValueError:
             raise AssistantError("query_rejected", "MCP arguments must be a JSON object.", 422) from None
-        # Serialize an admitted invocation with AI settings updates. The MCP
-        # wrapper separately locks/rechecks its own live grant and global policy.
-        async with AsyncSessionFactory() as guard:
-            await guard.execute(select(PlatformSettingModel.key).where(PlatformSettingModel.key == SETTINGS_KEY).with_for_update(read=True))
-            return await self._invoke(tool_name, arguments)
+        # The MCP wrapper owns the transaction that checks and locks live AI
+        # settings with workspace policy. Do not hold locks in a second session
+        # while waiting for that transaction: a queued settings save could stall it.
+        return await self._invoke(tool_name, arguments)
 
     async def _invoke(self, tool_name: str, arguments: dict[str, Any]) -> dict[str, Any]:
         settings = get_settings()
         raw = new_credential("access")
         async with AsyncSessionFactory() as session:
-            grant, tools, _ = await self._authority(session)
+            actor, tools, _ = await self._authority(session)
             if not any(tool.name == tool_name for tool in tools):
-                raise AssistantError("mcp_tool_denied", "This tool is not permitted by the current MCP connection and AI write setting.", 403)
+                raise AssistantError("mcp_tool_denied", "This tool is not permitted by current workspace MCP permissions and the AI write setting.", 403)
+            try:
+                grant = await ensure_assistant_authority(session, settings, actor, getattr(self.request.state, "auth_claims", {}))
+            except MCPAuthError as exc:
+                raise self._access_error(exc) from None
             auth = MCPAuthorizationService(session, settings)
             digest = auth.digest(raw)
             now = datetime.now(UTC)

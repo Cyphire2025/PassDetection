@@ -103,8 +103,8 @@ async def invoke_read(
             if token is None:
                 raise MCPAuthError("invalid_token", 401)
             authorization = MCPAuthorizationService(session, settings)
-            # Read rules remain authoritative when effect adapters are deployed.
-            await authorization.require_enabled(lock=True)
+            # verify_access takes the live control/grant/identity barriers in
+            # the appropriate external or first-party authority lock order.
             principal = await authorization.verify_access(
                 token.token,
                 policy.capability.value,

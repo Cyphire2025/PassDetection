@@ -43,6 +43,9 @@ logger = get_logger(__name__)
 
 
 def _request(websocket: WebSocket) -> Request:
+    # Authentication and tool calls build separate Request adapters. Share the
+    # server-owned state so both carry the same verified dashboard claims.
+    websocket.scope.setdefault("state", {})
     scope = dict(websocket.scope)
     scope.update(
         type="http", method="GET", scheme="https" if websocket.url.scheme == "wss" else "http"

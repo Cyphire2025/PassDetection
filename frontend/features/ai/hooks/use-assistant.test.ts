@@ -60,11 +60,11 @@ afterEach(cleanup);
 
 describe("workspace MCP status", () => {
   it("preserves a disconnected MCP result despite a successful timestamp", async () => {
-    vi.mocked(assistantApi.live).mockResolvedValue({ observed_at: "2026-10-19T00:00:00Z", mcp: { connected: false, code: "mcp_connection_unavailable", message: "Reconnect your existing connection." } });
+    vi.mocked(assistantApi.live).mockResolvedValue({ observed_at: "2026-10-19T00:00:00Z", mcp: { connected: false, code: "mcp_no_tools", message: "No workspace tools are currently available." } });
     const { result } = renderHook(() => useAssistant(answer, image));
     await waitFor(() => expect(result.current.mcpAccess?.connected).toBe(false));
     expect(result.current.observedAt).not.toBeNull();
-    expect(result.current.mcpAccess?.code).toBe("mcp_connection_unavailable");
+    expect(result.current.mcpAccess?.code).toBe("mcp_no_tools");
     expect(result.current.access).toBe("ready");
   });
   it("keeps general chat available after a failed MCP check and recovers on refresh", async () => {

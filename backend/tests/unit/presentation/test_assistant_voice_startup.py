@@ -10,11 +10,21 @@ from unittest.mock import AsyncMock
 from uuid import uuid4
 
 import pytest
+from fastapi import WebSocket
 from starlette.websockets import WebSocketState
 
 from app.application.assistant.contracts import AssistantError
 from app.core.assistant_config import AssistantSettings
 from app.presentation.api.v1.routes import ai_assistant_voice as voice
+
+
+def test_voice_request_adapters_share_verified_dashboard_authentication():
+    socket = WebSocket({"type": "websocket", "scheme": "wss", "path": "/voice", "headers": []}, AsyncMock(), AsyncMock())
+    authenticated = voice._request(socket)
+    claims = {"sub": str(uuid4()), "sid": str(uuid4()), "sv": 1, "amr": ["totp"], "mfa_at": 123}
+    authenticated.state.auth_claims = claims
+    assert voice._request(socket).state.auth_claims is claims
+    assert socket.state.auth_claims is claims
 
 
 @pytest.mark.parametrize("setup_seconds, accepted", [(5, True), (0, False)])

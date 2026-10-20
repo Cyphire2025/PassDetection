@@ -305,15 +305,15 @@
     },
     {
       "surface": {
-        "id": "frontend:frontend/features/ai/settings-api.ts:mcpConnections",
+        "id": "frontend:frontend/features/ai/settings-api.ts:mcpAccess",
         "kind": "frontend_callable",
         "source": "frontend/features/ai/settings-api.ts",
-        "handler": "mcpConnections"
+        "handler": "mcpAccess"
       },
       "workflow": "assistant.private-workspace",
       "disposition": "internal_dependency",
       "phase": null,
-      "rationale": "First-party superadmin-only AI settings discovery: available provider models or existing connections owned by the current account. No credentials, new MCP grants, permission changes or business operations are exposed. This settings helper is not an MCP model tool.",
+      "rationale": "Read-only first-party assistant access status for the authenticated dashboard administrator. Uses current workspace MCP policy and saved AI settings without creating external connections, changing permissions or exposing credentials. Not exposed as a recursive MCP tool.",
       "adapter_requirements": [],
       "implementation": {
         "status": "not_applicable",
@@ -16075,6 +16075,30 @@
       "disposition": "internal_dependency",
       "phase": null,
       "rationale": "First-party authenticated assistant workspace and superadmin-only encrypted provider configuration. Kept outside MCP to avoid recursive model calls, credential access and hidden provider charges; business data uses separately authorized observational readers.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "openapi:GET:/api/v1/ai-assistant/settings/mcp-access",
+        "kind": "openapi_operation",
+        "source": "backend/contracts/api.openapi.json",
+        "method": "GET",
+        "path": "/api/v1/ai-assistant/settings/mcp-access",
+        "operation_id": "assistant_mcp_access_api_v1_ai_assistant_settings_mcp_access_get",
+        "tags": [
+          "AI Assistant"
+        ],
+        "summary": "Assistant Mcp Access"
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Read-only first-party assistant access status for the authenticated dashboard administrator. Uses current workspace MCP policy and saved AI settings without creating external connections, changing permissions or exposing credentials. Not exposed as a recursive MCP tool.",
       "adapter_requirements": [],
       "implementation": {
         "status": "not_applicable",
@@ -34934,6 +34958,29 @@
       "disposition": "internal_dependency",
       "phase": null,
       "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "route:backend/app/presentation/api/v1/routes/ai_assistant_settings.py:assistant_mcp_access:GET:/settings/mcp-access",
+        "kind": "source_route",
+        "source": "backend/app/presentation/api/v1/routes/ai_assistant_settings.py",
+        "handler": "assistant_mcp_access",
+        "method": "GET",
+        "local_path": "/settings/mcp-access",
+        "contract_sha256": "43122873b5d70617543ffbd9e4df76cb50d095f867ec7863c4b78b028a8b3bf8",
+        "summary": "assistant mcp access",
+        "schema_visible": true
+      },
+      "workflow": "assistant.private-workspace",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Read-only first-party assistant access status for the authenticated dashboard administrator. Uses current workspace MCP policy and saved AI settings without creating external connections, changing permissions or exposing credentials. Not exposed as a recursive MCP tool.",
       "adapter_requirements": [],
       "implementation": {
         "status": "not_applicable",

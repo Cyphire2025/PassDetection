@@ -7,7 +7,6 @@ import json
 import time
 from collections.abc import AsyncIterator
 from contextlib import suppress
-from datetime import UTC, datetime
 from typing import Any
 from urllib.parse import quote
 from uuid import UUID
@@ -125,15 +124,8 @@ async def assistant_live(
         await fresh_actor(user)
     except AssistantError as exc:
         raise _http(exc) from None
-    try:
-        access = await MCPAssistantBridge(request, user).discover()
-        if not access["total"]:
-            return {"observed_at": access["observed_at"], "mcp": {"connected": False, "available_tools": 0, "write_enabled": False, "code": "mcp_no_tools", "message": "The MCP connection currently exposes no tools permitted for this assistant. Review the connection's access and AI settings."}}
-        return {"observed_at": access["observed_at"], "mcp": {"connected": True, "available_tools": access["total"], "write_enabled": access["write_enabled"]}}
-    except AssistantError as exc:
-        # A missing/revoked MCP link removes workspace tools, while general
-        # conversation and this account's own attachments remain available.
-        return {"observed_at": datetime.now(UTC).isoformat(), "mcp": {"connected": False, "code": exc.code, "message": exc.message}}
+    # Workspace policy failures remove tools, while general chat stays usable.
+    return await MCPAssistantBridge(request, user).status()
 
 
 @router.get("/conversations")

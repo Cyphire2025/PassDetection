@@ -16,6 +16,7 @@ import httpx
 
 from app.application.mcp.credentials import MCPAuthError
 from app.core.config.mcp import MCPSettings
+from app.domain.assistant_identity import ASSISTANT_CLIENT_ID
 
 DIRECT_CLIENT_NAMES = {
     "https://chatgpt.com/oauth/client.json": "ChatGPT",
@@ -35,6 +36,8 @@ _metadata_cache: dict[str, tuple[float, tuple[str, ...]]] = {}
 
 def validate_client(settings: MCPSettings, client_id: str, redirect_uri: str | None = None) -> None:
     """Check grant identity locally; direct callbacks require the async helper."""
+    if client_id == ASSISTANT_CLIENT_ID:
+        raise MCPAuthError("invalid_client")
     if client_id in DIRECT_CLIENT_NAMES:
         if redirect_uri is not None:
             raise MCPAuthError("invalid_client")

@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.mcp.credentials import MCPAuthError, utc
 from app.core.config.settings import Settings
+from app.domain.assistant_identity import ASSISTANT_CLIENT_ID
 from app.domain.mcp_read_sections import validate_read_sections
 from app.domain.mcp_section_permissions import (
     DYNAMIC_WRITE_TOOL_SECTIONS,
@@ -63,6 +64,10 @@ async def current_permission_control(session: AsyncSession, *, lock: bool = Fals
 
 async def require_permission_capability(session: AsyncSession, settings: Settings, grant: MCPGrantModel,
                                         capability: str, *, lock: bool = True) -> None:
+    if grant.client_id == ASSISTANT_CLIENT_ID:
+        from app.application.mcp.assistant_authority import require_assistant_settings
+
+        await require_assistant_settings(session, capability=capability)
     control = await current_permission_control(session, lock=lock)
     if capability == "mcp:read":
         if control.read_enabled is not True or grant.read_enabled is not True:
@@ -96,6 +101,11 @@ async def require_tool_access(session: AsyncSession, settings: Settings, grant_i
     OAuth envelope is checked independently by the authorization service. This
     function never expands it and must run inside the effect's transaction.
     """
+    client = await session.scalar(select(MCPGrantModel.client_id).where(MCPGrantModel.id == grant_id))
+    if client == ASSISTANT_CLIENT_ID:
+        from app.application.mcp.assistant_authority import require_assistant_settings
+
+        await require_assistant_settings(session, capability=capability)
     control = await current_permission_control(session, lock=lock)
     grant = await session.scalar(select(MCPGrantModel).where(MCPGrantModel.id == grant_id)
                                 .execution_options(populate_existing=True))

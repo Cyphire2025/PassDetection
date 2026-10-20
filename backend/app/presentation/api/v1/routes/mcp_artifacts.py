@@ -19,6 +19,7 @@ from app.application.mcp.artifacts import ArtifactError, MCPArtifactService, tra
 from app.application.mcp.authorization import MCPAuthorizationService, MCPPrincipal
 from app.application.mcp.credentials import MCPAuthError
 from app.application.use_cases.passports.complete_export_delivery import ExportDeliveryConflict
+from app.domain.assistant_identity import ASSISTANT_CLIENT_ID
 from app.domain.contact_workbook import ContactWorkbookValidationError
 from app.domain.exceptions.exceptions import ImageValidationError, StorageError
 from app.infrastructure.database.session import get_db_session
@@ -60,6 +61,8 @@ async def _principal(
         principal = await MCPAuthorizationService(
             session, request.app.state.settings
         ).verify_access(headers[0][7:])
+        if principal.client_id == ASSISTANT_CLIENT_ID:
+            raise MCPAuthError("invalid_token", 401)
         # Release the verifier's last-used write before the service acquires
         # control -> grant -> identity locks for a mutation. The service then
         # revalidates current authority before creating or acknowledging a row.

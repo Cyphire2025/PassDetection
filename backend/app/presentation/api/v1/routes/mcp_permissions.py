@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.mcp.credentials import MCPAuthError, utc
 from app.application.mcp.permissions import current_permission_control, validate_device_permissions
+from app.domain.assistant_identity import ASSISTANT_CLIENT_ID
 from app.domain.entities.entities import User
 from app.domain.mcp_section_permissions import (
     WRITE_CAPABILITIES,
@@ -88,7 +89,7 @@ async def set_connection_permissions(connection_id: uuid.UUID, body: MCPConnecti
     await current_permission_control(session, lock=True)
     row = await session.scalar(select(MCPGrantModel).where(MCPGrantModel.id == connection_id)
                                .execution_options(populate_existing=True).with_for_update())
-    if row is None:
+    if row is None or row.client_id == ASSISTANT_CLIENT_ID:
         raise HTTPException(404, "Connection not found")
     if row.permission_revision != body.expected_revision:
         raise HTTPException(409, "Connection permissions changed. Reload before saving.")

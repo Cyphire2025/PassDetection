@@ -1,4 +1,5 @@
 import apiClient from "@/lib/api/client";
+import type { McpAccessStatus } from "./types";
 
 export type ProviderName = "gemini" | "openai";
 export type ProviderMode = ProviderName | "hybrid";
@@ -27,10 +28,10 @@ export type SettingsWrite = { expected_revision: number; configuration: Assistan
 const BASE = "/api/v1/ai-assistant/settings";
 export type ModelOption = { id: string; model: string; label: string; provider: ProviderName; kind: "chat" | "voice"; available: boolean; reasoning: string[]; voices: { id: string; label: string; appearance: "male" | "female" }[] };
 export type ModelCatalog = { models: ModelOption[]; revision: number; observed_at: string; providers: { provider: ProviderName; status: "ready" | "unavailable" | "not_connected"; message: string }[] };
-export type McpConnections = { items: { id: string; name: string; read_enabled: boolean; write_enabled: boolean }[] };
+export type McpAccessSnapshot = { observed_at: string; mcp: McpAccessStatus };
 export const aiSettingsApi = {
   models: async (signal?: AbortSignal) => (await apiClient.get<ModelCatalog>(`${BASE}/models`, { signal, timeout: 25000 })).data,
-  mcpConnections: async (signal?: AbortSignal) => (await apiClient.get<McpConnections>(`${BASE}/mcp-connections`, { signal })).data,
+  mcpAccess: async (signal?: AbortSignal) => (await apiClient.get<McpAccessSnapshot>(`${BASE}/mcp-access`, { signal })).data,
   get: async (signal?: AbortSignal) => (await apiClient.get<SettingsSnapshot>(BASE, { signal })).data,
   save: async (body: SettingsWrite) => (await apiClient.put<SettingsSnapshot>(BASE, body)).data,
   people: async (q: string, signal?: AbortSignal) => (await apiClient.get<{ items: GrantPerson[]; has_more: boolean }>(`${BASE}/people`, { params: { q }, signal })).data,

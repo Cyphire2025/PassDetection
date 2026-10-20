@@ -37,6 +37,6 @@ async def test_settings_authorization_and_key_writes_require_mfa_and_csrf(client
     app.dependency_overrides[get_current_active_user] = lambda: replace(
         actor, role=UserRole.AGENCY_ADMIN, agency_id=agency.id
     )
-    for path in ("/settings", "/settings/people"):
+    for path in ("/settings", "/settings/people", "/settings/mcp-access"):
         assert (await client.get("/api/v1/ai-assistant" + path)).status_code == 403
     assert (await client.put("/api/v1/ai-assistant/settings", json=body)).status_code == 403

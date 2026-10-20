@@ -47,7 +47,7 @@ def conversation(monkeypatch):
 
         async def responses(self, inputs, tools, instructions):
             assert "create_images" not in {tool["name"] for tool in tools}
-            assert "connection's current write permissions" in instructions
+            assert "current workspace write permissions" in instructions
             self.calls += 1
             if self.calls == 1:
                 yield {"type": "completed", "response": {"output": [{"type": "function_call",

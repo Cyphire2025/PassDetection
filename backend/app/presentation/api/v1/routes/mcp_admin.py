@@ -21,6 +21,7 @@ from app.application.mcp.connection_requests import (
 from app.application.mcp.credentials import MCPAuthError, utc
 from app.application.mcp.read_access import current_read_access
 from app.core.config.settings import Settings
+from app.domain.assistant_identity import ASSISTANT_CLIENT_ID
 from app.domain.entities.entities import User
 from app.domain.mcp_policy import CAPABILITIES
 from app.domain.mcp_read_sections import read_section_catalog
@@ -134,6 +135,7 @@ async def connections(
         (
             await session.scalars(
                 select(MCPGrantModel)
+                .where(MCPGrantModel.client_id != ASSISTANT_CLIENT_ID)
                 # Explicitly removed entries retain their grant and workflow
                 # provenance. Other revoked entries remain in the Devices list.
                 .where(or_(
@@ -272,7 +274,7 @@ async def revoke(
     row = await session.scalar(
         select(MCPGrantModel).where(MCPGrantModel.id == connection_id).with_for_update()
     )
-    if row is None:
+    if row is None or row.client_id == ASSISTANT_CLIENT_ID:
         raise HTTPException(404, "Connection not found")
     if row.revoked_at is None:
         row.revoked_at, row.revocation_reason = datetime.now(UTC), "administrator_revoked"
@@ -298,7 +300,7 @@ async def set_connection_access(
     row = await session.scalar(
         select(MCPGrantModel).where(MCPGrantModel.id == connection_id).with_for_update()
     )
-    if row is None:
+    if row is None or row.client_id == ASSISTANT_CLIENT_ID:
         raise HTTPException(404, "Connection not found")
     if body.enabled and (row.revoked_at is not None or utc(row.expires_at) <= datetime.now(UTC)):
         raise HTTPException(409, "Reconnect to enable an expired or revoked connection")
@@ -325,7 +327,7 @@ async def delete_connection(
         select(MCPGrantModel).where(MCPGrantModel.id == connection_id)
         .execution_options(populate_existing=True).with_for_update()
     )
-    if row is None:
+    if row is None or row.client_id == ASSISTANT_CLIENT_ID:
         raise HTTPException(404, "Connection not found")
     if row.revoked_at is None or row.revocation_reason != "administrator_removed":
         previous_reason, revoked_now = row.revocation_reason, row.revoked_at is None
@@ -356,7 +358,7 @@ async def update_connection(
     row = await session.scalar(
         select(MCPGrantModel).where(MCPGrantModel.id == connection_id).with_for_update()
     )
-    if row is None:
+    if row is None or row.client_id == ASSISTANT_CLIENT_ID:
         raise HTTPException(404, "Connection not found")
     # A reconnect is necessary for expanded authority. Narrowing applies immediately.
     if set(body.capabilities) - set(_settings(request).mcp.effective_capabilities):

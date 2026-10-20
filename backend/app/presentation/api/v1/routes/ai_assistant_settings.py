@@ -3,7 +3,7 @@
 from typing import Any
 
 import httpx
-from fastapi import APIRouter, Depends, HTTPException, Query, Response
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -27,7 +27,7 @@ from app.infrastructure.assistant.settings_store import (
 from app.infrastructure.assistant.usage import usage_snapshot
 from app.infrastructure.database.models import UserModel
 from app.infrastructure.database.session import get_db_session
-from app.presentation.assistant.mcp_bridge import connection_choices
+from app.presentation.assistant.mcp_bridge import MCPAssistantBridge, connection_choices
 from app.presentation.dependencies.auth import require_recent_mfa, require_role
 from app.presentation.dependencies.csrf import require_cookie_csrf
 
@@ -139,6 +139,15 @@ async def assistant_usage(
 async def assistant_mcp_connections(response: Response, user: User = Depends(require_role([UserRole.SUPER_ADMIN]))) -> dict[str, Any]:
     response.headers.update(PRIVATE)
     return {"items": await connection_choices(user)}
+
+
+@router.get("/settings/mcp-access")
+async def assistant_mcp_access(
+    request: Request, response: Response,
+    user: User = Depends(require_role([UserRole.SUPER_ADMIN])),
+) -> dict[str, Any]:
+    response.headers.update(PRIVATE)
+    return await MCPAssistantBridge(request, user).status()
 
 
 @router.get("/settings/people")

@@ -12,16 +12,15 @@ it("only reports workspace connected when MCP confirms access", () => {
   expect(screen.getByLabelText("Workspace connected")).toHaveAttribute("data-connected", "true");
 });
 
-it("offers reconnection for no approved connection and selection for ambiguous or stale choices", () => {
+it("guides managers to AI access settings for current policy restrictions without external reconnection", () => {
   const retry = vi.fn();
-  const { rerender } = render(<WorkspaceAccessNotice access={{ connected: false, code: "mcp_connection_unavailable", message: "No approved connection." }} canManage onRetry={retry} />);
-  expect(screen.getByRole("status")).toHaveTextContent("No approved connection.");
-  expect(screen.getByRole("link", { name: "Reconnect existing MCP connection" })).toHaveAttribute("href", "/admin/mcp/setup");
-  for (const code of ["mcp_connection_required", "mcp_access_denied"]) {
+  const { rerender } = render(<WorkspaceAccessNotice access={{ connected: false, code: "mcp_no_tools", message: "No tools permitted." }} canManage onRetry={retry} />);
+  expect(screen.getByRole("status")).toHaveTextContent("No tools permitted.");
+  for (const code of ["mcp_no_tools", "mcp_access_denied", "mcp_ai_disabled"]) {
     rerender(<WorkspaceAccessNotice access={{ connected: false, code }} canManage onRetry={retry} />);
-    expect(screen.getByRole("link", { name: "Choose connection in AI settings" })).toHaveAttribute("href", "/settings/ai#ai-mcp-access");
+    expect(screen.getByRole("link", { name: "Review AI workspace access" })).toHaveAttribute("href", "/settings/ai#ai-mcp-access");
   }
-  rerender(<WorkspaceAccessNotice access={{ connected: false, code: "mcp_connection_unavailable" }} canManage={false} onRetry={retry} />);
+  rerender(<WorkspaceAccessNotice access={{ connected: false, code: "mcp_access_denied" }} canManage={false} onRetry={retry} />);
   expect(screen.queryByRole("link")).not.toBeInTheDocument();
 });
 
