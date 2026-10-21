@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import type { SculptureAppearance } from "@/components/ui/liquid-sculpture/types";
 import styles from "./appearance.module.css";
 
-const SHAPES = [{ value: "sculpture", label: "Sculpture", mark: "∿" }, { value: "face", label: "Human hologram", mark: "◉" }] as const;
+const SHAPES = [{ value: "sculpture", label: "Sculpture", mark: "∿" }, { value: "face", label: "Human hologram", mark: "◉" }, { value: "test", label: "Test", mark: "◇" }] as const;
 
 export function SculptureAppearanceControl({ value, onChange }: { value: SculptureAppearance; onChange: (value: SculptureAppearance) => void; renderer: "webgl" | "image" | null }) {
   const [open, setOpen] = useState(false);
@@ -26,9 +26,10 @@ export function SculptureAppearanceControl({ value, onChange }: { value: Sculptu
       <fieldset className={styles.controls}>
       <div className={styles.shapes} role="group" aria-label="Particle shape">{SHAPES.map((shape) => <button data-shape-choice key={shape.value} type="button" aria-pressed={value.mode === shape.value} onClick={() => onChange({ ...value, mode: shape.value })}><span aria-hidden="true">{shape.mark}</span>{shape.label}{value.mode === shape.value ? <Check size={12} /> : null}</button>)}</div>
       {value.mode === "face" ? <p className={styles.note}>A human particle hologram. Its appearance follows your selected voice in AI settings.</p> : null}
+      {value.mode === "test" ? <p className={styles.note}>Explore a 3D particle face. Drag to rotate, move to illuminate. Its face follows your selected voice.</p> : null}
       <label className={styles.motion}><input type="checkbox" checked={value.stateAnimations} onChange={(event) => onChange({ ...value, stateAnimations: event.target.checked })} /><span>Animate with voice and pointer</span></label>
       </fieldset>
-      <p className={styles.note}>Motion follows your device’s reduced-motion preference. A still portrait remains available when animation is unavailable.</p>
+      <p className={styles.note}>Motion follows your device’s reduced-motion preference. A still view remains available when animation is unavailable.</p>
     </div> : null}
   </div>;
 }

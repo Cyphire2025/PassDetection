@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowUpRight, ChevronLeft, Library, Loader2, MessageSquare, 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { LiquidSculptureHero } from "@/components/ui/liquid-sculpture-hero";
 import { DEFAULT_APPEARANCE, type SculptureHandle } from "@/components/ui/liquid-sculpture/types";
 import { useAssistant } from "../hooks/use-assistant";
@@ -11,6 +12,7 @@ import { useAssistantAudio } from "../hooks/use-assistant-audio";
 import { useNativeVoice } from "../hooks/use-native-voice";
 import { useAssistantTheme } from "../hooks/use-assistant-theme";
 import type { Asset, VisualState } from "../types";
+import { neutralSpeechFrame, type SpeechFrame } from "../speech-frame";
 import { AssistantComposer } from "./assistant-composer";
 import { ConversationThread } from "./conversation-thread";
 import { ImageReveal } from "./image-reveal";
@@ -20,6 +22,7 @@ import { SculptureAppearanceControl } from "./sculpture-appearance";
 import { WorkspaceAccessNotice, WorkspaceConnectionIndicator } from "./workspace-mcp-status";
 import styles from "./workspace.module.css";
 
+const TestHologram = dynamic(() => import("./test-hologram").then((module) => module.TestHologram), { ssr: false });
 const MOTES = Array.from({ length: 54 }, (_, index) => ({ left: `${(index * 61.803 + 9) % 100}%`, top: `${(index * 37.179 + 7) % 100}%`, delay: `${index * -2.7}s`, duration: `${24 + index % 9 * 4}s`, size: `${index % 11 === 0 ? 5 : index % 4 === 0 ? 3.5 : 1.5 + index % 3 * .5}px` }));
 
 export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
@@ -66,8 +69,10 @@ export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
     : listening ? "listening" : audio.speaking ? "speaking" : assistant.busy || audio.transcribing || audio.preparing ? "thinking" : "idle";
   const presentation = useRef<VisualState>({ phase: "idle", reply: false, reveal: 0, revealWidth: 600, revealHeight: 370 });
   const sculpture = useRef<SculptureHandle>(null);
-  const renderReveal = useCallback(() => sculpture.current?.invalidate(), []);
+  const testHologram = useRef<SculptureHandle>(null);
+  const renderReveal = useCallback(() => { sculpture.current?.invalidate(); testHologram.current?.invalidate(); }, []);
   const level = useRef(0);
+  const speechFrame = useRef<SpeechFrame>(neutralSpeechFrame());
   const voiceControl = useRef<HTMLDivElement>(null);
   useEffect(() => { speechAllowed.current = Boolean(assistant.status?.speech_configured); }, [assistant.status?.speech_configured]);
   useEffect(() => { sendVoice.current = (text) => { spokenReplyRequested.current = true; void send(text); }; }, [send]);
@@ -80,15 +85,16 @@ export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
     presentation.current.reply = phase === "speaking" || audio.preparing || (assistant.busy && assistant.messages.some((message) => message.streaming && message.text.length > 0));
   }, [phase, audio.preparing, assistant.busy, assistant.messages]);
   useEffect(() => {
-    if (!signedIn) return;
+    if (!signedIn) { Object.assign(speechFrame.current, neutralSpeechFrame()); return; }
     let frame = 0;
     const paint = () => {
       level.current = native.speaking ? native.playbackLevel.current : audio.speaking ? audio.playbackLevel.current : listening ? audio.microphone.levelRef.current : 0;
+      Object.assign(speechFrame.current, nativeSession ? native.speechFrame.current : audio.speechFrame.current);
       voiceControl.current?.style.setProperty("--voice-level", String(level.current));
       frame = requestAnimationFrame(paint);
     };
     frame = requestAnimationFrame(paint); return () => cancelAnimationFrame(frame);
-  }, [signedIn, listening, native.speaking, native.playbackLevel, audio.speaking, audio.microphone.levelRef, audio.playbackLevel]);
+  }, [signedIn, listening, nativeSession, native.speaking, native.playbackLevel, native.speechFrame, audio.speaking, audio.microphone.levelRef, audio.playbackLevel, audio.speechFrame]);
   const closeDrawer = useCallback(() => setDrawer(null), []);
   const closeImage = useCallback(() => setActiveImage(null), []);
   const openImage = useCallback((image: Asset, collection?: Asset[]) => { if (collection) setImages(collection); else setImages((current) => current.some((item) => item.id === image.id) ? current : [...current, image]); setActiveImage(image); }, []);
@@ -147,7 +153,7 @@ export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
     {signedIn ? <>
       <div className={styles.mainArea}>
         <section className={styles.visualArea} aria-label="Voice-reactive particle sculpture">
-          <div className={styles.sculptureStage} data-testid="assistant-stage">{appearance.mode === "face" ? <HumanHologram appearance={assistant.status?.avatar_appearance || "female"} dark={dark} motion={appearance.stateAnimations} levelRef={level} presentationRef={presentation} /> : <LiquidSculptureHero ref={sculpture} levelRef={level} presentationRef={presentation} dark={dark} appearance={appearance} onRendererChange={setSculptureRenderer} />}<ImageReveal asset={activeImage} images={images} presentationRef={presentation} onSelect={setActiveImage} onClosed={closeImage} onProgress={renderReveal} /></div>
+          <div className={styles.sculptureStage} data-testid="assistant-stage">{appearance.mode === "test" ? <TestHologram ref={testHologram} appearance={assistant.status?.avatar_appearance || "female"} dark={dark} motion={appearance.stateAnimations} levelRef={level} presentationRef={presentation} speechFrameRef={speechFrame} /> : appearance.mode === "face" ? <HumanHologram appearance={assistant.status?.avatar_appearance || "female"} dark={dark} motion={appearance.stateAnimations} levelRef={level} presentationRef={presentation} /> : <LiquidSculptureHero ref={sculpture} levelRef={level} presentationRef={presentation} dark={dark} appearance={appearance} onRendererChange={setSculptureRenderer} />}<ImageReveal asset={activeImage} images={images} presentationRef={presentation} onSelect={setActiveImage} onClosed={closeImage} onProgress={renderReveal} /></div>
           <div className={styles.voiceStatus} ref={voiceControl} data-listening={listening && !speaking} data-input-detected={nativeSession && native.inputDetected} data-testid="assistant-voice-status">
             <button type="button" className={styles.voiceButton} onClick={() => void microphone()} disabled={assistant.busy || audio.transcribing} aria-label={nativeSession ? "End voice conversation" : requesting ? "Cancel microphone request" : listening ? "Finish voice message" : "Start microphone"} aria-pressed={listening || requesting || nativeSession}>
               {requesting || native.connecting || audio.transcribing ? <Loader2 size={20} className={styles.spinner} /> : listening || nativeSession ? <Square size={17} fill="currentColor" /> : <Mic size={23} strokeWidth={1.5} />}

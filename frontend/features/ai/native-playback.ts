@@ -57,7 +57,7 @@ export class NativePlayback {
   private pauseNotified = false;
   constructor(private context: AudioContext, private onSpeaking: (active: boolean) => void, private onError: (message: string) => void = () => undefined) {
     this.analyser = context.createAnalyser(); this.analyser.fftSize = 512;
-    this.gain = context.createGain(); this.analyser.connect(this.gain); this.gain.connect(context.destination);
+    this.gain = context.createGain(); this.gain.connect(this.analyser); this.analyser.connect(context.destination);
   }
   push(encoded: string, rate: number) {
     if (this.disposed || this.broken) throw new Error("Voice playback is unavailable. The reply will continue in captions.");
@@ -89,7 +89,7 @@ export class NativePlayback {
         const samples = buffer.getChannelData(0);
         let energy = 0;
         for (let index = 0; index < pcm.length; index++) { samples[index] = pcm[index] / 32768; energy += samples[index] ** 2; }
-        const source = this.context.createBufferSource(); source.buffer = buffer; source.connect(this.analyser);
+        const source = this.context.createBufferSource(); source.buffer = buffer; source.connect(this.gain);
         source.onended = () => { source.disconnect(); this.sources.delete(source); this.audibleSources.delete(source); this.pump(); };
         this.sources.add(source); source.start(this.scheduledAt); this.scheduledAt += buffer.duration;
         if (Math.sqrt(energy / samples.length) > .003) this.audibleSources.add(source);

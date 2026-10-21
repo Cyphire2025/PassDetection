@@ -2,11 +2,11 @@ import { act, cleanup, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { useNativeVoice } from "./use-native-voice";
 
-const mocks = vi.hoisted(() => ({ push: vi.fn(), clear: vi.fn(), dispose: vi.fn(), captureStop: vi.fn(), playbackError: (_message: string) => undefined as void }));
+const mocks = vi.hoisted(() => ({ push: vi.fn(), clear: vi.fn(), dispose: vi.fn(), captureStop: vi.fn(), playbackError: (() => undefined) as (message: string) => void }));
 vi.mock("../native-audio", () => ({
   pcmBase64: vi.fn(),
   NativePlayback: class {
-    analyser = { fftSize: 512, getFloatTimeDomainData: (samples: Float32Array) => samples.fill(0) };
+    analyser = { fftSize: 512, frequencyBinCount: 512, getFloatTimeDomainData: (samples: Float32Array) => samples.fill(0), getFloatFrequencyData: (samples: Float32Array) => samples.fill(-Infinity) };
     push = mocks.push; clear = mocks.clear; dispose = mocks.dispose;
     constructor(_context: AudioContext, _speaking: (active: boolean) => void, error: (message: string) => void) { mocks.playbackError = error; }
   },
@@ -27,7 +27,7 @@ beforeEach(() => {
   vi.clearAllMocks(); mocks.push.mockReset();
   vi.stubGlobal("WebSocket", Socket);
   vi.stubGlobal("requestAnimationFrame", () => 1); vi.stubGlobal("cancelAnimationFrame", vi.fn());
-  vi.stubGlobal("AudioContext", class { state = "running"; resume = vi.fn().mockResolvedValue(undefined); close = vi.fn().mockResolvedValue(undefined); });
+  vi.stubGlobal("AudioContext", class { state = "running"; currentTime = 0; sampleRate = 48000; resume = vi.fn().mockResolvedValue(undefined); close = vi.fn().mockResolvedValue(undefined); });
 });
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 

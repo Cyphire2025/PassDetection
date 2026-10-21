@@ -1,0 +1,21 @@
+.root { position: relative; width: 100%; height: 100%; isolation: isolate; }
+.canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; border-radius: 28px; }
+.canvas:active { cursor: grabbing; }
+.canvas[aria-hidden="true"] { visibility: hidden; }
+.canvas:focus-visible { outline: 1px solid var(--ai-quiet); outline-offset: -12px; }
+.stageGlow { position: absolute; width: min(80%,650px); height: 75%; left: 50%; top: 12%; transform: translateX(-50%); border-radius: 50%; pointer-events: none; background: radial-gradient(ellipse, #ffffff5e 0%, #ffffff20 40%, transparent 70%); z-index: -1; }
+.root[data-theme="dark"] .stageGlow { background: radial-gradient(ellipse, #d7d7d709, transparent 65%); }
+.fallback { position: absolute; inset: 7% 0 10%; pointer-events: none; }
+.fallback img { object-fit: contain; opacity: .72; filter: invert(1); }
+.root[data-theme="dark"] .fallback img { filter: none; }
+.controls { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 10px; white-space: nowrap; color: var(--ai-muted); font-size: 10px; letter-spacing: .025em; }
+.controls button { display: grid; place-items: center; height: 28px; width: 28px; padding: 0; background: transparent; color: inherit; border: 1px solid var(--ai-border); border-radius: 50%; }
+.controls button:hover { color: var(--ai-text); background: var(--ai-hover); }
+.controls button:disabled { opacity: .35; }
+.signature { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); font: 8px ui-monospace,monospace; color: var(--ai-quiet); letter-spacing: .25em; pointer-events: none; opacity: .65; }
+.signature span { margin: 0 7px; opacity: .4; }
+.screenReader { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+:global([data-image-open="true"]) .root { opacity: .08; pointer-events: none; }
+:global([data-image-open="true"]) .controls, :global([data-image-open="true"]) .signature { visibility: hidden; }
+@media (max-width: 639px) { .controls { bottom: 0; font-size: 8px; gap: 7px; }.controls button { width: 24px; height: 24px; }.signature { top: 5px; font-size: 7px; } }
+@media (max-height: 650px) { .signature { display: none; } }

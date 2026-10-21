@@ -3,9 +3,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { NativePlayback, pcmBase64 } from "../native-audio";
 import { startNativeCapture } from "../native-capture";
+import { SpeechAnalyser } from "../speech-analyser";
+import { neutralSpeechFrame } from "../speech-frame";
 import type { NativeEvent } from "../types";
 
-type Session = { socket: WebSocket; playback: NativePlayback; capture?: () => void; frame: number; ready: boolean; paused?: boolean; saved?: boolean; audioFailedTurn?: string; finished?: (saved: boolean) => void };
+type Session = { socket: WebSocket; playback: NativePlayback; speech: SpeechAnalyser; capture?: () => void; frame: number; ready: boolean; paused?: boolean; saved?: boolean; audioFailedTurn?: string; finished?: (saved: boolean) => void };
+function clearPlayback(current: Session) { current.playback.clear(); current.speech.reset(); }
 
 export function useNativeVoice(onEvent: (event: NativeEvent) => void, onStopped: () => void) {
   const [active, setActive] = useState(false);
@@ -20,6 +23,7 @@ export function useNativeVoice(onEvent: (event: NativeEvent) => void, onStopped:
   const context = useRef<AudioContext | null>(null);
   const session = useRef<Session | null>(null);
   const playbackLevel = useRef(0);
+  const speechFrame = useRef(neutralSpeechFrame());
   const callbacks = useRef({ onEvent, onStopped });
   useEffect(() => { callbacks.current = { onEvent, onStopped }; }, [onEvent, onStopped]);
 
@@ -27,7 +31,7 @@ export function useNativeVoice(onEvent: (event: NativeEvent) => void, onStopped:
     const current = session.current; session.current = null;
     if (current) {
       current.finished?.(false);
-      cancelAnimationFrame(current.frame); current.capture?.(); current.playback.dispose();
+      cancelAnimationFrame(current.frame); current.capture?.(); current.playback.dispose(); current.speech.reset();
       current.socket.onmessage = current.socket.onopen = current.socket.onclose = current.socket.onerror = null;
       if (current.socket.readyState < WebSocket.CLOSING) current.socket.close(1000, "Voice session ended");
     }
@@ -41,7 +45,7 @@ export function useNativeVoice(onEvent: (event: NativeEvent) => void, onStopped:
     const current = session.current;
     if (!current) return true;
     if (!current.ready || current.socket.readyState !== WebSocket.OPEN || current.finished) return false;
-    setEnding(true); current.paused = true; current.capture?.(); current.capture = undefined; current.playback.clear();
+    setEnding(true); current.paused = true; current.capture?.(); current.capture = undefined; clearPlayback(current);
     return new Promise<boolean>((resolve) => {
       const timer = setTimeout(() => { setError("The voice turn could not finish saving. Your typed draft is still here; try again."); teardown(true); }, 7000);
       current.finished = (saved) => { clearTimeout(timer); resolve(saved); };
@@ -67,7 +71,8 @@ export function useNativeVoice(onEvent: (event: NativeEvent) => void, onStopped:
     catch { setConnecting(false); setError("Voice could not connect. You can continue by typing."); callbacks.current.onStopped(); return; }
     const playback = new NativePlayback(audio, (value) => { if (session.current?.socket === socket) setSpeaking(value); },
       (message) => { if (session.current?.socket === socket) setError(message); });
-    const current: Session = { socket, playback, frame: 0, ready: false }; session.current = current;
+    const speech = new SpeechAnalyser(audio, playback.analyser, speechFrame);
+    const current: Session = { socket, playback, speech, frame: 0, ready: false }; session.current = current;
     const fail = (message: string) => { if (session.current !== current) return; setError(message); teardown(true); };
     const capture = startNativeCapture(audio, stream, {
       accepting: () => session.current === current && !current.paused,
@@ -81,13 +86,9 @@ export function useNativeVoice(onEvent: (event: NativeEvent) => void, onStopped:
       onInput: (detected, hint) => { if (session.current === current) { setInputDetected(detected); setInputHint(hint); } },
     });
     current.capture = capture.stop;
-    const samples = new Float32Array(playback.analyser.fftSize);
     const measure = () => {
       if (session.current !== current) return;
-      playback.analyser.getFloatTimeDomainData(samples);
-      let energy = 0; for (const value of samples) energy += value * value;
-      const target = Math.min(1, Math.sqrt(energy / samples.length) * 6);
-      playbackLevel.current += (target - playbackLevel.current) * .3;
+      speech.sample(); playbackLevel.current = speechFrame.current.energy;
       current.frame = requestAnimationFrame(measure);
     };
     const timer = setTimeout(() => fail("The voice connection took too long. Please try again."), 25000);
@@ -131,11 +132,11 @@ export function useNativeVoice(onEvent: (event: NativeEvent) => void, onStopped:
             }
           }
         } else if (event.type === "input_started") {
-          playback.clear(); setThinking(false);
+          clearPlayback(current); setThinking(false);
         } else if (event.type === "interrupted") {
-          playback.clear(); setThinking(false); callbacks.current.onEvent(event);
+          clearPlayback(current); setThinking(false); callbacks.current.onEvent(event);
         } else if (event.type === "answer_reset") {
-          current.paused = true; current.audioFailedTurn = undefined; playback.clear(); setThinking(true); setRecovering(true); callbacks.current.onEvent(event);
+          current.paused = true; current.audioFailedTurn = undefined; clearPlayback(current); setThinking(true); setRecovering(true); callbacks.current.onEvent(event);
         } else if (event.type === "error") {
           fail(typeof event.message === "string" ? event.message : "The voice session could not continue.");
         } else if (event.type === "status") {
@@ -155,7 +156,7 @@ export function useNativeVoice(onEvent: (event: NativeEvent) => void, onStopped:
   const sendText = useCallback((text: string) => {
     const current = session.current;
     if (!current?.ready || current.paused || current.socket.readyState !== WebSocket.OPEN || !text.trim()) return false;
-    current.playback.clear(); setThinking(true);
+    clearPlayback(current); setThinking(true);
     current.socket.send(JSON.stringify({ type: "text", text: text.trim() })); return true;
   }, []);
   const clearError = useCallback(() => setError(""), []);
@@ -165,5 +166,5 @@ export function useNativeVoice(onEvent: (event: NativeEvent) => void, onStopped:
     document.addEventListener("visibilitychange", hidden); window.addEventListener("pagehide", stop); window.addEventListener("keydown", escape);
     return () => { document.removeEventListener("visibilitychange", hidden); window.removeEventListener("pagehide", stop); window.removeEventListener("keydown", escape); teardown(false); void context.current?.close().catch(() => undefined); context.current = null; };
   }, [stop, teardown]);
-  return { active, connecting, speaking, thinking, recovering, ending, error, inputDetected, inputHint, playbackLevel, warm, start, stop, finish, sendText, clearError };
+  return { active, connecting, speaking, thinking, recovering, ending, error, inputDetected, inputHint, playbackLevel, speechFrame, warm, start, stop, finish, sendText, clearError };
 }

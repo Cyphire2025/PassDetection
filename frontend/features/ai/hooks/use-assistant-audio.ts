@@ -3,9 +3,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { assistantApi, assistantMessage } from "../api";
 import { speechChunks } from "../speech-text";
+import { SpeechAnalyser } from "../speech-analyser";
+import { neutralSpeechFrame } from "../speech-frame";
 import { useVoiceInput } from "./use-voice-input";
 
-type Playback = { source: AudioBufferSourceNode | null; analyser: AnalyserNode; frame: number };
+type Playback = { source: AudioBufferSourceNode | null; analyser: AnalyserNode; speech: SpeechAnalyser; frame: number };
 
 export function useAssistantAudio(onTranscript: (text: string) => void) {
   const microphone = useVoiceInput();
@@ -14,6 +16,7 @@ export function useAssistantAudio(onTranscript: (text: string) => void) {
   const [transcribing, setTranscribing] = useState(false);
   const [error, setError] = useState("");
   const playbackLevel = useRef(0);
+  const speechFrame = useRef(neutralSpeechFrame());
   const context = useRef<AudioContext | null>(null);
   const playback = useRef<Playback | null>(null);
   const recording = useRef<MediaRecorder | null>(null);
@@ -29,7 +32,7 @@ export function useAssistantAudio(onTranscript: (text: string) => void) {
   const stopPlayback = useCallback(() => {
     speechRequest.current?.abort(); speechRequest.current = null;
     const active = playback.current; playback.current = null; playbackLevel.current = 0;
-    if (active) { cancelAnimationFrame(active.frame); active.source?.stop(); active.source?.disconnect(); active.analyser.disconnect(); }
+    if (active) { cancelAnimationFrame(active.frame); active.source?.stop(); active.source?.disconnect(); active.analyser.disconnect(); active.speech.reset(); }
     if (mounted.current) { setSpeaking(false); setPreparing(false); }
   }, []);
 
@@ -53,14 +56,11 @@ export function useAssistantAudio(onTranscript: (text: string) => void) {
       let queued = load(0);
       const analyser = audioContext.createAnalyser(); analyser.fftSize = 512;
       analyser.connect(audioContext.destination);
-      const active: Playback = { source: null, analyser, frame: 0 }; playback.current = active;
-      const samples = new Float32Array(analyser.fftSize);
+      const speech = new SpeechAnalyser(audioContext, analyser, speechFrame);
+      const active: Playback = { source: null, analyser, speech, frame: 0 }; playback.current = active;
       const sample = () => {
         if (playback.current !== active) return;
-        analyser.getFloatTimeDomainData(samples);
-        let energy = 0; for (const value of samples) energy += value * value;
-        const level = Math.min(1, Math.sqrt(energy / samples.length) * 6);
-        playbackLevel.current += (level - playbackLevel.current) * .3;
+        speech.sample(); playbackLevel.current = speechFrame.current.energy;
         active.frame = requestAnimationFrame(sample);
       };
       for (let index = 0; index < chunks.length; index++) {
@@ -153,6 +153,6 @@ export function useAssistantAudio(onTranscript: (text: string) => void) {
   }, [stopInput, stopPlayback]);
 
   const clearError = useCallback(() => { setError(""); clearMicrophoneError(); }, [clearMicrophoneError]);
-  return { microphone, speaking, preparing, transcribing, error: error || microphone.error, playbackLevel,
+  return { microphone, speaking, preparing, transcribing, error: error || microphone.error, playbackLevel, speechFrame,
     startInput, stopInput, speak, stopPlayback, warmAudio, clearError };
 }

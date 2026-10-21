@@ -365,7 +365,7 @@ test("the last chat restores for this account and device with the output collaps
   await expect(page.getByText("What is pending?", { exact: true })).not.toBeAttached();
 });
 
-test("human hologram replaces the cartoon and only the two intended appearance choices remain", async ({ page }, testInfo) => {
+test("human hologram is the default and only the three intended appearance choices remain", async ({ page }, testInfo) => {
   await workspace(page, true);
   await page.emulateMedia({ colorScheme: "dark" });
   await page.setViewportSize({ width: 1440, height: 960 });
@@ -376,7 +376,8 @@ test("human hologram replaces the cartoon and only the two intended appearance c
   await page.screenshot({ path: testInfo.outputPath("human-hologram-female-desktop.png") });
   await page.getByRole("button", { name: "Sculpture appearance", exact: true }).click();
   const panel = page.getByRole("dialog", { name: "Sculpture appearance", exact: true });
-  await expect(panel.getByRole("group", { name: "Particle shape" }).getByRole("button")).toHaveCount(2);
+  await expect(panel.getByRole("group", { name: "Particle shape" }).getByRole("button")).toHaveCount(3);
+  await expect(panel.getByRole("button", { name: "Test", exact: true })).toBeVisible();
   await expect(panel.getByRole("button", { name: /Company logo|Emoji|Text|Talking face/ })).not.toBeAttached();
   await panel.getByRole("button", { name: "Sculpture", exact: true }).click();
   await expect(page.getByTestId("voice-sculpture")).toHaveAttribute("data-renderer", "webgl");
