@@ -26,18 +26,40 @@ vec3 skyColor() {
 }
 `;
 
+const SNOW_FIELD = `
+uniform vec4 snowIsland;
+vec3 sampleSnowField(vec2 worldXZ) {
+  // All added relief samples one field, so intersecting copies cannot disagree
+  // about baked lighting or wind brightness at the same world-space point.
+  // A ~370px island spans 5.6 world units, close to the authored patch density.
+  vec2 uv = abs(mod(worldXZ * .18, 2.0) - 1.0);
+  uv = mix(snowIsland.xy, snowIsland.zw, uv);
+  vec3 snow = texture2D(tMap, uv).rgb;
+  float drift = texture2D(tWind, worldXZ * .08 - time * vec2(.08, .10)).r;
+  return snow + drift * .08;
+}
+vec3 snowSurface() {
+  vec3 snow = sampleSnowField(vWorld.xz);
+  snow *= .90 + .10 * smoothstep(-2.6, .4, vWorld.y);
+  return mix(snow, skyColor(), smoothstep(35.0, 150.0, vDepth));
+}
+`;
+
 export const TERRAIN_FRAGMENT = `
 ${ENVIRONMENT}
 uniform sampler2D tMap, tWind;
-uniform float mountain, radiusScale;
+uniform float mountain, radiusScale, edgePass, worldSnow;
 uniform vec2 edge;
+${SNOW_FIELD}
 void main() {
   vec3 color = texture2D(tMap, vUv).rgb;
   if (mountain > .5) {
     float fogHeight = clamp(.5 - vWorld.y / 20.0, 0.0, 1.0);
     float fogDistance = clamp(vDepth / 200.0, 0.0, 1.0) * .75;
     vec3 haze = skyColor() * 1.1 + smoothstep(.5, 1.0, color.r);
-    color = mix(color, haze, fogHeight + fogDistance);
+    color = mix(color, haze, clamp(fogHeight + fogDistance, 0.0, 1.0));
+  } else if (worldSnow > .5) {
+    color = snowSurface();
   } else {
     vec2 windSpace = vWorld.xz + vWorld.xy;
     float drift = texture2D(tWind, windSpace * .1 - time * vec2(.25, .30)).r;
@@ -46,12 +68,26 @@ void main() {
     color = min(vec3(1.0), color + drift * color.r * 2.0);
   }
   float fade = 1.0 - smoothstep(edge.x, edge.y, length(vLocal.xz) * radiusScale);
-  gl_FragColor = vec4(color, fade);
+  if (edgePass < .5) {
+    if (fade < .999) discard;
+    gl_FragColor = vec4(color, 1.0);
+  } else {
+    if (fade < .002 || fade >= .999) discard;
+    gl_FragColor = vec4(color, fade);
+  }
 }
 `;
 
 export const SKY_FRAGMENT = `${ENVIRONMENT}
 void main() { gl_FragColor = vec4(skyColor(), 1.0); }
+`;
+
+export const FLOOR_FRAGMENT = `${ENVIRONMENT}
+uniform sampler2D tMap, tWind;
+${SNOW_FIELD}
+void main() {
+  gl_FragColor = vec4(snowSurface(), 1.0);
+}
 `;
 
 export const SMOKE_FRAGMENT = `
@@ -89,7 +125,7 @@ void main() {
   vec4 view = modelViewMatrix * vec4(p, 1.0);
   gl_Position = projectionMatrix * view;
   gl_PointSize = clamp((1.3 + seed * 1.8) * 18.0 / max(-view.z, .5), .8, 4.0) * pixelRatio;
-  vAlpha = (.15 + seed * .30) * (1.0 - smoothstep(30.0, 65.0, -view.z));
+  vAlpha = (.15 + seed * .30) * smoothstep(.5, 2.0, -view.z) * (1.0 - smoothstep(30.0, 65.0, -view.z));
 }
 `;
 

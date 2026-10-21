@@ -3,10 +3,10 @@ import { observeHologramDiagnostics } from "./test-hologram-diagnostics";
 
 type PortraitProbe = {
   id: number; draws: number; frames: number; frameTime: number; firstFrameTime: number; vertices: number; points: number;
-  uniforms: Record<string, number[]>; headUniforms: Record<string, number[]>; errors: string[];
+  uniforms: Record<string, number[]>; headUniforms: Record<string, number[]>; landscapeUniforms: Record<string, number[]>; landscapeCameras: number[][]; errors: string[];
   resources: Record<"buffers" | "programs" | "textures" | "framebuffers" | "renderbuffers", Set<object>>;
   lost: boolean;
-  pressurePasses: number; simulationPasses: number; texturedPoints: number; landscapeDraws: number; maximumImpulse: number;
+  pressurePasses: number; simulationPasses: number; texturedPoints: number; landscapeDraws: number; mountainDraws: number; maximumImpulse: number;
 };
 type ProbeCanvas = HTMLCanvasElement & { __portraitProbe?: PortraitProbe };
 type ProbeWindow = Window & { __portraitProbes: PortraitProbe[] };
@@ -41,8 +41,8 @@ export async function observeTestHologram(page: Page) {
       const canvas = context.canvas as ProbeCanvas;
       if (!canvas.__portraitProbe) {
         const state: PortraitProbe = { id: probes.length, draws: 0, frames: 0, frameTime: -1, firstFrameTime: 0, vertices: 0, points: 0,
-          uniforms: {}, headUniforms: {}, errors: [], lost: false,
-          pressurePasses: 0, simulationPasses: 0, texturedPoints: 0, landscapeDraws: 0, maximumImpulse: 0,
+          uniforms: {}, headUniforms: {}, landscapeUniforms: {}, landscapeCameras: [], errors: [], lost: false,
+          pressurePasses: 0, simulationPasses: 0, texturedPoints: 0, landscapeDraws: 0, mountainDraws: 0, maximumImpulse: 0,
           resources: { buffers: new Set(), programs: new Set(), textures: new Set(), framebuffers: new Set(), renderbuffers: new Set() } };
         canvas.__portraitProbe = state; probes.push(state);
         canvas.addEventListener("webglcontextlost", () => { state.lost = true; Object.values(state.resources).forEach((resources) => resources.clear()); });
@@ -71,7 +71,17 @@ export async function observeTestHologram(page: Page) {
       };
       if (boundTargets.get(context) && texture("uPressure") && texture("uDivergence")) state.pressurePasses++;
       if (boundTargets.get(context) && texture("uFluid") && texture("textureDisplacement")) state.simulationPasses++;
-      if (mode === context.TRIANGLES && texture("tMap", uploadedTextures) && texture("tWind", uploadedTextures)) state.landscapeDraws++;
+      if (mode === context.TRIANGLES && texture("tMap", uploadedTextures) && texture("tWind", uploadedTextures)) {
+        state.landscapeDraws++;
+        if ((uniforms?.mountain?.[0] ?? 0) > .5) state.mountainDraws++;
+        // Read the camera submitted to terrain, not later portrait/compositor matrices.
+        state.landscapeUniforms = { ...uniforms };
+        const camera = uniforms?.viewMatrix, previous = state.landscapeCameras.at(-1);
+        if (camera && (!previous || camera.some((value, index) => value !== previous[index]))) {
+          state.landscapeCameras.push([...camera]);
+          if (state.landscapeCameras.length > 64) state.landscapeCameras.shift();
+        }
+      }
       if (mode !== context.POINTS) return;
       state.points = Math.max(state.points, count);
       if (uniforms?.articulation) state.headUniforms = { ...uniforms };
@@ -171,9 +181,9 @@ export async function testHologramSignal(page: Page, id?: number) {
       : (window as unknown as ProbeWindow).__portraitProbes[index];
     if (!probe) throw new Error("The Test portrait has not submitted WebGL work");
     return { id: probe.id, draws: probe.draws, frames: probe.frames, vertices: probe.vertices, points: probe.points,
-      uniforms: probe.uniforms, headUniforms: probe.headUniforms, errors: probe.errors, lost: probe.lost,
+      uniforms: probe.uniforms, headUniforms: probe.headUniforms, landscapeUniforms: probe.landscapeUniforms, errors: probe.errors, lost: probe.lost,
       pressurePasses: probe.pressurePasses, simulationPasses: probe.simulationPasses, texturedPoints: probe.texturedPoints,
-      landscapeDraws: probe.landscapeDraws, maximumImpulse: probe.maximumImpulse,
+      landscapeDraws: probe.landscapeDraws, mountainDraws: probe.mountainDraws, landscapeCameras: probe.landscapeCameras, maximumImpulse: probe.maximumImpulse,
       buffers: probe.resources.buffers.size, programs: probe.resources.programs.size, textures: probe.resources.textures.size,
       framebuffers: probe.resources.framebuffers.size, renderbuffers: probe.resources.renderbuffers.size };
   }, id);

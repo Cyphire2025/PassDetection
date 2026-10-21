@@ -16,6 +16,13 @@ their workflow at https://www.awwwards.com/igloo-inc-case-study.html.
 
 The original mesh transforms, camera position and 30-degree perspective are preserved;
 the camera target is raised to keep the mountain summits visible above the assistant.
+The Test view extends that forward composition with staggered, varied copies of the
+same terrain around the camera, overlapping snowfields and a continuous ground base.
+Landscape mode turns the camera in place through a full 360 degrees, with a bounded
+vertical tilt; Face mode independently rotates the portrait. Reset returns only the
+selected view to its starting orientation. This surrounding layout is our integration,
+not an additional environment taken from the reference site. All placements share
+the existing geometry and textures; rotation does not load additional assets.
 The central igloo building, branding, copy, audio and interaction code are
 not included. The ground texture is the original `ground_sansigloo_color.ktx2`.
 Terrain detail is baked into the 2048×2048 color textures; the original mountain

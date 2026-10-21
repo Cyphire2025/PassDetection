@@ -12,7 +12,7 @@ import { createHeadMaterials } from "./test-hologram-materials";
 import { HologramSimulation } from "./test-hologram-simulation";
 import { createHologramStage } from "./test-hologram-stage";
 
-export type HeadView = { yaw: number; pitch: number; zoom: number; x: number; y: number; influence: number; barrier: number };
+export type HeadView = { yaw: number; pitch: number; zoom: number; landscapeYaw: number; landscapePitch: number; x: number; y: number; influence: number; barrier: number };
 type PortraitFrame = { left: number; top: number; width: number; height: number };
 
 /** Owns the complete GPU lifetime. React only owns mounting and input events. */
@@ -110,7 +110,7 @@ export class TestHologramEngine {
       if (this.destroyed) return;
       await this.renderer.compileAsync(this.scene, this.camera);
       if (this.destroyed) return;
-      const view = { yaw: -.18, pitch: .02, zoom: 1, x: 0, y: 0, influence: 0, barrier: 0 };
+      const view = { yaw: -.18, pitch: .02, zoom: 1, landscapeYaw: 0, landscapePitch: 0, x: 0, y: 0, influence: 0, barrier: 0 };
       // Compile fluid, particle-state, lighting and postprocessing behind the still.
       this.draw(0, view, neutralSpeechFrame(), true, true, 0);
       this.draw(0, view, neutralSpeechFrame(), true, false, 0);
@@ -163,6 +163,7 @@ export class TestHologramEngine {
     u.blink.value = motion && blinkPhase < .16 ? Math.sin(blinkPhase / .16 * Math.PI) : 0;
     u.time.value = time; u.motion.value = Number(motion); u.dark.value = 0; u.opacity.value = opacity;
     u.pixelRatio.value = this.dpr; u.viewportHeight.value = this.height; u.cursor.value.copy(this.pointer);
+    this.stage?.lookAround(view.landscapeYaw, view.landscapePitch);
     this.stage?.update(time, view.barrier, dark, opacity);
     if (this.bloom) this.bloom.strength = .24;
     this.composer.render(dt);
