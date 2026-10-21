@@ -7,7 +7,7 @@
 
 # ── Stage 1: Dependency Builder ───────────────────────────────────────────────
 # Reviewed OpenCV source archive, image-processing modules only.
-FROM python:3.11.17-slim@sha256:e88e9763f943ec1834f992a4b51e0f24500486803e8bc534e5767af9ea65f6ce AS opencv-build
+FROM python:3.14.8-slim@sha256:a2b82f3c48559aa0a8446d9af49826b6e2b2016f4cd2afabfe6013ec53729170 AS opencv-build
 RUN apt-get update && apt-get install -y --no-install-recommends build-essential && rm -rf /var/lib/apt/lists/*
 WORKDIR /build
 COPY requirements-image-build.lock .
@@ -44,7 +44,7 @@ ENV PATH="/opt/postgresql/bin:$PATH"
 ENV LD_LIBRARY_PATH=/opt/postgresql/lib
 RUN python /build/build_postgresql_client.py
 
-FROM python:3.11.17-slim@sha256:e88e9763f943ec1834f992a4b51e0f24500486803e8bc534e5767af9ea65f6ce AS builder
+FROM python:3.14.8-slim@sha256:a2b82f3c48559aa0a8446d9af49826b6e2b2016f4cd2afabfe6013ec53729170 AS builder
 
 ARG PIP_VERSION=26.2.1
 
@@ -77,7 +77,7 @@ RUN python -m pip install --no-cache-dir "pip==${PIP_VERSION}" && \
     python -m pip uninstall -y setuptools wheel
 
 # ── Stage 2: Production Runtime ──────────────────────────────────────────────
-FROM python:3.11.17-slim@sha256:e88e9763f943ec1834f992a4b51e0f24500486803e8bc534e5767af9ea65f6ce AS runtime
+FROM python:3.14.8-slim@sha256:a2b82f3c48559aa0a8446d9af49826b6e2b2016f4cd2afabfe6013ec53729170 AS runtime
 
 ARG APP_REVISION=unknown
 
