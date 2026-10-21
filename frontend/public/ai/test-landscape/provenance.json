@@ -1,0 +1,143 @@
+{
+  "retrieved": "2026-10-22",
+  "purpose": "Local comparison while implementing the user's request for the original landscape. Asset ownership is unchanged; no public reuse license has been found.",
+  "application_code": "Original integration code; no Igloo application JavaScript copied. Decoder code is from the pinned three npm dependency.",
+  "assets": [
+    {
+      "file": "mountain.drc",
+      "source": "https://www.igloo.inc/assets/geometries/mountain.drc",
+      "bytes": 11846,
+      "sha256": "cd14edcb22a7453631ed17de5d8ca1b4d82902011201e1989466b1fb766c9c45",
+      "rights": "Igloo, Inc. All Rights Reserved. No public reuse license located."
+    },
+    {
+      "file": "ground.drc",
+      "source": "https://www.igloo.inc/assets/geometries/ground.drc",
+      "bytes": 18861,
+      "sha256": "aac98a1cc006a7ac33b245a963a17d7aa86a0664dc0b73d860fd047a056247f7",
+      "rights": "Igloo, Inc. All Rights Reserved. No public reuse license located."
+    },
+    {
+      "file": "patch.drc",
+      "source": "https://www.igloo.inc/assets/geometries/igloo/patch.drc",
+      "bytes": 240,
+      "sha256": "5163022aad65b6d3aead4b837d3cb66feb172a5206221004cc7fb61f64ac53ae",
+      "rights": "Igloo, Inc. All Rights Reserved. No public reuse license located."
+    },
+    {
+      "file": "mountain-color.ktx2",
+      "source": "https://www.igloo.inc/assets/images/igloo/mountain_color.ktx2",
+      "bytes": 591988,
+      "sha256": "32f523d29a44e5a32aa75877ed4c172b8e5af283c29bfab2ca713e76450a35d6",
+      "rights": "Igloo, Inc. All Rights Reserved. No public reuse license located."
+    },
+    {
+      "file": "ground-color.ktx2",
+      "source": "https://www.igloo.inc/assets/images/igloo/ground_sansigloo_color.ktx2",
+      "bytes": 628793,
+      "sha256": "56dbac44ec5b55f31842ea913fbb08e8a56753cda7eed4942db76d54b7e4a216",
+      "rights": "Igloo, Inc. All Rights Reserved. No public reuse license located."
+    },
+    {
+      "file": "wind.ktx2",
+      "source": "https://www.igloo.inc/assets/images/wind_noise.ktx2",
+      "bytes": 18158,
+      "sha256": "c4c6d024e3d7a15661ebabc188b7a92e69433bdf7cf029aaef7039e035e93d92",
+      "rights": "Igloo, Inc. All Rights Reserved. No public reuse license located."
+    },
+    {
+      "file": "grade.ktx2",
+      "source": "https://www.igloo.inc/assets/images/igloo/igloo_scene.ktx2",
+      "bytes": 14484,
+      "sha256": "69af3267e3a083dc901486561aa7e11a5d39ee756d8c3369a3073b8a9b52665f",
+      "rights": "Igloo, Inc. All Rights Reserved. No public reuse license located."
+    }
+  ],
+  "derived": [
+    {
+      "file": "mountain.bin",
+      "source": "mountain.drc",
+      "transform": "Decoded original POSITION/NORMAL/UV Float32 values and triangle indices; no geometry edits or quantization.",
+      "rebuild": "node scripts/decode-test-landscape.mjs",
+      "bytes": 71816,
+      "sha256": "56a853ebae6e850744ccbaa3664a6ac78b03b51ce0919b8bcdb453390394d062"
+    },
+    {
+      "file": "ground.bin",
+      "source": "ground.drc",
+      "transform": "Decoded original POSITION/NORMAL/UV Float32 values and triangle indices; no geometry edits or quantization.",
+      "rebuild": "node scripts/decode-test-landscape.mjs",
+      "bytes": 118730,
+      "sha256": "1bc29662c548d7db189754cb0858ef6b5c3973995b2f64dd50ffe430f8542b85"
+    },
+    {
+      "file": "patch.bin",
+      "source": "patch.drc",
+      "transform": "Decoded original POSITION/NORMAL/UV Float32 values and triangle indices; no geometry edits or quantization.",
+      "rebuild": "node scripts/decode-test-landscape.mjs",
+      "bytes": 156,
+      "sha256": "1c40141aa58946d8f7a0e6e6f7694d96432102f486e2949ec751d7d66ebf4f1d"
+    },
+    {
+      "file": "grade-rgba16f.bin",
+      "source": "grade.ktx2",
+      "transform": "Lossless decompression of the sole KTX2 Zstd level; unchanged little-endian RGBA16F texels, 32×32×32.",
+      "rebuild": "node scripts/decode-test-landscape.mjs",
+      "bytes": 262144,
+      "sha256": "38a11918266bd9fa0ca96ab73187586e39be86fd81374a317bd48968d4fb9186"
+    },
+    {
+      "file": "mountain-color.webp",
+      "source": "mountain-color.ktx2",
+      "transform": "Base level decoded by pinned Basis Universal to RGBA32 and encoded losslessly without resizing, orientation changes or color conversion. Pixel equality checked after decoding the image; browser regenerates mipmaps.",
+      "rebuild": "node scripts/decode-test-landscape.mjs",
+      "bytes": 1171222,
+      "sha256": "57044731f6e0164dd80cd42c57e280067877f114eb8c9675a44100592fe4eba2",
+      "width": 2048,
+      "height": 2048,
+      "rgba_sha256": "4de964d2975a58982b20d3ca7d96f3cdc37b03c448ecdffc3fd06526ce23fe38",
+      "compared_bytes": {
+        "png": 1730984,
+        "lossless_webp": 1171222
+      }
+    },
+    {
+      "file": "ground-color.webp",
+      "source": "ground-color.ktx2",
+      "transform": "Base level decoded by pinned Basis Universal to RGBA32 and encoded losslessly without resizing, orientation changes or color conversion. Pixel equality checked after decoding the image; browser regenerates mipmaps.",
+      "rebuild": "node scripts/decode-test-landscape.mjs",
+      "bytes": 1490748,
+      "sha256": "6195cb0cf275045bbf74572c1b1e39d1bdccc28b304a8ef547fe9ab7a0656c5c",
+      "width": 2048,
+      "height": 2048,
+      "rgba_sha256": "fb0630ecf2dfe91d9f303352753fce3283145a052c5268035abbf55870b7882d",
+      "compared_bytes": {
+        "png": 2243978,
+        "lossless_webp": 1490748
+      }
+    },
+    {
+      "file": "wind.webp",
+      "source": "wind.ktx2",
+      "transform": "Base level decoded by pinned Basis Universal to RGBA32 and encoded losslessly without resizing, orientation changes or color conversion. Pixel equality checked after decoding the image; browser regenerates mipmaps.",
+      "rebuild": "node scripts/decode-test-landscape.mjs",
+      "bytes": 17828,
+      "sha256": "a1fb5996c4082053ac9b73daee58fa0ccac5be985b5dda0399b022d3e44acb33",
+      "width": 256,
+      "height": 256,
+      "rgba_sha256": "7bfc36a3d0113844118de3661d98abb8f5d60cc884bf3760a363f69a4d28e811",
+      "compared_bytes": {
+        "png": 29054,
+        "lossless_webp": 17828
+      }
+    }
+  ],
+  "build_tools": {
+    "package": "three@0.186.1",
+    "mesh_decoder": "examples/jsm/libs/draco/draco_wasm_wrapper.js + draco_decoder.wasm (Apache-2.0)",
+    "lut_decoder": "examples/jsm/libs/zstddec.module.js",
+    "runtime": "Ordinary same-origin fetch and native ImageBitmap decoding. No runtime decoder JavaScript, WASM, workers, data: requests or string evaluation.",
+    "texture_decoder": "examples/jsm/libs/basis/basis_transcoder.js + basis_transcoder.wasm (Apache-2.0), offline only",
+    "image_encoder": "sharp@0.35.5; lossless PNG/WebP compared, round-trip RGBA equality verified"
+  }
+}

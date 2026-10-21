@@ -1,17 +1,19 @@
 import type { Page } from "@playwright/test";
+import { observeHologramDiagnostics } from "./test-hologram-diagnostics";
 
 type PortraitProbe = {
-  id: number; draws: number; frames: number; frameTime: number; vertices: number; points: number;
+  id: number; draws: number; frames: number; frameTime: number; firstFrameTime: number; vertices: number; points: number;
   uniforms: Record<string, number[]>; headUniforms: Record<string, number[]>; errors: string[];
   resources: Record<"buffers" | "programs" | "textures" | "framebuffers" | "renderbuffers", Set<object>>;
   lost: boolean;
-  pressurePasses: number; simulationPasses: number; texturedPoints: number; maximumImpulse: number;
+  pressurePasses: number; simulationPasses: number; texturedPoints: number; landscapeDraws: number; maximumImpulse: number;
 };
 type ProbeCanvas = HTMLCanvasElement & { __portraitProbe?: PortraitProbe };
 type ProbeWindow = Window & { __portraitProbes: PortraitProbe[] };
 
 /** Observe real GPU work; do not replace rendering, clocks, or shader output. */
 export async function observeTestHologram(page: Page) {
+  await observeHologramDiagnostics(page);
   await page.addInitScript(() => {
     const probes: PortraitProbe[] = [];
     Object.defineProperty(window, "__portraitProbes", { value: probes });
@@ -25,12 +27,22 @@ export async function observeTestHologram(page: Page) {
     const textureBindings = new WeakMap<WebGLRenderingContext, Map<number, WebGLTexture | null>>();
     const boundTargets = new WeakMap<WebGLRenderingContext, WebGLFramebuffer | null>();
     const renderedTextures = new WeakSet<WebGLTexture>();
+    const uploadedTextures = new WeakSet<WebGLTexture>();
+    const uploaded = (context: WebGLRenderingContext, args: unknown[], subimage: boolean, compressed: boolean) => {
+      const image = args[subimage ? 6 : 5] as { width?: number; height?: number } | null;
+      const numericSize = compressed || args.length >= 9;
+      const width = numericSize ? args[subimage ? 4 : 3] : image?.width;
+      const height = numericSize ? args[subimage ? 5 : 4] : image?.height;
+      const data = compressed ? args[subimage ? 7 : 6] : numericSize ? args[8] : image;
+      const texture = textureBindings.get(context)?.get(activeUnits.get(context) ?? 0);
+      if (texture && data && typeof width === "number" && typeof height === "number" && width > 4 && height > 4) uploadedTextures.add(texture);
+    };
     const probe = (context: WebGLRenderingContext) => {
       const canvas = context.canvas as ProbeCanvas;
       if (!canvas.__portraitProbe) {
-        const state: PortraitProbe = { id: probes.length, draws: 0, frames: 0, frameTime: -1, vertices: 0, points: 0,
+        const state: PortraitProbe = { id: probes.length, draws: 0, frames: 0, frameTime: -1, firstFrameTime: 0, vertices: 0, points: 0,
           uniforms: {}, headUniforms: {}, errors: [], lost: false,
-          pressurePasses: 0, simulationPasses: 0, texturedPoints: 0, maximumImpulse: 0,
+          pressurePasses: 0, simulationPasses: 0, texturedPoints: 0, landscapeDraws: 0, maximumImpulse: 0,
           resources: { buffers: new Set(), programs: new Set(), textures: new Set(), framebuffers: new Set(), renderbuffers: new Set() } };
         canvas.__portraitProbe = state; probes.push(state);
         canvas.addEventListener("webglcontextlost", () => { state.lost = true; Object.values(state.resources).forEach((resources) => resources.clear()); });
@@ -48,14 +60,18 @@ export async function observeTestHologram(page: Page) {
     };
     const draw = (context: WebGLRenderingContext, mode: number, count: number) => {
       const state = probe(context); state.draws++; state.vertices = Math.max(state.vertices, count);
-      if (state.frameTime !== frameTime) { state.frameTime = frameTime; state.frames++; }
+      if (state.frameTime !== frameTime) {
+        if (!state.frames) state.firstFrameTime = frameTime;
+        state.frameTime = frameTime; state.frames++;
+      }
       const program = activePrograms.get(context), uniforms = program && programUniforms.get(program);
-      const texture = (name: string) => {
+      const texture = (name: string, textures = renderedTextures) => {
         const unit = uniforms?.[name]?.[0], value = unit === undefined ? null : textureBindings.get(context)?.get(unit);
-        return Boolean(value && renderedTextures.has(value));
+        return Boolean(value && textures.has(value));
       };
       if (boundTargets.get(context) && texture("uPressure") && texture("uDivergence")) state.pressurePasses++;
       if (boundTargets.get(context) && texture("uFluid") && texture("textureDisplacement")) state.simulationPasses++;
+      if (mode === context.TRIANGLES && texture("tMap", uploadedTextures) && texture("tWind", uploadedTextures)) state.landscapeDraws++;
       if (mode !== context.POINTS) return;
       state.points = Math.max(state.points, count);
       if (uniforms?.articulation) state.headUniforms = { ...uniforms };
@@ -75,6 +91,20 @@ export async function observeTestHologram(page: Page) {
         const bindings = textureBindings.get(this) ?? new Map<number, WebGLTexture | null>();
         bindings.set(activeUnits.get(this) ?? 0, value); textureBindings.set(this, bindings);
         return bindTexture.call(this, target, value);
+      };
+      const texImage2D = prototype.texImage2D, texSubImage2D = prototype.texSubImage2D;
+      prototype.texImage2D = function (...args: unknown[]) {
+        Reflect.apply(texImage2D, this, args); uploaded(this, args, false, false);
+      };
+      prototype.texSubImage2D = function (...args: unknown[]) {
+        Reflect.apply(texSubImage2D, this, args); uploaded(this, args, true, false);
+      };
+      const compressedTexImage2D = prototype.compressedTexImage2D, compressedTexSubImage2D = prototype.compressedTexSubImage2D;
+      prototype.compressedTexImage2D = function (...args: Parameters<WebGL2RenderingContext["compressedTexImage2D"]>) {
+        Reflect.apply(compressedTexImage2D, this, args); uploaded(this, args, false, true);
+      };
+      prototype.compressedTexSubImage2D = function (...args: Parameters<WebGL2RenderingContext["compressedTexSubImage2D"]>) {
+        Reflect.apply(compressedTexSubImage2D, this, args); uploaded(this, args, true, true);
       };
       const bindFramebuffer = prototype.bindFramebuffer, framebufferTexture2D = prototype.framebufferTexture2D;
       prototype.bindFramebuffer = function (target, value) { boundTargets.set(this, value); return bindFramebuffer.call(this, target, value); };
@@ -135,17 +165,16 @@ export async function observeTestHologram(page: Page) {
 }
 
 export async function testHologramSignal(page: Page, id?: number) {
-  const probeId = id ?? await page.getByTestId("particle-face-test").locator("canvas").evaluate((element) => {
-    const probe = (element as ProbeCanvas).__portraitProbe;
-    if (!probe) throw new Error("The Test portrait has not submitted WebGL work");
-    return probe.id;
-  });
   return page.evaluate((index) => {
-    const probe = (window as unknown as ProbeWindow).__portraitProbes[index];
+    const probe = index === undefined
+      ? (document.querySelector('[data-testid="particle-face-test"] canvas') as ProbeCanvas | null)?.__portraitProbe
+      : (window as unknown as ProbeWindow).__portraitProbes[index];
+    if (!probe) throw new Error("The Test portrait has not submitted WebGL work");
     return { id: probe.id, draws: probe.draws, frames: probe.frames, vertices: probe.vertices, points: probe.points,
       uniforms: probe.uniforms, headUniforms: probe.headUniforms, errors: probe.errors, lost: probe.lost,
-      pressurePasses: probe.pressurePasses, simulationPasses: probe.simulationPasses, texturedPoints: probe.texturedPoints, maximumImpulse: probe.maximumImpulse,
+      pressurePasses: probe.pressurePasses, simulationPasses: probe.simulationPasses, texturedPoints: probe.texturedPoints,
+      landscapeDraws: probe.landscapeDraws, maximumImpulse: probe.maximumImpulse,
       buffers: probe.resources.buffers.size, programs: probe.resources.programs.size, textures: probe.resources.textures.size,
       framebuffers: probe.resources.framebuffers.size, renderbuffers: probe.resources.renderbuffers.size };
-  }, probeId);
+  }, id);
 }

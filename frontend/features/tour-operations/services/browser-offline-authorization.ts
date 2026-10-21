@@ -1,5 +1,5 @@
 
-import { z } from "zod";
+import { z } from "@/lib/zod";
 
 import { useAuthStore } from "@/stores/auth.store";
 import apiClient from "@/lib/api/client";

@@ -28,9 +28,14 @@ export const TestHologram = forwardRef<SculptureHandle, Props>(function TestHolo
     if (!element || !container) return;
     const abort = new AbortController(), reduced = matchMedia("(prefers-reduced-motion: reduce)");
     let engine: TestHologramEngine | null = null, head: HumanHeadGeometry | null = null;
-    let running = false, ready = false, visible = true, disposed = false, lastTime = 0, clock = 0, idleAt = 0;
+    let running = false, ready = false, visible = true, disposed = false, lastTime = 0, clock = 0;
     let drag: { id: number; x: number; y: number } | null = null;
     let width = container.clientWidth, height = container.clientHeight;
+    const resizeScene = () => {
+      const bounds = container.getBoundingClientRect();
+      width = bounds.width; height = bounds.height;
+      engine?.resize(window.innerWidth, window.innerHeight, bounds);
+    };
     const view = initialView(), target = initialView();
     const entrance = { opacity: 1 };
     const animations = gsap.context(() => {}, container);
@@ -40,9 +45,9 @@ export const TestHologram = forwardRef<SculptureHandle, Props>(function TestHolo
       const now = performance.now();
       const animate = current.current.motion && !reduced.matches;
       if (!animate) { gsap.killTweensOf(entrance); gsap.killTweensOf(target); entrance.opacity = 1; }
-      const elapsed = lastTime ? Math.min((now - lastTime) / 1000, .05) : 1 / 60;
+      const elapsed = lastTime ? Math.min((now - lastTime) / 1000, .25) : 1 / 60;
       lastTime = now;
-      if (animate) clock += elapsed;
+      if (animate) clock += Math.min(elapsed, .05);
       const ease = animate ? 1 - Math.exp(-elapsed * (drag ? 18 : 9)) : 1;
       view.yaw += (target.yaw - view.yaw) * ease; view.pitch += (target.pitch - view.pitch) * ease;
       view.zoom += (target.zoom - view.zoom) * ease;
@@ -71,7 +76,7 @@ export const TestHologram = forwardRef<SculptureHandle, Props>(function TestHolo
       try {
         ready = false; engine?.destroy();
         const candidate = new TestHologramEngine(element, head); engine = candidate;
-        candidate.resize(width, height);
+        resizeScene();
         void candidate.prepare().then(() => {
           if (disposed || engine !== candidate) return;
           ready = true;
@@ -93,14 +98,16 @@ export const TestHologram = forwardRef<SculptureHandle, Props>(function TestHolo
         target.pitch = clamp(target.pitch + (event.clientY - drag.y) / Math.max(200, height) * 2, -.65, .65);
         drag.x = event.clientX; drag.y = event.clientY;
       }
-      idleAt = performance.now(); wake();
+      // Keep the hover active until the pointer leaves. A slow render must not
+      // expire an input event before the user gets to see its response.
+      wake();
     };
     const down = (event: PointerEvent) => {
-      if (event.button !== 0) return;
+      if (event.button !== 0 || (event.target instanceof Element && event.target.closest("button"))) return;
       gsap.killTweensOf(target);
-      drag = { id: event.pointerId, x: event.clientX, y: event.clientY }; element.setPointerCapture(event.pointerId); element.focus({ preventScroll: true }); move(event);
+      drag = { id: event.pointerId, x: event.clientX, y: event.clientY }; container.setPointerCapture(event.pointerId); element.focus({ preventScroll: true }); move(event);
     };
-    const up = (event: PointerEvent) => { if (drag?.id !== event.pointerId) return; drag = null; if (element.hasPointerCapture(event.pointerId)) element.releasePointerCapture(event.pointerId); target.influence = 0; wake(); };
+    const up = (event: PointerEvent) => { if (drag?.id !== event.pointerId) return; drag = null; if (container.hasPointerCapture(event.pointerId)) container.releasePointerCapture(event.pointerId); target.influence = 0; wake(); };
     const leave = () => { if (!drag) { target.influence = 0; wake(); } };
     const release = () => { drag = null; target.influence = 0; wake(); };
     const key = (event: KeyboardEvent) => {
@@ -113,25 +120,27 @@ export const TestHologram = forwardRef<SculptureHandle, Props>(function TestHolo
       wake();
     };
     const lost = (event: Event) => { event.preventDefault(); fail(); };
-    const resize = new ResizeObserver(([entry]) => { width = entry.contentRect.width; height = entry.contentRect.height; engine?.resize(width, height); wake(); }); resize.observe(container);
+    const onResize = () => { resizeScene(); wake(); };
+    const resize = new ResizeObserver(onResize); resize.observe(container);
     const intersection = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; if (!visible) stop(); else wake(); }); intersection.observe(container);
     const visibility = () => { if (document.hidden) stop(); else wake(); };
-    const decay = window.setInterval(() => { if (!drag && performance.now() - idleAt > 130) target.influence = 0; }, 150);
-    element.addEventListener("pointermove", move); element.addEventListener("pointerdown", down); element.addEventListener("pointerup", up); element.addEventListener("pointercancel", up); element.addEventListener("lostpointercapture", release); element.addEventListener("pointerleave", leave); element.addEventListener("keydown", key);
+    container.addEventListener("pointermove", move); container.addEventListener("pointerdown", down); container.addEventListener("pointerup", up); container.addEventListener("pointercancel", up); container.addEventListener("lostpointercapture", release); container.addEventListener("pointerleave", leave); element.addEventListener("keydown", key);
     element.addEventListener("webglcontextlost", lost); element.addEventListener("webglcontextrestored", initialize);
+    window.addEventListener("resize", onResize);
     document.addEventListener("visibilitychange", visibility); reduced.addEventListener("change", wake);
     return () => {
-      disposed = true; abort.abort(); stop(); animations.revert(); clearInterval(decay); resize.disconnect(); intersection.disconnect(); engine?.destroy(true); head = null;
-      element.removeEventListener("pointermove", move); element.removeEventListener("pointerdown", down); element.removeEventListener("pointerup", up); element.removeEventListener("pointercancel", up); element.removeEventListener("lostpointercapture", release); element.removeEventListener("pointerleave", leave); element.removeEventListener("keydown", key);
+      disposed = true; abort.abort(); stop(); animations.revert(); resize.disconnect(); intersection.disconnect(); engine?.destroy(true); head = null;
+      container.removeEventListener("pointermove", move); container.removeEventListener("pointerdown", down); container.removeEventListener("pointerup", up); container.removeEventListener("pointercancel", up); container.removeEventListener("lostpointercapture", release); container.removeEventListener("pointerleave", leave); element.removeEventListener("keydown", key);
+      window.removeEventListener("resize", onResize);
       element.removeEventListener("webglcontextlost", lost); element.removeEventListener("webglcontextrestored", initialize); document.removeEventListener("visibilitychange", visibility); reduced.removeEventListener("change", wake);
       wakeRef.current = resetRef.current = () => undefined;
     };
   }, [appearance, presentationRef, speechFrameRef]);
-  return <div ref={root} className={styles.root} data-testid="particle-face-test" data-renderer={renderer} data-appearance={appearance} data-motion={motion} data-theme={dark ? "dark" : "light"}>
+  return <div ref={root} className={styles.root} aria-busy={renderer === "loading"} data-testid="particle-face-test" data-renderer={renderer} data-appearance={appearance} data-motion={motion} data-theme={dark ? "dark" : "light"}>
     <div className={styles.stageGlow} aria-hidden="true" />
     {renderer !== "webgl" ? <div className={styles.fallback}><Image src={`/ai/human-head/${appearance}-still.png`} fill unoptimized alt={`${appearance === "male" ? "Male" : "Female"} 3D hologram still view`} sizes="(max-width: 639px) 80vw, 480px" /></div> : null}
     <canvas key={appearance} ref={canvas} className={styles.canvas} tabIndex={renderer === "webgl" ? 0 : -1} aria-hidden={renderer !== "webgl"} role="img" aria-label={`${appearance === "male" ? "Male" : "Female"} interactive 3D particle face`} aria-describedby={instructions} />
-    <div className={styles.controls}><span id={instructions}>{renderer === "fallback" ? "Still view · 3D graphics unavailable" : "Drag to rotate · Move to illuminate"}<span className={styles.screenReader}>. Use arrow keys to rotate, plus or minus to zoom, and Home to reset.</span></span><button type="button" aria-label="Reset 3D view" onClick={() => resetRef.current()} disabled={renderer !== "webgl"}><RotateCcw size={13} /></button></div>
+    <div className={styles.controls}><span id={instructions}>{renderer === "loading" ? "Preparing the 3D landscape…" : renderer === "fallback" ? "Still view · 3D graphics unavailable" : "Drag to rotate · Move to illuminate"}<span className={styles.screenReader}>. Use arrow keys to rotate, plus or minus to zoom, and Home to reset.</span></span><button type="button" aria-label="Reset 3D view" onClick={() => resetRef.current()} disabled={renderer !== "webgl"}><RotateCcw size={13} /></button></div>
     <span className={styles.signature} aria-hidden="true">TEST <span>/</span> HUMAN FORM</span>
   </div>;
 });

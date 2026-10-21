@@ -2,9 +2,25 @@ import { expect, test, type Page, type WebSocketRoute } from "@playwright/test";
 import { assistantAuth } from "./support/assistant-auth";
 import { syntheticMicrophone } from "./support/ai-voice-fixtures";
 import { observeTestHologram, testHologramSignal } from "./support/test-hologram-probe";
+import { hologramDiagnostics } from "./support/test-hologram-diagnostics";
+
+test.afterEach(async ({ page }, testInfo) => {
+  const diagnostics = await hologramDiagnostics(page);
+  await testInfo.attach("landscape-runtime-diagnostics", { body: JSON.stringify(diagnostics), contentType: "application/json" });
+  expect(diagnostics.cspViolations).toEqual([]);
+  expect(diagnostics.pageErrors).toEqual([]);
+  expect(diagnostics.consoleErrors).toEqual([]);
+  expect(diagnostics.assetFailures).toEqual([]);
+  if (process.env.TEST_HOLOGRAM_PRODUCTION_CSP === "1") {
+    expect(diagnostics.documentCsp).toContain("script-src");
+    expect(diagnostics.documentCsp).not.toContain("'unsafe-eval'");
+  }
+});
 
 type SpeechProbe = { started: number; playing: number; stopped: number; played: number };
 type SpeechWindow = Window & { __hologramSpeech: () => SpeechProbe };
+type SpeechSample = { mouth: number[]; closure: number; playback: SpeechProbe };
+const TONE_SECONDS = 3.6;
 
 async function workspace(page: Page) {
   await assistantAuth(page); await syntheticMicrophone(page); await observeTestHologram(page);
@@ -48,7 +64,7 @@ async function workspace(page: Page) {
   });
 }
 
-function pcm(frequency: number, seconds = 1.8) {
+function pcm(frequency: number, seconds = TONE_SECONDS) {
   const buffer = Buffer.alloc(Math.round(24000 * seconds) * 2);
   for (let sample = 0; sample < buffer.length / 2; sample++) {
     buffer.writeInt16LE(Math.round(Math.sin(sample * 2 * Math.PI * frequency / 24000) * 7000), sample * 2);
@@ -60,8 +76,25 @@ const playback = (page: Page) => page.evaluate(() => (window as unknown as Speec
 const articulation = async (page: Page) => (await testHologramSignal(page)).headUniforms.articulation;
 const closure = async (page: Page) => (await testHologramSignal(page)).headUniforms.closure[0];
 
+async function speakingMouth(page: Page, channel: number, minimum: number) {
+  let observed: SpeechSample | undefined;
+  await expect.poll(async () => {
+    // Capture the submitted mouth and actual AudioContext playback together;
+    // another round trip can land after a short utterance on a software GPU.
+    observed = await page.evaluate(() => {
+      const canvas = document.querySelector('[data-testid="particle-face-test"] canvas') as HTMLCanvasElement & {
+        __portraitProbe: { headUniforms: { articulation: number[]; closure: number[] } };
+      };
+      const uniforms = canvas.__portraitProbe.headUniforms;
+      return { mouth: uniforms.articulation, closure: uniforms.closure[0], playback: (window as unknown as SpeechWindow).__hologramSpeech() };
+    });
+    return observed.playback.playing > 0 ? observed.mouth[channel] : 0;
+  }, { intervals: [80] }).toBeGreaterThan(minimum);
+  return observed!;
+}
+
 test("Test mouth follows audible spectral changes and silence, not early captions, and clears on interruption", async ({ page }, testInfo) => {
-  test.setTimeout(60000);
+  test.setTimeout(90000);
   await workspace(page); await page.emulateMedia({ colorScheme: "dark" });
   await page.setViewportSize({ width: 1440, height: 960 });
   const errors: string[] = []; page.on("pageerror", (error) => errors.push(error.message));
@@ -84,7 +117,7 @@ test("Test mouth follows audible spectral changes and silence, not early caption
   await page.getByRole("button", { name: "Start microphone", exact: true }).click();
   await expect.poll(() => capturePackets).toBeGreaterThan(1);
   const send = (event: object) => { expect(wire).toBeDefined(); wire!.send(JSON.stringify(event)); };
-  const audio = (frequency: number, seconds = 1.8) => send({ type: "audio", data: pcm(frequency, seconds), sample_rate: 24000, turn_id: "articulation" });
+  const audio = (frequency: number, seconds = TONE_SECONDS) => send({ type: "audio", data: pcm(frequency, seconds), sample_rate: 24000, turn_id: "articulation" });
   const neutral = async () => {
     await expect.poll(async () => Math.max(...await articulation(page)), { intervals: [100] }).toBeLessThan(.01);
     await expect.poll(() => closure(page), { intervals: [100] }).toBeLessThan(.01);
@@ -96,30 +129,25 @@ test("Test mouth follows audible spectral changes and silence, not early caption
   await neutral(); expect((await playback(page)).started).toBe(0);
 
   audio(500);
-  await expect.poll(async () => (await articulation(page))[1], { intervals: [80] }).toBeGreaterThan(.7);
-  const rounded = await articulation(page);
+  const rounded = (await speakingMouth(page, 1, .7)).mouth;
   expect(rounded[0]).toBeGreaterThan(.2); expect(rounded[2]).toBeLessThan(.2);
-  expect((await playback(page)).playing).toBeGreaterThan(0);
   await page.screenshot({ path: testInfo.outputPath("test-mouth-rounded-actual-audio.png") });
-  await expect.poll(async () => (await playback(page)).played).toBeCloseTo(1.8, 3);
+  await expect.poll(async () => (await playback(page)).played).toBeCloseTo(TONE_SECONDS, 3);
   audio(0, .8); await neutral(); // Actual queued silent PCM must close the mouth.
-  await expect.poll(async () => (await playback(page)).played).toBeCloseTo(2.6, 3);
+  await expect.poll(async () => (await playback(page)).played).toBeCloseTo(TONE_SECONDS + .8, 3);
 
   audio(2700);
-  await expect.poll(async () => (await articulation(page))[2], { intervals: [80] }).toBeGreaterThan(.6);
-  const wide = await articulation(page);
+  const wide = (await speakingMouth(page, 2, .6)).mouth;
   expect(wide[1]).toBeLessThan(.2); expect(wide[2]).toBeGreaterThan(rounded[2] + .5);
-  expect((await playback(page)).playing).toBeGreaterThan(0);
-  await expect.poll(async () => (await playback(page)).played).toBeCloseTo(4.4, 3); await neutral();
+  await expect.poll(async () => (await playback(page)).played).toBeCloseTo(TONE_SECONDS * 2 + .8, 3); await neutral();
 
   audio(1200);
-  await expect.poll(async () => (await articulation(page))[0], { intervals: [80] }).toBeGreaterThan(.5);
+  await speakingMouth(page, 0, .5);
   await page.screenshot({ path: testInfo.outputPath("test-mouth-open-actual-audio.png") });
-  await expect.poll(async () => (await playback(page)).played).toBeCloseTo(6.2, 3); await neutral();
+  await expect.poll(async () => (await playback(page)).played).toBeCloseTo(TONE_SECONDS * 3 + .8, 3); await neutral();
   audio(6000);
-  await expect.poll(async () => (await articulation(page))[3], { intervals: [80] }).toBeGreaterThan(.7);
-  await expect.poll(() => closure(page)).toBeGreaterThan(.06);
-  await expect.poll(async () => (await playback(page)).played).toBeCloseTo(8, 3); await neutral();
+  expect((await speakingMouth(page, 3, .7)).closure).toBeGreaterThan(.06);
+  await expect.poll(async () => (await playback(page)).played).toBeCloseTo(TONE_SECONDS * 4 + .8, 3); await neutral();
 
   // A complete provider response may still have a long bounded PCM backlog.
   // Barge-in must clear its mouth and audio without disconnecting capture.

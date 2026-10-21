@@ -136,7 +136,7 @@ export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
   const error = native.error || audio.error || assistant.error;
 
   const panelOpen = assistant.messages.length > 0 && conversationOpen;
-  return <main className={styles.page} aria-label="Global Connects AI workspace" data-theme={dark ? "dark" : "light"} data-phase={phase} data-has-conversation={assistant.messages.length > 0} data-conversation-open={panelOpen} data-image-open={Boolean(activeImage)}>
+  return <main className={styles.page} aria-label="Global Connects AI workspace" data-theme={dark ? "dark" : "light"} data-appearance={appearance.mode} data-phase={phase} data-has-conversation={assistant.messages.length > 0} data-conversation-open={panelOpen} data-image-open={Boolean(activeImage)}>
     <div className={styles.atmosphere} aria-hidden="true" data-testid="assistant-atmosphere">{MOTES.map((mote, index) => <i key={index} className={index % 13 === 0 ? styles.doubleMote : undefined} style={{ left: mote.left, top: mote.top, animationDelay: mote.delay, animationDuration: mote.duration, width: mote.size, height: mote.size }} />)}</div>
     <header className={styles.header}>
       <div className={styles.brandGroup}><button type="button" onClick={back} className={styles.backButton} aria-label="Back to workspace"><ArrowLeft size={19} /></button><div className={styles.brand} aria-label="Global Connects"><span className={styles.monogram}>gc<ArrowUpRight size={16} strokeWidth={2.5} /></span><span>Global Connects<small>YOUR TRAVEL WORKSPACE</small></span></div></div>

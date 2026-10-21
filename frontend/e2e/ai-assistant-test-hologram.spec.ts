@@ -1,14 +1,28 @@
 import { expect, test, type Page } from "@playwright/test";
 import { assistantAuth } from "./support/assistant-auth";
 import { observeTestHologram, testHologramSignal } from "./support/test-hologram-probe";
+import { hologramDiagnostics } from "./support/test-hologram-diagnostics";
 
 test.afterEach(async ({ page }, testInfo) => {
-  if (testInfo.status === testInfo.expectedStatus) return;
+  const runtime = await hologramDiagnostics(page);
+  await testInfo.attach("landscape-runtime-diagnostics", { body: JSON.stringify(runtime), contentType: "application/json" });
   const diagnostics = await page.evaluate(() => {
-    const target = window as unknown as { __portraitProbes?: Array<{ draws: number; vertices: number; errors: string[] }> };
-    return target.__portraitProbes?.map(({ draws, vertices, errors }) => ({ draws, vertices, errors }));
+    const target = window as unknown as { __portraitProbes?: Array<{
+      draws: number; frames: number; frameTime: number; firstFrameTime: number; vertices: number; errors: string[];
+    }> };
+    return target.__portraitProbes?.map(({ draws, frames, frameTime, firstFrameTime, vertices, errors }) =>
+      ({ draws, frames, observedSeconds: (frameTime - firstFrameTime) / 1000, vertices, errors }));
   }).catch(() => null);
   await testInfo.attach("webgl-diagnostics", { body: JSON.stringify(diagnostics), contentType: "application/json" });
+  expect(runtime.cspViolations).toEqual([]);
+  expect(runtime.pageErrors).toEqual([]);
+  expect(runtime.assetFailures).toEqual([]);
+  if (process.env.TEST_HOLOGRAM_PRODUCTION_CSP === "1") {
+    expect(runtime.documentCsp).toContain("script-src");
+    expect(runtime.documentCsp).not.toContain("'unsafe-eval'");
+  }
+  const expectedFallback = testInfo.title.includes("when WebGL is unavailable");
+  expect(runtime.consoleErrors?.filter((message) => !(expectedFallback && /THREE.WebGLRenderer: Error creating WebGL context/.test(message)))).toEqual([]);
 });
 
 async function workspace(page: Page, appearance: "female" | "male" = "female") {
@@ -36,6 +50,17 @@ async function chooseAppearance(page: Page, name: "Test" | "Human hologram" | "S
   await panel.getByRole("button", { name, exact: true }).click();
   await expect(panel.getByRole("button", { name, exact: true })).toHaveAttribute("aria-pressed", "true");
   await page.keyboard.press("Escape");
+  if (name === "Test") {
+    await expect(page.getByRole("main", { name: "Global Connects AI workspace" })).toHaveAttribute("data-appearance", "test");
+    const scene = await page.getByTestId("particle-face-test").locator("canvas").evaluate((element) => {
+      const bounds = element.getBoundingClientRect();
+      return { x: bounds.x, y: bounds.y, width: bounds.width, height: bounds.height,
+        viewportWidth: innerWidth, viewportHeight: innerHeight, pointerEvents: getComputedStyle(element).pointerEvents };
+    });
+    expect(scene.x).toBeCloseTo(0); expect(scene.y).toBeCloseTo(0);
+    expect(scene.width).toBeCloseTo(scene.viewportWidth); expect(scene.height).toBeCloseTo(scene.viewportHeight);
+    expect(scene.pointerEvents).toBe("none");
+  }
 }
 
 async function headRotation(page: Page) {
@@ -48,6 +73,7 @@ async function headRotation(page: Page) {
 const rotationDistance = (a: number[], b: number[]) => Math.hypot(...a.map((value, index) => value - b[index]));
 
 test("Test mode renders a real particle face with pointer, drag, keyboard, reset, and clean mode switching", async ({ page }, testInfo) => {
+  test.setTimeout(120000);
   await workspace(page);
   await page.emulateMedia({ colorScheme: "dark" });
   await page.setViewportSize({ width: 1440, height: 960 });
@@ -71,6 +97,13 @@ test("Test mode renders a real particle face with pointer, drag, keyboard, reset
   expect(initial.pressurePasses).toBeGreaterThan(0);
   expect(initial.simulationPasses).toBeGreaterThan(0);
   expect(initial.texturedPoints).toBeGreaterThan(0);
+  expect(initial.landscapeDraws).toBeGreaterThan(0);
+  expect((await hologramDiagnostics(page)).assets).toEqual(expect.arrayContaining([
+    "/ai/test-landscape/mountain.bin", "/ai/test-landscape/ground.bin", "/ai/test-landscape/patch.bin",
+    "/ai/test-landscape/grade-rgba16f.bin", "/ai/test-landscape/mountain-color.webp",
+    "/ai/test-landscape/ground-color.webp", "/ai/test-landscape/wind.webp",
+  ]));
+  expect((await hologramDiagnostics(page)).assets?.filter((path) => /\.(ktx2|wasm|drc)$/.test(path))).toEqual([]);
   expect(await canvas.evaluate((element) => {
     const target = element as HTMLCanvasElement;
     return (target.getContext("webgl2") ?? target.getContext("webgl"))?.getError();
@@ -84,12 +117,13 @@ test("Test mode renders a real particle face with pointer, drag, keyboard, reset
   })).toBe(true);
   await canvas.press("Home");
   await expect.poll(async () => rotationDistance(await headRotation(page), initialRotation)).toBeLessThan(.06);
-  const bounds = (await canvas.boundingBox())!;
+  // The scene fills the viewport; only the portrait frame handles pointer input.
+  const bounds = (await portrait.boundingBox())!;
   const center = { x: bounds.x + bounds.width * .5, y: bounds.y + bounds.height * .5 };
   await page.mouse.move(center.x, center.y);
   let hoverStep = 0;
   await expect.poll(async () => {
-    // Pointer wakes intentionally decay; keep moving while measuring hover.
+    // Hover must remain responsive while the pointer moves across the face.
     await page.mouse.move(center.x + (++hoverStep % 2 ? 12 : -12), center.y, { steps: 3 });
     return (await testHologramSignal(page)).headUniforms.cursor[2];
   }, { intervals: [50] }).toBeGreaterThan(.2);
@@ -205,4 +239,83 @@ test("Test mode has a usable fallback when WebGL is unavailable", async ({ page 
   await expect(portrait).toBeVisible();
   await expect(page.getByRole("textbox", { name: "Message Global Connects" })).toBeEnabled();
   await expect(page.getByRole("button", { name: "Start microphone", exact: true })).toBeEnabled();
+});
+
+test("high-quality Test portrait renders 147456 particles with all SMAA passes and releases GPU resources", async ({ page }, testInfo) => {
+  test.setTimeout(90000);
+  await workspace(page);
+  await page.setViewportSize({ width: 1440, height: 960 });
+  await page.emulateMedia({ colorScheme: "dark" });
+  await page.addInitScript(() => {
+    // Exercise the high-quality branch on CI's real software GPU. Only the
+    // capability classification changes; shader compilation and draws stay real.
+    Object.defineProperty(navigator, "hardwareConcurrency", { get: () => 8 });
+    const prototype = WebGL2RenderingContext.prototype;
+    const getExtension = prototype.getExtension;
+    prototype.getExtension = function (this: WebGL2RenderingContext, name: string) {
+      return name === "WEBGL_debug_renderer_info" ? null : Reflect.apply(getExtension, this, [name]);
+    } as typeof getExtension;
+    const counts = { edges: 0, weights: 0, blend: 0 };
+    Object.defineProperty(window, "__smaaPasses", { value: counts });
+    type Pass = keyof typeof counts;
+    const shaders = new WeakMap<WebGLShader, Pass>(), programs = new WeakMap<WebGLProgram, Set<Pass>>();
+    const active = new WeakMap<WebGL2RenderingContext, WebGLProgram | null>();
+    const shaderSource = prototype.shaderSource;
+    prototype.shaderSource = function (shader, source) {
+      if (source.includes("SMAAColorEdgeDetection")) shaders.set(shader, "edges");
+      else if (source.includes("SMAABlendingWeightCalculation")) shaders.set(shader, "weights");
+      else if (source.includes("SMAANeighborhoodBlending")) shaders.set(shader, "blend");
+      return shaderSource.call(this, shader, source);
+    };
+    const attachShader = prototype.attachShader;
+    prototype.attachShader = function (program, shader) {
+      const pass = shaders.get(shader);
+      if (pass) { const names = programs.get(program) ?? new Set<Pass>(); names.add(pass); programs.set(program, names); }
+      return attachShader.call(this, program, shader);
+    };
+    const useProgram = prototype.useProgram;
+    prototype.useProgram = function (program) { active.set(this, program); return useProgram.call(this, program); };
+    const draw = (context: WebGL2RenderingContext) => {
+      const program = active.get(context); if (program) programs.get(program)?.forEach((pass) => { counts[pass]++; });
+    };
+    const drawArrays = prototype.drawArrays, drawElements = prototype.drawElements;
+    prototype.drawArrays = function (mode, first, count) { draw(this); return drawArrays.call(this, mode, first, count); };
+    prototype.drawElements = function (mode, count, type, offset) { draw(this); return drawElements.call(this, mode, count, type, offset); };
+  });
+  const errors: string[] = []; page.on("pageerror", (error) => errors.push(error.message));
+  await page.goto("/ai"); await chooseAppearance(page, "Test");
+  const portrait = page.getByTestId("particle-face-test");
+  await expect(portrait).toHaveAttribute("data-renderer", "webgl");
+  await expect.poll(async () => (await testHologramSignal(page)).points).toBe(147456);
+  await expect.poll(async () => (await testHologramSignal(page)).headUniforms.opacity[0], { timeout: 30000 }).toBe(1);
+  const passes = await page.evaluate(() => (window as unknown as { __smaaPasses: Record<string, number> }).__smaaPasses);
+  expect(passes.edges).toBeGreaterThan(0); expect(passes.weights).toBeGreaterThan(0); expect(passes.blend).toBeGreaterThan(0);
+  expect(await portrait.locator("canvas").evaluate((element) => (element as HTMLCanvasElement).getContext("webgl2")?.getError())).toBe(0);
+  const rendered = await testHologramSignal(page);
+  expect(rendered.errors).toEqual([]); expect(rendered.texturedPoints).toBeGreaterThan(0);
+  expect(rendered.landscapeDraws).toBeGreaterThan(0);
+  await page.screenshot({ path: testInfo.outputPath("test-particle-face-high-quality-three.png") });
+  const canvas = portrait.locator("canvas"), front = await headRotation(page);
+  await canvas.focus();
+  for (let step = 0; step < 10; step++) await canvas.press("ArrowRight");
+  await expect.poll(async () => rotationDistance(await headRotation(page), front)).toBeGreaterThan(1.8);
+  await canvas.evaluate((element) => (element as HTMLCanvasElement).blur());
+  await page.screenshot({ path: testInfo.outputPath("test-particle-face-high-quality-rotated-three.png") });
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await canvas.press("Home");
+  await expect.poll(async () => rotationDistance(await headRotation(page), front)).toBeLessThan(.04);
+  await expect.poll(async () => (await testHologramSignal(page)).headUniforms.motion[0]).toBe(0);
+  await canvas.evaluate((element) => (element as HTMLCanvasElement).blur());
+  await page.screenshot({ path: testInfo.outputPath("test-particle-face-high-quality-static-three.png") });
+  const beforeWide = (await testHologramSignal(page)).draws;
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await expect.poll(async () => portrait.locator("canvas").evaluate((element) => element.getBoundingClientRect().width)).toBe(1920);
+  await expect.poll(async () => (await testHologramSignal(page)).draws).toBeGreaterThan(beforeWide);
+  await page.screenshot({ path: testInfo.outputPath("test-particle-face-original-wide-1920.png") });
+  await chooseAppearance(page, "Human hologram"); await expect(portrait).not.toBeAttached();
+  await expect.poll(async () => {
+    const state = await testHologramSignal(page, rendered.id);
+    return state.buffers + state.programs + state.textures + state.framebuffers + state.renderbuffers;
+  }).toBe(0);
+  expect(errors).toEqual([]);
 });

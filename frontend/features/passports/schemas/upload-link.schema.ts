@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@/lib/zod";
 import { isSupportedIanaTimeZone } from "../utils/trip-timezone";
 import { DEFAULT_UPLOAD_CONFIGURATION } from "../types/upload-configuration";
 import { INSTRUCTION_LANGUAGE_CODES } from "../types/instruction-language";

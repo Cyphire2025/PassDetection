@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { KeyRound, Search, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { z } from "zod";
+import { z } from "@/lib/zod";
 import { Badge, Button, Input } from "@/components/ui";
 import { useDebounce } from "@/hooks/use-debounce";
 import {

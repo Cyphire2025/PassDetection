@@ -1,5 +1,16 @@
 .page { --paper: #ebe9e5; --ink: #20252e; --ai-text: #303846; --ai-muted: #657183; --ai-quiet: #718093; --ai-surface: #fffffff0; --ai-panel: #f6f8fcfa; --ai-soft: #263b5810; --ai-hover: #263b5812; --ai-border: #64748b2e; --ai-accent: #315d9f; --ai-on-accent: #fff; --ai-disabled: #dce1e9; --ai-error: #a84a3f; --ai-particle: #8995a4; position: relative; height: 100dvh; min-height: 480px; display: flex; flex-direction: column; isolation: isolate; overflow: clip; background: var(--paper); color: var(--ink); font-family: Arial, Helvetica, sans-serif; color-scheme: light; transition: background-color .7s, color .7s; }
 .page[data-theme="dark"] { --paper: #000; --ink: #f4f6fa; --ai-text: #dce2eb; --ai-muted: #9ba7b8; --ai-quiet: #8795a8; --ai-surface: #101317eb; --ai-panel: #101419fc; --ai-soft: #94a3b812; --ai-hover: #c3d2e817; --ai-border: #b1c1d62b; --ai-accent: #c5d9f8; --ai-on-accent: #13243d; --ai-disabled: #29303a; --ai-error: #f0a693; --ai-particle: #8d9daf; color-scheme: dark; }
+.page[data-appearance="test"] { --paper: #b5bac3; --ink: #273344; background: radial-gradient(ellipse at 72% 8%, #e2e6eb, #a6afbd 65%, #8893a3); }
+.page[data-appearance="test"] .atmosphere { display: none; }
+.page[data-appearance="test"] .header { color: #273344; }
+.page[data-appearance="test"] .header .iconButton, .page[data-appearance="test"] .header .backButton, .page[data-appearance="test"] .brand small { color: #3a475b; }
+.page[data-appearance="test"] .header button[aria-controls="sculpture-appearance-panel"] { color: #3a475b; }
+.page[data-appearance="test"] .header .iconButton:hover, .page[data-appearance="test"] .header .backButton:hover { background: #f5f8fc70; }
+.page[data-appearance="test"] .conversationPanel { border-radius: 22px; background: var(--ai-panel); padding: 0 14px; backdrop-filter: blur(20px); box-shadow: 0 10px 40px #24334912; }
+.page[data-appearance="test"] .voiceStatus p { color: #344154; }
+.page[data-appearance="test"] .voiceButton { background: #f0f4f8df; color: #344154; border-color: #f8fafca0; box-shadow: 0 8px 32px #34415426; backdrop-filter: blur(16px); }
+.page[data-appearance="test"] .voiceButton[aria-pressed="true"] { background: #334257; color: #f3f6fa; }
+.page[data-appearance="test"] .composerDock { filter: drop-shadow(0 8px 24px #2433491a); }
 .page button, .page a, .page textarea, .page select { -webkit-tap-highlight-color: transparent; }
 .page button { cursor: pointer; }.page button:disabled { cursor: default; }
 .page button:focus-visible, .page a:focus-visible { outline: 2px solid var(--ai-accent); outline-offset: 4px; }
