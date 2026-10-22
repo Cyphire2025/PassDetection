@@ -1,9 +1,22 @@
-import { Quaternion, Vector3, type Object3D, type PerspectiveCamera } from "three";
+import { Vector3, type Object3D, type PerspectiveCamera } from "three";
 
 export type Placement = [position: number[], scale: number[], degrees: number[], order?: number];
-export const LANDSCAPE_POSITION = [-14, 4, 14] as const;
+export const LANDSCAPE_POSITION = [-20, 3.5, 20] as const;
+// The approved portrait composition uses a wider valley and a taller sculpture.
+export const LANDSCAPE_FOV = 31;
 export const LANDSCAPE_TARGET = [0, 2.5, 0] as const;
+// Topmost triangle of the untransformed authored ground at the igloo's origin.
+export const LANDSCAPE_GROUND_ANCHOR = [0, -.5342329960592522, 0] as const;
+export const WORLD_SCULPTURE_SCALE = 4;
+export const PLATFORM_HORIZONTAL_SCALE = 1.045;
+export const LANDSCAPE_GROUND_FOOTPRINT = 2.24 * WORLD_SCULPTURE_SCALE * PLATFORM_HORIZONTAL_SCALE;
+export const WORLD_SCULPTURE_POSITION = [0, LANDSCAPE_GROUND_ANCHOR[1] + 1.24 * WORLD_SCULPTURE_SCALE - .02, 0] as const;
+export const PORTRAIT_HEAD_SCALE = .95;
+export const PORTRAIT_HEAD_OFFSET_Y = -.15;
 export const LANDSCAPE_PITCH_LIMIT = .35;
+const orbitRadius = Math.hypot(LANDSCAPE_POSITION[0], LANDSCAPE_POSITION[1] - LANDSCAPE_TARGET[1], LANDSCAPE_POSITION[2]);
+export const LANDSCAPE_ORBIT_PITCH_MIN = -.24;
+export const LANDSCAPE_ORBIT_PITCH_MAX = Math.asin((LANDSCAPE_POSITION[1] - LANDSCAPE_TARGET[1]) / orbitRadius) - Math.asin((3 - LANDSCAPE_TARGET[1]) / orbitRadius);
 // Inset inside the original patch's UV island, away from the atlas's black voids.
 export const SNOW_ISLAND = [.065, .410, .245, .590] as const;
 export const FOUNDATION_PLACEMENT: Placement = [[LANDSCAPE_POSITION[0], -3.5, LANDSCAPE_POSITION[2]], [600, 1, 600], [0, 0, 0], -1];
@@ -55,14 +68,21 @@ export function applyLandscapePlacement(mesh: Object3D, [position, scale, degree
   mesh.renderOrder = order; mesh.updateMatrixWorld(); mesh.matrixAutoUpdate = false;
 }
 
-/** Rotate in place; there is no orbit/translation or allocation while dragging. */
-export function landscapeLookAround(camera: PerspectiveCamera) {
-  const baseline = camera.quaternion.clone(), yawRotation = new Quaternion(), pitchRotation = new Quaternion();
-  const up = new Vector3(0, 1, 0), right = new Vector3(1, 0, 0);
+/** Orbit the shared world around the sculpture without moving its ground contact. */
+export function landscapeOrbitAround(camera: PerspectiveCamera) {
+  const target = new Vector3(...LANDSCAPE_TARGET), baseline = camera.position.clone();
+  const offset = baseline.clone().sub(target), radius = offset.length();
+  const azimuth = Math.atan2(offset.x, offset.z), elevation = Math.asin(offset.y / radius);
+  const minimumElevation = Math.asin((3 - target.y) / radius);
   return (yaw: number, pitch: number) => {
-    yawRotation.setFromAxisAngle(up, Number.isFinite(yaw) ? yaw % (Math.PI * 2) : 0);
-    pitchRotation.setFromAxisAngle(right, Number.isFinite(pitch) ? Math.max(-LANDSCAPE_PITCH_LIMIT, Math.min(LANDSCAPE_PITCH_LIMIT, pitch)) : 0);
-    camera.quaternion.copy(yawRotation).multiply(baseline).multiply(pitchRotation);
-    camera.updateMatrixWorld();
+    const turn = Number.isFinite(yaw) ? yaw % (Math.PI * 2) : 0;
+    const tilt = Number.isFinite(pitch) ? Math.max(-LANDSCAPE_PITCH_LIMIT, Math.min(LANDSCAPE_PITCH_LIMIT, pitch)) : 0;
+    const latitude = Math.max(minimumElevation, Math.min(Math.PI / 2 - .1, elevation - tilt));
+    if (Math.abs(turn) < 1e-12 && tilt === 0) camera.position.copy(baseline);
+    else {
+      const horizontal = radius * Math.cos(latitude);
+      camera.position.set(target.x + Math.sin(azimuth + turn) * horizontal, target.y + Math.sin(latitude) * radius, target.z + Math.cos(azimuth + turn) * horizontal);
+    }
+    camera.lookAt(target); camera.updateMatrixWorld();
   };
 }

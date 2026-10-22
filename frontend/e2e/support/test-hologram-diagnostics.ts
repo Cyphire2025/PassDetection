@@ -11,7 +11,7 @@ export async function observeHologramDiagnostics(page: Page) {
   page.on("pageerror", (error) => diagnostics.pageErrors.push(error.message));
   page.on("requestfailed", (request) => {
     const path = new URL(request.url()).pathname;
-    if (!path.startsWith("/ai/test-landscape/")) return;
+    if (!path.startsWith("/ai/test-landscape/") && !path.startsWith("/ai/human-head/")) return;
     const error = request.failure()?.errorText;
     // Retiring a StrictMode or switched-away canvas intentionally cancels loads.
     // Keep these visible in diagnostics; the render tests still require every
@@ -21,7 +21,7 @@ export async function observeHologramDiagnostics(page: Page) {
   page.on("response", (response) => {
     const path = new URL(response.url()).pathname;
     if (path === "/ai" && response.request().resourceType() === "document") diagnostics.documentCsp = response.headers()["content-security-policy"] ?? "";
-    if (!path.startsWith("/ai/test-landscape/")) return;
+    if (!path.startsWith("/ai/test-landscape/") && !path.startsWith("/ai/human-head/")) return;
     if (response.ok()) diagnostics.assets.push(path);
     else diagnostics.assetFailures.push(`${path}: HTTP ${response.status()}`);
   });

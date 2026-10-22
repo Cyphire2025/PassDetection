@@ -1,12 +1,19 @@
 import type { Page } from "@playwright/test";
 import { observeHologramDiagnostics } from "./test-hologram-diagnostics";
 
+export type HologramHeadFrame = {
+  at: number; modelView: number[]; cameraView: number[]; speechEnergy: number; articulation: number[];
+};
+
 type PortraitProbe = {
   id: number; draws: number; frames: number; frameTime: number; firstFrameTime: number; vertices: number; points: number;
   uniforms: Record<string, number[]>; headUniforms: Record<string, number[]>; landscapeUniforms: Record<string, number[]>; landscapeCameras: number[][]; errors: string[];
   resources: Record<"buffers" | "programs" | "textures" | "framebuffers" | "renderbuffers", Set<object>>;
   lost: boolean;
-  pressurePasses: number; simulationPasses: number; texturedPoints: number; landscapeDraws: number; mountainDraws: number; maximumImpulse: number;
+  headFrames: HologramHeadFrame[];
+  lastHomeAt: number;
+  parts: Record<string, Array<{ uniforms: Record<string, number[]>; vertices: number }>>;
+  pressurePasses: number; simulationPasses: number; texturedPoints: number; headNonPointDraws: number; landscapeDraws: number; mountainDraws: number; maximumImpulse: number;
 };
 type ProbeCanvas = HTMLCanvasElement & { __portraitProbe?: PortraitProbe };
 type ProbeWindow = Window & { __portraitProbes: PortraitProbe[] };
@@ -22,6 +29,7 @@ export async function observeTestHologram(page: Page) {
     window.requestAnimationFrame = (callback) => requestFrame.call(window, (time) => { frameTime = time; callback(time); });
     const locations = new WeakMap<WebGLUniformLocation, { name: string; program: WebGLProgram }>();
     const programUniforms = new WeakMap<WebGLProgram, Record<string, number[]>>();
+    const namedShaders = new WeakMap<WebGLShader, string>(), namedPrograms = new WeakMap<WebGLProgram, string>();
     const activePrograms = new WeakMap<WebGLRenderingContext, WebGLProgram | null>();
     const activeUnits = new WeakMap<WebGLRenderingContext, number>();
     const textureBindings = new WeakMap<WebGLRenderingContext, Map<number, WebGLTexture | null>>();
@@ -41,10 +49,11 @@ export async function observeTestHologram(page: Page) {
       const canvas = context.canvas as ProbeCanvas;
       if (!canvas.__portraitProbe) {
         const state: PortraitProbe = { id: probes.length, draws: 0, frames: 0, frameTime: -1, firstFrameTime: 0, vertices: 0, points: 0,
-          uniforms: {}, headUniforms: {}, landscapeUniforms: {}, landscapeCameras: [], errors: [], lost: false,
-          pressurePasses: 0, simulationPasses: 0, texturedPoints: 0, landscapeDraws: 0, mountainDraws: 0, maximumImpulse: 0,
+          uniforms: {}, headUniforms: {}, landscapeUniforms: {}, landscapeCameras: [], errors: [], lost: false, parts: {}, headFrames: [], lastHomeAt: -1,
+          pressurePasses: 0, simulationPasses: 0, texturedPoints: 0, headNonPointDraws: 0, landscapeDraws: 0, mountainDraws: 0, maximumImpulse: 0,
           resources: { buffers: new Set(), programs: new Set(), textures: new Set(), framebuffers: new Set(), renderbuffers: new Set() } };
         canvas.__portraitProbe = state; probes.push(state);
+        canvas.addEventListener("keydown", (event) => { if (event.key === "Home") state.lastHomeAt = performance.now(); }, { capture: true });
         canvas.addEventListener("webglcontextlost", () => { state.lost = true; Object.values(state.resources).forEach((resources) => resources.clear()); });
         canvas.addEventListener("webglcontextrestored", () => { state.lost = false; });
       }
@@ -63,8 +72,15 @@ export async function observeTestHologram(page: Page) {
       if (state.frameTime !== frameTime) {
         if (!state.frames) state.firstFrameTime = frameTime;
         state.frameTime = frameTime; state.frames++;
+        state.parts = {};
       }
       const program = activePrograms.get(context), uniforms = program && programUniforms.get(program);
+      const part = program && namedPrograms.get(program);
+      if (part && uniforms) (state.parts[part] ??= []).push({ uniforms: { ...uniforms }, vertices: count });
+      // Identify articulated head passes by their actual uniforms, not only by
+      // material names, so renaming a solid support mesh cannot hide it.
+      if (mode !== context.POINTS && uniforms?.articulation && uniforms.headToEnclosure
+        && uniforms.modelViewMatrix && uniforms.projectionMatrix) state.headNonPointDraws++;
       const texture = (name: string, textures = renderedTextures) => {
         const unit = uniforms?.[name]?.[0], value = unit === undefined ? null : textureBindings.get(context)?.get(unit);
         return Boolean(value && textures.has(value));
@@ -84,10 +100,33 @@ export async function observeTestHologram(page: Page) {
       }
       if (mode !== context.POINTS) return;
       state.points = Math.max(state.points, count);
-      if (uniforms?.articulation) state.headUniforms = { ...uniforms };
+      if (uniforms?.articulation) {
+        state.headUniforms = { ...uniforms };
+        const camera = uniforms.viewMatrix ?? state.landscapeUniforms.viewMatrix;
+        if (uniforms.modelViewMatrix && camera && state.headFrames.at(-1)?.at !== frameTime) {
+          state.headFrames.push({ at: frameTime, modelView: [...uniforms.modelViewMatrix], cameraView: [...camera],
+            speechEnergy: uniforms.speechEnergy?.[0] ?? 0, articulation: [...uniforms.articulation] });
+          if (state.headFrames.length > 96) state.headFrames.shift();
+        }
+      }
       if (texture("displacement") && texture("velocity")) state.texturedPoints++;
     };
     for (const prototype of [WebGLRenderingContext.prototype, WebGL2RenderingContext.prototype]) {
+      const shaderSource = prototype.shaderSource, attachShader = prototype.attachShader;
+      prototype.shaderSource = function (shader, source) {
+        const names: Record<string, string> = {
+          "Frosted layered stone": "pedestal", "Cylindrical interaction enclosure": "cage", "Cylindrical interaction scan": "cage",
+          "Projector aperture": "projector", "Projector upward rays": "projectorRays",
+          "Human shadow core": "headSurface",
+          "Human authored edge light": "headWire",
+        };
+        for (const [name, part] of Object.entries(names)) if (source.includes(`#define SHADER_NAME ${name}\n`)) namedShaders.set(shader, part);
+        return shaderSource.call(this, shader, source);
+      };
+      prototype.attachShader = function (program, shader) {
+        const name = namedShaders.get(shader); if (name) namedPrograms.set(program, name);
+        return attachShader.call(this, program, shader);
+      };
       const getUniformLocation = prototype.getUniformLocation;
       prototype.getUniformLocation = function (program, name) {
         const location = getUniformLocation.call(this, program, name);
@@ -181,10 +220,23 @@ export async function testHologramSignal(page: Page, id?: number) {
       : (window as unknown as ProbeWindow).__portraitProbes[index];
     if (!probe) throw new Error("The Test portrait has not submitted WebGL work");
     return { id: probe.id, draws: probe.draws, frames: probe.frames, vertices: probe.vertices, points: probe.points,
-      uniforms: probe.uniforms, headUniforms: probe.headUniforms, landscapeUniforms: probe.landscapeUniforms, errors: probe.errors, lost: probe.lost,
-      pressurePasses: probe.pressurePasses, simulationPasses: probe.simulationPasses, texturedPoints: probe.texturedPoints,
+      uniforms: probe.uniforms, headUniforms: probe.headUniforms, landscapeUniforms: probe.landscapeUniforms, errors: probe.errors, lost: probe.lost, parts: probe.parts,
+      pressurePasses: probe.pressurePasses, simulationPasses: probe.simulationPasses, texturedPoints: probe.texturedPoints, headNonPointDraws: probe.headNonPointDraws,
       landscapeDraws: probe.landscapeDraws, mountainDraws: probe.mountainDraws, landscapeCameras: probe.landscapeCameras, maximumImpulse: probe.maximumImpulse,
       buffers: probe.resources.buffers.size, programs: probe.resources.programs.size, textures: probe.resources.textures.size,
       framebuffers: probe.resources.framebuffers.size, renderbuffers: probe.resources.renderbuffers.size };
   }, id);
+}
+
+/** Bounded history of submitted head poses, independent of React or synthetic clocks. */
+export async function testHologramHeadFrames(page: Page) {
+  return page.evaluate(() => {
+    const probe = (document.querySelector('[data-testid="particle-face-test"] canvas') as ProbeCanvas | null)?.__portraitProbe;
+    if (!probe) throw new Error("The Test portrait has not submitted WebGL work");
+    return probe.headFrames;
+  });
+}
+
+export async function testHologramLastHomeAt(page: Page) {
+  return page.evaluate(() => (document.querySelector('[data-testid="particle-face-test"] canvas') as ProbeCanvas | null)?.__portraitProbe?.lastHomeAt ?? -1);
 }

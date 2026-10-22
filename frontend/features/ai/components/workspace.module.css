@@ -7,9 +7,32 @@
 .page[data-appearance="test"] .header button[aria-controls="sculpture-appearance-panel"] { color: #3a475b; }
 .page[data-appearance="test"] .header .iconButton:hover, .page[data-appearance="test"] .header .backButton:hover { background: #f5f8fc70; }
 .page[data-appearance="test"] .conversationPanel { border-radius: 22px; background: var(--ai-panel); padding: 0 14px; backdrop-filter: blur(20px); box-shadow: 0 10px 40px #24334912; }
-.page[data-appearance="test"] .voiceStatus p { color: #344154; }
-.page[data-appearance="test"] .voiceButton { background: #f0f4f8df; color: #344154; border-color: #f8fafca0; box-shadow: 0 8px 32px #34415426; backdrop-filter: blur(16px); }
-.page[data-appearance="test"] .voiceButton[aria-pressed="true"] { background: #334257; color: #f3f6fa; }
+.page[data-appearance="test"] .voiceStatus { padding-top: 8px; }
+.page[data-appearance="test"] .voiceStatus p { color: #344154; height: 14px; line-height: 14px; margin-top: 2px; }
+.page[data-appearance="test"] .voiceButton {
+  background-color: #afb9c6;
+  background-image: linear-gradient(145deg, #f7faff70, #91a0b52e), url("/ai/test-landscape/ground-color.webp");
+  /* Sample the snow atlas's interior island, keeping its black padding outside the button. */
+  background-size: auto, 600px 600px;
+  background-position: center, 15% 50%;
+  color: #273344; border-color: #e8eff6a6;
+  box-shadow: inset 0 1px 2px #ffffff99, inset 0 -2px 4px #25395125, 0 5px 14px #24334928, 0 0 16px #e9f5ff24;
+}
+.page[data-appearance="test"] .voiceButton:hover { color: #172c44; box-shadow: inset 0 1px 3px #ffffffbb, 0 5px 16px #24334930, 0 0 20px #e9f5ff40; }
+.page[data-appearance="test"] .voiceButton[aria-pressed="true"], .page[data-appearance="test"][data-phase="speaking"] .voiceButton {
+  background-color: #334257;
+  background-image: linear-gradient(145deg, #33425788, #24364ecc), url("/ai/test-landscape/ground-color.webp");
+  background-size: auto, 600px 600px;
+  background-position: center, 15% 50%;
+  color: #f3f6fa;
+  box-shadow: inset 0 1px 3px #ffffff44, 0 0 0 calc(3px + var(--voice-level,0) * 9px) #d8ecff18, 0 0 20px #e9f5ff35;
+}
+.page[data-appearance="test"] .quietButton {
+  left: calc(50% + 42px); top: 24px; bottom: auto; white-space: nowrap;
+  padding: 6px 9px; border: 1px solid #e8eff675; border-radius: 20px;
+  background: #d9e0e98c; color: #273344; backdrop-filter: blur(8px);
+  box-shadow: 0 3px 12px #24334912;
+}
 .page[data-appearance="test"] .composerDock { filter: drop-shadow(0 8px 24px #2433491a); }
 .page button, .page a, .page textarea, .page select { -webkit-tap-highlight-color: transparent; }
 .page button { cursor: pointer; }.page button:disabled { cursor: default; }
@@ -43,6 +66,7 @@
 .voiceButton[aria-pressed="true"] { background: var(--ai-accent); color: var(--ai-on-accent); box-shadow: 0 0 0 calc(5px + var(--voice-level,0) * 13px) #8fb6f21c, 0 8px 32px #142e5216; }
 .page[data-phase="speaking"] .voiceButton { background: #a4dacf; color: #143c36; box-shadow: 0 0 0 calc(5px + var(--voice-level,0) * 13px) #8fd5c61a; }
 .voiceStatus p { height: 16px; margin: 10px 0 0; font-size: 12px; color: var(--ai-muted); }
+@media (min-width: 640px) { .page[data-appearance="test"][data-image-open="false"] .voiceStatus { min-height: 80px; flex-basis: 80px; } }
 .quietButton { display: inline-flex; align-items: center; gap: 5px; border: 0; background: transparent; font-size: 11px; color: var(--ai-accent); position: absolute; bottom: -5px; }
 .composerDock { grid-area: composer; width: min(770px,100%); min-width: 0; margin: 0 auto; padding-bottom: max(24px,env(safe-area-inset-bottom)); position: relative; z-index: 5; }
 .workspaceNotice { margin: 0 8px 12px; color: var(--ai-muted); font-size: 12px; line-height: 1.6; text-align: center; }.workspaceNotice p { margin: 0; }.workspaceNotice a, .workspaceNotice button { color: var(--ai-accent); background: none; border: 0; padding: 3px; text-decoration: underline; font: inherit; }
@@ -68,5 +92,16 @@
 }
 @media (max-width: 430px) { .brand > span:last-child { display: none; } }
 @media (max-height: 700px) { .header { padding-top: 12px; padding-bottom: 7px; }.voiceStatus { min-height: 82px; flex-basis: 82px; }.voiceButton { width: 48px; height: 48px; }.composerDock { padding-bottom: 15px; }.sculptureStage { min-height: 125px; } }
+@media (min-width: 640px) and (max-height: 480px) {
+  .page[data-appearance="test"] { min-height: 100dvh; }
+  .page[data-appearance="test"] .header { padding-top: 8px; padding-bottom: 6px; }
+  .page[data-appearance="test"] .sculptureStage { min-height: 0; }
+  .page[data-appearance="test"][data-image-open="false"] .voiceStatus { min-height: 56px; flex-basis: 56px; padding-top: 4px; }
+  .page[data-appearance="test"] .voiceButton { width: 36px; height: 36px; }
+  .page[data-appearance="test"] .quietButton { top: 10px; left: calc(50% + 30px); }
+  .page[data-appearance="test"] .voiceStatus p { margin-top: 2px; height: 12px; line-height: 12px; font-size: 10px; }
+  .page[data-appearance="test"] .composerDock { padding-bottom: 8px; }
+  .page[data-appearance="test"] .workspaceNotice { margin-bottom: 4px; font-size: 10px; }
+}
 @media (max-width: 639px) and (max-height: 650px) { .voiceStatus { min-height: 76px; flex-basis: 76px; }.voiceButton { width: 46px; height: 46px; }.sculptureStage { min-height: 115px; }.page[data-conversation-open="true"] .sculptureStage { min-height: 100px; }.page[data-conversation-open="true"] .voiceStatus { min-height: 68px; flex-basis: 68px; }.page[data-conversation-open="true"] .voiceButton { width: 44px; height: 44px; }.page[data-conversation-open="true"] .voiceStatus p { margin-top: 5px; font-size: 10px; } }
 @media (prefers-reduced-motion: reduce) { .atmosphere i,.spinner { animation: none; }.page,.mainArea,.conversationPanel,.conversationTab,.voiceStatus,.voiceButton,.iconButton,.backButton { transition: none; }.page[data-conversation-open="true"] .mainArea { transition: none; }.voiceButton:hover { transform: none; } }

@@ -1,9 +1,11 @@
-import { BackSide, BufferAttribute, BufferGeometry, Color, Group, LineSegments, Mesh, PerspectiveCamera, PlaneGeometry, Points, ShaderMaterial, SphereGeometry, Vector2, Vector4, type WebGLRenderer } from "three";
+import { BackSide, BufferAttribute, BufferGeometry, Color, Group, Mesh, PerspectiveCamera, PlaneGeometry, Points, ShaderMaterial, SphereGeometry, Vector2, Vector4, type WebGLRenderer } from "three";
 import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
-import { containmentLines } from "./test-hologram-particles";
+import { createPortraitPlatform } from "./test-hologram-platform";
+import { createPedestalGroundContact } from "./test-hologram-ground-contact";
+import { createHologramSpill } from "./test-hologram-spill";
 import { loadLandscapeAssets } from "./test-landscape-assets";
-import { applyLandscapePlacement, FOUNDATION_PLACEMENT, LANDSCAPE_POSITION, LANDSCAPE_TARGET, landscapeLookAround, ORIGINAL_GROUND, ORIGINAL_MOUNTAINS, panoramicPlacements, SNOW_ISLAND, type Placement } from "./test-landscape-layout";
-import { ENCLOSURE_FRAGMENT, FLOOR_FRAGMENT, GRADE_FRAGMENT, LANDSCAPE_VERTEX, SKY_FRAGMENT, SMOKE_FRAGMENT, SNOW_FRAGMENT, SNOW_VERTEX, TERRAIN_FRAGMENT } from "./test-hologram-terrain-shaders";
+import { applyLandscapePlacement, FOUNDATION_PLACEMENT, LANDSCAPE_FOV, LANDSCAPE_POSITION, LANDSCAPE_TARGET, landscapeOrbitAround, ORIGINAL_GROUND, ORIGINAL_MOUNTAINS, panoramicPlacements, SNOW_ISLAND, type Placement } from "./test-landscape-layout";
+import { FLOOR_FRAGMENT, GRADE_FRAGMENT, LANDSCAPE_VERTEX, SKY_FRAGMENT, SMOKE_FRAGMENT, SNOW_FRAGMENT, SNOW_VERTEX, TERRAIN_FRAGMENT } from "./test-hologram-terrain-shaders";
 
 const PATCHES: Placement[] = [
   [[-9.34, -1.77, 6.96], [7, 7, 7], [0, 0, 0], 0],
@@ -23,37 +25,33 @@ function snowfallGeometry() {
 
 /** Original integration of the provenance-recorded Igloo terrain assets. */
 export function createHologramStage(renderer: WebGLRenderer) {
-  const group = new Group(), landscape = new Group();
-  group.name = "Head interaction enclosure"; landscape.name = "Original Igloo alpine landscape";
-  const camera = new PerspectiveCamera(30, 1, .1, 2000);
-  // Preserve the terrain perspective while keeping its summit silhouettes
-  // inside the viewport above the assistant and header.
+  const platform = createPortraitPlatform(), group = platform.group, landscape = new Group();
+  landscape.name = "Original Igloo alpine landscape";
+  const camera = new PerspectiveCamera(LANDSCAPE_FOV, 1, .1, 2000);
+  // Keep the original ground anchor visible with a wider surrounding panorama.
   camera.position.set(...LANDSCAPE_POSITION); camera.lookAt(...LANDSCAPE_TARGET);
-  const lookAround = landscapeLookAround(camera);
+  const lookAround = landscapeOrbitAround(camera);
   const resolution = new Vector2(1, 1), timeUniform = { value: 0 };
-  const common = { time: timeUniform, resolution: { value: resolution }, colorLow: { value: new Color("#afb6c7") }, colorHigh: { value: new Color("#d1d6e3") } };
+  const spill = createHologramSpill();
+  const common = { ...spill.uniforms, time: timeUniform, resolution: { value: resolution }, colorLow: { value: new Color("#afb6c7") }, colorHigh: { value: new Color("#d1d6e3") } };
   const geometries: BufferGeometry[] = [], materials: ShaderMaterial[] = [];
   const material = (name: string, fragmentShader: string, uniforms = {}, transparent = false) => {
     const result = new ShaderMaterial({ name, uniforms: { ...common, ...uniforms }, vertexShader: LANDSCAPE_VERTEX, fragmentShader, transparent, toneMapped: false });
     materials.push(result); return result;
   };
-  const colorGrade = new ShaderPass(new ShaderMaterial({ name: "Original landscape color lookup", uniforms: { tDiffuse: { value: null }, lut: { value: null }, lutSize: { value: 32 } },
+  const colorGrade = new ShaderPass(new ShaderMaterial({ name: "Original landscape color lookup", uniforms: { tDiffuse: { value: null }, lut: { value: null }, lutSize: { value: 32 }, resolution: { value: resolution } },
     vertexShader: "varying vec2 vUv; void main() { vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }", fragmentShader: GRADE_FRAGMENT, depthTest: false, depthWrite: false, toneMapped: false }));
-  const skyGeometry = new SphereGeometry(800, 12, 12), skyMaterial = material("Alpine overcast gradient", SKY_FRAGMENT);
+  const skyGeometry = new SphereGeometry(800, 12, 12), skyMaterial = material("Alpine overcast gradient", SKY_FRAGMENT, { tWind: { value: null } });
   skyMaterial.side = BackSide; skyMaterial.depthWrite = false;
   const sky = new Mesh(skyGeometry, skyMaterial); sky.name = "Alpine sky"; sky.renderOrder = -10;
   landscape.add(sky); geometries.push(skyGeometry);
-  const cageGeometry = new BufferGeometry().setAttribute("position", new BufferAttribute(containmentLines(), 3));
-  const cageMaterial = material("Interaction enclosure", ENCLOSURE_FRAGMENT, { strength: { value: 0 } }, true);
-  cageMaterial.depthWrite = false;
-  const cage = new LineSegments(cageGeometry, cageMaterial); cage.name = "Interaction enclosure"; cage.visible = false;
-  group.add(cage); geometries.push(cageGeometry);
   const snowGeometry = snowfallGeometry(), snowMaterial = material("Drifting snow", SNOW_FRAGMENT, { pixelRatio: { value: 1 } }, true);
   snowMaterial.vertexShader = SNOW_VERTEX; snowMaterial.depthWrite = false;
   const snow = new Points(snowGeometry, snowMaterial); snow.name = "Alpine snowfall"; snow.frustumCulled = false; snow.renderOrder = 5;
   snow.position.copy(camera.position);
   landscape.add(snow); geometries.push(snowGeometry);
   const assets = loadLandscapeAssets(renderer);
+  let groundContact: ReturnType<typeof createPedestalGroundContact> | undefined;
   let disposed = false;
   const place = (name: string, geometry: BufferGeometry, surface: ShaderMaterial, placements: Placement[]) => placements.forEach((placement, index) => {
     const mesh = new Mesh(geometry, surface); mesh.name = `${name} ${index + 1}`;
@@ -61,6 +59,9 @@ export function createHologramStage(renderer: WebGLRenderer) {
   });
   const ready = assets.ready.then((loaded) => {
     if (disposed) return;
+    skyMaterial.uniforms.tWind.value = loaded.wind;
+    platform.setSnowTexture(loaded.groundMap);
+    groundContact = createPedestalGroundContact(loaded.ground, loaded.groundMap, loaded.wind, spill.uniforms); landscape.add(groundContact.mesh);
     const terrain = (name: string, map: typeof loaded.groundMap, mountain: number, edge: Vector2, radiusScale: number, worldSnow = 0) => {
       const uniforms = { tMap: { value: map }, tWind: { value: loaded.wind }, mountain: { value: mountain }, edge: { value: edge }, radiusScale: { value: radiusScale }, worldSnow: { value: worldSnow }, snowIsland: { value: new Vector4(...SNOW_ISLAND) } };
       const core = material(name, TERRAIN_FRAGMENT, { ...uniforms, edgePass: { value: 0 } });
@@ -96,17 +97,17 @@ export function createHologramStage(renderer: WebGLRenderer) {
       camera.aspect = Math.max(1, width) / Math.max(1, height); camera.updateProjectionMatrix();
       resolution.set(Math.max(1, width), Math.max(1, height)).multiplyScalar(renderer.getPixelRatio());
     },
-    update(time: number, barrier: number, _dark: boolean, opacity: number) {
+    update(time: number, barrier: number, _dark: boolean, opacity: number, speech = 0) {
       if (disposed) return;
-      const interaction = Math.max(0, Math.min(1, barrier));
       timeUniform.value = time; snowMaterial.uniforms.pixelRatio.value = renderer.getPixelRatio();
-      cage.visible = interaction > .005 && opacity > .002;
-      cage.rotation.set(Math.sin(time * .12) * .025, time * .045, Math.sin(time * .09) * .018);
-      cageMaterial.uniforms.strength.value = interaction * .10 * Math.max(0, Math.min(1, opacity));
+      snow.position.copy(camera.position);
+      spill.update(opacity, speech);
+      platform.update(time, barrier, opacity, speech);
+      groundContact?.update(opacity, time);
     },
     dispose() {
       if (disposed) return;
-      disposed = true; group.removeFromParent(); group.clear(); landscape.removeFromParent(); landscape.clear();
+      disposed = true; platform.dispose(); groundContact?.dispose(); landscape.removeFromParent(); landscape.clear();
       assets.dispose(); colorGrade.dispose();
       geometries.forEach((geometry) => geometry.dispose()); materials.forEach((surface) => surface.dispose());
     },

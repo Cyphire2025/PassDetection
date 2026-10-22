@@ -4,11 +4,11 @@ import sharp from "sharp";
 import { Mesh, MeshBasicMaterial, PerspectiveCamera, Raycaster, Vector3, type BufferGeometry } from "three";
 import { describe, expect, it } from "vitest";
 import { decodeLandscapeGeometry } from "./test-landscape-assets";
-import { applyLandscapePlacement, FOUNDATION_PLACEMENT, LANDSCAPE_PITCH_LIMIT, LANDSCAPE_POSITION, LANDSCAPE_TARGET, landscapeLookAround, ORIGINAL_MOUNTAINS, panoramicPlacements, SNOW_ISLAND, type Placement } from "./test-landscape-layout";
+import { applyLandscapePlacement, FOUNDATION_PLACEMENT, LANDSCAPE_FOV, LANDSCAPE_GROUND_ANCHOR, LANDSCAPE_GROUND_FOOTPRINT, LANDSCAPE_POSITION, LANDSCAPE_TARGET, ORIGINAL_GROUND, ORIGINAL_MOUNTAINS, panoramicPlacements, SNOW_ISLAND, type Placement } from "./test-landscape-layout";
 
 const geometry = (name: string) => decodeLandscapeGeometry(Uint8Array.from(readFileSync(resolve(`public/ai/test-landscape/${name}.bin`))).buffer);
 const camera = () => {
-  const result = new PerspectiveCamera(30, 16 / 9, .1, 2000);
+  const result = new PerspectiveCamera(LANDSCAPE_FOV, 16 / 9, .1, 2000);
   result.position.set(...LANDSCAPE_POSITION); result.lookAt(...LANDSCAPE_TARGET); return result;
 };
 const instances = (shape: BufferGeometry, surface: MeshBasicMaterial, placements: Placement[]) => placements.map((placement) => {
@@ -16,25 +16,38 @@ const instances = (shape: BufferGeometry, surface: MeshBasicMaterial, placements
 });
 
 describe("panoramic alpine layout", () => {
-  it("restores the exact forward pose and closes every full turn without translating", () => {
-    const view = camera(), baseline = view.quaternion.clone(), position = view.position.clone(), look = landscapeLookAround(view);
-    for (const turns of [-100, -1, 0, 1, 100]) {
-      look(turns * Math.PI * 2, 0);
-      expect(view.quaternion.angleTo(baseline)).toBeLessThan(1e-7); expect(view.position.equals(position)).toBe(true);
-    }
-    look(Math.PI / 2, 0); expect(view.quaternion.angleTo(baseline)).toBeCloseTo(Math.PI / 2);
-    look(0, 0); expect(view.quaternion.equals(baseline)).toBe(true);
+  it("anchors the portrait on the actual original ground at the reference camera distance", () => {
+    const shape = geometry("ground"), surface = new MeshBasicMaterial();
+    try {
+      const meshes = instances(shape, surface, ORIGINAL_GROUND), ray = new Raycaster(new Vector3(0, 10, 0), new Vector3(0, -1, 0));
+      const ground = ray.intersectObjects(meshes, false)[0].point;
+      expect(ground.distanceTo(new Vector3(...LANDSCAPE_GROUND_ANCHOR))).toBeLessThan(1e-6);
+      const view = camera(); view.aspect = 2; view.updateProjectionMatrix(); view.updateMatrixWorld();
+      const projected = ground.clone().project(view);
+      expect((projected.x + 1) / 2).toBeCloseTo(.5);
+      expect((1 - projected.y) / 2).toBeCloseTo(.6924, 3);
+      const right = new Vector3(1, 0, 0).applyQuaternion(view.quaternion).multiplyScalar(LANDSCAPE_GROUND_FOOTPRINT / 2);
+      const left = ground.clone().sub(right).project(view), end = ground.clone().add(right).project(view);
+      const width = (end.x - left.x) * 1536 / 2;
+      // The more distant camera keeps the circular platform's perspective
+      // flatter. At this fixed aspect its 9.3632-unit footprint is ~456px.
+      expect(width).toBeGreaterThan(450); expect(width).toBeLessThan(465);
+    } finally { shape.dispose(); surface.dispose(); }
   });
 
-  it("bounds pitch and resets malformed controls without poisoning camera matrices", () => {
-    const view = camera(), look = landscapeLookAround(view);
-    look(0, LANDSCAPE_PITCH_LIMIT); const upper = view.quaternion.clone();
-    look(0, 1000); expect(view.quaternion.equals(upper)).toBe(true);
-    look(0, -LANDSCAPE_PITCH_LIMIT); const lower = view.quaternion.clone();
-    look(0, -1000); expect(view.quaternion.equals(lower)).toBe(true);
-    look(Number.NaN, Infinity);
-    expect(view.quaternion.equals(camera().quaternion)).toBe(true);
-    expect(view.matrixWorld.elements.every(Number.isFinite)).toBe(true);
+  it("places the original main summit near the reference skyline", () => {
+    const shape = geometry("mountain"), surface = new MeshBasicMaterial();
+    try {
+      const mountain = new Mesh(shape, surface); applyLandscapePlacement(mountain, ORIGINAL_MOUNTAINS[2]);
+      const view = camera(); view.aspect = 2; view.updateProjectionMatrix(); view.updateMatrixWorld();
+      const positions = shape.getAttribute("position"), point = new Vector3();
+      let summit = 1;
+      for (let index = 0; index < positions.count; index++) {
+        point.fromBufferAttribute(positions, index).applyMatrix4(mountain.matrixWorld).project(view);
+        if (Math.abs(point.x) <= 1 && point.z < 1) summit = Math.min(summit, (1 - point.y) / 2);
+      }
+      expect(summit).toBeGreaterThan(.145); expect(summit).toBeLessThan(.16);
+    } finally { shape.dispose(); surface.dispose(); }
   });
 
   it("covers surrounding horizon directions with actual opaque-inner mountain triangles", () => {

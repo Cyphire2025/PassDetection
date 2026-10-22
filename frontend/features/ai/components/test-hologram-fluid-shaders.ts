@@ -24,14 +24,16 @@ uniform vec2 uImpulse;
 void main() {
   vec2 velocity = texture2D(uVelocity, vUv).xy;
   vec2 traced = clamp(vUv - velocity * uDt, uTexel * 0.5, 1.0 - uTexel * 0.5);
-  velocity = texture2D(uVelocity, traced).xy * exp(-1.65 * uDt);
+  vec3 carried = texture2D(uVelocity, traced).xyz;
+  velocity = carried.xy * exp(-1.35 * uDt);
   vec2 scale = vec2(uAspect, 1.0);
   vec2 segment = (uPointer - uPrevious) * scale;
   vec2 relative = (vUv - uPrevious) * scale;
   float along = clamp(dot(relative, segment) / max(dot(segment, segment), 0.000001), 0.0, 1.0);
   vec2 distanceToPath = relative - along * segment;
-  float weight = exp(-dot(distanceToPath, distanceToPath) / 0.0036);
-  gl_FragColor = vec4(boundedVelocity(velocity + uImpulse * weight), 0.0, 1.0);
+  float weight = exp(-dot(distanceToPath, distanceToPath) / 0.0032);
+  float wake = max(carried.z * exp(-2.0 * uDt), min(1.0, length(uImpulse) * 1.6) * weight);
+  gl_FragColor = vec4(boundedVelocity(velocity + uImpulse * weight), wake, 1.0);
 }
 `;
 
@@ -70,6 +72,7 @@ void main() {
   vec2 velocity = texture2D(uVelocity, vUv).xy - vec2(right - left, up - down) * (0.5 / uTexel.x);
   if (vUv.x < uTexel.x || vUv.x > 1.0 - uTexel.x) velocity.x = 0.0;
   if (vUv.y < uTexel.y || vUv.y > 1.0 - uTexel.y) velocity.y = 0.0;
-  gl_FragColor = vec4(boundedVelocity(velocity), 0.0, 1.0);
+  // Pressure corrects velocity only; the advected wake records a local stroke.
+  gl_FragColor = vec4(boundedVelocity(velocity), texture2D(uVelocity, vUv).z, 1.0);
 }
 `;

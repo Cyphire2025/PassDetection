@@ -1,36 +1,49 @@
 import { HEAD_MORPHS, type HumanHeadGeometry } from "./human-head-geometry";
+import { eyeRegions } from "./test-hologram-eyes";
+import { boundaryAttribute, createHeadVolume } from "./test-hologram-volume";
+import { fillHeadSurface } from "./test-hologram-surface-sampling";
 
-export const HEAD_ATTRIBUTES = ["position", "normal", ...HEAD_MORPHS.map((key) => `${key}Shape`)] as const;
+export const HEAD_ATTRIBUTES = ["position", "normal", ...HEAD_MORPHS.map((key) => `${key}Shape`), "eyeRegion", "surfaceDetail"] as const;
 
-export function meshAttributes(mesh: HumanHeadGeometry): Float32Array[] {
-  return [mesh.positions, mesh.normals, ...HEAD_MORPHS.map((key) => mesh.morphs[key])];
+export function meshAttributes(mesh: HumanHeadGeometry & { surfaceDetail?: Float32Array }): Float32Array[] {
+  return [mesh.positions, mesh.normals, ...HEAD_MORPHS.map((key) => mesh.morphs[key]), eyeRegions(mesh),
+    mesh.surfaceDetail ?? new Float32Array(mesh.positions.length)];
 }
 
-/** Area-weighted, deterministic sampling preserves every authored facial morph. */
+/** Detailed surface plus true interior grains, within the same fixed GPU budget. */
 export function sampleHead(mesh: HumanHeadGeometry, count: number): Float32Array[] {
+  if (!Number.isInteger(count) || count < 1) throw new Error("Invalid head particle count");
   const source = meshAttributes(mesh);
   const result = source.map(() => new Float32Array(count * 3));
-  const areas = new Float32Array(mesh.triangles.length / 3);
-  let area = 0, seed = 941;
+  let seed = 941;
   const random = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; };
-  for (let face = 0; face < areas.length; face++) {
-    const a = mesh.triangles[face * 3] * 3, b = mesh.triangles[face * 3 + 1] * 3, c = mesh.triangles[face * 3 + 2] * 3;
-    const p = mesh.positions;
-    const ux = p[b] - p[a], uy = p[b + 1] - p[a + 1], uz = p[b + 2] - p[a + 2];
-    const vx = p[c] - p[a], vy = p[c + 1] - p[a + 1], vz = p[c + 2] - p[a + 2];
-    area += Math.hypot(uy * vz - uz * vy, uz * vx - ux * vz, ux * vy - uy * vx);
-    areas[face] = area;
-  }
-  for (let point = 0; point < count; point++) {
-    const target = random() * area;
-    let low = 0, high = areas.length - 1;
-    while (low < high) { const middle = (low + high) >>> 1; if (areas[middle] < target) low = middle + 1; else high = middle; }
-    const a = mesh.triangles[low * 3] * 3, b = mesh.triangles[low * 3 + 1] * 3, c = mesh.triangles[low * 3 + 2] * 3;
-    const u = Math.sqrt(random()), v = random(), w0 = 1 - u, w1 = u * (1 - v), w2 = u * v;
-    for (let attribute = 0; attribute < source.length; attribute++) {
-      const values = source[attribute], output = result[attribute];
-      for (let axis = 0; axis < 3; axis++) output[point * 3 + axis] = values[a + axis] * w0 + values[b + axis] * w1 + values[c + axis] * w2;
+  const surfaceCount = Math.ceil(count * .60);
+  fillHeadSurface(mesh, source, result, surfaceCount, random);
+  const volume = createHeadVolume(mesh), bounds = volume.bounds;
+  let point = surfaceCount, attempts = 0;
+  while (point < count && attempts++ < count * 40) {
+    const x = bounds.minX + random() * (bounds.maxX - bounds.minX), y = bounds.minY + random() * (bounds.maxY - bounds.minY);
+    const intervals = volume.intervals(x, y);
+    const thickness = intervals.reduce((total, interval) => total + interval.front.z - interval.back.z, 0);
+    if (random() * (bounds.maxZ - bounds.minZ) >= thickness) continue;
+    // Stratify depth through the union, keeping all eight layers represented.
+    let depth = ((point - surfaceCount) % 8 + random()) / 8 * thickness;
+    const interval = intervals.find(({ back, front }) => { if (depth <= front.z - back.z) return true; depth -= front.z - back.z; return false; });
+    if (!interval) continue;
+    const t = .025 + .95 * depth / (interval.front.z - interval.back.z), offset = point * 3;
+    for (let attribute = 0; attribute < source.length; attribute++) for (let axis = 0; axis < 3; axis++) {
+      const back = boundaryAttribute(mesh, source[attribute], interval.back, axis), front = boundaryAttribute(mesh, source[attribute], interval.front, axis);
+      result[attribute][offset + axis] = attribute === 1 ? (t < .5 ? back : front) : back * (1 - t) + front * t;
     }
+    result[0].set([x, y, interval.back.z * (1 - t) + interval.front.z * t], offset);
+    result[HEAD_ATTRIBUTES.indexOf("eyeRegion")].fill(0, offset, offset + 3);
+    result[HEAD_ATTRIBUTES.indexOf("surfaceDetail")][offset + 2] = 2 * Math.min(t, 1 - t);
+    point++;
+  }
+  if (point < count) throw new Error("Head geometry does not contain enough closed volume");
+  for (let offset = 0; offset < count * 3; offset += 3) {
+    const length = Math.hypot(result[1][offset], result[1][offset + 1], result[1][offset + 2]) || 1;
+    for (let axis = 0; axis < 3; axis++) result[1][offset + axis] /= length;
   }
   return result;
 }

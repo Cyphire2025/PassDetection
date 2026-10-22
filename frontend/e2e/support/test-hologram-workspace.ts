@@ -1,4 +1,6 @@
-import { expect, type Page } from "@playwright/test";
+import { writeFileSync } from "node:fs";
+import { expect, type CDPSession, type Page } from "@playwright/test";
+import { Matrix4 } from "three";
 import { assistantAuth } from "./assistant-auth";
 import { observeTestHologram, testHologramSignal } from "./test-hologram-probe";
 
@@ -41,10 +43,24 @@ export async function chooseAppearance(page: Page, name: "Test" | "Human hologra
 }
 
 export async function headRotation(page: Page) {
-  const uniforms = (await testHologramSignal(page)).headUniforms;
-  const matrix = uniforms.modelMatrix ?? uniforms.modelViewMatrix;
-  expect(matrix).toHaveLength(16);
-  return [0, 1, 2, 4, 5, 6, 8, 9, 10].map((index) => matrix[index]);
+  const state = await testHologramSignal(page);
+  expect(state.headUniforms.modelViewMatrix).toHaveLength(16);
+  expect(state.landscapeUniforms.viewMatrix).toHaveLength(16);
+  return localHeadRotation(state.headUniforms.modelViewMatrix, state.landscapeUniforms.viewMatrix);
+}
+
+export function localHeadRotation(modelView: number[], cameraView: number[]) {
+  // Both objects now share the actual terrain camera. Remove its view matrix
+  // and the sculpture's camera-facing parent yaw before comparing face gestures.
+  const camera = new Matrix4().fromArray(cameraView).invert();
+  const world = camera.clone().multiply(new Matrix4().fromArray(modelView));
+  const yaw = Math.atan2(camera.elements[12], camera.elements[14]);
+  const local = new Matrix4().makeRotationY(-yaw).multiply(world).elements;
+  return [0, 4, 8].flatMap((column) => {
+    const length = Math.hypot(local[column], local[column + 1], local[column + 2]);
+    expect(length).toBeGreaterThan(0);
+    return [0, 1, 2].map((row) => local[column + row] / length);
+  });
 }
 
 export async function landscapeCamera(page: Page) {
@@ -54,3 +70,69 @@ export async function landscapeCamera(page: Page) {
 }
 
 export const rotationDistance = (a: number[], b: number[]) => Math.hypot(...a.map((value, index) => value - b[index]));
+
+const sessions = new WeakMap<Page, Promise<CDPSession>>();
+const browserSession = (page: Page) => {
+  let session = sessions.get(page);
+  if (!session) { session = page.context().newCDPSession(page); sessions.set(page, session); }
+  return session;
+};
+
+/** Capture the current compositor image without waiting for fonts or extra frames. */
+export async function captureHologram(page: Page, path: string) {
+  const session = await browserSession(page), requestedAt = Date.now();
+  const result = await session.send("Page.captureScreenshot", { format: "png", fromSurface: true, optimizeForSpeed: true });
+  const completedAt = Date.now(), png = Buffer.from(result.data, "base64");
+  writeFileSync(path, png);
+  // This CDP method has no frame timestamp: these are capture bounds, not a
+  // fabricated time at which the compositor presented the captured frame.
+  return { png, requestedAt, completedAt };
+}
+
+/** Send real browser key events in order, without a focus/auto-wait per repeat. */
+export async function pressHologramKeys(page: Page, key: string, count = 1) {
+  const shifted = key.startsWith("Shift+"), name = shifted ? key.slice(6) : key;
+  const codes: Record<string, number> = { Home: 36, ArrowLeft: 37, ArrowUp: 38, ArrowRight: 39, ArrowDown: 40 };
+  if (!codes[name]) throw new Error(`Unsupported portrait test key: ${key}`);
+  await page.getByTestId("particle-face-test").locator("canvas").focus();
+  const session = await browserSession(page), pending: Array<Promise<unknown>> = [];
+  for (let index = 0; index < count; index++) {
+    const event = { key: name, code: name, windowsVirtualKeyCode: codes[name], nativeVirtualKeyCode: codes[name], modifiers: shifted ? 8 : 0 };
+    pending.push(session.send("Input.dispatchKeyEvent", { ...event, type: "keyDown" }));
+    pending.push(session.send("Input.dispatchKeyEvent", { ...event, type: "keyUp" }));
+  }
+  await Promise.all(pending);
+}
+
+export async function sampleHologramCadence(page: Page, duration = 5000) {
+  return page.evaluate((milliseconds) => new Promise<{
+    gpu: Record<string, unknown>; points: number; elapsed: number; renderedFrames: number;
+    framesPerSecond: number; intervals: number[]; errors: string[]; webglError: number;
+  }>((resolve) => {
+    const canvas = document.querySelector('[data-testid="particle-face-test"] canvas') as HTMLCanvasElement & {
+      __portraitProbe: { frames: number; points: number; errors: string[] };
+    };
+    const gl = canvas.getContext("webgl2")!, debug = gl.getExtension("WEBGL_debug_renderer_info");
+    const actual = (window as unknown as { __portraitActualGpu?: Record<string, unknown> }).__portraitActualGpu;
+    const gpu = { renderer: gl.getParameter(gl.RENDERER), vendor: gl.getParameter(gl.VENDOR),
+      unmaskedRenderer: debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL) : actual?.unmaskedRenderer ?? null,
+      unmaskedVendor: debug ? gl.getParameter(debug.UNMASKED_VENDOR_WEBGL) : actual?.unmaskedVendor ?? null,
+      hardwareConcurrency: navigator.hardwareConcurrency, devicePixelRatio, canvasWidth: canvas.width, canvasHeight: canvas.height };
+    const started = performance.now(), first = canvas.__portraitProbe.frames, intervals: number[] = [];
+    let last: number | undefined, frames = first, request = 0;
+    const sample = (now: number) => {
+      if (canvas.__portraitProbe.frames !== frames) {
+        if (last !== undefined && now > last) intervals.push(now - last);
+        last = now; frames = canvas.__portraitProbe.frames;
+      }
+      request = requestAnimationFrame(sample);
+    };
+    request = requestAnimationFrame(sample);
+    setTimeout(() => {
+      cancelAnimationFrame(request);
+      const elapsed = performance.now() - started, renderedFrames = canvas.__portraitProbe.frames - first;
+      resolve({ gpu, points: canvas.__portraitProbe.points, elapsed, renderedFrames, framesPerSecond: renderedFrames * 1000 / elapsed,
+        intervals, errors: canvas.__portraitProbe.errors, webglError: gl.getError() });
+    }, milliseconds);
+  }), duration);
+}

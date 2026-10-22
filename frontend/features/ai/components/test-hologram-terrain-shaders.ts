@@ -1,13 +1,17 @@
+import { HOLOGRAM_SPILL } from "./test-hologram-spill";
+
 /** Original compact integration shaders, independent of Igloo's application code. */
 export const LANDSCAPE_VERTEX = `
 varying vec2 vUv;
-varying vec3 vWorld, vLocal;
+varying vec3 vWorld, vLocal, vWorldNormal;
 varying float vDepth;
 void main() {
   vUv = uv; vLocal = position;
   vec4 world = modelMatrix * vec4(position, 1.0);
   vec4 view = viewMatrix * world;
   vWorld = world.xyz; vDepth = -view.z;
+  vec3 viewNormal = normalize(normalMatrix * normal);
+  vWorldNormal = vec3(dot(viewMatrix[0].xyz, viewNormal), dot(viewMatrix[1].xyz, viewNormal), dot(viewMatrix[2].xyz, viewNormal));
   gl_Position = projectionMatrix * view;
 }
 `;
@@ -17,7 +21,7 @@ uniform float time;
 uniform vec2 resolution;
 uniform vec3 colorLow, colorHigh;
 varying vec2 vUv;
-varying vec3 vWorld, vLocal;
+varying vec3 vWorld, vLocal, vWorldNormal;
 varying float vDepth;
 vec3 skyColor() {
   vec2 screen = gl_FragCoord.xy / resolution;
@@ -36,7 +40,7 @@ vec3 sampleSnowField(vec2 worldXZ) {
   uv = mix(snowIsland.xy, snowIsland.zw, uv);
   vec3 snow = texture2D(tMap, uv).rgb;
   float drift = texture2D(tWind, worldXZ * .08 - time * vec2(.08, .10)).r;
-  return snow + drift * .08;
+  return snow + drift * .055;
 }
 vec3 snowSurface() {
   vec3 snow = sampleSnowField(vWorld.xz);
@@ -51,6 +55,7 @@ uniform sampler2D tMap, tWind;
 uniform float mountain, radiusScale, edgePass, worldSnow;
 uniform vec2 edge;
 ${SNOW_FIELD}
+${HOLOGRAM_SPILL}
 void main() {
   vec3 color = texture2D(tMap, vUv).rgb;
   if (mountain > .5) {
@@ -65,8 +70,9 @@ void main() {
     float drift = texture2D(tWind, windSpace * .1 - time * vec2(.25, .30)).r;
     drift *= texture2D(tWind, windSpace * .15 - time * vec2(.18, .225)).r;
     drift *= 1.0 - clamp(vLocal.y * .5 + .75, 0.0, 1.0);
-    color = min(vec3(1.0), color + drift * color.r * 2.0);
+    color = min(vec3(1.0), color + drift * color.r * .95);
   }
+  color = hologramSpill(color, vWorld, vWorldNormal);
   float fade = 1.0 - smoothstep(edge.x, edge.y, length(vLocal.xz) * radiusScale);
   if (edgePass < .5) {
     if (fade < .999) discard;
@@ -79,14 +85,26 @@ void main() {
 `;
 
 export const SKY_FRAGMENT = `${ENVIRONMENT}
-void main() { gl_FragColor = vec4(skyColor(), 1.0); }
+uniform sampler2D tWind;
+void main() {
+  vec2 screen = gl_FragCoord.xy / resolution;
+  vec2 uv = screen * vec2(1.25, .8) + vec2(time * .0012, time * .0004);
+  float broad = texture2D(tWind, uv * .58 + vec2(.21, .43)).r;
+  float detail = texture2D(tWind, uv * 1.4 + vec2(.62, .18)).r;
+  float cloud = smoothstep(.28, .79, broad * .78 + detail * .22);
+  float light = smoothstep(.08, .95, screen.x);
+  float altitude = smoothstep(.32, .85, screen.y);
+  vec3 color = mix(skyColor(), vec3(.83, .87, .94), cloud * (.16 + light * .30) * altitude);
+  gl_FragColor = vec4(color, 1.0);
+}
 `;
 
 export const FLOOR_FRAGMENT = `${ENVIRONMENT}
 uniform sampler2D tMap, tWind;
 ${SNOW_FIELD}
+${HOLOGRAM_SPILL}
 void main() {
-  gl_FragColor = vec4(snowSurface(), 1.0);
+  gl_FragColor = vec4(hologramSpill(snowSurface(), vWorld, vWorldNormal), 1.0);
 }
 `;
 
@@ -101,15 +119,10 @@ void main() {
   haze *= texture2D(tWind, uv * .5 + vec2(-phase, -phase * .35)).r;
   float edge = (1.0 - vUv.y) * smoothstep(0.0, .1, vUv.y);
   edge *= smoothstep(0.0, .5, vUv.x) * (1.0 - smoothstep(.8, 1.0, vUv.x));
-  gl_FragColor = vec4(vec3(1.0), clamp(haze * edge * 8.0, 0.0, 1.0));
-}
-`;
-
-export const ENCLOSURE_FRAGMENT = `${ENVIRONMENT}
-uniform float strength;
-void main() {
-  float weave = .15 + .85 * smoothstep(.55, .98, sin(vWorld.y * 27.0 + atan(vWorld.z, vWorld.x) * 4.0 - time * .65));
-  gl_FragColor = vec4(vec3(.12), strength * weave);
+  // Increase optical density without changing the existing flow coordinates.
+  // A smooth, capped opacity keeps relief visible through the brighter wisps.
+  float density = min(1.0 - exp(-haze * edge * 8.0), .62);
+  gl_FragColor = vec4(mix(skyColor(), vec3(.78, .84, .93), .58), density);
 }
 `;
 
@@ -142,11 +155,19 @@ export const GRADE_FRAGMENT = `
 uniform sampler2D tDiffuse;
 uniform highp sampler3D lut;
 uniform float lutSize;
+uniform vec2 resolution;
 varying vec2 vUv;
 vec3 encode(vec3 c) { return mix(c * 12.92, 1.055 * pow(max(c, 0.0), vec3(1.0 / 2.4)) - .055, step(vec3(.0031308), c)); }
 vec3 decode(vec3 c) { return mix(c / 12.92, pow(max((c + .055) / 1.055, 0.0), vec3(2.4)), step(vec3(.04045), c)); }
 void main() {
-  vec3 inputColor = encode(texture2D(tDiffuse, vUv).rgb);
+  // One finish across terrain, stone and grains avoids pasted-on foregrounds.
+  vec2 texel = .8 / max(resolution, vec2(1.0));
+  vec3 source = texture2D(tDiffuse, vUv).rgb * .70;
+  source += texture2D(tDiffuse, vUv + vec2(texel.x, 0)).rgb * .075;
+  source += texture2D(tDiffuse, vUv - vec2(texel.x, 0)).rgb * .075;
+  source += texture2D(tDiffuse, vUv + vec2(0, texel.y)).rgb * .075;
+  source += texture2D(tDiffuse, vUv - vec2(0, texel.y)).rgb * .075;
+  vec3 inputColor = encode(source);
   vec3 coordinate = clamp(inputColor, 0.0, 1.0) * (lutSize - 1.0);
   vec3 cell = floor(coordinate), fraction = coordinate - cell;
   // Sort the cube's fractional axes to choose its enclosing tetrahedron.
@@ -169,6 +190,7 @@ void main() {
   result += texture(lut, lowCorner + first / lutSize).rgb * (high - middle);
   result += texture(lut, lowCorner + (first + second) / lutSize).rgb * (middle - low);
   result += texture(lut, lowCorner + 1.0 / lutSize).rgb * low;
-  gl_FragColor = vec4(decode(result), 1.0);
+  // Preserve emissive energy outside the LUT's display-referred range for bloom.
+  gl_FragColor = vec4(decode(result) + max(source - 1.0, 0.0), 1.0);
 }
 `;

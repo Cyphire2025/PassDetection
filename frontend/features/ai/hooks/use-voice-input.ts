@@ -91,14 +91,19 @@ export function useVoiceInput() {
       capture.source = source;
       capture.analyser = analyser;
       const samples = new Float32Array(analyser.fftSize);
-      const sample = () => {
+      let sampledAt: number | null = null;
+      const sample = (now = performance.now()) => {
         if (captureRef.current !== capture) return;
+        const elapsed = sampledAt === null ? 1 / 60 : Math.max(0, (now - sampledAt) / 1000);
+        sampledAt = now;
         analyser.getFloatTimeDomainData(samples);
         let energy = 0;
         for (const value of samples) energy += value * value;
         const rms = Math.sqrt(energy / samples.length);
         const target = Math.min(1, Math.max(0, (rms - 0.008) * 8));
-        levelRef.current += (target - levelRef.current) * (target > levelRef.current ? 0.4 : 0.1);
+        // Preserve the 60fps envelope without stretching silence on slow GPUs.
+        const retention = target > levelRef.current ? .6 : .9;
+        levelRef.current += (target - levelRef.current) * (1 - Math.pow(retention, elapsed * 60));
         capture.frame = requestAnimationFrame(sample);
       };
       stream.getAudioTracks().forEach((track) => {

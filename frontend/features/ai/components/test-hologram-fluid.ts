@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { FullScreenQuad } from "three/addons/postprocessing/Pass.js";
 import { FLUID_ADVECT, FLUID_DIVERGENCE, FLUID_PRESSURE, FLUID_PROJECT, FLUID_VERTEX } from "./test-hologram-fluid-shaders";
 
-/** Small velocity-only flow field; pressure projection keeps pointer wakes coherent. */
+/** Bounded velocity/wake field; pressure projection keeps pointer strokes coherent. */
 export class HologramFluid {
   private readonly targets: THREE.WebGLRenderTarget[] = [];
   private readonly materials: THREE.ShaderMaterial[] = [];
@@ -55,7 +55,7 @@ export class HologramFluid {
     // Entering/leaving the canvas never draws a stroke from the stale pointer.
     if (!active || !this.pointerActive) this.previous.copy(this.pointer);
     this.impulse.subVectors(this.pointer, this.previous).clampLength(0, 0.08);
-    this.impulse.multiplyScalar(active ? Math.min(pointer.z, 1) * 18 : 0);
+    this.impulse.multiplyScalar(active ? Math.min(pointer.z, 1) * 24 : 0);
     this.renderer.getDrawingBufferSize(this.drawingSize);
     this.uniforms.uAspect.value = this.drawingSize.x / Math.max(this.drawingSize.y, 1);
     this.uniforms.uDt.value = dt;

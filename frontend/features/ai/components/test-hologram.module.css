@@ -3,23 +3,8 @@
 .canvas { position: fixed; inset: 0; z-index: -1; width: 100vw; height: 100dvh; display: block; pointer-events: none; }
 .canvas[aria-hidden="true"] { visibility: hidden; }
 .canvas:focus-visible { outline: 1px solid var(--ai-quiet); outline-offset: -12px; }
-.stageGlow { display: none; }
-.root[data-theme="dark"] .stageGlow { background: radial-gradient(ellipse, #d7d7d709, transparent 65%); }
 .fallback { position: absolute; inset: 7% 0 10%; pointer-events: none; }
 .fallback img { object-fit: contain; opacity: .72; filter: invert(1); }
 .root[data-theme="dark"] .fallback img { filter: invert(1); }
-.controls { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; white-space: nowrap; color: #344154; font-size: 10px; letter-spacing: .025em; cursor: default; }
-.toolbar { display: flex; align-items: center; gap: 3px; padding: 4px; border: 1px solid #f8fafc9e; border-radius: 24px; background: #e9eef4d9; box-shadow: 0 4px 24px #27334416; backdrop-filter: blur(16px); }
-.controls button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 36px; padding: 0 11px; background: transparent; color: inherit; border: 0; border-radius: 20px; font: inherit; font-size: 11px; }
-.controls button:hover { background: #ffffff80; }
-.controls button[aria-pressed="true"] { background: #344154; color: #f5f8fc; box-shadow: 0 2px 7px #27334420; }
-.controls button.reset { min-width: 36px; padding: 0; margin-left: 2px; border-left: 1px solid #34415425; }
-.degree { font-size: 9px; opacity: .65; }
-.controls button:disabled { opacity: .35; }
-.signature { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); font: 8px ui-monospace,monospace; color: #344154; letter-spacing: .25em; pointer-events: none; opacity: .65; }
-.signature span { margin: 0 7px; opacity: .4; }
 .screenReader { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 :global([data-image-open="true"]) .root { opacity: .08; pointer-events: none; }
-:global([data-image-open="true"]) .controls, :global([data-image-open="true"]) .signature { visibility: hidden; }
-@media (max-width: 639px) { .controls { bottom: 0; font-size: 9px; gap: 5px; }.controls button { min-height: 38px; padding: 0 10px; }.signature { top: 5px; font-size: 7px; } }
-@media (max-height: 650px) { .signature { display: none; } }

@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "resolution": 64,
+  "sourceHeadSha256": "6a5f7dfe9f7e8fd5e91fa35a65209164e6b513467d955d55c8dc8440d87d509d",
+  "sourceModules": {
+    "features/ai/components/human-head-geometry.ts": "97f16e700d4287c913139702c03d2c64dcdba5bb3ae4316e6c285cc668f5cc5d",
+    "features/ai/components/test-hologram-adult-head.ts": "7d045bfc277d66ceda4a320555e5ddd5899b25e21fb94a580792e1fca1cf605e",
+    "features/ai/components/test-hologram-eyes.ts": "79feaaf45e164b5c445e9006afa95b998a0ea905dea9f373a9050b856e98dd51",
+    "features/ai/components/test-hologram-hair-locks.ts": "4c54621883d011196b69c85c18509310a701ed42c2df229afc6b842c136f7d77",
+    "features/ai/components/test-hologram-hair.ts": "fd6ecc1a3f58b5064932a4b1c76dd7da3c7392395c2cdd7f6816fc282644259c",
+    "features/ai/components/test-hologram-volume.ts": "6825b085984513f6d4fc31a9f96e7d2b2b97a14a75e982b12a0bdebda953da5d"
+  },
+  "assets": {
+    "female": {
+      "file": "fields-female-v1.bin.gz",
+      "sha256": "86d41649a216860a0d6b074bf472d9bdedabdf63991a41070e41441baeec7e04",
+      "bytes": 4501273,
+      "decodedBytes": 18874496,
+      "gpuBytes": 18874368,
+      "min": [
+        -0.7796600008010864,
+        -1.1359013462066652,
+        -0.934393002986908
+      ],
+      "size": [
+        1.5586513566970825,
+        2.2550112891197207,
+        1.850354461669922
+      ],
+      "occupiedVoxels": 65330,
+      "distanceRange": [
+        -0.540148272429526,
+        0.8953406214582683
+      ],
+      "fieldOrder": [
+        "gradient-distance",
+        "jaw",
+        "round",
+        "wide",
+        "closure",
+        "fricative",
+        "blink",
+        "eyes",
+        "detail"
+      ]
+    },
+    "male": {
+      "file": "fields-male-v1.bin.gz",
+      "sha256": "06669c010dbf0cacc16676683c12611b76eff51e44107dd68023323295991d51",
+      "bytes": 4498037,
+      "decodedBytes": 18874496,
+      "gpuBytes": 18874368,
+      "min": [
+        -0.8084972643852234,
+        -1.113453462123871,
+        -0.969693078994751
+      ],
+      "size": [
+        1.617648093700409,
+        2.2562819409370425,
+        1.9020409870147705
+      ],
+      "occupiedVoxels": 67454,
+      "distanceRange": [
+        -0.558018791811844,
+        0.8674160312830335
+      ],
+      "fieldOrder": [
+        "gradient-distance",
+        "jaw",
+        "round",
+        "wide",
+        "closure",
+        "fricative",
+        "blink",
+        "eyes",
+        "detail"
+      ]
+    }
+  }
+}

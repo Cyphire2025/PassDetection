@@ -27,6 +27,7 @@ beforeEach(() => {
   nextFrame = undefined;
   track.onended = null;
   vi.clearAllMocks();
+  vi.spyOn(performance, "now").mockReturnValue(0);
   vi.stubGlobal("AudioContext", TestAudioContext);
   vi.stubGlobal("isSecureContext", true);
   Object.defineProperty(navigator, "mediaDevices", { configurable: true, get: () => ({ getUserMedia }) });
@@ -66,6 +67,39 @@ describe("local voice input", () => {
     amplitude = 0;
     act(() => { for (let index = 0; index < 90; index += 1) nextFrame?.(index * 16); });
     expect(hook.result.current.levelRef.current).toBeLessThan(0.001);
+  });
+
+  it("keeps the same speech and silence envelope at 60fps, 2fps, and irregular frame intervals", async () => {
+    const observations: Array<{ speaking: number; silent: number }> = [];
+    const schedules = [Array.from({ length: 60 }, (_, index) => (index + 1) * 1000 / 60), [500, 1000], [70, 210, 930, 1000]];
+    for (const frames of schedules) {
+      amplitude = .15;
+      const hook = renderHook(useVoiceInput);
+      await act(() => hook.result.current.start());
+      act(() => { for (const time of frames) nextFrame?.(time); });
+      const speaking = hook.result.current.levelRef.current;
+      amplitude = 0;
+      act(() => { for (const time of frames) nextFrame?.(1000 + time); });
+      observations.push({ speaking, silent: hook.result.current.levelRef.current });
+      hook.unmount();
+    }
+    for (const observation of observations) {
+      expect(observation.speaking).toBeGreaterThan(.99);
+      expect(observation.silent).toBeLessThan(.002);
+      expect(observation.speaking).toBeCloseTo(observations[0].speaking, 8);
+      expect(observation.silent).toBeCloseTo(observations[0].silent, 8);
+    }
+  });
+
+  it("clears stale microphone energy on the first frame after a long rendering stall", async () => {
+    amplitude = .15;
+    const hook = renderHook(useVoiceInput);
+    await act(() => hook.result.current.start());
+    act(() => nextFrame?.(100));
+    expect(hook.result.current.levelRef.current).toBeGreaterThan(.9);
+    amplitude = 0;
+    act(() => nextFrame?.(10100));
+    expect(hook.result.current.levelRef.current).toBeLessThan(.000001);
   });
 
   it("allows retry after permission denial", async () => {
