@@ -24,11 +24,23 @@ export function useAssistant(onAnswer: (text: string) => void, onImage: (image: 
   const [loadingHistory, setLoadingHistory] = useState(false);
   const historySequence = useRef(0);
   const refreshSequence = useRef(0);
-  const controller = useRef<AbortController | null>(null);
+  const controller = useRef<{ abort: AbortController; messageId: string } | null>(null);
   const account = useRef<string | null>(null);
   const restoredAccount = useRef<string | null>(null);
   const callbacks = useRef({ onAnswer, onImage });
   useEffect(() => { callbacks.current = { onAnswer, onImage }; }, [onAnswer, onImage]);
+
+  const stop = useCallback(() => {
+    const active = controller.current;
+    if (!active) return;
+    // Retire ownership synchronously; a cancelled transport may settle much later.
+    controller.current = null;
+    active.abort.abort();
+    setBusy(false); setProgress("");
+    setMessages((current) => current.map((message) => message.id === active.messageId
+      ? { ...message, streaming: false, error: "Response stopped. Reopen this conversation to check whether an answer finished saving." }
+      : message));
+  }, []);
 
   const refresh = useCallback(async (signal?: AbortSignal) => {
     const refreshId = ++refreshSequence.current;
@@ -37,7 +49,7 @@ export function useAssistant(onAnswer: (text: string) => void, onImage: (image: 
       if (signal?.aborted || refreshId !== refreshSequence.current) return;
       const accountKey = value.account_id ? `${value.account_id}:${value.account_scope || "default"}` : null;
       if (account.current && accountKey && account.current !== accountKey) {
-        controller.current?.abort(); setMessages([]); setConversationId(null); setOlderCursor(null); historySequence.current++;
+        stop(); setMessages([]); setConversationId(null); setOlderCursor(null); historySequence.current++;
         setMcpAccess(null); setObservedAt(null);
       }
       account.current = accountKey;
@@ -79,25 +91,28 @@ export function useAssistant(onAnswer: (text: string) => void, onImage: (image: 
       const httpStatus = (cause as { status?: number; response?: { status: number } }).status ?? (cause as { response?: { status: number } }).response?.status;
       const code = (cause as { code?: string }).code;
       if (httpStatus === 401 || httpStatus === 403 || code === "AUTH_SESSION_EXPIRED") {
-        controller.current?.abort(); setMessages([]); setConversationId(null); setOlderCursor(null); setStatus(null); account.current = null; restoredAccount.current = null; historySequence.current++;
+        stop(); setMessages([]); setConversationId(null); setOlderCursor(null); setStatus(null); account.current = null; restoredAccount.current = null; historySequence.current++;
       }
       setAccess(httpStatus === 401 || code === "AUTH_SESSION_EXPIRED" ? "guest" : httpStatus === 403 ? "denied" : "offline");
       setObservedAt(null);
       setMcpAccess(null);
     }
-  }, []);
+  }, [stop]);
 
-  const cancelRefresh = useCallback(() => { refreshSequence.current++; }, []);
+  const cancelReads = useCallback(() => { refreshSequence.current++; historySequence.current++; }, []);
   useEffect(() => {
     const abort = new AbortController();
     void Promise.resolve().then(() => { if (!abort.signal.aborted) return refresh(abort.signal); });
     const timer = setInterval(() => { if (!document.hidden) void refresh(abort.signal); }, 30000);
     const visible = () => { if (!document.hidden) void refresh(abort.signal); };
     document.addEventListener("visibilitychange", visible);
-    return () => { abort.abort(); cancelRefresh(); controller.current?.abort(); clearInterval(timer); document.removeEventListener("visibilitychange", visible); };
-  }, [refresh, cancelRefresh]);
+    return () => {
+      abort.abort(); cancelReads();
+      const active = controller.current; controller.current = null; active?.abort.abort();
+      clearInterval(timer); document.removeEventListener("visibilitychange", visible);
+    };
+  }, [refresh, cancelReads]);
 
-  const stop = useCallback(() => { controller.current?.abort(); }, []);
   const beginNative = useCallback(() => {
     if (controller.current) return null;
     const id = conversationId || crypto.randomUUID();
@@ -135,8 +150,11 @@ export function useAssistant(onAnswer: (text: string) => void, onImage: (image: 
   }, []);
   const send = useCallback(async (text: string, attachments: Asset[] = [], mode: "chat" | "image" = "chat", imageCount = 1) => {
     if (controller.current || !status?.configured || !text.trim()) return false;
-    const abort = new AbortController(); controller.current = abort;
+    const abort = new AbortController();
     const id = crypto.randomUUID();
+    const active = { abort, messageId: id }; controller.current = active;
+    const owner = account.current;
+    const ownsRequest = () => controller.current === active && account.current === owner && !abort.signal.aborted;
     const conversation = conversationId || crypto.randomUUID();
     historySequence.current++; restoredAccount.current = account.current; rememberConversation(account.current, conversation);
     setConversationId(conversation); setBusy(true); setError(""); setProgress(mode === "image" ? "Creating your images" : "Thinking through your request");
@@ -147,6 +165,7 @@ export function useAssistant(onAnswer: (text: string) => void, onImage: (image: 
     let failed = false;
     const update = (change: (message: Message) => Message) => setMessages((current) => current.map((message) => message.id === id ? change(message) : message));
     const receive = (event: StreamEvent) => {
+      if (!ownsRequest()) return;
       if (event.type === "status") setProgress(event.message);
       else if (event.type === "text_delta") { answer += event.text; update((message) => ({ ...message, text: message.text + event.text })); }
       else if (event.type === "source") update((message) => ({ ...message, sources: [...message.sources || [], event.source] }));
@@ -158,14 +177,17 @@ export function useAssistant(onAnswer: (text: string) => void, onImage: (image: 
     try {
       await assistantApi.stream({ request_id: id, conversation_id: conversation, text,
         attachment_ids: attachments.map((file) => file.id), mode, image_count: imageCount }, abort.signal, receive);
-      if (completed && !failed && answer) callbacks.current.onAnswer(answer);
+      if (ownsRequest() && completed && !failed && answer) callbacks.current.onAnswer(answer);
     } catch (cause) {
-      const failure = abort.signal.aborted ? "Response stopped. Reopen this conversation to check whether an answer finished saving." : assistantMessage(cause, "The assistant could not complete this request.");
-      if (!abort.signal.aborted) setError(failure);
-      update((message) => ({ ...message, error: failure }));
+      if (ownsRequest()) {
+        const failure = assistantMessage(cause, "The assistant could not complete this request.");
+        setError(failure); update((message) => ({ ...message, error: failure }));
+      }
     } finally {
-      controller.current = null; setBusy(false); setProgress("");
-      update((message) => ({ ...message, streaming: false }));
+      if (ownsRequest()) {
+        controller.current = null; setBusy(false); setProgress("");
+        update((message) => ({ ...message, streaming: false }));
+      }
     }
     return true;
   }, [conversationId, status?.configured]);
@@ -183,15 +205,18 @@ export function useAssistant(onAnswer: (text: string) => void, onImage: (image: 
   const openConversation = useCallback(async (id: string) => {
     if (controller.current) return;
     restoredAccount.current = account.current;
+    const owner = account.current;
     const sequence = ++historySequence.current;
     try {
       const page = await assistantApi.conversation(id);
-      if (sequence !== historySequence.current) return;
+      if (sequence !== historySequence.current || owner !== account.current) return;
       setMessages(page.items.sort((a, b) => a.created_at.localeCompare(b.created_at)).flatMap(turnMessages));
       setOlderCursor(page.next_cursor);
       setConversationId(id); setError("");
       rememberConversation(account.current, id);
-    } catch { setError("This conversation could not be opened. Please try again."); }
+    } catch {
+      if (sequence === historySequence.current && owner === account.current) setError("This conversation could not be opened. Please try again.");
+    }
   }, []);
   const loadEarlier = useCallback(async () => {
     if (!conversationId || !olderCursor || loadingHistory || controller.current) return;

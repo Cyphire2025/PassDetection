@@ -259,6 +259,7 @@ test("combined voice saves captions before Luna continues in the same chat", asy
     });
   });
   await page.goto("/ai");
+  await selectAssistantAppearance(page, "Human hologram");
   await page.getByLabel("Message Global Connects", {exact:true}).fill("My typed question.");
   await page.getByRole("button",{name:"Send message",exact:true}).click();
   await expect.poll(() => typed).toBe(1);
@@ -340,6 +341,7 @@ test("native voice preserves an audible first utterance while connecting and pla
     });
   });
   await page.goto("/ai");
+  await selectAssistantAppearance(page, "Human hologram");
   await page.getByTestId("assistant-voice-status").evaluate((element) => {
     // Observe the actual rendered level throughout the short audio reply. A
     // caption assertion may resolve after playback has already finished.
@@ -400,6 +402,7 @@ test("voice lookup recovery replaces a partial reply, pauses input, then resumes
     });
   });
   await page.goto("/ai");
+  await selectAssistantAppearance(page, "Human hologram");
   await page.getByRole("button", { name: "Start microphone" }).click();
   await page.getByRole("button", { name: "Show conversation", exact: true }).click();
   await expect(page.getByText("An incomplete voice reply.", { exact: true })).toBeVisible();

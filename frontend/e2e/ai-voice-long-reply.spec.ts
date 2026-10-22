@@ -1,5 +1,6 @@
 import { expect, test, type Page, type WebSocketRoute } from "@playwright/test";
 import { assistantAuth } from "./support/assistant-auth";
+import { selectAssistantAppearance } from "./support/assistant-appearance";
 import { syntheticMicrophone } from "./support/ai-voice-fixtures";
 
 type PlaybackSnapshot = { started: number; active: number; stopped: number; playedSeconds: number };
@@ -83,6 +84,7 @@ test("a long burst finishes speaking without losing captions or the microphone, 
     });
   });
   await page.goto("/ai");
+  await selectAssistantAppearance(page, "Human hologram");
   const main = page.getByRole("main", { name: "Global Connects AI workspace" });
   await page.getByRole("button", { name: "Start microphone", exact: true }).click();
   await expect.poll(() => packets).toBeGreaterThan(1);

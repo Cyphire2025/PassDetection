@@ -16,6 +16,7 @@ export function startNativeCapture(context: AudioContext, stream: MediaStream, c
   let release: (() => void) | undefined;
   let lastHint = "";
   const started = performance.now();
+  let lastWatch = started, stallGraceUsed = false;
   const pending: ArrayBuffer[] = [];
   const tracks = stream.getAudioTracks();
   const stop = () => {
@@ -50,6 +51,12 @@ export function startNativeCapture(context: AudioContext, stream: MediaStream, c
   const watch = setInterval(() => {
     if (stopped) return;
     const now = performance.now();
+    const delayed = now - lastWatch > 1000;
+    lastWatch = now;
+    const stale = lastFrame === null ? now - started > 6000 : now - lastFrame > 2000;
+    // A long main-thread task can queue this timer ahead of healthy worklet
+    // messages. Yield once; only actual PCM can re-arm this bounded grace.
+    if (stale && delayed && !stallGraceUsed) { stallGraceUsed = true; return; }
     if (lastFrame === null && now - started > 6000) {
       fail("No microphone audio is reaching the voice connection. Check your input device, then reconnect.");
     } else if (lastFrame !== null && now - lastFrame > 2000) {
@@ -65,6 +72,7 @@ export function startNativeCapture(context: AudioContext, stream: MediaStream, c
     const dispose = await capturePcm(context, stream, (buffer) => {
       if (stopped) return;
       lastFrame = performance.now();
+      stallGraceUsed = false;
       if (!heard) {
         const samples = new Int16Array(buffer);
         let energy = 0;

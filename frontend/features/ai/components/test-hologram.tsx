@@ -7,6 +7,7 @@ import type { SculptureHandle, SculpturePresentation } from "@/components/ui/liq
 import type { SpeechFrame } from "../speech-frame";
 import { loadHumanHead, type HumanHeadGeometry } from "./human-head-geometry";
 import { TestHologramEngine, type HeadView } from "./test-hologram-engine";
+import { HologramTransitions } from "./test-hologram-transitions";
 import { LANDSCAPE_ORBIT_PITCH_MAX, LANDSCAPE_ORBIT_PITCH_MIN } from "./test-landscape-layout";
 import styles from "./test-hologram.module.css";
 
@@ -41,14 +42,13 @@ export const TestHologram = forwardRef<SculptureHandle, Props>(function TestHolo
       engine?.resize(window.innerWidth, window.innerHeight, bounds);
     };
     const view = initialView(), target = initialView();
-    const entrance = { opacity: 1 };
-    const animations = gsap.context(() => {}, container);
-    const stop = () => { gsap.ticker.remove(draw); engine?.suspend(); running = false; lastTime = 0; };
+    const transitions = new HologramTransitions(target);
+    const stop = () => { gsap.ticker.remove(draw); transitions.suspend(); engine?.suspend(); running = false; lastTime = 0; };
     const draw = () => {
       if (disposed || !engine || !ready || !visible || document.hidden) { stop(); return; }
       const now = performance.now();
       const animate = current.current.motion && !reduced.matches;
-      if (!animate) { gsap.killTweensOf(entrance); gsap.killTweensOf(target); entrance.opacity = 1; }
+      transitions.advance(now, animate);
       const elapsed = lastTime ? Math.min((now - lastTime) / 1000, .25) : 1 / 60;
       lastTime = now;
       if (animate) clock += elapsed;
@@ -66,18 +66,18 @@ export const TestHologram = forwardRef<SculptureHandle, Props>(function TestHolo
       view.barrier += ((interacting ? 1 : 0) - view.barrier) * (1 - Math.exp(-elapsed * (interacting ? 5 : 2.5)));
       const reveal = presentationRef.current.reveal;
       view.manipulating = drag?.control === "face" || now < keyboardHoldUntil || returningHome;
-      if (returningHome && !gsap.isTweening(target) && Math.abs(view.yaw - target.yaw) + Math.abs(view.pitch - target.pitch)
+      if (returningHome && !transitions.resetting && Math.abs(view.yaw - target.yaw) + Math.abs(view.pitch - target.pitch)
         + Math.abs(view.zoom - target.zoom) + Math.abs(view.landscapeYaw - target.landscapeYaw) + Math.abs(view.landscapePitch - target.landscapePitch) < .001) returningHome = false;
-      try { engine.draw(clock, view, speechFrameRef.current, current.current.dark, animate, (1 - reveal * .94) * entrance.opacity, levelRef.current); }
+      try { engine.draw(clock, view, speechFrameRef.current, current.current.dark, animate, (1 - reveal * .94) * transitions.opacity, levelRef.current); }
       catch { fail(); return; }
       if (!animate) stop();
     };
-    const wake = () => { if (!running && !disposed && ready && visible && !document.hidden) { running = true; gsap.ticker.add(draw); } };
+    const wake = () => { if (!running && !disposed && ready && visible && !document.hidden) { running = true; transitions.resume(performance.now()); gsap.ticker.add(draw); } };
     wakeRef.current = wake;
     const reset = () => {
       const initial = initialView();
       returningHome = true;
-      gsap.killTweensOf(target);
+      transitions.cancelReset();
       view.yaw += engine?.resetRotation() ?? 0;
       // Return along the shortest arc, including after multiple complete turns.
       const nearest = (angle: number, home: number) => angle + Math.atan2(Math.sin(home - angle), Math.cos(home - angle));
@@ -85,7 +85,7 @@ export const TestHologram = forwardRef<SculptureHandle, Props>(function TestHolo
       target.yaw = view.yaw; target.pitch = view.pitch; target.zoom = view.zoom;
       const destination = { landscapeYaw: nearest(target.landscapeYaw, 0), landscapePitch: 0,
         yaw: nearest(target.yaw, initial.yaw), pitch: initial.pitch, zoom: initial.zoom };
-      if (current.current.motion && !reduced.matches) animations.add(() => { gsap.to(target, { ...destination, duration: .8, ease: "power3.out", onUpdate: wake }); });
+      if (current.current.motion && !reduced.matches) transitions.reset(destination, performance.now());
       else Object.assign(target, destination);
       wake();
     };
@@ -99,8 +99,8 @@ export const TestHologram = forwardRef<SculptureHandle, Props>(function TestHolo
         void candidate.prepare().then(() => {
           if (disposed || engine !== candidate) return;
           ready = true;
-          if (current.current.motion && !reduced.matches) animations.add(() => { gsap.fromTo(entrance, { opacity: 0 }, { opacity: 1, duration: 1.2, ease: "power2.out" }); });
-          else entrance.opacity = 1;
+          if (current.current.motion && !reduced.matches) transitions.enter();
+          else transitions.advance(performance.now(), false);
           setRendered({ appearance, state: "webgl" }); wake();
         }).catch(() => { if (!disposed && engine === candidate) fail(); });
       }
@@ -149,7 +149,7 @@ export const TestHologram = forwardRef<SculptureHandle, Props>(function TestHolo
       }
       if (drag) return;
       returningHome = false;
-      gsap.killTweensOf(target);
+      transitions.cancelReset();
       drag = { id: event.pointerId, x: event.clientX, y: event.clientY, control: event.shiftKey ? "landscape" : "face" }; container.setPointerCapture(event.pointerId); element.focus({ preventScroll: true }); move(event);
     };
     const up = (event: PointerEvent) => { if (drag?.id !== event.pointerId && !touches.has(event.pointerId)) return; release(); };
@@ -173,7 +173,7 @@ export const TestHologram = forwardRef<SculptureHandle, Props>(function TestHolo
     const key = (event: KeyboardEvent) => {
       if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "+", "-", "="].includes(event.key)) return;
       event.preventDefault();
-      gsap.killTweensOf(target);
+      transitions.cancelReset();
       if (event.key !== "Home") {
         returningHome = false;
         if (!(event.shiftKey && event.key.startsWith("Arrow"))) keyboardHoldUntil = performance.now() + 300;
@@ -201,7 +201,7 @@ export const TestHologram = forwardRef<SculptureHandle, Props>(function TestHolo
     window.addEventListener("pointerout", atmosphereLeave, { passive: true });
     document.addEventListener("visibilitychange", visibility); reduced.addEventListener("change", wake);
     return () => {
-      disposed = true; abort.abort(); stop(); animations.revert(); resize.disconnect(); intersection.disconnect();
+      disposed = true; abort.abort(); stop(); transitions.cancelReset(); resize.disconnect(); intersection.disconnect();
       // Fast Refresh and Strict Mode restart this effect on the same canvas.
       // Lose the context only after that canvas is actually retired from the DOM.
       engine?.destroy(!element.isConnected); head = null;

@@ -12,6 +12,7 @@ const answer = vi.fn(), image = vi.fn();
 beforeEach(() => {
   localStorage.clear();
   vi.clearAllMocks();
+  vi.mocked(assistantApi.stream).mockReset();
   vi.mocked(assistantApi.status).mockResolvedValue(status);
   vi.mocked(assistantApi.live).mockResolvedValue({ observed_at: "2026-10-19T00:00:00Z", mcp: { connected: true, available_tools: 8, write_enabled: false } });
   vi.mocked(assistantApi.conversation).mockImplementation(async (id) => ({ items: [{ id: `turn-${id}`, user: `Question ${id}`, assistant: `Answer ${id}`, created_at: "2026-10-19T00:00:00Z" }], next_cursor: null }));
@@ -158,5 +159,117 @@ describe("private conversation deletion", () => {
     await act(async () => { finish(); expect(await deletion).toBe(false); });
     expect(result.current.status?.account_id).toBe("owner-b");
     expect(result.current.conversationId).toBe("b");
+  });
+});
+
+function deferredStream() {
+  let resolve!: () => void;
+  let reject!: (cause: unknown) => void;
+  let receive!: Parameters<typeof assistantApi.stream>[2];
+  let signal!: AbortSignal;
+  vi.mocked(assistantApi.stream).mockImplementationOnce((_input, abort, onEvent) => {
+    signal = abort; receive = onEvent;
+    return new Promise<void>((done, fail) => { resolve = done; reject = fail; });
+  });
+  return { resolve: () => resolve(), reject: () => reject(new Error("Late transport failure")),
+    receive: (event: Parameters<typeof receive>[0]) => receive(event), signal: () => signal };
+}
+
+describe("cancelled stream ownership", () => {
+  it("opens saved history immediately after Stop and ignores late stream callbacks", async () => {
+    const pending = deferredStream();
+    const { result } = await activeChat();
+    let sending!: Promise<boolean>;
+    act(() => { sending = result.current.send("Old request"); });
+    await act(async () => { result.current.stop(); await result.current.openConversation("saved"); });
+    expect(pending.signal().aborted).toBe(true);
+    expect(result.current.busy).toBe(false);
+    expect(result.current.conversationId).toBe("saved");
+    await act(async () => {
+      pending.receive({ type: "status", phase: "thinking", message: "Old progress" });
+      pending.receive({ type: "text_delta", text: "Old answer" });
+      pending.receive({ type: "error", code: "old", message: "Old error" });
+      pending.receive({ type: "image", image: { id: "old-image", name: "Old image", mime: "image/png", size: 1, kind: "generated", created_at: "2026-10-19T00:00:00Z", url: "/old" } });
+      pending.receive({ type: "done", request_id: "old" });
+      pending.resolve(); await sending;
+    });
+    expect(result.current.messages.map((item) => item.text)).toEqual(["Question saved", "Answer saved"]);
+    expect(result.current.error).toBe("");
+    expect(result.current.progress).toBe("");
+    expect(answer).not.toHaveBeenCalled();
+    expect(image).not.toHaveBeenCalled();
+  });
+
+  it("keeps a replacement request active when the cancelled transport rejects later", async () => {
+    const old = deferredStream(), next = deferredStream();
+    const { result } = await activeChat();
+    let first!: Promise<boolean>, second!: Promise<boolean>;
+    act(() => { first = result.current.send("First request"); });
+    act(() => result.current.stop());
+    expect(result.current.messages.at(-1)).toMatchObject({ streaming: false, error: expect.stringContaining("Response stopped") });
+    act(() => { second = result.current.send("Replacement request"); });
+    await act(async () => { old.reject(); await first; });
+    expect(result.current.busy).toBe(true);
+    expect(next.signal().aborted).toBe(false);
+    await act(async () => { expect(await result.current.send("Duplicate request")).toBe(false); });
+    await act(async () => {
+      next.receive({ type: "text_delta", text: "Replacement answer" });
+      next.receive({ type: "done", request_id: "replacement" });
+      next.resolve(); await second;
+    });
+    expect(result.current.messages.at(-1)).toMatchObject({ text: "Replacement answer", streaming: false });
+    expect(result.current.busy).toBe(false);
+    expect(result.current.error).toBe("");
+    expect(answer).toHaveBeenCalledExactlyOnceWith("Replacement answer");
+  });
+
+  it("retires the previous account's stream before a new account can send", async () => {
+    const old = deferredStream(), next = deferredStream();
+    const { result } = await activeChat();
+    let first!: Promise<boolean>, second!: Promise<boolean>;
+    act(() => { first = result.current.send("Private old account request"); });
+    vi.mocked(assistantApi.status).mockResolvedValue({ ...status, account_id: "owner-b" });
+    await act(async () => { await result.current.refresh(); });
+    expect(old.signal().aborted).toBe(true);
+    expect(result.current.messages).toEqual([]);
+    act(() => { second = result.current.send("New account request"); });
+    await act(async () => {
+      old.receive({ type: "text_delta", text: "Old private answer" });
+      old.receive({ type: "done", request_id: "old" });
+      old.resolve(); await first;
+    });
+    expect(result.current.busy).toBe(true);
+    expect(result.current.messages.map((item) => item.text)).toEqual(["New account request", ""]);
+    expect(answer).not.toHaveBeenCalled();
+    await act(async () => { next.resolve(); await second; });
+  });
+
+  it("does not deliver an answer after the workspace unmounts", async () => {
+    const pending = deferredStream();
+    const { result, unmount } = await activeChat();
+    let sending!: Promise<boolean>;
+    act(() => { sending = result.current.send("A request before leaving"); });
+    unmount();
+    expect(pending.signal().aborted).toBe(true);
+    await act(async () => {
+      pending.receive({ type: "text_delta", text: "Too late" });
+      pending.receive({ type: "done", request_id: "old" });
+      pending.resolve(); await sending;
+    });
+    expect(answer).not.toHaveBeenCalled();
+  });
+
+  it("does not surface a previous account's late history failure", async () => {
+    const { result } = await activeChat();
+    let reject!: (cause: unknown) => void;
+    vi.mocked(assistantApi.conversation).mockImplementationOnce(() => new Promise((_done, fail) => { reject = fail; }));
+    let opening!: Promise<void>;
+    act(() => { opening = result.current.openConversation("old-history"); });
+    vi.mocked(assistantApi.status).mockResolvedValue({ ...status, account_id: "owner-b" });
+    await act(async () => { await result.current.refresh(); });
+    await act(async () => { reject(new Error("Old account transport failure")); await opening; });
+    expect(result.current.status?.account_id).toBe("owner-b");
+    expect(result.current.conversationId).toBeNull();
+    expect(result.current.error).toBe("");
   });
 });

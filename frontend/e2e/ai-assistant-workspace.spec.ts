@@ -29,8 +29,9 @@ async function workspace(page: Page, speech = false) {
   await assistantAuth(page);
   await page.route("**/api/v1/ai-assistant/**", async (route) => {
     const path = new URL(route.request().url()).pathname;
+    if (path.endsWith("/availability")) return route.fallback();
     if (path.endsWith("/status")) return route.fulfill({ json: { configured: true, speech_configured: speech, model: "gpt-6-luna", reasoning_effort: "high", access: "read_only", name: "Synthetic administrator", account_id: "workspace-admin", account_scope: "super_admin" } });
-    if (path.endsWith("/live")) return route.fulfill({ json: { observed_at: timestamp, agencies: [] } });
+    if (path.endsWith("/live")) return route.fulfill({ json: { observed_at: timestamp, mcp: { connected: true, available_tools: 8, write_enabled: false } } });
     if (path.endsWith("/attachments")) return route.fulfill({ json: file });
     if (path.endsWith("/transcribe")) return route.fulfill({ json: { text: "Which documents are still pending?" } });
     if (path.endsWith("/content")) return route.fulfill({ contentType: "image/png", body: tinyPng });
@@ -56,6 +57,7 @@ test("typed questions, file attachments, source labels and saved history work to
   await workspace(page);
   const errors: string[] = []; page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/ai");
+  await selectAssistantAppearance(page, "Human hologram");
   await page.getByRole("button", { name: "Add files or create images" }).click();
   await expect(page.getByRole("button", { name: /Add files.*PDF/ })).toBeEnabled();
   await page.getByLabel("Upload attachments").setInputFiles({ name: "Departure plan.txt", mimeType: "text/plain", buffer: Buffer.from("Synthetic departure: three documents pending.") });
@@ -210,7 +212,9 @@ test("conversation slides away and restores its draft, focus, and centered compo
   await page.getByRole("button", { name: "Send message" }).click();
   const main = page.getByRole("main");
   const stage = page.getByTestId("assistant-stage");
-  await expect(main).toHaveCSS("background-color", "rgb(0, 0, 0)");
+  await expect(main).toHaveAttribute("data-theme", "dark");
+  await expect(main).toHaveAttribute("data-appearance", "test");
+  await expect(main).toHaveCSS("background-image", /radial-gradient\(/);
   await page.getByRole("button", { name: "Show conversation", exact: true }).click();
   await expect(page.getByRole("table")).toContainText("Synthetic departure");
   const aligned = async () => {
@@ -224,7 +228,7 @@ test("conversation slides away and restores its draft, focus, and centered compo
     await Promise.all((element.parentElement?.parentElement?.getAnimations() ?? []).map((animation) => animation.finished));
   });
   const openWidth = (await stage.boundingBox())!.width;
-  await page.screenshot({ path: testInfo.outputPath("ai-black-conversation-open.png") });
+  await page.screenshot({ path: testInfo.outputPath("ai-test-conversation-open.png") });
   await page.getByRole("button", { name: "Hide conversation" }).click();
   await expect(page.getByRole("button", { name: "Show conversation" })).toBeFocused();
   await expect(main).toHaveAttribute("data-conversation-open", "false");
@@ -232,7 +236,7 @@ test("conversation slides away and restores its draft, focus, and centered compo
   await expect.poll(async () => (await stage.boundingBox())!.width).toBeGreaterThan(openWidth + 250);
   await expect.poll(aligned).toBeLessThan(2);
   await expect(page.getByRole("region", { name: "Conversation", exact: true })).toHaveCount(0);
-  await page.screenshot({ path: testInfo.outputPath("ai-black-conversation-hidden.png") });
+  await page.screenshot({ path: testInfo.outputPath("ai-test-conversation-hidden.png") });
   await page.keyboard.press("Enter");
   await expect(page.getByRole("button", { name: "Hide conversation" })).toBeFocused();
   await expect(input).toHaveValue("Keep this draft while the conversation is hidden");
@@ -248,7 +252,7 @@ test("conversation slides away and restores its draft, focus, and centered compo
   await expect(page.getByRole("region", { name: "Conversation", exact: true })).toBeVisible();
   await expect(input).toHaveValue("Keep this draft while the conversation is hidden");
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth && document.documentElement.scrollHeight <= innerHeight)).toBe(true);
-  await page.screenshot({ path: testInfo.outputPath("ai-black-conversation-phone.png") });
+  await page.screenshot({ path: testInfo.outputPath("ai-test-conversation-phone.png") });
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.getByRole("button", { name: "Hide conversation" }).click();
   await expect.poll(() => page.locator("#assistant-conversation-panel").evaluate((element) => parseFloat(getComputedStyle(element).transitionDuration))).toBeLessThan(.001);
@@ -266,6 +270,7 @@ test("saved voice conversations can be cancelled, retried and deleted without lo
     return route.fulfill({ status: 204 });
   });
   await page.goto("/ai");
+  await selectAssistantAppearance(page, "Human hologram");
   await page.getByRole("button", { name: "Open conversations" }).click();
   await page.getByRole("button", { name: /^Voice conversation/ }).click();
   await expect(page.getByText("What is pending?", { exact: true })).toBeVisible();
@@ -291,6 +296,7 @@ test("saved voice conversations can be cancelled, retried and deleted without lo
   await expect(page.getByRole("region", { name: "Conversation", exact: true })).toHaveCount(0);
   await expect(input).toHaveValue("Retain my unsent draft");
   await page.reload();
+  await selectAssistantAppearance(page, "Human hologram");
   await page.getByRole("button", { name: "Open conversations" }).click();
   await expect(page.getByText("Your saved conversations will appear here.")).toBeVisible();
   await page.getByRole("button", { name: "Close panel", exact: true }).click();
@@ -348,10 +354,12 @@ test("the same sculpture particles respond to mouse and voice together, then to 
 test("the last chat restores for this account and device with the output collapsed", async ({ page }) => {
   await workspace(page);
   await page.goto("/ai");
+  await selectAssistantAppearance(page, "Human hologram");
   await page.getByRole("button", { name: "Open conversations", exact: true }).click();
   await page.getByRole("button", { name: /^A saved departure plan/ }).click();
   await expect(page.getByText("What is pending?", { exact: true })).toBeVisible();
   await page.reload();
+  await selectAssistantAppearance(page, "Human hologram");
   const tab=page.getByRole("button", { name: "Show conversation", exact: true });
   await expect(tab).toBeVisible();
   await expect(page.locator("#assistant-conversation-panel")).toHaveAttribute("inert", "");
@@ -361,6 +369,7 @@ test("the last chat restores for this account and device with the output collaps
   await expect(page.getByText("What is pending?", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "New conversation", exact: true }).click();
   await page.reload();
+  await selectAssistantAppearance(page, "Human hologram");
   await expect(page.getByRole("textbox", { name: "Message Global Connects" })).toBeVisible();
   await expect(tab).not.toBeAttached();
   await expect(page.getByText("What is pending?", { exact: true })).not.toBeAttached();

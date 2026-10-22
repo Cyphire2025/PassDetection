@@ -91,7 +91,8 @@ test("Test is the default scene with pointer, drag, keyboard, reset, and clean m
     const style = getComputedStyle(element); return style.outlineStyle !== "none" || style.boxShadow !== "none";
   })).toBe(true);
   await pressHologramKeys(page, "Home");
-  await expect.poll(async () => rotationDistance(await headRotation(page), initialRotation)).toBeLessThan(.06);
+  const initialReset = await expectRenderedHome(page, initialRotation);
+  await testInfo.attach("initial-home-reset-poses", { body: JSON.stringify(initialReset), contentType: "application/json" });
   // The scene fills the viewport; only the portrait frame handles pointer input.
   const bounds = (await portrait.boundingBox())!;
   const center = { x: bounds.x + bounds.width * .5, y: bounds.y + bounds.height * .5 };
@@ -213,6 +214,9 @@ test("male Test portrait finishes its entrance when reduced motion is enabled an
 
 test("Test portrait context loss and recovery keep the workspace usable", async ({ page }) => {
   await workspace(page);
+  // Context restoration must perform real GPU work; a continuously animated
+  // scene is unnecessary while exercising loss, fallback and reinitialization.
+  await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/ai");
   await chooseAppearance(page, "Test");
   const portrait = page.getByTestId("particle-face-test");
@@ -306,7 +310,6 @@ test("high-quality Test portrait renders 78400 particles with all SMAA passes an
   await expect(portrait).toHaveAttribute("data-renderer", "webgl");
   await expect.poll(async () => (await testHologramSignal(page)).points).toBe(78400);
   const homeRotation = await headRotation(page);
-  await page.emulateMedia({ reducedMotion: "no-preference" });
   await expect.poll(async () => (await testHologramSignal(page)).headUniforms.opacity[0], { timeout: 30000 }).toBe(1);
   const passes = await page.evaluate(() => (window as unknown as { __smaaPasses: Record<string, number> }).__smaaPasses);
   expect(passes.edges).toBeGreaterThan(0); expect(passes.weights).toBeGreaterThan(0); expect(passes.blend).toBeGreaterThan(0);
@@ -314,9 +317,6 @@ test("high-quality Test portrait renders 78400 particles with all SMAA passes an
   const rendered = await testHologramSignal(page);
   expect(rendered.errors).toEqual([]); expect(rendered.texturedPoints).toBeGreaterThan(0);
   expect(rendered.headNonPointDraws).toBe(0);
-  const volume = await particleDisplacement(page);
-  expectInteriorPopulation(volume);
-  await testInfo.attach("actual-high-quality-volume-population", { body: JSON.stringify(volume), contentType: "application/json" });
   expect(rendered.landscapeDraws).toBeGreaterThan(0);
   const composition = await hologramComposition(page);
   expectCompositionFits(composition);
@@ -328,6 +328,12 @@ test("high-quality Test portrait renders 78400 particles with all SMAA passes an
   expect(boundsHeight(composition.cage) / composition.ui.height).toBeGreaterThan(.55);
   expect(boundsHeight(composition.cage) / composition.ui.height).toBeLessThan(.66);
   await testInfo.attach("approved-mockup-projected-composition", { body: JSON.stringify(composition), contentType: "application/json" });
+  // Keep structural observations static on CPU-only CI. The following cadence,
+  // state readback, Home and drag checks still exercise the real animated scene.
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  const volume = await particleDisplacement(page);
+  expectInteriorPopulation(volume);
+  await testInfo.attach("actual-high-quality-volume-population", { body: JSON.stringify(volume), contentType: "application/json" });
   await testInfo.attach("forced-quality-actual-gpu-profile", {
     body: JSON.stringify(await sampleHologramCadence(page, 1500)), contentType: "application/json",
   });

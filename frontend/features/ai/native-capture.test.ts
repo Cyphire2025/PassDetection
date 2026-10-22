@@ -97,6 +97,62 @@ describe("native microphone readiness", () => {
     expect(second.events.onError).toHaveBeenCalledWith(expect.stringContaining("Microphone audio stopped"));
   });
 
+  it("lets queued PCM recover after an overdue watchdog runs first", async () => {
+    let now = 0;
+    vi.spyOn(performance, "now").mockImplementation(() => now);
+    const { capture, events } = start(); capture.connect();
+    await vi.advanceTimersByTimeAsync(1);
+    const first = pcm(1200); frame(first);
+    // Shader compilation or another long task delays both watchdog and PCM
+    // delivery. The timer can be the first task the browser runs afterward.
+    now = 5000; await vi.advanceTimersByTimeAsync(500);
+    expect(events.onError).not.toHaveBeenCalled();
+    const queued = pcm(2400); frame(queued);
+    now = 5500; await vi.advanceTimersByTimeAsync(500);
+    expect(events.send.mock.calls.map(([buffer]) => buffer)).toEqual([first, queued]);
+    expect(events.onError).not.toHaveBeenCalled();
+    expect(release).not.toHaveBeenCalled();
+    // A different late task is recoverable once fresh capture was received.
+    now = 10000; await vi.advanceTimersByTimeAsync(500);
+    expect(events.onError).not.toHaveBeenCalled();
+    frame(pcm(1800));
+    expect(events.onReady).toHaveBeenCalledOnce();
+  });
+
+  it.each([false, true])("does not renew scheduler grace without PCM (received first frame: %s)", async (received) => {
+    let now = 0;
+    vi.spyOn(performance, "now").mockImplementation(() => now);
+    const { capture, events } = start(); capture.connect();
+    await vi.advanceTimersByTimeAsync(1);
+    if (received) frame(pcm(1200));
+    now = 7000; await vi.advanceTimersByTimeAsync(500);
+    expect(events.onError).not.toHaveBeenCalled();
+    // Even a second long task cannot extend a genuinely frozen capture.
+    now = 14000; await vi.advanceTimersByTimeAsync(500);
+    expect(events.onError).toHaveBeenCalledExactlyOnceWith(expect.stringContaining(received
+      ? "Microphone audio stopped" : "No microphone audio is reaching"));
+    expect(release).toHaveBeenCalledOnce();
+    const sent = events.send.mock.calls.length;
+    frame(pcm(2400));
+    expect(events.send).toHaveBeenCalledTimes(sent);
+  });
+
+  it("cancels a pending scheduler grace without a later error or capture leak", async () => {
+    let now = 0;
+    vi.spyOn(performance, "now").mockImplementation(() => now);
+    const { capture, events } = start(); capture.connect();
+    await vi.advanceTimersByTimeAsync(1); frame(pcm(1200));
+    now = 5000; await vi.advanceTimersByTimeAsync(500);
+    expect(events.onError).not.toHaveBeenCalled();
+    capture.stop();
+    now = 10000; await vi.advanceTimersByTimeAsync(5000);
+    frame(pcm(2400));
+    expect(events.onError).not.toHaveBeenCalled();
+    expect(events.send).toHaveBeenCalledOnce();
+    expect(release).toHaveBeenCalledOnce();
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
   it("keeps ordinary silence connected, explains no sound, and clears the hint on real input", async () => {
     const { capture, events } = start(); capture.connect();
     await vi.advanceTimersByTimeAsync(1);
