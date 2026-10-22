@@ -25,6 +25,7 @@ from app.presentation.api.v1.routes import mcp_admin, mcp_admin_files, mcp_artif
 from tests.dashboard_session_fixtures import issue_dashboard_access
 from tests.integration.test_mcp_authorization import CLIENT, RESOURCE, call_mcp, connect, consent
 from tests.integration.test_mcp_authorization import mcp_fixture as mcp_fixture
+from tests.mcp_authority_assertions import assert_external_read_authority
 
 
 @pytest.fixture
@@ -364,20 +365,26 @@ async def test_read_control_lock_precedes_grant_access_and_remains_through_callb
 
     _, session, settings, _, _, _, tokens, app = readonly_mcp
     await save_sections(readonly_mcp, sorted(SUPPORTED_READ_SECTIONS))
-    original_scalar = session.scalar
+    original_scalar, original_execute = session.scalar, session.execute
     statements = []
 
     async def observe_scalar(statement, *args, **kwargs):
         statements.append(str(statement.compile(dialect=postgresql.dialect())))
         return await original_scalar(statement, *args, **kwargs)
 
+    async def observe_execute(statement, *args, **kwargs):
+        statements.append(str(statement.compile(dialect=postgresql.dialect())))
+        return await original_execute(statement, *args, **kwargs)
+
     monkeypatch.setattr(session, "scalar", observe_scalar)
+    monkeypatch.setattr(session, "execute", observe_execute)
 
     async def callback(active_session, _principal):
         assert active_session is session and session.in_transaction()
-        # The first authority query locks the global control, even for metadata.
-        assert "mcp_control.enabled" in statements[0] and "FOR SHARE" in statements[0]
-        assert all("mcp_grants" not in statement for statement in statements[:1])
+        # Credential and immutable routing lookups precede the live barriers.
+        # Even metadata callbacks retain control -> grant -> identity row locks.
+        assert "FROM mcp_tokens" in statements[0] and "FOR UPDATE" not in statements[0]
+        assert_external_read_authority(statements[1:], row_locks=True)
         return {"observed": True}
 
     token = AccessToken(token=tokens["access_token"], client_id=CLIENT, scopes=["mcp:read"], resource=RESOURCE)
@@ -386,7 +393,7 @@ async def test_read_control_lock_precedes_grant_access_and_remains_through_callb
         result = await invoke_read(app, settings, MCPToolPolicy(name, MCPCapability.READ, frozenset({"read"})), callback)
     finally:
         auth_context_var.reset(marker)
-    assert result["observed"] is True
+    assert result.get("observed") is True, result
     assert not session.in_transaction()  # Read and audit completed in one commit.
 
 

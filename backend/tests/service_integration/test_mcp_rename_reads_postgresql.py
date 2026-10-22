@@ -42,6 +42,7 @@ from app.infrastructure.repositories.user_repository import UserRepository
 from app.presentation.api.v1.routes import document_rename
 from app.presentation.api.v1.routes.document_rename import get_rename_batch, list_rename_batches
 from tests.integration.test_mcp_operations import seed_identity
+from tests.mcp_authority_assertions import assert_external_read_authority
 from tests.mcp_rename_fixtures import seed_rename_data
 from tests.postgresql_schema import create_isolated_postgresql_tables
 
@@ -144,7 +145,8 @@ async def test_postgresql_bounded_scalar_item_projection_and_all_1500_reachable(
             for model in (DocumentRenameBatchModel, DocumentRenameItemModel):
                 event.remove(model, "load", forbidden)
                 event.remove(model, "refresh", forbidden)
-        assert len(sql) == 9
+        assert_external_read_authority(sql, row_locks=True)
+        assert len(sql) == 10
         projected = next(statement for statement in sql if " as storage_present" in statement)
         assert "storage_key !=" in projected and " document_rename_items.storage_key," not in projected
         assert "document_rename_items.extracted_name" not in projected and "limit" in projected

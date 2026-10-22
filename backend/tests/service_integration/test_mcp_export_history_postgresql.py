@@ -50,6 +50,7 @@ from app.presentation.api.v1.routes.passport_routes.export_history import (
     get_passport_group_export_history_detail,
     list_passport_group_export_history,
 )
+from tests.mcp_authority_assertions import assert_external_read_authority
 from tests.postgresql_schema import create_isolated_postgresql_tables
 
 pytestmark = [pytest.mark.service_integration, pytest.mark.skipif(
@@ -220,7 +221,8 @@ async def test_postgresql_canonical_completed_v1_roster_and_no_source_hydration(
         assert result["items"][0]["exported_count"] == 0 and result["items"][0]["pending_recipient_count"] == 4
         assert result["items"][0]["actor_email"] is None
         assert result["maximum_checkpoint_people"] == 5000 and f.settings.mcp.export_source_row_limit == 100
-        assert len(statements) <= 12 and any("octet_length" in query for query in statements)
+        assert_external_read_authority(statements, row_locks=True)
+        assert len(statements) <= 13 and any("octet_length" in query for query in statements)
         # Revision comparison reads only canonical digest inputs and the revision
         # map; storage metadata, MRZ and unrelated OCR payload stay unhydrated.
         assert not any("mrz_raw" in query or "confidence_score" in query for query in statements)

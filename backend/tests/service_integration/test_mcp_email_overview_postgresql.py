@@ -44,6 +44,7 @@ from app.infrastructure.repositories.user_repository import UserRepository
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 from app.presentation.api.v1.routes import email_integration_activity, email_integration_connections
 from tests.integration.test_mcp_operations import seed_identity
+from tests.mcp_authority_assertions import assert_external_read_authority
 from tests.mcp_email_overview_fixtures import PER_COHORT, seed_email_overview
 from tests.postgresql_schema import create_isolated_postgresql_tables
 
@@ -147,7 +148,8 @@ async def test_postgresql_large_opaque_json_only_seven_scalar_counts_no_private_
             event.remove(model, "load", forbidden)
             event.remove(model, "refresh", forbidden)
     business = [query for query in statements if "from email_" in query]
-    assert len(statements) == 11 and len(business) == 7
+    assert_external_read_authority(statements, row_locks=True)
+    assert len(statements) == 12 and len(business) == 7
     assert all(query.startswith("select count(") and "owner_user_id =" in query for query in business)
     projections = "\n".join(query.split("\nfrom")[0] for query in business)
     assert not any(private in projections for private in ("ciphertext", "body", "subject", "match_evidence", "storage", "email_address", "provider_account"))
@@ -176,7 +178,8 @@ async def test_postgresql_status_configuration_only_no_mailbox_selects_or_secret
             actual = await service(f, session, settings).get_status(f.principal)
         finally:
             event.remove(f.engine.sync_engine, "before_cursor_execute", capture)
-        assert len(statements) == 4 and not any("from email_" in query for query in statements)
+        assert_external_read_authority(statements, row_locks=True)
+        assert len(statements) == 5 and not any("from email_" in query for query in statements)
         assert {key: actual[key] for key in expected} == expected
         assert actual["providers"][0]["configured"] is True and actual["providers"][1]["configured"] is False
         assert "SECRET" not in json.dumps(actual) and "private.example" not in json.dumps(actual)

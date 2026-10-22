@@ -7,6 +7,8 @@ import sys
 from unittest.mock import MagicMock, Mock
 
 import pytest
+from alembic.config import Config
+from alembic.script import ScriptDirectory
 
 from scripts import release_document_distribution_upgrade as helper
 from scripts.document_distribution_release import (
@@ -55,6 +57,34 @@ def test_missing_or_invalid_original_baseline_fails_before_database(monkeypatch,
         helper.apply_upgrade(contract())
     engine.connect.assert_not_called()
     upgrade.assert_not_called()
+
+
+def test_newer_candidate_head_is_still_rejected_before_database(monkeypatch, database):
+    _, upgrade, engine = database
+    monkeypatch.setattr("alembic.script.ScriptDirectory.from_config",
+        lambda _: Mock(get_heads=lambda: ["0141_workspace_branding"]))
+    with pytest.raises(ValueError, match="candidate_migration_head_mismatch"):
+        helper.apply_upgrade(contract(), capture_baseline=True)
+    engine.connect.assert_not_called()
+    upgrade.assert_not_called()
+
+
+def test_qualification_uses_unchanged_historical_sources_and_preserves_current_tree():
+    from scripts.qualify_document_distribution_release import historical_helper_source
+
+    original = Config(str(helper.ROOT / "alembic.ini"))
+    original.set_main_option("script_location", str(helper.ROOT / "alembic"))
+    heads = ScriptDirectory.from_config(original).get_heads()
+    with historical_helper_source() as candidate:
+        frozen = Config(str(candidate / "alembic.ini"))
+        frozen.set_main_option("script_location", str(candidate / "alembic"))
+        assert ScriptDirectory.from_config(frozen).get_heads() == [TARGET]
+        assert migration_entries(candidate) == migration_entries(helper.ROOT)
+        assert (candidate / "scripts/release_document_distribution_upgrade.py").read_bytes() == (
+            helper.ROOT / "scripts/release_document_distribution_upgrade.py").read_bytes()
+        assert not (candidate / "alembic/versions/0141_workspace_branding.py").exists()
+    assert not candidate.exists()
+    assert ScriptDirectory.from_config(original).get_heads() == heads
 
 
 def test_baseline_capture_is_source_only_and_never_runs_ddl(database):

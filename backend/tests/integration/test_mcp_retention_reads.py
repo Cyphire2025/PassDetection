@@ -34,6 +34,7 @@ from app.presentation.api.v1.routes import admin
 from tests.integration.test_mcp_authorization import call_mcp, connect
 from tests.integration.test_mcp_authorization import mcp_fixture as mcp_fixture
 from tests.integration.test_mcp_operations import operations_fixture as operations_fixture
+from tests.mcp_authority_assertions import assert_external_read_authority
 from tests.mcp_retention_fixtures import seed_retention_schedules
 
 
@@ -148,7 +149,8 @@ async def test_four_scalars_without_private_group_hydration_or_business_writes(s
         event.remove(ClientGroupModel, "load", forbidden)
         event.remove(ClientGroupModel, "refresh", forbidden)
     groups = [sql for sql in statements if "from client_groups" in sql]
-    assert len(groups) == 1 and len(statements) == 4
+    assert_external_read_authority(statements)
+    assert len(groups) == 1 and len(statements) == 5
     projection = groups[0].split("\nfrom")[0]
     assert all(
         field in projection

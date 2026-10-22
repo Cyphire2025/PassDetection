@@ -51,6 +51,7 @@ from tests.mcp_admin_overview_fixtures import (
     NULL_AGENCY_COUNTS,
     seed_admin_overview,
 )
+from tests.mcp_authority_assertions import assert_external_read_authority
 from tests.postgresql_schema import create_isolated_postgresql_tables
 
 pytestmark = [
@@ -242,9 +243,8 @@ async def test_postgresql_seven_scalar_queries_over_large_private_json_no_hydrat
                 event.remove(model, "load", forbidden)
                 event.remove(model, "refresh", forbidden)
         business = [s for s in statements if s.startswith("select count(")]
-        assert (
-            len(business) == 7 and len(statements) == 10
-        )  # Three live authority queries, no extra UserRepository hydration.
+        assert_external_read_authority(statements, row_locks=True)
+        assert len(business) == 7 and len(statements) == 11  # Routing plus three live barriers.
         assert sum("join client_groups" in s for s in business) == 3
         assert not any(
             private in "\n".join(business)

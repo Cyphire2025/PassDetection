@@ -42,6 +42,7 @@ from app.infrastructure.repositories.user_repository import UserRepository
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
 from app.presentation.api.v1.routes.analytics import get_analytics_summary
 from tests.integration.test_mcp_operations import seed_identity
+from tests.mcp_authority_assertions import assert_external_read_authority
 from tests.postgresql_schema import create_isolated_postgresql_tables
 
 pytestmark = [
@@ -319,7 +320,8 @@ async def test_postgresql_only_three_scalar_queries_no_private_hydration_or_effe
                 event.remove(model, "load", forbidden)
                 event.remove(model, "refresh", forbidden)
         business = [s for s in statements if "from passport_submissions" in s]
-        assert len(business) == 3 and len(statements) == 7
+        assert_external_read_authority(statements, row_locks=True)
+        assert len(business) == 3 and len(statements) == 8
         assert all("count(" in s or "sum(" in s for s in business)
         assert not any(
             private in "\n".join(business)
