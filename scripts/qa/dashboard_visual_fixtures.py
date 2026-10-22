@@ -5,6 +5,9 @@ import io
 import uuid
 from datetime import UTC, datetime
 
+from PIL import Image, ImageDraw
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.core.config.settings import get_settings
 from app.infrastructure.database.email_models import (
     EmailConnectionModel,
@@ -14,9 +17,8 @@ from app.infrastructure.database.gc_mobile_models import (
     ClientOrganizationModel,
     GCGroupAccessModel,
 )
+from app.infrastructure.database.models import ClientGroupModel
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
-from PIL import Image, ImageDraw
-from sqlalchemy.ext.asyncio import AsyncSession
 
 
 async def seed_visual_records(
@@ -31,6 +33,9 @@ async def seed_visual_records(
     settings = get_settings()
     if settings.app_env != "development" or not settings.database.db.startswith("passdetection_ci_"):
         raise RuntimeError("Visual fixtures require an isolated development QA database")
+    group = await session.get(ClientGroupModel, group_id)
+    if group is None or group.agency_id != agency_id:
+        raise RuntimeError("Existing visual QA group has unexpected ownership")
     connection_id = uuid.uuid5(namespace, "inert-email-connection")
     if await session.get(EmailConnectionModel, connection_id) is None:
         session.add(EmailConnectionModel(
@@ -53,12 +58,21 @@ async def seed_visual_records(
         ))
     control_id = uuid.uuid5(namespace, "gc-group-control")
     organization_id = uuid.uuid5(namespace, "gc-client-organization")
-    if await session.get(ClientOrganizationModel, organization_id) is None:
+    organization = await session.get(ClientOrganizationModel, organization_id)
+    if organization is None:
         session.add(ClientOrganizationModel(
             id=organization_id, agency_id=agency_id, name="QA Travel Company",
             normalized_name="qa travel company", status="active",
         ))
         await session.flush()
+    elif organization.agency_id != agency_id:
+        raise RuntimeError("Existing visual QA company has unexpected ownership")
+    if group.company_id not in (None, organization_id):
+        raise RuntimeError("Existing visual QA group has unexpected company ownership")
+    if group.company_id != organization_id:
+        # The disabled GC projection must agree with the canonical group owner.
+        group.company_id = organization_id
+        group.company_revision = (group.company_revision or 0) + 1
     control = await session.get(GCGroupAccessModel, control_id)
     if control is None:
         session.add(GCGroupAccessModel(
@@ -68,6 +82,8 @@ async def seed_visual_records(
             client_manager_access_enabled=False, coordinator_access_enabled=False,
         ))
     else:
+        if control.agency_id != agency_id or control.group_id != group_id:
+            raise RuntimeError("Existing visual QA access control has unexpected ownership")
         control.client_organization_id = organization_id
     storage = MinioStorageRepository()
     await storage.ensure_bucket_exists()

@@ -29,6 +29,7 @@ describe("terrain-integrated pedestal powder", () => {
     } finally { collar.dispose(); ground.dispose(); material.dispose(); }
   });
 
+  // Exhaustive atlas probes use full terrain raycasts, including under CI coverage.
   it("never interpolates across unrelated atlas charts inside a powder triangle", () => {
     const ground = loadGround(), collar = snowCollarGeometry(ground), material = new MeshBasicMaterial({ side: DoubleSide }), source = new Mesh(ground, material);
     const ray = new Raycaster(new Vector3(), new Vector3(0, -1, 0));
@@ -51,7 +52,7 @@ describe("terrain-integrated pedestal powder", () => {
         expect(u).toBeCloseTo(hit!.uv!.x, 4); expect(v).toBeCloseTo(hit!.uv!.y, 4);
       }
     } finally { collar.dispose(); ground.dispose(); material.dispose(); }
-  });
+  }, 30_000);
 
   it("retires its geometry and surface exactly once without disposing shared terrain or textures", () => {
     const ground = loadGround(), snow = new Texture(), wind = new Texture(), collar = createSnowCollar(ground, snow, wind);

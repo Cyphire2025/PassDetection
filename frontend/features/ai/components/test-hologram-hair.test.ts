@@ -76,6 +76,7 @@ describe("the restrained 3D scalp groom", () => {
     }
   });
 
+  // Hundreds of full-mesh visibility probes also run with CI coverage instrumentation.
   it("shows several staggered front waves instead of hiding every lock behind one ridge", () => {
     const head = createShortHairHead(decodeHumanHead(source(), "female"));
     const geometry = new BufferGeometry().setAttribute("position", new BufferAttribute(head.positions, 3));
@@ -89,7 +90,7 @@ describe("the restrained 3D scalp groom", () => {
     }
     geometry.dispose(); material.dispose();
     expect(visibleLocks.size).toBeGreaterThanOrEqual(8);
-  });
+  }, 30_000);
 
   it("shades generated hair troughs while preserving exposed crests and every original facial vertex", () => {
     const head = createShortHairHead(decodeHumanHead(source(), "female"));

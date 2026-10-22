@@ -477,6 +477,7 @@ jobs:
       FCM_TEST_KEEP_SCHEMA: "1"
       REALTIME_TEST_REDIS_URL: redis://gc-realtime-startup-test-ci:6379/15
       CI_FRONTEND_ERROR_REDIS_URL: redis://localhost:6379/14
+      ASSISTANT_TEST_REDIS_URL: redis://localhost:6379/13
       REDIS_HOST: localhost
       REDIS_PORT: 6379
       REDIS_PASSWORD: ""

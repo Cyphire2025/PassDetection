@@ -36,6 +36,7 @@ describe("centered 3D hologram projector", () => {
     } finally { projector.dispose(); }
   });
 
+  // Keep every visibility probe; allow instrumented full-mesh raycasts on CI CPUs.
   it.each(["male", "female"] as const)("keeps short rays visible between the disk and actual %s neck", (appearance) => {
     const head = decodeHumanHead(Uint8Array.from(readFileSync("public/ai/human-head/head-v1.bin")).buffer, appearance);
     const geometry = new BufferGeometry().setAttribute("position", new BufferAttribute(head.positions, 3));
@@ -64,7 +65,7 @@ describe("centered 3D hologram projector", () => {
         expect(visible, `${appearance} rays at ${height} fan height`).toBeGreaterThanOrEqual(6);
       }
     } finally { geometry.dispose(); material.dispose(); }
-  });
+  }, 30_000);
 
   it("keeps its physical anchor unchanged through animation and retires every resource once", () => {
     const projector = createHologramProjector(), resources = new Set<BufferGeometry | Material>(), disposed: number[] = [];

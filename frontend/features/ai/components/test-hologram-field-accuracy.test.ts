@@ -24,6 +24,7 @@ function sample(data: HeadFieldData, field: number, position: Vector3, channel: 
 const percentile = (values: number[], fraction: number) => [...values].sort((a, b) => a - b)[Math.floor((values.length - 1) * fraction)];
 
 describe("baked fields against independent Three.js triangle intersections", () => {
+  // Independent full-mesh raycasts exceed the default timeout under CI coverage.
   it.each(["female", "male"] as const)("preserves the %s boundary, gradient direction and articulated facial locations", (appearance) => {
     const head = prepareTestHead(decodeHumanHead(Uint8Array.from(readFileSync(resolve(root, "head-v1.bin"))).buffer, appearance), appearance);
     const data = decodeHeadFieldData(Uint8Array.from(gunzipSync(readFileSync(resolve(root, `fields-${appearance}-v1.bin.gz`)))).buffer, appearance);
@@ -57,7 +58,7 @@ describe("baked fields against independent Three.js triangle intersections", () 
       expect(percentile(directions, .5)).toBeGreaterThan(.7);
       expect(outside / surfaceErrors.length).toBeGreaterThan(.95); expect(inside / surfaceErrors.length).toBeGreaterThan(.85);
     } finally { geometry.dispose(); material.dispose(); }
-  });
+  }, 30_000);
 
   it.each(["female", "male"] as const)("resolves both %s iris regions and keeps optical-chamber samples outside the solid", (appearance) => {
     const head = prepareTestHead(decodeHumanHead(Uint8Array.from(readFileSync(resolve(root, "head-v1.bin"))).buffer, appearance), appearance), regions = eyeRegions(head);
@@ -81,5 +82,5 @@ describe("baked fields against independent Three.js triangle intersections", () 
       console.info(`${appearance} optical field: clear=${clear}/${tested}, iris metadata=${tagged}/${tested}`);
       expect(tested).toBeGreaterThan(40); expect(clear / tested).toBeGreaterThan(.6); expect(tagged / tested).toBeGreaterThan(.8);
     } finally { geometry.dispose(); material.dispose(); }
-  });
+  }, 30_000);
 });

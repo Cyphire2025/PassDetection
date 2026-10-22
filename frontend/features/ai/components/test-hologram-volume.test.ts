@@ -57,6 +57,7 @@ describe("particle-only head volume", () => {
     expect(layers.reduce((total, value) => total + value)).toBe(count - surfaceCount);
   });
 
+  // Validate the full particle budget with instrumented geometry on slower CI CPUs.
   it.each(["female", "male"] as const)("fills the actual %s head with articulated interior grains and no exterior filler", (appearance) => {
     const source = Uint8Array.from(readFileSync(resolve("public/ai/human-head/head-v1.bin"))).buffer;
     const head = createShortHairHead(decodeHumanHead(source, appearance)), started = performance.now();
@@ -84,7 +85,7 @@ describe("particle-only head volume", () => {
     expect(deep).toBeGreaterThan((count - surfaceCount) * .4); expect(articulated).toBeGreaterThan(300);
     for (const values of sampled) expect(values.every(Number.isFinite)).toBe(true);
     geometry.dispose(); material.dispose();
-  });
+  }, 30_000);
 
   it.each(["female", "male"] as const)("keeps the %s optical chamber clear while retaining the volume behind each iris", (appearance) => {
     const source = Uint8Array.from(readFileSync(resolve("public/ai/human-head/head-v1.bin"))).buffer;
