@@ -16,23 +16,37 @@ export function browserSeed(): Seed {
   return JSON.parse(line) as Seed;
 }
 
-/** Only external message delivery is substituted. The real API verifies and consumes this DB proof. */
-export async function installSyntheticOtpDelivery(page: Page): Promise<void> {
-  await page.route("**/api/v1/passports/*/contact-otp/request", async (route) => {
-    const request = route.request();
-    const submission = new URL(request.url()).pathname.split("/").at(-3);
-    const result = execFileSync("docker", [
+async function freshFixture(page: Page, token: string, session: string, operation: string, fields: Record<string, string> = {}) {
+  const cookie = (await page.context().cookies(`${new URL(page.url()).origin}/api/v1/public-drafts/${token}`))
+    .find((value) => value.name === "pd_fresh_drafts");
+  if (!cookie || !session) throw new Error("The real fresh draft capability is required");
+  const result = execFileSync("docker", [
       "compose", "--env-file", "../.env.example", "-p", "passdetection-qualification",
       "-f", "../docker-compose.qualification.yml", "exec", "-T", "backend", "python",
       "/workspace/scripts/qa/browser_workflow_fixtures.py",
-    ], {
-      cwd: process.cwd(), encoding: "utf8", timeout: 15_000,
-      input: JSON.stringify({ ...request.postDataJSON(), submission_id: submission, session_id: request.headers()["x-upload-session-id"] }),
-    });
-    const response = result.trim().split(/\r?\n/).at(-1)!;
-    JSON.parse(response);
-    await route.fulfill({ status: 200, contentType: "application/json", body: response });
+  ], {
+    cwd: process.cwd(), encoding: "utf8", timeout: 15_000,
+    input: JSON.stringify({ ...fields, operation, group_token: token, session_id: session, browser_secret: cookie.value }),
   });
+  return JSON.parse(result.trim().split(/\r?\n/).at(-1)!);
+}
+
+/** Capture only delivery; actual draft authorization, challenge creation and quotas still run. */
+export async function installSyntheticOtpDelivery(page: Page): Promise<() => string> {
+  let delivered: string | undefined;
+  await page.route("**/api/v1/public-drafts/*/contact/request", async (route) => {
+    const request = route.request(), body = request.postDataJSON();
+    const token = new URL(request.url()).pathname.split("/").at(-3)!;
+    if (body.group_token !== token) throw new Error("Contact request must match its draft group");
+    const result = await freshFixture(page, token, request.headers()["x-upload-session-id"], "request_contact", body);
+    delivered = result.delivered_code;
+    await route.fulfill({ status: 200, json: result.response });
+  });
+  return () => { if (!delivered) throw new Error("No synthetic OTP was delivered"); return delivered; };
+}
+
+export async function inspectPublishedUpload(page: Page, token: string, session: string, source: string) {
+  return freshFixture(page, token, session, "inspect_publication", { source_submission_id: source });
 }
 
 /** Synthetic video frames at getUserMedia only: real video, ZXing decoder and queue remain in use. */

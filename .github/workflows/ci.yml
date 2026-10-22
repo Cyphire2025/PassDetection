@@ -908,6 +908,7 @@ jobs:
         run: npm ci
 
       - name: Install the reviewed Chromium and WebKit runtimes
+        timeout-minutes: 10
         run: npx playwright install --with-deps chromium webkit
 
       - name: Verify synthetic camera lifecycle before expensive image builds

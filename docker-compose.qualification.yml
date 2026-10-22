@@ -24,6 +24,10 @@ x-api-environment: &api-environment
   PROCESSING_BACKEND: celery
   MOBILE_ENABLED: "false"
   MOBILE_OTP_PROVIDER: disabled
+  # Public fixture-only material for encrypted fresh drafts in this disposable stack.
+  # Disclosure remains disabled; production must supply independent secret keys.
+  TRAVELLER_REUSE_LOOKUP_KEY: qualification-only-fresh-draft-lookup-937-503
+  TRAVELLER_REUSE_ENCRYPTION_KEY: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
   # Public deterministic test material, exclusively for this synthetic project.
   # It exercises real offline-lease signing; never use these keys in production.
   MOBILE_OFFLINE_LEASE_ACTIVE_KID: qualification-offline-v1

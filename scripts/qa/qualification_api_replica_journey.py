@@ -7,9 +7,12 @@ import json
 import secrets
 import sys
 import uuid
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 
 import httpx
+from qualification_application_journey import create_qualification_group, isolated
+from upload_configuration_http_smoke import synthetic_cover, totp
+
 from app.core.security.identity_security import encrypt_mfa_secret
 from app.core.security.password import hash_password
 from app.infrastructure.database.models import (
@@ -18,8 +21,6 @@ from app.infrastructure.database.models import (
     UserSecurityStateModel,
 )
 from app.infrastructure.database.session import AsyncSessionFactory, engine
-from qualification_application_journey import isolated
-from upload_configuration_http_smoke import REQUIRED_FIELD_NAMES, synthetic_cover, totp
 
 PEER = "http://passdetection-qualification-api-peer:8000"
 ORIGIN = "https://localhost:58443"
@@ -50,19 +51,14 @@ async def first(*, verify_peer: bool = True) -> dict:
         challenge = (await call(client, "POST", "/api/v1/auth/login", data={"username": email, "password": password})).json()
         result = await call(client, "POST", "/api/v1/auth/mfa/verify",
                             json={"challenge_token": challenge["challenge_token"], "code": totp(secret)})
+        assert result.json()["user"]["agency_id"] == str(agency)
         cookies = "; ".join(f"{key}={value}" for key, value in result.cookies.items())
         assert "access_token=" in cookies and "refresh_token=" in cookies
         # Direct internal HTTP targets are intentional: manually transport the
         # already issued cookies to select each instance. Browser/TLS semantics
         # are qualified separately by the real three-engine browser lane.
         client.headers["Cookie"] = cookies
-        date = datetime.now(UTC).date() + timedelta(days=30)
-        group = (await call(client, "POST", "/api/v1/upload-links", expected=201, json={
-            "name": f"Synthetic Replica {token}", "destination": "Synthetic destination",
-            "travel_date": date.isoformat(), "return_date": (date + timedelta(days=3)).isoformat(),
-            "upload_configuration": {"passport_upload_pages": ["cover", "back_cover"], "passport_live_scan": False,
-                                     "required_fields": {key: False for key in REQUIRED_FIELD_NAMES}},
-        })).json()
+        group = await create_qualification_group(client, token, agency, prefix="Synthetic Replica")
         capability = secrets.token_urlsafe(40)
         submission = (await call(client, "POST", f"/api/v1/passports/upload/{group['token']}", expected=201,
             headers={"X-Upload-Session-ID": capability}, data={"client_name": "Synthetic Replica Traveller",

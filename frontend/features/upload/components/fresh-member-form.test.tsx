@@ -6,7 +6,7 @@ import type { FreshDraft, FreshPayload } from "../api/fresh-draft.api";
 import { preparePublicUploadFile } from "../services/public-upload-file";
 import { FreshMemberForm } from "./fresh-member-form";
 
-const api = vi.hoisted(() => ({ start: vi.fn(), read: vi.fn(), save: vi.fn(), upload: vi.fn(), complete: vi.fn(), document: vi.fn(), activity: vi.fn(), discard: vi.fn() }));
+const api = vi.hoisted(() => ({ start: vi.fn(), read: vi.fn(), save: vi.fn(), upload: vi.fn(), complete: vi.fn(), document: vi.fn(), activity: vi.fn(), discard: vi.fn(), requestCode: vi.fn(), verifyCode: vi.fn() }));
 vi.mock("../api/fresh-draft.api", () => ({ freshDraftApi: () => api }));
 vi.mock("../services/public-upload-file", async (original) => ({ ...await original<object>(), preparePublicUploadFile: vi.fn(async (file: File) => file) }));
 const collection = { acquisition_mode: "file" as const, submission_mode: "single" as const };
@@ -27,7 +27,18 @@ beforeEach(() => {
   api.start.mockImplementation(async () => snapshot()); api.read.mockImplementation(async () => snapshot());
   api.save.mockImplementation(async (payload: FreshPayload) => { server = { ...server, ...payload, revision: server.revision + 1 }; return snapshot(); });
   api.upload.mockImplementation(async () => { server = { ...server, revision: server.revision + 1, documents: [{ id: "replacement", side: "front", state: "ready" }, server.documents[1]] }; return snapshot(); });
-  api.complete.mockImplementation(async () => { server.status = "submitted"; return { source_submission_id: "source", status: "submitted" }; });
+  api.complete.mockImplementation(async (revision: number) => {
+    if (revision !== server.revision) throw { status: 409, message: "This draft changed. Review it before submitting." };
+    server.status = "submitted"; return { source_submission_id: "source", status: "submitted" };
+  });
+  api.requestCode.mockImplementation(async () => {
+    server.revision++;
+    return { challenge_id: "contact-challenge", expires_in_seconds: 300, resend_after_seconds: 30 };
+  });
+  api.verifyCode.mockImplementation(async () => {
+    server.revision++; server.phone_verification_id = "fresh-proof"; server.phone_verification_expires_at = "2099-01-01";
+    return { phone_verification_id: "fresh-proof", phone_number: "+919999999999", expires_in_seconds: 3600 };
+  });
   api.document.mockResolvedValue(new Blob(["saved"], { type: "image/jpeg" }));
   api.activity.mockResolvedValue({ images_present: true, presence_recorded: true, heartbeat_after_seconds: 60 });
   api.discard.mockResolvedValue(undefined);
@@ -76,4 +87,26 @@ describe("fresh submission during image preparation", () => {
     fireEvent.click(screen.getByRole("button", { name: "Back" }));
     await waitFor(() => expect(onBack).toHaveBeenCalledOnce()); expect(api.discard).toHaveBeenCalledOnce();
   });
+});
+
+it("submits the current revision after real contact mutations on a cover-only draft", async () => {
+  server.phone_verification_id = null; server.phone_verification_expires_at = null;
+  server.current_details.client_name = "Synthetic Traveller";
+  server.documents = [{ id: "cover", side: "cover", state: "ready" }, { id: "back-cover", side: "back_cover", state: "ready" }];
+  server.extraction_status = "none";
+  const coverGroup = { ...group, upload_configuration: { ...group.upload_configuration!, passport_upload_pages: ["cover", "back_cover"] as ("cover" | "back_cover")[] } };
+  const onComplete = vi.fn();
+  render(<FreshMemberForm token="trip" group={coverGroup} member={member} initial={collection} onStarted={vi.fn()} onComplete={onComplete} onBack={vi.fn()} />);
+  await waitFor(() => expect(screen.getByRole("button", { name: "Verify WhatsApp number" })).toBeEnabled());
+  fireEvent.click(screen.getByRole("button", { name: "Verify WhatsApp number" }));
+  fireEvent.change(await screen.findByLabelText("Verification code"), { target: { value: "638291" } });
+  fireEvent.click(screen.getByRole("button", { name: "Confirm code" }));
+  await screen.findByText("WhatsApp number verified");
+  fireEvent.click(screen.getByRole("button", { name: "Confirm details and submit" }));
+  await waitFor(() => expect(api.complete).toHaveBeenCalledOnce());
+  expect(api.complete.mock.calls[0][0]).toBe(server.revision);
+  await waitFor(() => expect(onComplete).toHaveBeenCalledOnce());
+  expect(api.complete.mock.calls[0].slice(0, 3)).toEqual([3, "fresh-proof", member.submissionKey]);
+  expect(api.save).not.toHaveBeenCalled();
+  expect(api.read).toHaveBeenCalledTimes(2);
 });

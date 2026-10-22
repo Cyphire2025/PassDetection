@@ -76,3 +76,63 @@ describe("fresh private draft revision stream", () => {
     visibility.mockRestore();
   });
 });
+
+describe("contact mutation revision readback", () => {
+  it("preserves unsaved typing during readback and uses the new revision for the next save", async () => {
+    const { result } = await ready();
+    let read!: (view: FreshDraft) => void;
+    api.read.mockImplementationOnce(() => new Promise<FreshDraft>((resolve) => { read = resolve; }));
+    server.revision++;
+    let pending!: Promise<void>;
+    act(() => { pending = result.current.serialized(result.current.syncContactRevision, true); });
+    await waitFor(() => expect(api.read).toHaveBeenCalledOnce());
+    act(() => result.current.update("current_details", "client_name", "A newer local edit"));
+    await act(async () => { read(snapshot()); await pending; });
+    expect(result.current.draft?.revision).toBe(2);
+    expect(result.current.payload?.current_details.client_name).toBe("A newer local edit");
+    expect(result.current.dirty).toBe(true);
+    await act(() => result.current.flush());
+    expect(api.save.mock.calls[0][1]).toBe(2);
+    expect(server.current_details.client_name).toBe("A newer local edit");
+  });
+
+  it("does not accept a new revision over a conflicting edit from another window", async () => {
+    server.current_details.client_name = "Original";
+    const { result } = await ready();
+    act(() => result.current.update("current_details", "client_name", "Local edit"));
+    server = { ...server, revision: 2, current_details: { client_name: "Other window edit" } };
+    await act(async () => {
+      await expect(result.current.serialized(result.current.syncContactRevision, true)).rejects.toThrow("another window");
+    });
+    expect(result.current.draft?.revision).toBe(1);
+    expect(result.current.payload?.current_details.client_name).toBe("Local edit");
+    expect(api.save).not.toHaveBeenCalled();
+    expect(api.complete).not.toHaveBeenCalled();
+  });
+
+  it.each(["identity", "status", "revision"])("rejects readback with changed %s", async (field) => {
+    server.revision = 2;
+    const { result } = await ready();
+    if (field === "identity") server.id = "different-draft";
+    if (field === "status") server.status = "submitted";
+    if (field === "revision") server.revision = 1;
+    await act(async () => {
+      await expect(result.current.serialized(result.current.syncContactRevision, true)).rejects.toThrow("Reopen it");
+    });
+    expect(result.current.draft).toMatchObject({ id: "draft", revision: 2, status: "active" });
+    expect(api.complete).not.toHaveBeenCalled();
+  });
+
+  it("cancels readback when the member leaves, even if the transport later returns", async () => {
+    const { result, unmount } = await ready();
+    let read!: (view: FreshDraft) => void;
+    api.read.mockImplementationOnce(() => new Promise<FreshDraft>((resolve) => { read = resolve; }));
+    let pending!: Promise<void>;
+    act(() => { pending = result.current.serialized(result.current.syncContactRevision, true); });
+    await waitFor(() => expect(api.read).toHaveBeenCalledOnce());
+    const signal = api.read.mock.calls[0][0] as AbortSignal;
+    unmount(); expect(signal.aborted).toBe(true);
+    await act(async () => { read({ ...snapshot(), revision: 3 }); await expect(pending).rejects.toMatchObject({ name: "AbortError" }); });
+    expect(result.current.draft?.revision).toBe(1);
+  });
+});

@@ -61,9 +61,12 @@ async def complete(group_token: str, body: FreshDraftComplete, secret: str = Dep
     if draft.revision != body.expected_revision or draft.upload_session_hash != service.crypto.digest("fresh-draft-session", session_id):
         raise ReuseError(ReuseReason.REVISION_CONFLICT)
     payload = draft_payload(service, draft)
+    # Manual collection supplies a full name instead of extracted passport fields.
+    # The ordinary review use case still validates and normalizes this identity.
+    fields = payload.passport_fields or {"given_names": payload.current_details.get("client_name", "")}
     collection = (payload.collection or FreshCollection()).model_dump(exclude={"acquisition_mode", "visa_photo_source", "qualifier_selection_token"})
     request = ClientSubmitPassportRequest.model_validate({**{k: v for k, v in payload.current_details.items() if k != "client_name"},
-        **collection, "group_token": group_token, "confirmed_fields": payload.passport_fields,
+        **collection, "group_token": group_token, "confirmed_fields": fields,
         "phone_verification_id": body.phone_verification_id,
         "custom_answers": [{"question_id": k, "value": v} for k, v in payload.custom_answers.items()],
         "custom_detail_answers": [{"detail_id": k, "value": v} for k, v in payload.custom_detail_answers.items()]})
