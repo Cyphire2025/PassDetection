@@ -135,13 +135,19 @@ export class TestHologramEngine {
   }
 
   resize(width: number, height: number, frame?: PortraitFrame) {
+    const dpr = Math.min(devicePixelRatio || 1, this.lowPower ? 1.15 : 1.5) * this.quality;
+    const bufferChanged = width !== this.width || height !== this.height || dpr !== this.dpr;
     this.width = width; this.height = height;
     if (frame) this.portraitFrame = frame;
-    this.dpr = Math.min(devicePixelRatio || 1, this.lowPower ? 1.15 : 1.5) * this.quality;
-    this.renderer.setPixelRatio(this.dpr);
-    this.renderer.setSize(Math.max(1, width), Math.max(1, height), false);
-    this.composer?.setPixelRatio(this.dpr);
-    this.composer?.setSize(Math.max(1, width), Math.max(1, height));
+    this.dpr = dpr;
+    // Drawer transitions change portrait bounds, not the full-screen buffer.
+    // Three resets canvas dimensions even when setSize receives the same values.
+    if (bufferChanged) {
+      this.renderer.setPixelRatio(dpr);
+      this.renderer.setSize(Math.max(1, width), Math.max(1, height), false);
+      this.composer?.setPixelRatio(dpr);
+      this.composer?.setSize(Math.max(1, width), Math.max(1, height));
+    }
     this.stage?.resize(width, height);
     const portrait = this.portraitFrame ?? { left: 0, top: 0, width, height };
     if (this.stage) {

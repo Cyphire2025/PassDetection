@@ -52,10 +52,14 @@ test("records actual GPU render cadence without forcing hardware quality", async
   test.setTimeout(60000);
   await workspace(page);
   await page.setViewportSize({ width: WIDTH, height: HEIGHT });
-  await page.emulateMedia({ colorScheme: "dark", reducedMotion: "no-preference" });
-  await page.goto("/ai"); await chooseAppearance(page, "Test");
+  await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
+  await page.goto("/ai");
+  await expect(page.getByRole("main", { name: "Global Connects AI workspace" })).toHaveAttribute("data-appearance", "test");
   await expect(page.getByTestId("particle-face-test")).toHaveAttribute("data-renderer", "webgl");
   await expect.poll(async () => (await testHologramSignal(page)).headUniforms.opacity[0]).toBe(1);
+  // Measure actual animated frames after startup, without first opening an
+  // appearance panel to select the scene that is already the default.
+  await page.emulateMedia({ reducedMotion: "no-preference" });
   const result = await sampleHologramCadence(page);
   writeFileSync(testInfo.outputPath("actual-gpu-render-profile.json"), JSON.stringify(result, null, 2));
   await testInfo.attach("actual-gpu-render-profile", { contentType: "application/json", body: JSON.stringify(result) });

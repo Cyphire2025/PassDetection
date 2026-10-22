@@ -138,6 +138,7 @@ test("spoken output drives the actual playback analyser and can be interrupted",
   const speechRequests: string[] = [];
   page.on("request", request => { if (request.url().endsWith("/speech")) speechRequests.push(request.url()); });
   await page.goto("/ai");
+  await selectAssistantAppearance(page, "Human hologram");
   await page.getByRole("textbox", { name: "Message Global Connects" }).fill("Give me a short spoken overview");
   await page.getByRole("button", { name: "Send message" }).click();
   await page.getByRole("button", { name: "Show conversation", exact: true }).click();
@@ -184,6 +185,7 @@ test("a spoken question is transcribed, answered in chat, and microphone cancell
   await workspace(page);
   await syntheticMicrophone(page);
   await page.goto("/ai");
+  await selectAssistantAppearance(page, "Human hologram");
   await page.getByRole("button", { name: "Start microphone" }).click();
   await expect(page.getByRole("button", { name: "Finish voice message" })).toBeVisible();
   await page.evaluate(() => (window as unknown as { __voiceTest: { setVolume: (value: number) => void } }).__voiceTest.setVolume(.22));
@@ -205,7 +207,7 @@ test("a spoken question is transcribed, answered in chat, and microphone cancell
 
 test("conversation slides away and restores its draft, focus, and centered composer on desktop and phone", async ({ page }, testInfo) => {
   await workspace(page);
-  await page.emulateMedia({ colorScheme: "dark" });
+  await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
   await page.goto("/ai");
   const input = page.getByRole("textbox", { name: "Message Global Connects" });
   await input.fill("Check the current documents");
@@ -224,7 +226,7 @@ test("conversation slides away and restores its draft, focus, and centered compo
   await expect.poll(aligned).toBeLessThan(2);
   await input.fill("Keep this draft while the conversation is hidden");
   await stage.evaluate(async (element) => {
-    // Measure the open column after its actual CSS transition, independent of GPU speed.
+    // Measure the settled column after any outstanding CSS layout transitions.
     await Promise.all((element.parentElement?.parentElement?.getAnimations() ?? []).map((animation) => animation.finished));
   });
   const openWidth = (await stage.boundingBox())!.width;
@@ -253,7 +255,6 @@ test("conversation slides away and restores its draft, focus, and centered compo
   await expect(input).toHaveValue("Keep this draft while the conversation is hidden");
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth && document.documentElement.scrollHeight <= innerHeight)).toBe(true);
   await page.screenshot({ path: testInfo.outputPath("ai-test-conversation-phone.png") });
-  await page.emulateMedia({ reducedMotion: "reduce" });
   await page.getByRole("button", { name: "Hide conversation" }).click();
   await expect.poll(() => page.locator("#assistant-conversation-panel").evaluate((element) => parseFloat(getComputedStyle(element).transitionDuration))).toBeLessThan(.001);
 });
