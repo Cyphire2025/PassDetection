@@ -8,6 +8,7 @@ export async function assistantAuth(page: Page, role = "super_admin") {
   await page.route("**/api/v1/**", async (route) => {
     const path = new URL(route.request().url()).pathname;
     if (path.endsWith("/auth/me")) return route.fulfill({ json: user });
+    if (path === "/api/v1/ai-assistant/availability") return route.fulfill({ json: { enabled: true, allowed: true } });
     if (path.endsWith("/auth/refresh")) return route.fulfill({ json: { status: "authenticated", user, token_type: "bearer", access_token_expires_at: "2099-01-01T00:00:00Z" } });
     if (path.endsWith("/notifications/feed")) return route.fulfill({ json: { items: [], unread_count: 0, next_cursor: null } });
     return route.fallback();

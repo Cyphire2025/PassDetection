@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { mockFreshFlow, startFresh } from "./support/public-fresh-flow";
 
 type Methods = { list: boolean; other: boolean };
 
@@ -6,15 +7,8 @@ async function prepareLink(page: Page, methods: Methods) {
   const token = `qualifier-methods-${Number(methods.list)}-${Number(methods.other)}`;
   const saves: Record<string, unknown>[] = [];
   let saved: Record<string, unknown> | null = null;
-  const unexpected: string[] = [];
-  const errors: string[] = [];
-  page.on("pageerror", (error) => errors.push(error.message));
-  await page.route("**/api/v1/**", async (route) => {
-    const request = route.request();
-    const pathname = new URL(request.url()).pathname;
-    const json = (body: unknown, status = 200) => route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
-    if (pathname === "/api/v1/returning/capabilities" && request.method() === "GET") return json({ enabled: false, code_label: null });
-    if (pathname === `/api/v1/upload-links/token/${token}`) return json({
+  const reads: Array<{ token: string; session: string }> = [];
+  const group = {
       id: "qualifier-test-group", name: "Dubai Client Group", token, agency_id: "test-agency",
       status: "active", created_at: "2026-09-08T00:00:00Z", destination: "Dubai",
       travel_date: "2026-11-01", return_date: "2026-11-08", timezone: "Asia/Dubai",
@@ -31,8 +25,12 @@ async function prepareLink(page: Page, methods: Methods) {
         agent_employee_code_label: "Agent/Employee Code", agency_dealership_name_label: "Agency/Dealership Name",
         qualifier_relation_list_enabled: methods.list, qualifier_relation_other_enabled: methods.other,
       },
-    });
-    if (pathname.endsWith("/qualifier-selection")) {
+  };
+  const state = await mockFreshFlow(page, token, { group, route: async (route) => {
+    const request = route.request();
+    if (!new URL(request.url()).pathname.endsWith("/qualifier-selection")) return false;
+    const session = request.headers()["x-upload-session-id"];
+    expect(session).toBeTruthy();
       if (request.method() === "POST") {
         const body = request.postDataJSON();
         saves.push(body);
@@ -40,21 +38,19 @@ async function prepareLink(page: Page, methods: Methods) {
           is_self: body.is_self, relation_code: body.relation_code,
           relation_label: body.is_self ? "Self" : body.relation_code === "other" ? body.other_relation : "Spouse",
           selected_at: new Date().toISOString(), expires_at: new Date(Date.now() + 7_200_000).toISOString(),
-          status: "active", selection_token: "q".repeat(43), submission_id: null,
+          status: "active", selection_token: "q".repeat(40) + saves.length.toString().padStart(3, "0"), submission_id: null,
         };
       }
-      return json(saved);
-    }
-    if (pathname === `/api/v1/passports/upload/${token}` && request.method() === "PUT") {
-      return json({ submission_id: null, status: "not_found" });
-    }
-    if (pathname.endsWith("/telemetry")) return json({});
-    unexpected.push(`${request.method()} ${pathname}`);
-    return json({ error: { message: "Unexpected test request" } }, 400);
-  });
-  await page.goto(`/upload/${token}`);
+      if (request.method() === "GET") {
+        reads.push({ token: request.headers()["x-qualifier-selection-token"], session });
+        expect(reads.at(-1)?.token).toBe(saved?.selection_token);
+      }
+      await route.fulfill({ contentType: "application/json", body: JSON.stringify(saved) });
+      return true;
+  } });
+  await startFresh(page, token);
   await expect(page.getByRole("heading", { name: "Relation with Qualifier" })).toBeVisible();
-  return { saves, errors, unexpected };
+  return { ...state, token, saves, reads, savedToken: () => String(saved?.selection_token) };
 }
 
 for (const viewport of [{ width: 1440, height: 1100 }, { width: 390, height: 950 }, { width: 320, height: 950 }]) {
@@ -62,7 +58,8 @@ for (const viewport of [{ width: 1440, height: 1100 }, { width: 390, height: 950
     test(`relationship methods list=${methods.list} other=${methods.other} at ${viewport.width}px`, async ({ page }, testInfo) => {
       await page.setViewportSize(viewport);
       const fixture = await prepareLink(page, methods);
-      await expect(page.getByRole("combobox")).toHaveCount(Number(methods.list));
+      const choices = page.locator('section[aria-labelledby="qualifier-choice-title"]');
+      await expect(choices.getByRole("combobox")).toHaveCount(Number(methods.list));
       await expect(page.getByRole("textbox", { name: "Specify relationship" })).toHaveCount(Number(methods.other));
       const grid = await page.getByTestId("qualifier-relationship-methods").boundingBox();
       const cards = [];
@@ -79,7 +76,7 @@ for (const viewport of [{ width: 1440, height: 1100 }, { width: 390, height: 950
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
       if (methods.other) {
         await page.getByRole("textbox", { name: "Specify relationship" }).fill("  Cousin  ");
-      } else await page.getByRole("combobox").selectOption("spouse");
+      } else await choices.getByRole("combobox").selectOption("spouse");
       await expect(page.locator('section[aria-labelledby="qualifier-choice-title"]')).toHaveCSS("opacity", "1");
       await page.screenshot({ path: testInfo.outputPath("relationship-options.png"), fullPage: true });
       await page.getByRole("button", { name: "Continue", exact: true }).click();
@@ -87,7 +84,7 @@ for (const viewport of [{ width: 1440, height: 1100 }, { width: 390, height: 950
       expect(fixture.saves[0]).toEqual(methods.other
         ? { is_self: false, relation_code: "other", other_relation: "Cousin" }
         : { is_self: false, relation_code: "spouse" });
-      expect(fixture.errors).toEqual([]);
+      expect(fixture.pageErrors).toEqual([]);
       expect(fixture.unexpected).toEqual([]);
     });
   }
@@ -99,15 +96,21 @@ test("saved Other text restores after reload and editing creates a new selection
   await page.getByRole("textbox", { name: "Specify relationship" }).fill("Cousin");
   await page.getByRole("button", { name: "Continue", exact: true }).click();
   await expect.poll(() => fixture.saves.length).toBe(1);
-  await expect(page.getByRole("button", { name: "Back", exact: true })).toBeVisible();
+  await expect(page.getByText("Qualifier relationship saved", { exact: true })).toBeVisible();
+  await expect.poll(() => Array.from(fixture.drafts.values())[0]?.collection?.qualifier_selection_token).toBe(fixture.savedToken());
+  const firstToken = fixture.savedToken();
   await page.reload();
-  await page.getByRole("button", { name: "Back", exact: true }).click();
+  await page.getByRole("button", { name: /Continue from where you left/ }).click();
+  await page.getByRole("button", { name: "Change", exact: true }).click();
   await expect(page.getByRole("radio", { name: /Other relationship/ })).toHaveAttribute("aria-checked", "true");
   await expect(page.getByRole("textbox", { name: "Specify relationship" })).toHaveValue("Cousin");
   await page.getByRole("textbox", { name: "Specify relationship" }).fill("Colleague");
   await page.getByRole("button", { name: "Continue", exact: true }).click();
   await expect.poll(() => fixture.saves.length).toBe(2);
   expect(fixture.saves[1]).toEqual({ is_self: false, relation_code: "other", other_relation: "Colleague" });
-  expect(fixture.errors).toEqual([]);
+  expect(fixture.savedToken()).not.toBe(firstToken);
+  expect(fixture.reads).toEqual([{ token: firstToken, session: expect.any(String) }]);
+  expect(fixture.drafts.size).toBe(1);
+  expect(fixture.pageErrors).toEqual([]);
   expect(fixture.unexpected).toEqual([]);
 });

@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { syntheticMicrophone } from "./support/ai-voice-fixtures";
 import { assistantAuth } from "./support/assistant-auth";
+import { selectAssistantAppearance } from "./support/assistant-appearance";
 import { sculptureBoundary } from "./support/sculpture-boundary";
 import { observeSculpture, sculptureSignal } from "./support/sculpture-signal";
 
@@ -365,11 +366,12 @@ test("the last chat restores for this account and device with the output collaps
   await expect(page.getByText("What is pending?", { exact: true })).not.toBeAttached();
 });
 
-test("human hologram is the default and only the three intended appearance choices remain", async ({ page }, testInfo) => {
+test("human hologram remains selectable and only the three intended appearance choices remain", async ({ page }, testInfo) => {
   await workspace(page, true);
   await page.emulateMedia({ colorScheme: "dark" });
   await page.setViewportSize({ width: 1440, height: 960 });
   await page.goto("/ai");
+  await selectAssistantAppearance(page, "Human hologram");
   const portrait = page.getByTestId("human-hologram");
   await expect(portrait).toHaveAttribute("data-renderer", "webgl");
   await expect(portrait).toHaveAttribute("data-appearance", "female");
@@ -397,6 +399,7 @@ test("human hologram is the default and only the three intended appearance choic
 test("human portrait stays usable after WebGL context loss", async ({ page }) => {
   await workspace(page);
   await page.goto("/ai");
+  await selectAssistantAppearance(page, "Human hologram");
   const portrait = page.getByTestId("human-hologram");
   await expect(portrait).toHaveAttribute("data-renderer", "webgl");
   await portrait.locator("canvas").evaluate((canvas) => (canvas as HTMLCanvasElement).getContext("webgl")?.getExtension("WEBGL_lose_context")?.loseContext());

@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { assistantAuth } from "./support/assistant-auth";
+import { selectAssistantAppearance } from "./support/assistant-appearance";
 import { syntheticMicrophone } from "./support/ai-voice-fixtures";
 import { DEFAULT_USAGE_LIMITS, type AssistantConfiguration } from "../features/ai/settings-api";
 
@@ -216,6 +217,7 @@ test("models from both providers drive reasoning, voices and the AI-only write s
   await page.getByRole("region", { name: "Models & voice" }).screenshot({ path: testInfo.outputPath("ai-model-settings-mobile.png"), style: "[data-testid='assistant-settings'] .sticky, nextjs-portal { visibility: hidden !important; }" });
   await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
   await page.goto("/ai");
+  await selectAssistantAppearance(page, "Human hologram");
   await expect(page.getByTestId("human-hologram")).toHaveAttribute("data-appearance", "male");
   await expect(page.getByTestId("human-hologram")).toHaveAttribute("data-renderer", "webgl");
   await page.screenshot({ path: testInfo.outputPath("human-hologram-male-mobile.png") });

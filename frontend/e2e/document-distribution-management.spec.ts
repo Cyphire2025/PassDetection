@@ -26,11 +26,18 @@ async function fixture(page: Page) {
     const reply = (body: unknown, status = 200) => route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
     if (path === "/api/v1/auth/refresh") return reply({ status: "authenticated", user, token_type: "bearer", access_token_expires_at: "2099-01-01T00:00:00Z" });
     if (path === "/api/v1/auth/me") return reply(user);
+    if (path === "/api/v1/ai-assistant/availability") return reply({ enabled: false, allowed: false });
     if (path === "/api/v1/notifications/feed") return reply({ items: [], unread_count: 0, next_cursor: null });
     if (path.startsWith("/api/v1/telemetry")) return reply({});
     if (path === "/api/v1/document-distribution/groups") return reply([{ group_id: groupId, group_name: "Test October Trip", group_status: "active", destination: "Dubai", travel_date: "2026-10-22", total_passengers: 3, visa_assigned_count: 2, flight_ticket_assigned_count: 0, flight_ticket_arrival_assigned_count: 0, flight_ticket_domestic_assigned_count: 0, flight_ticket_domestic_arrival_assigned_count: 0, other_assigned_count: 0 }]);
     if (path === `/api/v1/document-distribution/groups/${groupId}/visa`) return reply(review);
-    if (path.endsWith("/update-preview")) return reply({ group_id: groupId, document_type: "visa", preview_token: "a".repeat(64), template_name: "pending_v1", template_language: "en", can_send: true, configuration_error: null, recipients: names.map((name, index) => ({ passenger_id: `passenger-${index}`, passenger_name: name, phone_number: `+91987654320${index}`, recipient_id: `recipient-${index}`, broadcast_group_id: "broadcast", document_count: review.review_rows[index].documents.length, confirmed_count: index === 2 ? 1 : 0, eligible: index !== 2, reason: index === 2 ? "All assigned documents have a confirmed send." : null, latest_update_status: null })) });
+    if (path.endsWith("/whatsapp-preview")) return reply({
+      group_id: groupId, batch_id: "batch", preview_token: "a".repeat(64), document_type: "visa",
+      template_name: "documents_v1", template_configured: true, linked_broadcast_count: 1,
+      can_send: true, configuration_error: null, message_content_1: "Your travel document is ready.", message_content_2: "Please review the attached PDF.",
+      summary: { total_passengers: 3, total_group_passengers: 3, excluded_without_document: 0, ready: 2, retryable: 0, already_sent: 1, in_progress: 0, blocked: 0 },
+      recipients: names.map((name, index) => ({ passenger_id: `passenger-${index}`, passenger_name: name, passport_number: `P000000${index}`, document_id: review.review_rows[index].document?.id, document_filename: review.review_rows[index].document?.original_filename, document_type: "visa", phone_number: `+91987654320${index}`, recipient_id: `recipient-${index}`, broadcast_group_id: "broadcast", delivery_status: index === 2 ? "already_sent" : "ready", eligible: index !== 2, resend_allowed: index === 2, reason: index === 2 ? "Already sent" : "Ready", error_message: null })),
+    });
     if (path.endsWith("/manual-upload") && request.method() === "POST") {
       writes.push(path);
       const index = Number(path.match(/passenger-(\d)/)?.[1]);
@@ -46,7 +53,7 @@ async function fixture(page: Page) {
 }
 
 for (const width of [1440, 390]) {
-  test(`document management upload, replace, shared filter and update preview at ${width}px`, async ({ page }) => {
+  test(`document management upload, replace, shared filter and delivery preview at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 960 });
     const state = await fixture(page);
     await page.goto(`/documents/distribution/visa/${groupId}`);
@@ -67,16 +74,14 @@ for (const width of [1440, 390]) {
     await expect(replace.getByLabel("Document to replace")).toHaveValue("document-1");
     await replace.getByRole("button", { name: "Cancel", exact: true }).click();
     await page.getByRole("button", { name: "Send WhatsApp Broadcast", exact: true }).click();
-    const chooser = page.getByRole("dialog", { name: "Send WhatsApp broadcast", exact: true });
-    await expect(chooser.getByRole("button", { name: "Send documents", exact: true })).toBeVisible();
-    await chooser.getByRole("button", { name: "Inform / update", exact: true }).click();
-    const update = page.getByRole("dialog", { name: "Inform / update — Visa", exact: true });
-    await expect(update.getByRole("checkbox", { name: "Select Missing Traveller" })).toBeChecked();
-    await expect(update.getByRole("checkbox", { name: "Select Shared Two" })).toBeDisabled();
-    await update.getByLabel("Your update message").fill("Your visa is being processed. We will share it once approved.");
-    await expect(update.getByRole("button", { name: "Send update to 2" })).toBeInViewport();
-    await page.screenshot({ path: `test-results/document-update-preview-${width}.png`, fullPage: true });
-    await update.getByRole("button", { name: "Cancel", exact: true }).click();
+    const preview = page.getByRole("dialog", { name: "Preview WhatsApp document delivery", exact: true });
+    await expect(preview.getByRole("checkbox", { name: "Send document to Missing Traveller" })).toBeChecked();
+    await expect(preview.getByRole("checkbox", { name: "Send document to Shared One" })).toBeChecked();
+    await expect(preview.getByRole("button", { name: "Resend", exact: true })).toBeVisible();
+    await expect(preview.getByRole("button", { name: "Send individually to 2", exact: true })).toBeEnabled();
+    await expect(preview.getByRole("button", { name: "Send individually to 2", exact: true })).toBeInViewport();
+    await page.screenshot({ path: `test-results/document-delivery-preview-${width}.png`, fullPage: true });
+    await preview.getByRole("button", { name: "Cancel", exact: true }).click();
     expect(state.writes).toEqual([`/api/v1/document-distribution/groups/${groupId}/visa/passengers/passenger-0/manual-upload`]);
     expect(state.errors).toEqual([]);
   });

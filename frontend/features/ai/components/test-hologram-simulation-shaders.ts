@@ -95,12 +95,12 @@ void main() {
     vec3 impulse = impulseAt(uv,interaction.xyz,h*(float(i)+.5));
     vec4 shape = headField((enclosureToHead*vec4(position,1.0)).xyz);
     vec3 gradient = normalize((headToEnclosure*vec4(shape.xyz,0.0)).xyz);
-    vec3 recovery = gradient*max(shape.a*scale-.012,0.0)*mix(13.0,2.5,interaction.w);
+    vec3 recovery = gradient*max(shape.a*scale-.012,0.0)*mix(17.0,2.5,interaction.w);
     position += (flow+impulse-recovery)*h;
     if (seed.w > .5) {
       vec4 advanced = headField((enclosureToHead*vec4(position,1.0)).xyz);
       vec3 normal = normalize((headToEnclosure*vec4(advanced.xyz,0.0)).xyz);
-      float correction = clamp((advanced.a-layerDistance)*scale,-h*.55,h*.55);
+      float correction = clamp((advanced.a-layerDistance)*scale,-h*.7,h*.7);
       position -= normal*correction*(1.0-smoothstep(.01,.12,length(impulse)));
     }
     vec3 local = (enclosureToHead*vec4(position,1.0)).xyz;

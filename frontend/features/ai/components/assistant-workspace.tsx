@@ -33,7 +33,7 @@ export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
   const [activeImage, setActiveImage] = useState<Asset | null>(null);
   const [images, setImages] = useState<Asset[]>([]);
   const [voiceFiles, setVoiceFiles] = useState<Asset[]>([]);
-  const [appearance, setAppearance] = useState({ ...DEFAULT_APPEARANCE, mode: "face" as const } as typeof DEFAULT_APPEARANCE);
+  const [appearance, setAppearance] = useState({ ...DEFAULT_APPEARANCE, mode: "test" as const } as typeof DEFAULT_APPEARANCE);
   const [sculptureRenderer, setSculptureRenderer] = useState<"webgl" | "image" | null>(null);
   const [conversationOpen, setConversationOpen] = useState(false);
   const conversationPanel = useRef<HTMLDivElement>(null);
@@ -56,7 +56,7 @@ export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
   const accountKey = `${assistant.status?.account_id || "public"}:${assistant.status?.account_scope || "default"}`;
   const [workspaceAccount, setWorkspaceAccount] = useState(accountKey);
   if (workspaceAccount !== accountKey) {
-    setWorkspaceAccount(accountKey); setImages([]); setActiveImage(null); setDrawer(null); setVoiceFiles([]); setConversationOpen(false); setAppearance({ ...DEFAULT_APPEARANCE, mode: "face" });
+    setWorkspaceAccount(accountKey); setImages([]); setActiveImage(null); setDrawer(null); setVoiceFiles([]); setConversationOpen(false); setAppearance({ ...DEFAULT_APPEARANCE, mode: "test" });
   }
   const ready = signedIn && Boolean(assistant.status?.configured);
   const nativeEnabled = Boolean(assistant.status?.native_voice);

@@ -1,301 +1,128 @@
-import { expect, test, type Page, type Route } from "@playwright/test";
-import { mockPublicContactOtp, verifyPublicContact } from "./support/public-contact-otp";
+import { expect, test, type Page } from "@playwright/test";
+import { DEFAULT_UPLOAD_CONFIGURATION } from "../features/passports/types/upload-configuration";
+import { freshFields, freshPixel, freshStorageKey, mockFreshFlow, startFresh, verifyFreshContact } from "./support/public-fresh-flow";
 
 const token = "public-recovery-token";
-const idempotencyKey = "recovery-key-0123456789abcdef0123456789abcdef";
-const submissionId = "recovered-passport-e2e";
-
-const group = {
-  id: "group-recovery-e2e",
-  name: "Recovered Singapore Group",
-  token,
-  agency_id: "agency-e2e",
-  status: "active",
-  created_by_user_id: null,
-  created_at: "2026-08-22T00:00:00Z",
-  closed_at: null,
-  destination: "Singapore",
-  travel_date: "2026-11-01",
-  return_date: "2026-11-08",
-  timezone: "Asia/Singapore",
-  package_name: null,
-  departure_cities: [],
-  base_city_enabled: false,
-  nearest_international_airport_enabled: false,
-  staff_code_enabled: false,
-  agent_employee_code_enabled: false,
-  meal_preference_enabled: false,
-  require_selfie: false,
-  allow_files_from_device: true,
-  ask_nearest_domestic_airport: false,
-  relation_with_qualifier_enabled: false,
-  designation_enabled: false,
-  agency_dealership_name_enabled: false,
-  custom_questions: [],
-  custom_details: [],
-  qualifier_relation_options: [],
-  notes: null,
-  deleted_at: null,
-  deleted_passport_count: 0,
-  deletion_retained_records: false,
+const passportGroup = { upload_configuration: { ...DEFAULT_UPLOAD_CONFIGURATION, passport_enabled: true, passport_required: true, passport_upload_pages: ["front"], passport_live_scan: false } };
+const storedResume = (page: Page) => page.evaluate(key => localStorage.getItem(key), freshStorageKey(token));
+const resume = async (page: Page) => { await page.reload(); await page.getByRole("button", { name: /Continue from where you left/ }).click(); };
+const upload = async (page: Page, name = "synthetic.png") => {
+  await page.getByLabel("Upload personal details page").setInputFiles({ name, mimeType: "image/png", buffer: freshPixel });
+  await expect(page.getByLabel("Passport Number", { exact: true })).toHaveValue(freshFields.passport_number);
 };
-
-const recoveredSubmission = {
-  id: submissionId,
-  group_id: group.id,
-  agency_id: group.agency_id,
-  client_name: "Passport holder",
-  client_email: null,
-  client_phone: null,
-  departure_city: null,
-  submission_mode: "single",
-  family_group_id: null,
-  image_s3_key: "private/recovered/front.jpg",
-  image_url: null,
-  passport_photo_s3_key: null,
-  passport_back_s3_key: null,
-  passport_photo_url: null,
-  passport_back_url: null,
-  thumbnail_s3_key: null,
-  staff_metadata: null,
-  custom_answers: [],
-  custom_detail_answers: [],
-  acquisition_mode: "camera",
-  extraction_status: "ready_for_review",
-  extraction_revision: 3,
-  status: "ready_for_client_review",
-  extracted_fields: {
-    surname: "SHARMA",
-    given_names: "AARAV",
-    passport_number: "P1234567",
-    nationality: "IND",
-    place_of_issue: "DELHI",
-    date_of_birth: "1990-01-02",
-    date_of_issue: "2022-01-02",
-    date_of_expiry: "2032-01-01",
-    sex: "M",
-    ai_verification: {
-      available: true,
-      status: "verified",
-      provider_status: "ok",
-    },
-  },
-  confirmed_fields: null,
-  extraction_conflicts: [],
-  post_submission_verification: null,
-  verification_confidence: 0.94,
-  overall_confidence: 0.94,
-  confidence_score: null,
-  mrz_raw: null,
-  error_message: null,
-  client_reviewed_at: null,
-  confirmed_at: null,
-  processing_job_id: null,
-  processing_job_status: "succeeded",
-  processing_progress: 1,
-  processing_stage: "complete",
-  qr_status: null,
-  created_at: "2026-08-22T00:00:00Z",
-  updated_at: "2026-08-22T00:00:00Z",
-};
-
-async function seedSavedUpload(page: Page) {
-  await page.addInitScript(({ token, idempotencyKey, submissionId }) => {
-    sessionStorage.setItem(`gct:upload-recovery:${token}`, JSON.stringify({ version: 1, idempotencyKey, submissionId }));
-  }, { token, idempotencyKey, submissionId });
-}
 
 test("a deliberately closed link displays closed wording and can be checked after reopening", async ({ page }) => {
-  let closed = true;
-  let lookups = 0;
-  await page.route("**/api/v1/**", async (route) => {
-    if (new URL(route.request().url()).pathname === `/api/v1/upload-links/token/${token}`) {
-      lookups++;
-      if (closed) return route.fulfill({ status: 410, contentType: "application/json", body: JSON.stringify({ detail: { code: "CLIENT_GROUP_CLOSED", message: "This link is closed." } }) });
-      return json(route, group);
-    }
-    return json(route, {});
-  });
+  const state = await mockFreshFlow(page, token);
+  state.faults.closed = true;
   await page.goto(`/upload/${token}`);
   await expect(page.getByRole("heading", { name: "This link is closed." })).toBeVisible();
   await expect(page.getByRole("alert", { name: "This link is closed." })).not.toContainText("expired");
-  expect(lookups).toBe(1);
-  closed = false;
+  expect(state.requests.filter(request => request.path === `/api/v1/upload-links/token/${token}`)).toHaveLength(1);
+  expect(state.drafts.size).toBe(0);
+  state.faults.closed = false;
   await page.getByRole("button", { name: "Check again" }).click();
-  await expect(page.getByRole("button", { name: /Single/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /New traveller/ })).toBeVisible();
+  expect(state.requests.filter(request => request.path === `/api/v1/upload-links/token/${token}`)).toHaveLength(2);
+  expect(state.unexpected).toEqual([]); expect(state.pageErrors).toEqual([]);
 });
 
-test("a missing saved draft exits recovery without making another upload", async ({ page }) => {
-  await seedSavedUpload(page);
-  let lookups = 0;
-  let uploads = 0;
-  await page.route("**/api/v1/**", async (route) => {
-    const request = route.request();
-    const path = new URL(request.url()).pathname;
-    if (path === `/api/v1/upload-links/token/${token}`) { lookups++; return json(route, group); }
-    if (path.endsWith(`/${submissionId}/status`)) return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ detail: "Passport submission was not found" }) });
-    if (path === `/api/v1/passports/upload/${token}` && request.method() === "POST") uploads++;
-    return json(route, { submission_id: null });
-  });
-  await page.goto(`/upload/${token}`);
-  await expect(page.getByRole("button", { name: /Single/ })).toBeVisible();
-  await expect(page.getByText("The previous saved upload is no longer available. Please start a new upload.")).toBeVisible();
-  const record = await page.evaluate((token) => JSON.parse(sessionStorage.getItem(`gct:upload-recovery:${token}`)!), token);
-  expect(record.submissionId).toBeNull();
-  expect(record.idempotencyKey).not.toBe(idempotencyKey);
-  expect(lookups).toBe(2);
-  expect(uploads).toBe(0);
+test("an expired server draft requires an explicit new start and never uploads automatically", async ({ page }) => {
+  const state = await mockFreshFlow(page, token);
+  await startFresh(page, token);
+  const old = JSON.parse((await storedResume(page))!);
+  state.faults.startStatus = 410;
+  await resume(page);
+  await expect(page.getByRole("alert").filter({ hasText: "private draft has expired" })).toBeVisible();
+  expect(JSON.parse((await storedResume(page))!).fresh.members).toEqual(old.fresh.members);
+  await page.getByRole("button", { name: "Back", exact: true }).click();
+  await page.getByRole("button", { name: /New traveller/ }).click();
+  state.faults.startStatus = 0;
+  await page.getByRole("button", { name: "Continue", exact: true }).click();
+  await expect(page.getByLabel("Full name", { exact: true })).toBeVisible();
+  const next = JSON.parse((await storedResume(page))!);
+  expect(next.fresh.members[0].sessionId).not.toBe(old.fresh.members[0].sessionId);
+  expect(next.fresh.members[0].submissionKey).not.toBe(old.fresh.members[0].submissionKey);
+  expect(state.requests.filter(request => request.method === "POST" && request.path.includes("/documents/"))).toEqual([]);
+  expect(state.completions).toEqual([]); expect(state.unexpected).toEqual([]); expect(state.pageErrors).toEqual([]);
 });
 
-test("a link closed during draft recovery preserves the saved credential", async ({ page }) => {
-  await seedSavedUpload(page);
-  let lookups = 0;
-  await page.route("**/api/v1/**", async (route) => {
-    const path = new URL(route.request().url()).pathname;
-    if (path === `/api/v1/upload-links/token/${token}`) {
-      if (++lookups === 1) return json(route, group);
-      return route.fulfill({ status: 410, contentType: "application/json", body: JSON.stringify({ detail: { code: "CLIENT_GROUP_CLOSED", message: "This link is closed." } }) });
-    }
-    if (path.endsWith(`/${submissionId}/status`)) return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ detail: "Upload link was not found" }) });
-    return json(route, {});
-  });
-  await page.goto(`/upload/${token}`);
+test("a link closed during private draft recovery retains its opaque resume credentials", async ({ page }) => {
+  const state = await mockFreshFlow(page, token);
+  await startFresh(page, token);
+  const before = await storedResume(page);
+  await page.reload();
+  await expect(page.getByRole("button", { name: /Continue from where you left/ })).toBeVisible();
+  state.faults.closed = true;
+  await page.getByRole("button", { name: /Continue from where you left/ }).click();
+  await expect(page.getByRole("alert").filter({ hasText: "This link is closed." })).toBeVisible();
+  expect(await storedResume(page)).toBe(before);
+  await page.reload();
   await expect(page.getByRole("heading", { name: "This link is closed." })).toBeVisible();
-  const record = await page.evaluate((token) => JSON.parse(sessionStorage.getItem(`gct:upload-recovery:${token}`)!), token);
-  expect(record).toMatchObject({ submissionId, idempotencyKey });
+  expect(await storedResume(page)).toBe(before); expect(state.completions).toEqual([]);
+  expect(state.unexpected).toEqual([]); expect(state.pageErrors).toEqual([]);
 });
 
-test("a temporary recovery failure retains the saved upload and retry restores it", async ({ page }) => {
-  await seedSavedUpload(page);
-  let recovering = false;
-  let newUploads = 0;
-  await page.route("**/api/v1/**", async (route) => {
-    const path = new URL(route.request().url()).pathname;
-    if (path === `/api/v1/upload-links/token/${token}`) return json(route, group);
-    if (path.endsWith(`/${submissionId}/status`)) {
-      if (recovering) return json(route, recoveredSubmission);
-      return route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ detail: "Try again later" }) });
-    }
-    if (route.request().method() === "POST" && path.startsWith(`/api/v1/passports/upload/${token}`)) newUploads += 1;
-    return json(route, {});
-  });
-  await mockPublicContactOtp(page);
-  await page.goto(`/upload/${token}`);
-  await expect(page.getByRole("heading", { name: "Reconnect to your saved upload" })).toBeVisible();
-  const record = await page.evaluate((token) => JSON.parse(sessionStorage.getItem(`gct:upload-recovery:${token}`)!), token);
-  expect(record).toMatchObject({ submissionId, idempotencyKey });
-  recovering = true;
-  await page.getByRole("button", { name: "Retry reconnecting" }).click();
-  await verifyPublicContact(page);
-  await expect(page.getByRole("button", { name: "Submit Verified Details", exact: true })).toBeVisible();
-  expect(newUploads).toBe(0);
+test("temporary recovery failure retains the private draft and retry restores the same session", async ({ page }) => {
+  const state = await mockFreshFlow(page, token);
+  await startFresh(page, token);
+  await page.getByLabel("Full name", { exact: true }).fill("Asha Example");
+  await verifyFreshContact(page);
+  const before = await storedResume(page);
+  state.faults.startStatus = 503;
+  await resume(page);
+  await expect(page.getByRole("alert").filter({ hasText: "temporarily unavailable" })).toBeVisible();
+  expect(await storedResume(page)).toBe(before);
+  state.faults.startStatus = 0;
+  await page.getByRole("button", { name: "Retry", exact: true }).click();
+  await expect(page.getByLabel("Full name", { exact: true })).toHaveValue("Asha Example");
+  await expect(page.getByText("WhatsApp number verified", { exact: true })).toBeVisible();
+  expect(state.drafts.size).toBe(1); expect(state.completions).toEqual([]);
+  const sessions = new Set(state.requests.filter(request => request.path.includes("/public-drafts/")).map(request => request.session));
+  expect(sessions.size).toBe(1); expect(state.unexpected).toEqual([]); expect(state.pageErrors).toEqual([]);
 });
 
-test("AI service failure permits manual entry for verification and respects the resulting staff-review status", async ({ page }) => {
-  await seedSavedUpload(page);
-  let submittedBody: Record<string, unknown> | undefined;
-  await page.route("**/api/v1/**", async (route) => {
-    const path = new URL(route.request().url()).pathname;
-    if (path === `/api/v1/upload-links/token/${token}`) return json(route, group);
-    if (path.endsWith(`/${submissionId}/status`)) return json(route, {
-      ...recoveredSubmission, status: "failed", extraction_status: "extraction_failed",
-      manual_review_submission_allowed: true, manual_review_reason_code: "AI_EXTRACTION_UNAVAILABLE",
-      extracted_fields: { ...recoveredSubmission.extracted_fields, ai_verification: { available: false, status: "timeout" } },
-    });
-    if (path === `/api/v1/passports/${submissionId}/client-submit`) {
-      submittedBody = route.request().postDataJSON();
-      return json(route, { ...recoveredSubmission, status: "needs_review", manual_review_submission_allowed: false });
-    }
-    return json(route, {});
-  });
-  await mockPublicContactOtp(page);
-  await page.goto(`/upload/${token}`);
-  await verifyPublicContact(page);
-  await expect(page.getByRole("button", { name: "Submit for AI verification", exact: true })).toBeVisible();
-  await expect(page.getByText(/Automatic reading is unavailable/)).toBeVisible();
-  await page.getByRole("button", { name: "Submit for AI verification", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Submitted — awaiting staff review" })).toBeVisible();
-  expect(submittedBody).toMatchObject({ client_phone: "+919900001234", group_token: token, phone_verification_id: expect.any(String) });
-  expect(submittedBody).not.toHaveProperty("manual_review_submission_allowed");
+test("failed passport extraction blocks completion until a clear replacement succeeds", async ({ page }) => {
+  const state = await mockFreshFlow(page, token, { group: passportGroup });
+  state.faults.extraction = "failed";
+  await startFresh(page, token); await upload(page); await verifyFreshContact(page);
+  await expect(page.getByRole("alert").filter({ hasText: "couldn’t read this passport" })).toBeVisible();
+  await page.getByRole("button", { name: "Confirm details and submit" }).click();
+  await expect(page.getByRole("alert").filter({ hasText: "Wait for the passport check" })).toBeVisible();
+  expect(state.completeAttempts).toEqual([]);
+  state.faults.extraction = "succeeded";
+  await upload(page, "synthetic-replacement.png");
+  await expect(page.getByRole("alert").filter({ hasText: "couldn’t read this passport" })).toHaveCount(0);
+  await page.getByRole("button", { name: "Confirm details and submit" }).click();
+  await expect(page.getByRole("heading", { name: "You’re all set" })).toBeVisible();
+  expect(state.completeAttempts).toHaveLength(1);
+  expect(state.completeAttempts[0].body).not.toHaveProperty("manual_review_submission_allowed");
+  expect(state.completeAttempts[0].draft.extraction_status).toBe("succeeded");
+  expect(state.unexpected).toEqual([]); expect(state.pageErrors).toEqual([]);
 });
 
-async function json(route: Route, body: unknown) {
-  await route.fulfill({
-    status: 200,
-    contentType: "application/json",
-    body: JSON.stringify(body),
-  });
-}
-
-test("an interrupted public upload restores the durable submission and completes without re-uploading passport files", async ({ page }) => {
-  let restoredWithCredential: string | undefined;
-  let submitBody: Record<string, unknown> | null = null;
-  let newUploadAttempts = 0;
-
-  await page.addInitScript(({ groupToken, recovery }) => {
-    window.sessionStorage.setItem(
-      `gct:upload-recovery:${groupToken}`,
-      JSON.stringify(recovery),
-    );
-  }, {
-    groupToken: token,
-    recovery: { version: 1, idempotencyKey, submissionId },
-  });
-
-  await page.route("**/api/v1/**", async (route) => {
-    const request = route.request();
-    const pathname = new URL(request.url()).pathname;
-    if (pathname === `/api/v1/upload-links/token/${token}` && request.method() === "GET") {
-      return json(route, group);
-    }
-    if (pathname === `/api/v1/passports/upload/${token}/${submissionId}/status`) {
-      restoredWithCredential = request.headers()["x-upload-session-id"];
-      return json(route, recoveredSubmission);
-    }
-    if (pathname === `/api/v1/passports/upload/${token}` && request.method() === "POST") {
-      newUploadAttempts += 1;
-      return json(route, recoveredSubmission);
-    }
-    if (pathname === `/api/v1/passports/${submissionId}/client-submit`) {
-      submitBody = request.postDataJSON() as Record<string, unknown>;
-      return json(route, {
-        ...recoveredSubmission,
-        status: "submitted",
-        client_email: "aarav@example.com",
-        client_phone: "+919900001234",
-        confirmed_fields: recoveredSubmission.extracted_fields,
-      });
-    }
-    if (pathname.includes(`/api/v1/passports/upload/${token}/${submissionId}/image/`)) {
-      await route.fulfill({
-        status: 200,
-        contentType: "image/png",
-        body: Buffer.from(
-          "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y9Zl1sAAAAASUVORK5CYII=",
-          "base64",
-        ),
-      });
-      return;
-    }
-    return json(route, {});
-  });
-
-  await mockPublicContactOtp(page);
-  await page.goto(`/upload/${token}`);
-  await expect(page.getByRole("textbox", { name: "Passport Number" })).toHaveCount(0);
-  await verifyPublicContact(page);
-  await expect(page.getByRole("heading", { name: "Verify Passport Details" })).toBeVisible();
-  await expect(page.getByRole("textbox", { name: "Passport Number" })).toHaveValue("P1234567");
-  await page.getByRole("button", { name: "Submit Verified Details" }).click();
-
-  await expect(page.getByRole("heading", { name: "Details Submitted" })).toBeVisible();
-  expect(restoredWithCredential).toBe(idempotencyKey);
-  expect(newUploadAttempts).toBe(0);
-  expect(submitBody).toMatchObject({
-    group_token: token,
-    client_email: "aarav@example.com",
-    client_phone: "+919900001234",
-    phone_verification_id: expect.any(String),
-    submission_mode: "single",
-  });
+test("resume retains private fields but discards images, and interrupted completion recovers one receipt", async ({ page }) => {
+  const state = await mockFreshFlow(page, token, { group: passportGroup });
+  await startFresh(page, token); await upload(page); await verifyFreshContact(page);
+  const metadata = JSON.parse((await storedResume(page))!);
+  const session = metadata.fresh.members[0].sessionId;
+  expect(await storedResume(page)).not.toMatch(/TEST1234|Asha|Example|asha@example|9900001234|proof-|front-/);
+  await resume(page);
+  await expect(page.getByText("WhatsApp number verified", { exact: true })).toBeVisible();
+  await expect(page.getByLabel("Passport Number", { exact: true })).toHaveCount(0);
+  expect(state.drafts.get(session)?.documents).toEqual([]);
+  expect(state.drafts.get(session)?.passport_fields).toEqual(freshFields);
+  expect(state.requests.filter(request => request.method === "POST" && request.path.includes("/documents/"))).toHaveLength(1);
+  await upload(page, "synthetic-resumed.png");
+  state.faults.interruptCompletion = true;
+  await page.getByRole("button", { name: "Confirm details and submit" }).click();
+  await expect(page.getByRole("button", { name: "Retry", exact: true })).toBeVisible();
+  expect(state.completions).toEqual([session]);
+  expect(state.completeAttempts[0].body.idempotency_key).toBe(metadata.fresh.members[0].submissionKey);
+  await resume(page);
+  await expect(page.getByRole("heading", { name: "Details submitted", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Continue", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "You’re all set" })).toBeVisible();
+  expect(await storedResume(page)).toBeNull();
+  expect(state.drafts.size).toBe(1); expect(state.completeAttempts).toHaveLength(1); expect(state.completions).toEqual([session]);
+  expect(state.unexpected).toEqual([]); expect(state.pageErrors).toEqual([]);
 });

@@ -10,17 +10,17 @@ import type { ReturningCapabilities, ReturningMethod } from "@/features/travelle
 import { CenteredLoader, UploadHeader } from "./upload-flow-shell";
 import { TravellerShell } from "./traveller-shell";
 import { TravellerEntryChoice } from "./traveller-entry-choice";
+import { UploadLinkErrorScreen } from "./upload-link-error-screen";
 import { draftResumeText, parseDraftResume, subscribeDraftResume } from "@/features/travellers/services/draft-resume";
 import styles from "./traveller-landing.module.css";
 
-const UploadFlow = dynamic(() => import("./upload-flow").then((module) => module.UploadFlow), { loading: () => <CenteredLoader /> });
 const ReturningFlow = dynamic(() => import("@/features/travellers/components/returning-flow").then((module) => module.ReturningFlow), { loading: () => <CenteredLoader /> });
 const ReturningResume = dynamic(() => import("@/features/travellers/components/returning-resume").then((module) => module.ReturningResume), { loading: () => <CenteredLoader /> });
 const FreshFlow = dynamic(() => import("./fresh-flow").then((module) => module.FreshFlow), { loading: () => <CenteredLoader /> });
 
 /** Entry decisions never imply identity or authorize access to saved records. */
 export function TravellerPortal({ token }: { token: string }) {
-  const { data: group, isLoading, error } = useUploadLinkByToken(token);
+  const { data: group, isLoading, error, refetch, isFetching } = useUploadLinkByToken(token);
   const [path, setPath] = useState<"start" | "returning" | "new" | "resume">("start");
   const [resumeFresh, setResumeFresh] = useState(false);
   useReturningCapabilities(token, Boolean(group));
@@ -29,7 +29,7 @@ export function TravellerPortal({ token }: { token: string }) {
   const [selection, setSelection] = useState<{ method: ReturningMethod; capabilities: ReturningCapabilities } | null>(null);
   const fresh = () => { setResumeFresh(false); setSelection(null); setPath("new"); };
   if (isLoading) return <CenteredLoader />;
-  if (error || !group) return <UploadFlow token={token} onStartOver={() => setPath("start")} />;
+  if (error || !group) return <UploadLinkErrorScreen error={error} isRetrying={isFetching} onRetry={() => { void refetch(); }} />;
   if (path === "new") return <FreshFlow key={String(resumeFresh)} token={token} group={group} resumeExisting={resumeFresh} onBack={() => setPath("start")} />;
   if (path === "resume") return <ReturningResume token={token} groupName={group.name} group={group} onFresh={fresh} onVerify={() => setPath("returning")} />;
   if (selection) return <ReturningFlow token={token} group={group} initialMethod={selection.method} capabilities={selection.capabilities} onFresh={fresh} onReplace={fresh} onBack={() => setSelection(null)} />;

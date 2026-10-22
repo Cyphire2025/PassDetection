@@ -120,6 +120,7 @@ export function RecipientRowMenu({
   const id = useId();
   const trigger = useRef<HTMLButtonElement>(null);
   const menu = useRef<HTMLDivElement>(null);
+  const anchor = useRef<DOMRect | null>(null);
   const [position, setPosition] = useState<{
     top: number;
     right: number;
@@ -131,7 +132,7 @@ export function RecipientRowMenu({
     if (!position) return;
     menu.current
       ?.querySelector<HTMLButtonElement>("button:not(:disabled)")
-      ?.focus();
+      ?.focus({ preventScroll: true });
     const outside = (event: PointerEvent) => {
       if (
         !menu.current?.contains(event.target as Node) &&
@@ -140,12 +141,21 @@ export function RecipientRowMenu({
         setPosition(null);
     };
     const dismiss = () => setPosition(null);
+    const dismissAfterAnchorMoves = () => {
+      const current = trigger.current?.getBoundingClientRect();
+      const opened = anchor.current;
+      // A click can arrive before the scroll event that brought its trigger
+      // into view. That queued event must not dismiss a correctly placed menu.
+      if (!current || !opened || current.top !== opened.top ||
+        current.right !== opened.right || current.bottom !== opened.bottom ||
+        current.left !== opened.left) dismiss();
+    };
     document.addEventListener("pointerdown", outside);
-    document.addEventListener("scroll", dismiss, true);
+    document.addEventListener("scroll", dismissAfterAnchorMoves, true);
     window.addEventListener("resize", dismiss);
     return () => {
       document.removeEventListener("pointerdown", outside);
-      document.removeEventListener("scroll", dismiss, true);
+      document.removeEventListener("scroll", dismissAfterAnchorMoves, true);
       window.removeEventListener("resize", dismiss);
     };
   }, [position]);
@@ -166,6 +176,7 @@ export function RecipientRowMenu({
             return;
           }
           const rect = trigger.current!.getBoundingClientRect();
+          anchor.current = rect;
           setPosition({
             top: Math.max(
               8,

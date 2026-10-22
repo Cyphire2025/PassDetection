@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "reviewed_at": "2026-10-19",
+  "reviewed_at": "2026-10-23",
   "scope": "Source route declarations, committed HTTP operations, frontend API/direct-transport callables, browser pages and routing registries. Surfaces are not unique tool counts.",
   "truth_contract": "All allowed workflows begin planned; only retained executable adapter and evidence may change implementation state. The ledger is never a runtime permission allowlist.",
   "owners": {
@@ -260,6 +260,114 @@
       "disposition": "internal_dependency",
       "phase": null,
       "rationale": "First-party assistant UI, private workspace persistence and separately billed provider transport. Not an MCP surface: prevents recursive assistant calls, credential exposure and hidden provider charges. Dashboard reads reuse reviewed observational handlers with independent authenticated authorization.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/ai/components/human-head-geometry.ts:decodeHumanHead",
+        "kind": "frontend_callable",
+        "source": "frontend/features/ai/components/human-head-geometry.ts",
+        "handler": "decodeHumanHead"
+      },
+      "workflow": "assistant.visual-assets",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Browser-only loading, validation and GPU binding of fixed same-origin public head geometry, volume fields and landscape assets. No business records, provider calls, credentials or MCP authority; this presentation dependency does not expose an MCP tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/ai/components/human-head-geometry.ts:loadHumanHead",
+        "kind": "frontend_callable",
+        "source": "frontend/features/ai/components/human-head-geometry.ts",
+        "handler": "loadHumanHead"
+      },
+      "workflow": "assistant.visual-assets",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Browser-only loading, validation and GPU binding of fixed same-origin public head geometry, volume fields and landscape assets. No business records, provider calls, credentials or MCP authority; this presentation dependency does not expose an MCP tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/ai/components/test-hologram-fields.ts:headFieldUniforms",
+        "kind": "frontend_callable",
+        "source": "frontend/features/ai/components/test-hologram-fields.ts",
+        "handler": "headFieldUniforms"
+      },
+      "workflow": "assistant.visual-assets",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Browser-only loading, validation and GPU binding of fixed same-origin public head geometry, volume fields and landscape assets. No business records, provider calls, credentials or MCP authority; this presentation dependency does not expose an MCP tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/ai/components/test-hologram-fields.ts:loadHeadFields",
+        "kind": "frontend_callable",
+        "source": "frontend/features/ai/components/test-hologram-fields.ts",
+        "handler": "loadHeadFields"
+      },
+      "workflow": "assistant.visual-assets",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Browser-only loading, validation and GPU binding of fixed same-origin public head geometry, volume fields and landscape assets. No business records, provider calls, credentials or MCP authority; this presentation dependency does not expose an MCP tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/ai/components/test-landscape-assets.ts:decodeLandscapeGeometry",
+        "kind": "frontend_callable",
+        "source": "frontend/features/ai/components/test-landscape-assets.ts",
+        "handler": "decodeLandscapeGeometry"
+      },
+      "workflow": "assistant.visual-assets",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Browser-only loading, validation and GPU binding of fixed same-origin public head geometry, volume fields and landscape assets. No business records, provider calls, credentials or MCP authority; this presentation dependency does not expose an MCP tool.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/ai/components/test-landscape-assets.ts:loadLandscapeAssets",
+        "kind": "frontend_callable",
+        "source": "frontend/features/ai/components/test-landscape-assets.ts",
+        "handler": "loadLandscapeAssets"
+      },
+      "workflow": "assistant.visual-assets",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Browser-only loading, validation and GPU binding of fixed same-origin public head geometry, volume fields and landscape assets. No business records, provider calls, credentials or MCP authority; this presentation dependency does not expose an MCP tool.",
       "adapter_requirements": [],
       "implementation": {
         "status": "not_applicable",
@@ -11319,12 +11427,12 @@
         "id": "frontend_api:frontend/features/passports/api/upload-links.api.ts",
         "kind": "frontend_api_contract",
         "source": "frontend/features/passports/api/upload-links.api.ts",
-        "contract_sha256": "89983d68b4ccc770ab0236e48e66f7c5b7a7500522c493fd769435ff3385b2da"
+        "contract_sha256": "db6964f1461978b29f2c5e99e9cb19f7db9233d0223eb68ff4bdd7650047ec27"
       },
       "workflow": "transport.frontend.features.passports.api.upload-links.api.ts",
       "disposition": "internal_dependency",
       "phase": null,
-      "rationale": "Routing or frontend transport facade implementing the individually classified business operations; fingerprint forces review of prefix/registration/alias and nonstandard action changes.",
+      "rationale": "Routing or frontend transport facade implementing the individually classified business operations; fingerprint forces review of prefix/registration/alias and nonstandard action changes. The reviewed optional AbortSignal on qualifier-selection reads only cancels obsolete browser requests; the existing route and private selection/session headers remain unchanged.",
       "adapter_requirements": [],
       "implementation": {
         "status": "not_applicable",

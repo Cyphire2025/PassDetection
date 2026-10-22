@@ -1,11 +1,24 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import { syntheticMicrophone } from "./support/ai-voice-fixtures";
 import { assistantAuth } from "./support/assistant-auth";
+import { selectAssistantAppearance } from "./support/assistant-appearance";
+
+async function selectSculpture(page: Page) {
+  // The workspace now defaults to Test. These tests exercise
+  // the retained sculpture mode through the same appearance choice as users.
+  await selectAssistantAppearance(page, "Sculpture");
+}
+
+async function openSculpture(page: Page) {
+  const response = await page.goto("/ai");
+  await selectSculpture(page);
+  return response;
+}
 
 test.beforeEach(async ({ page }) => {
   await assistantAuth(page);
   await page.route('**/api/v1/ai-assistant/status', (route) => route.fulfill({ json: { configured: false, speech_configured: false, model: 'gpt-6-luna', reasoning_effort: 'high', access: 'read_only', name: 'Synthetic administrator' } }));
-  await page.route('**/api/v1/ai-assistant/live', (route) => route.fulfill({ json: { observed_at: new Date().toISOString(), agencies: [] } }));
+  await page.route('**/api/v1/ai-assistant/live', (route) => route.fulfill({ json: { observed_at: new Date().toISOString(), mcp: { connected: false, available_tools: 0, write_enabled: false } } }));
 });
 
 test.use({ launchOptions: { args: ["--use-fake-device-for-media-stream", "--use-fake-ui-for-media-stream"] } });
@@ -14,7 +27,7 @@ test.use({ launchOptions: { args: ["--use-fake-device-for-media-stream", "--use-
 test("authorized workspace renders the enlarged horizontal sculpture on desktop and phone", async ({ page }, testInfo) => {
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
-  const response = await page.goto("/ai");
+  const response = await openSculpture(page);
   expect(response?.status()).toBe(200);
   expect(response?.headers()["permissions-policy"]).toContain("microphone=(self)");
   await expect(page.getByRole("main", { name: "Global Connects AI workspace" })).toBeVisible();
@@ -35,7 +48,7 @@ test("local audio drives visible sculpture movement and stops with the microphon
   await syntheticMicrophone(page);
   const uploads: string[] = [];
   page.on("request", (request) => { if (request.method() === "POST") uploads.push(request.url()); });
-  await page.goto("/ai");
+  await openSculpture(page);
   await expect(page.getByTestId("voice-sculpture")).toHaveAttribute("data-renderer", "webgl");
   await page.getByRole("button", { name: "Start microphone" }).click();
   const stop = page.getByRole("button", { name: "Finish voice message" });
@@ -64,7 +77,7 @@ test("microphone denial is recoverable and keyboard escape releases input", asyn
       return grant(constraints);
     };
   });
-  await page.goto("/ai");
+  await openSculpture(page);
   await page.getByRole("button", { name: "Start microphone" }).click();
   await expect(page.getByRole("alert").filter({ hasText: "Microphone access is blocked" })).toBeVisible();
   await page.getByRole("button", { name: "Start microphone" }).click();
@@ -83,7 +96,7 @@ test("unavailable WebGL still shows the sculpture and a working microphone", asy
       return Reflect.apply(original, this, [kind, ...args]);
     } as typeof original;
   });
-  await page.goto("/ai");
+  await openSculpture(page);
   await expect(page.getByTestId("voice-sculpture")).toHaveAttribute("data-renderer", "image");
   await expect(page.getByAltText("An interwoven horizontal sculpture of silver and sand-colored filaments")).toBeVisible();
   await page.getByRole("button", { name: "Start microphone" }).click();
@@ -94,8 +107,9 @@ test("unavailable WebGL still shows the sculpture and a working microphone", asy
   await expect(page.getByRole("main")).toHaveCSS("background-color", "rgb(0, 0, 0)");
   await page.getByRole("button", { name: "Sculpture appearance", exact: true }).click();
   const appearance=page.getByRole("dialog", { name: "Sculpture appearance", exact: true });
-  await expect(appearance).toContainText("Shape changes are unavailable here");
-  await expect(appearance.getByRole("button", { name: "Text", exact: true })).toBeDisabled();
+  await expect(appearance).toContainText("A still view remains available when animation is unavailable");
+  await expect(appearance.getByRole("button", { name: "Sculpture", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(appearance.getByRole("button", { name: "Text", exact: true })).toHaveCount(0);
   await page.getByRole("button", { name: "Close sculpture appearance", exact: true }).click();
   await page.screenshot({ path: testInfo.outputPath("ai-dark-fallback.png") });
 });
@@ -103,7 +117,7 @@ test("unavailable WebGL still shows the sculpture and a working microphone", asy
 test("reduced motion preserves the sculpture without voice deformation", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await syntheticMicrophone(page);
-  await page.goto("/ai");
+  await openSculpture(page);
   await expect(page.getByRole("main", { name: "Global Connects AI workspace" })).toBeVisible();
   await page.getByRole("button", { name: "Start microphone" }).click();
   await expect(page.getByRole("button", { name: "Finish voice message" })).toBeVisible();
@@ -114,7 +128,7 @@ test("reduced motion preserves the sculpture without voice deformation", async (
 test("native browser microphone permission works on the AI route", async ({ page }) => {
   // Chromium's fake device exercises the actual browser permission and media APIs.
   // Unlike the other tests, getUserMedia is not replaced with a synthetic function.
-  await page.goto("/ai");
+  await openSculpture(page);
   await page.getByRole("button", { name: "Start microphone" }).click();
   await expect(page.getByRole("button", { name: "Finish voice message" })).toBeVisible();
   await expect(page.getByTestId("assistant-voice-status")).toContainText("Listening to you");
@@ -125,7 +139,7 @@ test("native browser microphone permission works on the AI route", async ({ page
 test("silent VRPS stays alive and dark appearance persists across reloads", async ({ page }, testInfo) => {
   await page.route("**/api/v1/ai-assistant/assets**", (route) => route.fulfill({ json: { items: [], next_cursor: null } }));
   await page.emulateMedia({ colorScheme: "light" });
-  await page.goto("/ai");
+  await openSculpture(page);
   const workspace = page.getByRole("main", { name: "Global Connects AI workspace" });
   await expect(workspace).toHaveAttribute("data-theme", "light");
   const sculpture = page.getByTestId("voice-sculpture");
@@ -146,6 +160,9 @@ test("silent VRPS stays alive and dark appearance persists across reloads", asyn
   await page.screenshot({ path: testInfo.outputPath("ai-dark-desktop.png") });
   await page.reload();
   await expect(workspace).toHaveAttribute("data-theme", "dark");
+  // Theme persists; appearance intentionally starts at Test in
+  // a fresh workspace. Re-select the retained sculpture for its phone checks.
+  await selectSculpture(page);
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(sculpture).toHaveAttribute("data-renderer", "webgl");
   await expect(workspace).toHaveCSS("background-color", "rgb(0, 0, 0)");
@@ -157,7 +174,7 @@ test("silent VRPS stays alive and dark appearance persists across reloads", asyn
 test.describe("retina rendering", () => {
   test.use({ deviceScaleFactor: 2 });
   test("sculpture keeps native display density on desktop and phone", async ({ page }) => {
-    await page.goto("/ai");
+    await openSculpture(page);
     const sculpture = page.getByTestId("voice-sculpture");
     await expect(sculpture).toHaveAttribute("data-renderer", "webgl");
     for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {

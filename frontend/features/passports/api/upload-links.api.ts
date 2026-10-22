@@ -447,10 +447,12 @@ export const uploadLinksApi = {
   getQualifierSelection: async (
     token: string,
     selectionToken: string,
+    signal?: AbortSignal,
   ): Promise<QualifierSelectionState> => {
     const response = await apiClient.get<QualifierSelectionState>(
       API_ENDPOINTS.uploadLinks.qualifierSelection(token),
       {
+        signal,
         headers: {
           ...publicUploadHeaders(token),
           "X-Qualifier-Selection-Token": selectionToken,

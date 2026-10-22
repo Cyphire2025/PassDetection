@@ -36,14 +36,18 @@ test.afterEach(async ({ page }, testInfo) => {
   expect(runtime.consoleErrors?.filter((message) => !(expectedFallback && /THREE.WebGLRenderer: Error creating WebGL context/.test(message)))).toEqual([]);
 });
 
-test("Test mode renders a real particle face with pointer, drag, keyboard, reset, and clean mode switching", async ({ page }, testInfo) => {
+test("Test is the default scene with pointer, drag, keyboard, reset, and clean mode switching", async ({ page }, testInfo) => {
   test.setTimeout(120000);
   await workspace(page);
   await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
   await page.setViewportSize({ width: 1440, height: 960 });
   const errors: string[] = []; page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/ai");
-  await expect(page.getByTestId("human-hologram")).toBeVisible();
+  await expect(page.getByRole("main", { name: "Global Connects AI workspace" })).toHaveAttribute("data-appearance", "test");
+  await expect(page.getByTestId("particle-face-test")).toHaveAttribute("data-renderer", "webgl");
+  await expect(page.getByTestId("human-hologram")).toHaveCount(0);
+  await expect.poll(async () => (await testHologramSignal(page)).headUniforms.opacity[0]).toBe(1);
+  await captureHologram(page, testInfo.outputPath("test-particle-face-default-before-interaction.png"));
   await chooseAppearance(page, "Test");
   const portrait = page.getByTestId("particle-face-test");
   await expect(portrait).toHaveAttribute("data-renderer", "webgl");
