@@ -8,6 +8,9 @@ import json
 import os
 import re
 
+from app.infrastructure.database import (
+    model_registry,  # noqa: F401 -- standalone ORM registration
+)
 from app.infrastructure.database.models import PassportSubmissionModel
 from app.infrastructure.database.session import AsyncSessionFactory, engine
 from app.infrastructure.storage.minio_repository import MinioStorageRepository
