@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import { expect, test, type Page } from "@playwright/test";
 import type { FreshDraft } from "../features/upload/api/fresh-draft.api";
+import { waitForPublicUploadBudget } from "./public-upload-budget";
 import { browserSeed, inspectPublishedUpload, installSyntheticOtpDelivery, syntheticCover } from "./workflow-support";
 
 // External OTP delivery alone is captured; verification, uploads and completion
@@ -33,14 +34,16 @@ async function uploadCovers(page: Page, path: string, session: string, content: 
 test("real fresh upload preserves private text and proof on reload, then publishes adopted documents exactly once", async ({ page }, info) => {
   test.setTimeout(120_000);
   const fixture = browserSeed().browser_workflows[info.project.name];
+  await waitForPublicUploadBudget(page.request, fixture.public_token);
   const path = `/api/v1/public-drafts/${fixture.public_token}`;
   await page.setViewportSize({ width: 390, height: 844 });
   const deliveredCode = await installSyntheticOtpDelivery(page);
-  const uploads: string[] = [], legacyRequests: string[] = [];
+  const uploads: string[] = [], preparations: string[] = [], legacyRequests: string[] = [];
   page.on("request", (request) => {
     const url = new URL(request.url()).pathname;
     if (request.method() === "POST" && url.startsWith(`${path}/documents/`)) uploads.push(url);
-    if (/\/passports\/upload\/|\/contact-otp\/|\/client-submit$/.test(url)) legacyRequests.push(url);
+    if (request.method() === "POST" && url === `/api/v1/passports/upload/${fixture.public_token}/prepare-file`) preparations.push(url);
+    if (/\/passports\/upload\/[^/]+\/?$|\/contact-otp\/|\/client-submit$/.test(url)) legacyRequests.push(url);
   });
   await page.goto(`/upload/${fixture.public_token}`);
   await page.getByRole("button", { name: /New traveller/ }).click();
@@ -130,6 +133,7 @@ test("real fresh upload preserves private text and proof on reload, then publish
   expect(evidence.documents).toHaveLength(2);
   for (const asset of adopted) expect(evidence.documents).toContainEqual({ ...asset, state: "adopted", checksum_matches: true, legacy_temporary_key: false });
   expect(legacyRequests).toEqual([]);
+  expect(preparations).toHaveLength(4);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
   await page.screenshot({ path: info.outputPath("real-upload-complete.png"), fullPage: true });
 });
