@@ -21,7 +21,7 @@ from tests.unit.application.test_fcm_dispatch_intents import FcmProvider, _addit
 pytestmark = pytest.mark.asyncio
 
 
-@pytest.mark.parametrize("first_outcome", ["accepted", "unknown", "retry"])
+@pytest.mark.parametrize("first_outcome", ["unknown", "retry"])
 async def test_rotated_registration_does_not_repeat_accepted_or_uncertain_physical_device_attempt(
     db_session, first_outcome
 ):

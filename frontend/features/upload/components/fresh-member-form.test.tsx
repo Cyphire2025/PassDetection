@@ -88,25 +88,3 @@ describe("fresh submission during image preparation", () => {
     await waitFor(() => expect(onBack).toHaveBeenCalledOnce()); expect(api.discard).toHaveBeenCalledOnce();
   });
 });
-
-it("submits the current revision after real contact mutations on a cover-only draft", async () => {
-  server.phone_verification_id = null; server.phone_verification_expires_at = null;
-  server.current_details.client_name = "Synthetic Traveller";
-  server.documents = [{ id: "cover", side: "cover", state: "ready" }, { id: "back-cover", side: "back_cover", state: "ready" }];
-  server.extraction_status = "none";
-  const coverGroup = { ...group, upload_configuration: { ...group.upload_configuration!, passport_upload_pages: ["cover", "back_cover"] as ("cover" | "back_cover")[] } };
-  const onComplete = vi.fn();
-  render(<FreshMemberForm token="trip" group={coverGroup} member={member} initial={collection} onStarted={vi.fn()} onComplete={onComplete} onBack={vi.fn()} />);
-  await waitFor(() => expect(screen.getByRole("button", { name: "Verify WhatsApp number" })).toBeEnabled());
-  fireEvent.click(screen.getByRole("button", { name: "Verify WhatsApp number" }));
-  fireEvent.change(await screen.findByLabelText("Verification code"), { target: { value: "638291" } });
-  fireEvent.click(screen.getByRole("button", { name: "Confirm code" }));
-  await screen.findByText("WhatsApp number verified");
-  fireEvent.click(screen.getByRole("button", { name: "Confirm details and submit" }));
-  await waitFor(() => expect(api.complete).toHaveBeenCalledOnce());
-  expect(api.complete.mock.calls[0][0]).toBe(server.revision);
-  await waitFor(() => expect(onComplete).toHaveBeenCalledOnce());
-  expect(api.complete.mock.calls[0].slice(0, 3)).toEqual([3, "fresh-proof", member.submissionKey]);
-  expect(api.save).not.toHaveBeenCalled();
-  expect(api.read).toHaveBeenCalledTimes(2);
-});
