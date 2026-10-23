@@ -129,7 +129,7 @@ for (const width of [320, 1440]) {
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.screenshot({ path: info.outputPath(`company-submissions-${width}.png`), fullPage: true });
     await page.getByRole("tab", { name: "Current details", exact: true }).click();
-    await expect(page.getByText("A1234567", { exact: true })).toBeVisible();
+    await expect(page.getByRole("tabpanel", { name: "Current details", exact: true }).getByText("A1234567", { exact: true })).toBeVisible();
     await page.getByRole("button", { name: "Edit details" }).click();
     await page.getByRole("textbox", { name: "Full name", exact: true }).fill("Corrected Traveller");
     await page.getByRole("textbox", { name: "Reason for change", exact: true }).fill("Corrected name spelling");

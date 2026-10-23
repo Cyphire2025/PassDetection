@@ -20,3 +20,5 @@ Removed at the user’s explicit request after run 39868971181 failed with 16 fa
 - companies.spec.ts:115 all data loads documents lazily, edits current fields and retains versions at 320px
 
 The remaining 215 browser cases and all backend, Docker, authorization, validation, storage, MCP permissions and user-data protections remain unchanged. Helpers used only by removed cases may be deleted as lint cleanup.
+
+Follow-up run 39904568980 retained all 215 cases: 214 passed; the 1440px company-document case failed on all three attempts because the unscoped passport locator also matched version details during a tab transition. Its assertion now waits for the named Current details tab panel. This case is retained; no additional tests were removed. All other qualification jobs passed.
