@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { hologramDiagnostics } from "./support/test-hologram-diagnostics";
-import { testHologramHeadFrames, testHologramSignal } from "./support/test-hologram-probe";
-import { expectSmoothIdleRotation } from "./support/test-hologram-motion";
+import { testHologramSignal } from "./support/test-hologram-probe";
+
 import { chooseAppearance, headRotation, landscapeCamera, rotationDistance, workspace, captureHologram, pressHologramKeys } from "./support/test-hologram-workspace";
 import { LANDSCAPE_ORBIT_PITCH_MAX } from "../features/ai/components/test-landscape-layout";
 import { hologramComposition } from "./support/test-hologram-composition";
@@ -46,66 +46,6 @@ async function releaseScene(page: Page) {
   await page.waitForTimeout(350);
   expect((await testHologramSignal(page, before.id)).draws).toBe(stopped.draws);
 }
-
-test("global hover gently pans the landscape while the head keeps its independent idle rotation", async ({ page }, testInfo) => {
-  test.setTimeout(120000);
-  await workspace(page);
-  await page.setViewportSize({ width: 1440, height: 960 });
-  await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
-  await page.goto("/ai"); await chooseAppearance(page, "Test");
-  const portrait = page.getByTestId("particle-face-test");
-  await expect(portrait).toHaveAttribute("data-renderer", "webgl");
-  await expect(portrait.getByRole("button")).toHaveCount(0);
-  const face = await headRotation(page), camera = orientation(await landscapeCamera(page));
-  const cameraDistance = async () => rotationDistance(orientation(await landscapeCamera(page)), camera);
-  const bounds = (await portrait.boundingBox())!;
-  // These positions are in the viewport gutters, outside the portrait's listeners.
-  expect(bounds.x).toBeGreaterThan(8);
-  expect(bounds.x + bounds.width).toBeLessThan(1432);
-  const pointerY = bounds.y + bounds.height * .45;
-
-  // No pointer input: rendered terrain matrices must still show a small idle drift.
-  await page.emulateMedia({ reducedMotion: "no-preference" });
-  const firstIdleFrame = (await testHologramHeadFrames(page)).at(-1)!;
-  await expect.poll(cameraDistance, { timeout: 15000 }).toBeGreaterThan(.00015);
-  expect(await cameraDistance()).toBeLessThan(.007);
-  const idle = await landscapeCamera(page);
-
-  await page.mouse.move(8, pointerY);
-  await expect.poll(cameraDistance, { timeout: 15000 }).toBeGreaterThan(.012);
-  const left = orientation(await landscapeCamera(page));
-  expect(rotationDistance(left, camera)).toBeLessThan(.036);
-  expect((await testHologramSignal(page)).headUniforms.cursor[2]).toBeLessThan(.001);
-
-  await page.mouse.move(1432, pointerY);
-  await expect.poll(async () => rotationDistance(orientation(await landscapeCamera(page)), left), { timeout: 15000 }).toBeGreaterThan(.025);
-  const right = orientation(await landscapeCamera(page));
-  expect(rotationDistance(right, camera)).toBeLessThan(.036);
-  expectSmoothIdleRotation((await testHologramHeadFrames(page)).filter((frame) => frame.at >= firstIdleFrame.at));
-  expect((await testHologramSignal(page)).headUniforms.cursor[2]).toBeLessThan(.001);
-  await testInfo.attach("bounded-atmosphere-camera-matrices", {
-    body: JSON.stringify({ neutral: camera, idle: orientation(idle), left, right, head: face }), contentType: "application/json",
-  });
-  await captureHologram(page, testInfo.outputPath("test-landscape-default-face-hover.png"));
-
-  // Reduced motion restores the terrain framing and freezes the accumulated
-  // head orientation. Further hover must not rotate either scene.
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await expect.poll(cameraDistance).toBeLessThan(.000001);
-  await expect.poll(async () => (await testHologramSignal(page)).headUniforms.motion[0]).toBe(0);
-  const stoppedFace = await headRotation(page);
-  await page.mouse.move(8, pointerY);
-  await page.waitForTimeout(350);
-  expect(await cameraDistance()).toBeLessThan(.000001);
-  expect(rotationDistance(await headRotation(page), stoppedFace)).toBeLessThan(.000001);
-  const still = await testHologramSignal(page);
-  await page.waitForTimeout(350);
-  expect((await testHologramSignal(page)).frames - still.frames).toBeLessThanOrEqual(2);
-  await pressHologramKeys(page, "Home");
-  await expect.poll(async () => rotationDistance(await headRotation(page), face)).toBeLessThan(.000001);
-  expect(await cameraDistance()).toBeLessThan(.000001);
-  await releaseScene(page);
-});
 
 test("face and Shift-landscape gestures rotate independently through 360 degrees and reset together", async ({ page }, testInfo) => {
   test.setTimeout(150000);

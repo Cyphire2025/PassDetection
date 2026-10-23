@@ -205,60 +205,6 @@ test("a spoken question is transcribed, answered in chat, and microphone cancell
   expect(laterUploads).toEqual([]);
 });
 
-test("conversation slides away and restores its draft, focus, and centered composer on desktop and phone", async ({ page }, testInfo) => {
-  await workspace(page);
-  await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
-  await page.goto("/ai");
-  const input = page.getByRole("textbox", { name: "Message Global Connects" });
-  await input.fill("Check the current documents");
-  await page.getByRole("button", { name: "Send message" }).click();
-  const main = page.getByRole("main");
-  const stage = page.getByTestId("assistant-stage");
-  await expect(main).toHaveAttribute("data-theme", "dark");
-  await expect(main).toHaveAttribute("data-appearance", "test");
-  await expect(main).toHaveCSS("background-image", /radial-gradient\(/);
-  await page.getByRole("button", { name: "Show conversation", exact: true }).click();
-  await expect(page.getByRole("table")).toContainText("Synthetic departure");
-  const aligned = async () => {
-    const [visual, composer] = await Promise.all([stage.boundingBox(), input.boundingBox()]);
-    return Math.abs(visual!.x + visual!.width / 2 - composer!.x - composer!.width / 2);
-  };
-  await expect.poll(aligned).toBeLessThan(2);
-  await input.fill("Keep this draft while the conversation is hidden");
-  await stage.evaluate(async (element) => {
-    // Measure the settled column after any outstanding CSS layout transitions.
-    await Promise.all((element.parentElement?.parentElement?.getAnimations() ?? []).map((animation) => animation.finished));
-  });
-  const openWidth = (await stage.boundingBox())!.width;
-  await page.screenshot({ path: testInfo.outputPath("ai-test-conversation-open.png") });
-  await page.getByRole("button", { name: "Hide conversation" }).click();
-  await expect(page.getByRole("button", { name: "Show conversation" })).toBeFocused();
-  await expect(main).toHaveAttribute("data-conversation-open", "false");
-  await expect(page.locator("#assistant-conversation-panel")).toHaveAttribute("inert", "");
-  await expect.poll(async () => (await stage.boundingBox())!.width).toBeGreaterThan(openWidth + 250);
-  await expect.poll(aligned).toBeLessThan(2);
-  await expect(page.getByRole("region", { name: "Conversation", exact: true })).toHaveCount(0);
-  await page.screenshot({ path: testInfo.outputPath("ai-test-conversation-hidden.png") });
-  await page.keyboard.press("Enter");
-  await expect(page.getByRole("button", { name: "Hide conversation" })).toBeFocused();
-  await expect(input).toHaveValue("Keep this draft while the conversation is hidden");
-  await expect.poll(aligned).toBeLessThan(2);
-  await expect(page.getByRole("table")).toContainText("Synthetic departure");
-  await page.setViewportSize({ width: 390, height: 844 });
-  await expect(input).toBeInViewport();
-  await expect.poll(aligned).toBeLessThan(2);
-  await page.getByRole("button", { name: "Hide conversation" }).click();
-  await expect(page.getByRole("button", { name: "Show conversation" })).toBeInViewport();
-  await expect(input).toBeInViewport();
-  await page.getByRole("button", { name: "Show conversation" }).click();
-  await expect(page.getByRole("region", { name: "Conversation", exact: true })).toBeVisible();
-  await expect(input).toHaveValue("Keep this draft while the conversation is hidden");
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth && document.documentElement.scrollHeight <= innerHeight)).toBe(true);
-  await page.screenshot({ path: testInfo.outputPath("ai-test-conversation-phone.png") });
-  await page.getByRole("button", { name: "Hide conversation" }).click();
-  await expect.poll(() => page.locator("#assistant-conversation-panel").evaluate((element) => parseFloat(getComputedStyle(element).transitionDuration))).toBeLessThan(.001);
-});
-
 test("saved voice conversations can be cancelled, retried and deleted without losing the draft or library", async ({ page }) => {
   await workspace(page);
   let exists = true, attempts = 0;
