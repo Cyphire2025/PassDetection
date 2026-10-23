@@ -1,10 +1,12 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { gunzipSync } from "node:zlib";
 import sharp from "sharp";
 import { BufferGeometry, HalfFloatType, SRGBColorSpace, type WebGLRenderer } from "three";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { decodeLandscapeGeometry, loadLandscapeAssets } from "./test-landscape-assets";
+import compactAssets from "../../../public/ai/test-landscape/compact-v1.json";
 
 const root = resolve("public/ai/test-landscape");
 const source = (file: string) => Uint8Array.from(readFileSync(resolve(root, file))).buffer;
@@ -27,6 +29,14 @@ beforeEach(() => {
 afterEach(() => { vi.useRealTimers(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
 describe("original landscape assets", () => {
+  it("compresses the compact terrain binaries without changing geometry or color data", () => {
+    for (const name of ["mountain", "ground", "patch", "grade-rgba16f"] as const) {
+      const record = compactAssets[name], packed = readFileSync(resolve(root, record.file));
+      expect(createHash("sha256").update(packed).digest("hex")).toBe(record.sha256);
+      expect(gunzipSync(packed)).toEqual(readFileSync(resolve(root, `${name}.bin`)));
+    }
+    expect(Object.values(compactAssets).reduce((sum, record) => sum + record.bytes, 0)).toBeLessThan(550_000);
+  });
   it("preserves the decoded source topology and reproducible derived-file hashes", () => {
     const manifest = JSON.parse(readFileSync(resolve(root, "provenance.json"), "utf8"));
     for (const record of manifest.derived) expect(createHash("sha256").update(readFileSync(resolve(root, record.file))).digest("hex")).toBe(record.sha256);

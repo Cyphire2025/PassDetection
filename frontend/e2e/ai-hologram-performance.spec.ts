@@ -11,7 +11,7 @@ import { restingHeadProjection } from "./support/test-hologram-composition";
 for (const mobile of [false, true]) test.describe(mobile ? "phone" : "desktop", () => {
   test.use({ viewport: mobile ? { width: 390, height: 844 } : { width: 1440, height: 960 }, deviceScaleFactor: mobile ? 3 : 1 });
   test("cold scene load, smooth rendering and orientation", async ({ page }, info) => {
-    await workspace(page);
+    await workspace(page, "female", false);
     await page.emulateMedia({ reducedMotion: "no-preference" });
     const session = await page.context().newCDPSession(page);
     await session.send("Network.enable");
@@ -47,12 +47,12 @@ for (const mobile of [false, true]) test.describe(mobile ? "phone" : "desktop", 
       await captureHologram(page, info.outputPath("landscape.png"));
     }
     const diagnostics = await hologramDiagnostics(page);
-    expect(diagnostics.pageErrors).toEqual([]); expect(diagnostics.assetFailures).toEqual([]); expect(diagnostics.cspViolations).toEqual([]);
+    expect(diagnostics.consoleErrors).toEqual([]); expect(diagnostics.pageErrors).toEqual([]); expect(diagnostics.assetFailures).toEqual([]); expect(diagnostics.cspViolations).toEqual([]);
   });
 });
 
 test("voice holds rotation, retains gentle motion, and changes playback color", async ({ page }, info) => {
-  await workspace(page); await syntheticMicrophone(page); await observeRenderedHead(page);
+  await workspace(page); await syntheticMicrophone(page);
   const rate = 16000, samples = rate * 12, wav = Buffer.alloc(44 + samples * 2);
   wav.write("RIFF"); wav.writeUInt32LE(wav.length - 8, 4); wav.write("WAVEfmt ", 8); wav.writeUInt32LE(16, 16);
   wav.writeUInt16LE(1, 20); wav.writeUInt16LE(1, 22); wav.writeUInt32LE(rate, 24); wav.writeUInt32LE(rate * 2, 28);
@@ -73,14 +73,35 @@ test("voice holds rotation, retains gentle motion, and changes playback color", 
   await expect(page.getByRole("button", { name: "Finish voice message", exact: true })).toBeVisible();
   await expect.poll(async () => (await testHologramSignal(page)).headUniforms.ambientMotion?.[0]).toBeCloseTo(.28);
   expectFrozenHead(await headMotionWindow(page, 500));
+  await page.evaluate(() => (window as unknown as { __voiceTest: { setVolume(v: number): void } }).__voiceTest.setVolume(.22));
+  await page.getByRole("button", { name: "Finish voice message", exact: true }).click();
+  await expect.poll(async () => (await testHologramSignal(page)).headUniforms.responseGlow?.[0]).toBeGreaterThan(.9);
+  expectFrozenHead(await headMotionWindow(page, 500));
+  await captureHologram(page, info.outputPath("ai-speaking.png"));
+  await page.getByRole("button", { name: "Stop speaking", exact: true }).click();
+  await expect.poll(async () => (await testHologramSignal(page)).headUniforms.responseGlow?.[0]).toBeLessThan(.05);
+  expect((await testHologramSignal(page)).errors).toEqual([]);
+});
+
+test("ordinary pointer movement glows, retains anatomy, and returns particles home", async ({ page }, info) => {
+  // Three synchronous GPU readbacks can be slow on CI's software renderer.
+  // Keep the production startup budget separate from this diagnostic workload.
+  test.setTimeout(120_000);
+  await workspace(page); await syntheticMicrophone(page); await observeRenderedHead(page);
+  await page.route("**/api/v1/ai-assistant/status", (route) => route.fulfill({ json: {
+    configured: true, speech_configured: true, voice_configured: true, native_voice: false, avatar_appearance: "female",
+    account_id: "test-portrait-admin", account_scope: "super_admin", access: "read_only",
+  } }));
+  await page.goto("/ai");
+  await expect(page.getByTestId("particle-face-test")).toHaveAttribute("data-renderer", "webgl");
+  await page.getByRole("button", { name: "Start microphone", exact: true }).click();
+  await expect.poll(async () => (await testHologramSignal(page)).headUniforms.ambientMotion?.[0]).toBeCloseTo(.28);
   const viewport = page.viewportSize()!;
   const box = restingHeadProjection((await testHologramSignal(page)).headUniforms, viewport.width, viewport.height).box;
   const before = await renderedHead(page, box);
-  await page.evaluate(() => (window as unknown as { __voiceTest: { setVolume(v: number): void } }).__voiceTest.setVolume(.22));
   const bounds = (await page.getByTestId("particle-face-test").boundingBox())!;
   await page.mouse.move(bounds.x + bounds.width * .4, bounds.y + bounds.height * .45);
   await page.mouse.move(bounds.x + bounds.width * .6, bounds.y + bounds.height * .45, { steps: 12 });
-  await captureHologram(page, info.outputPath("gentle-pointer-stroke.png"));
   expect((await testHologramSignal(page)).headUniforms["pointerEnergies[0]"].some((value, index) => index % 4 === 1 && value > .38)).toBe(true);
   const disturbed = await renderedHead(page, box);
   const retained = (mask: string) => {
@@ -92,11 +113,6 @@ test("voice holds rotation, retains gentle motion, and changes playback color", 
   expect(retained(disturbed.mask), "a stroke retains the recognizable face silhouette").toBeGreaterThan(.85);
   await page.mouse.move(2, 2); await page.waitForTimeout(750);
   expect(retained((await renderedHead(page, box)).mask), "particles return to the face after the stroke").toBeGreaterThan(.94);
-  await page.getByRole("button", { name: "Finish voice message", exact: true }).click();
-  await expect.poll(async () => (await testHologramSignal(page)).headUniforms.responseGlow?.[0]).toBeGreaterThan(.9);
-  expectFrozenHead(await headMotionWindow(page, 500));
-  await captureHologram(page, info.outputPath("ai-speaking.png"));
-  await page.getByRole("button", { name: "Stop speaking", exact: true }).click();
-  await expect.poll(async () => (await testHologramSignal(page)).headUniforms.responseGlow?.[0]).toBeLessThan(.05);
+  await captureHologram(page, info.outputPath("recovered-pointer-stroke.png"));
   expect((await testHologramSignal(page)).errors).toEqual([]);
 });

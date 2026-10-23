@@ -46,7 +46,7 @@ export async function loadParticleHead(appearance: "female" | "male", signal: Ab
   if (signal.aborted) abort();
   const deadline = setTimeout(() => controller.abort(new Error("Particle preparation timed out")), 15_000);
   try {
-    const response = await fetch(`/ai/human-head/${manifest.assets[appearance].file}`, { signal: bounded, cache: "force-cache" });
+    const response = await fetch(`/ai/human-head/${manifest.assets[appearance].file}`, { signal: bounded, cache: "force-cache", priority: "high" });
     if (!response.ok || !response.body) throw new Error("Particle head unavailable");
     const packed = await boundedBytes(response.body, bounded), bytes = new Uint8Array(packed);
     // Production uses native HTTP gzip decoding. This branch also supports a

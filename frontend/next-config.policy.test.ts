@@ -7,7 +7,7 @@ describe("Next response policy", () => {
     const entries = await nextConfig.headers?.();
     const scenes = entries!.filter((entry) => entry.source.startsWith("/ai/") && entry.headers.some((header) => header.value.includes("immutable")));
     expect(scenes).toHaveLength(9);
-    expect(scenes.filter((scene) => scene.headers.some((header) => header.key === "Content-Encoding" && header.value === "gzip"))).toHaveLength(2);
+    expect(scenes.filter((scene) => scene.headers.some((header) => header.key === "Content-Encoding" && header.value === "gzip"))).toHaveLength(6);
     for (const scene of scenes) expect(scene.source).toMatch(/^\/ai\/(human-head|test-landscape)\/[a-z0-9-]+-[a-f0-9]{12}\.(bin(\.gz)?|webp)$/);
     expect(entries!.some((entry) => ["/ai", "/api/:path*"].includes(entry.source) && entry.headers.some((header) => header.value.includes("public")))).toBe(false);
   });

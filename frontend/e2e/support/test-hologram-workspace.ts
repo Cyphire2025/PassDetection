@@ -3,10 +3,12 @@ import { expect, type CDPSession, type Page } from "@playwright/test";
 import { Matrix4 } from "three";
 import { assistantAuth } from "./assistant-auth";
 import { observeTestHologram, testHologramSignal } from "./test-hologram-probe";
+import { observeHologramDiagnostics } from "./test-hologram-diagnostics";
 
-export async function workspace(page: Page, appearance: "female" | "male" = "female") {
+export async function workspace(page: Page, appearance: "female" | "male" = "female", inspectGpu = true) {
   await assistantAuth(page);
-  await observeTestHologram(page);
+  if (inspectGpu) await observeTestHologram(page);
+  else await observeHologramDiagnostics(page);
   await page.route("**/api/v1/ai-assistant/**", (route) => {
     const path = new URL(route.request().url()).pathname;
     if (path.endsWith("/availability")) return route.fulfill({ json: { enabled: true, allowed: true } });
@@ -113,26 +115,40 @@ export async function sampleHologramCadence(page: Page, duration = 5000) {
       __portraitProbe: { frames: number; points: number; errors: string[] };
     };
     const gl = canvas.getContext("webgl2")!, debug = gl.getExtension("WEBGL_debug_renderer_info");
+    // Startup benchmarks omit the detailed uniform/resource probe. Install only
+    // a draw counter after startup so GPU inspection cannot inflate load time.
+    const probe = canvas.__portraitProbe ?? { frames: 0, points: 0, errors: [] };
+    const arrays = gl.drawArrays, elements = gl.drawElements;
+    let drawn = false;
+    if (!canvas.__portraitProbe) {
+      gl.drawArrays = function (mode, first, count) {
+        drawn = true; if (mode === gl.POINTS) probe.points = Math.max(probe.points, count);
+        arrays.call(this, mode, first, count);
+      };
+      gl.drawElements = function (mode, count, type, offset) { drawn = true; elements.call(this, mode, count, type, offset); };
+    }
     const actual = (window as unknown as { __portraitActualGpu?: Record<string, unknown> }).__portraitActualGpu;
     const gpu = { renderer: gl.getParameter(gl.RENDERER), vendor: gl.getParameter(gl.VENDOR),
       unmaskedRenderer: debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL) : actual?.unmaskedRenderer ?? null,
       unmaskedVendor: debug ? gl.getParameter(debug.UNMASKED_VENDOR_WEBGL) : actual?.unmaskedVendor ?? null,
       hardwareConcurrency: navigator.hardwareConcurrency, devicePixelRatio, canvasWidth: canvas.width, canvasHeight: canvas.height };
-    const started = performance.now(), first = canvas.__portraitProbe.frames, intervals: number[] = [];
+    const started = performance.now(), first = probe.frames, intervals: number[] = [];
     let last: number | undefined, frames = first, request = 0;
     const sample = (now: number) => {
-      if (canvas.__portraitProbe.frames !== frames) {
+      if (drawn) { probe.frames++; drawn = false; }
+      if (probe.frames !== frames) {
         if (last !== undefined && now > last) intervals.push(now - last);
-        last = now; frames = canvas.__portraitProbe.frames;
+        last = now; frames = probe.frames;
       }
       request = requestAnimationFrame(sample);
     };
     request = requestAnimationFrame(sample);
     setTimeout(() => {
       cancelAnimationFrame(request);
-      const elapsed = performance.now() - started, renderedFrames = canvas.__portraitProbe.frames - first;
-      resolve({ gpu, points: canvas.__portraitProbe.points, elapsed, renderedFrames, framesPerSecond: renderedFrames * 1000 / elapsed,
-        intervals, errors: canvas.__portraitProbe.errors, webglError: gl.getError() });
+      if (!canvas.__portraitProbe) { gl.drawArrays = arrays; gl.drawElements = elements; }
+      const elapsed = performance.now() - started, renderedFrames = probe.frames - first;
+      resolve({ gpu, points: probe.points, elapsed, renderedFrames, framesPerSecond: renderedFrames * 1000 / elapsed,
+        intervals, errors: probe.errors, webglError: gl.getError() });
     }, milliseconds);
   }), duration);
 }

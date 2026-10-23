@@ -7,7 +7,6 @@ import type { SculptureHandle, SculpturePresentation } from "@/components/ui/liq
 import type { SpeechFrame } from "../speech-frame";
 import { loadParticleHead } from "./test-hologram-packed";
 import type { TestHologramEngine, HeadView } from "./test-hologram-engine";
-import particleManifest from "../../../public/ai/human-head/particles-v1.json";
 import { loadHologramEngine } from "./test-hologram-loader";
 import { HologramTransitions } from "./test-hologram-transitions";
 import { LANDSCAPE_ORBIT_PITCH_MAX, LANDSCAPE_ORBIT_PITCH_MIN } from "./test-landscape-layout";
@@ -223,7 +222,6 @@ export const TestHologram = forwardRef<SculptureHandle, Props>(function TestHolo
     };
   }, [appearance, levelRef, presentationRef, speechFrameRef]);
   return <div ref={root} className={styles.root} aria-busy={renderer === "loading"} data-testid="particle-face-test" data-renderer={renderer} data-appearance={appearance} data-motion={motion} data-theme={dark ? "dark" : "light"}>
-    <link rel="preload" href={`/ai/human-head/${particleManifest.assets[appearance].file}`} as="fetch" crossOrigin="anonymous" />
     {renderer !== "webgl" ? <div className={styles.fallback}><Image src={`/ai/human-head/${appearance}-preview.webp`} fill unoptimized preload alt={`${appearance === "male" ? "Male" : "Female"} 3D hologram still view`} sizes="(max-width: 639px) 80vw, 480px" /></div> : null}
     <canvas key={appearance} ref={canvas} className={styles.canvas} tabIndex={renderer === "webgl" ? 0 : -1} aria-hidden={renderer !== "webgl"} role="img" aria-label={`${appearance === "male" ? "Male" : "Female"} interactive 3D particle face`} aria-describedby={instructions} />
     <span id={instructions} className={styles.screenReader}>Move to stir the snow. The face rotates at rest and pauses while you or the assistant speaks. Drag to rotate the face. Shift-drag, two-finger drag, or Shift with arrow keys explores the 360 degree landscape. Arrow keys rotate the face; plus and minus zoom. Home or double-click restores the original view.</span>

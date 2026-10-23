@@ -82,6 +82,6 @@ for (const name of ["mountain", "ground"]) {
   const data = await sharp(path.join(landscape, `${name}-color.webp`)).resize(1024, 1024).webp({ quality: 84, effort: 6 }).toBuffer();
   saveAsset(`${name}-color`, data, "webp");
 }
-for (const name of ["mountain", "ground", "patch", "grade-rgba16f"]) saveAsset(name, fs.readFileSync(path.join(landscape, `${name}.bin`)), "bin");
+for (const name of ["mountain", "ground", "patch", "grade-rgba16f"]) saveAsset(name, gzipSync(fs.readFileSync(path.join(landscape, `${name}.bin`)), { level: 9 }), "bin.gz");
 saveAsset("wind", fs.readFileSync(path.join(landscape, "wind.webp")), "webp");
 fs.writeFileSync(path.join(landscape, "compact-v1.json"), JSON.stringify(compact, null, 2) + "\n");

@@ -40,7 +40,11 @@ export function loadLandscapeAssets(renderer: WebGLRenderer, compact = false) {
     const name = compact ? compactAssets[key].file : file;
     const response = await fetch(`${ROOT}${name}`, { signal: abort.signal, cache: "force-cache" });
     if (!response.ok) throw new Error(`Landscape asset unavailable: ${file}`);
-    const buffer = await response.arrayBuffer(); abort.signal.throwIfAborted(); return buffer;
+    let buffer = await response.arrayBuffer();
+    // Next serves native HTTP gzip; plain static preview servers may not.
+    if (name.endsWith(".gz") && new Uint8Array(buffer)[0] === 0x1f)
+      buffer = await new Response(new Blob([buffer]).stream().pipeThrough(new DecompressionStream("gzip"))).arrayBuffer();
+    abort.signal.throwIfAborted(); return buffer;
   };
   const own = <T extends BufferGeometry | Texture>(value: T): T => {
     if (disposed) { value.dispose(); throw new DOMException("Landscape retired", "AbortError"); }

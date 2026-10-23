@@ -18,8 +18,8 @@ motion, and playback adds a pale cyan response.
   Terrain color atlases are 1024 pixels. Source assets remain available for
   reproducible generation and the other appearance modes.
 - Only content-hashed public files receive immutable cache headers. Particle
-  files use HTTP gzip decoding, with an explicit decompression fallback for
-  plain static preview servers. Account pages and APIs retain private caching.
+  and terrain binary files use HTTP gzip decoding, with an explicit decompression
+  fallback for plain static preview servers. Account pages and APIs retain private caching.
 - Native rendering starts with 43,264 particles, or 30,976 on smaller/low-core
   devices. Software rendering starts at 25,600. Pixel budgets are 2 million
   desktop / 1 million mobile, with adaptive resolution and draw counts.
@@ -68,3 +68,7 @@ network emulation. API/session responses are synthetic and local; these results
 do not measure production authentication latency, mobile GPU performance, or
 every device/network. Real-device field measurements remain necessary for a
 universal startup claim.
+
+Startup measurement omits the detailed WebGL uniform/resource inspector used by
+the interaction regressions. A lightweight counter observes actual GPU draw calls
+after the first complete scene, so diagnostic readbacks do not inflate startup.
