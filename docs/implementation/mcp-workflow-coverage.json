@@ -341,6 +341,42 @@
     },
     {
       "surface": {
+        "id": "frontend:frontend/features/ai/components/test-hologram-packed.ts:decodeParticleHead",
+        "kind": "frontend_callable",
+        "source": "frontend/features/ai/components/test-hologram-packed.ts",
+        "handler": "decodeParticleHead"
+      },
+      "workflow": "assistant.visual-assets",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Browser-only bounded decoding of fixed public particle geometry and morph attributes. It reads no business records and grants no provider, credential or MCP authority.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
+        "id": "frontend:frontend/features/ai/components/test-hologram-packed.ts:loadParticleHead",
+        "kind": "frontend_callable",
+        "source": "frontend/features/ai/components/test-hologram-packed.ts",
+        "handler": "loadParticleHead"
+      },
+      "workflow": "assistant.visual-assets",
+      "disposition": "internal_dependency",
+      "phase": null,
+      "rationale": "Browser-only loading of a fixed content-addressed same-origin public particle asset, with cancellation, a deadline and bounded decompression. It reads no business records and grants no provider, credential or MCP authority.",
+      "adapter_requirements": [],
+      "implementation": {
+        "status": "not_applicable",
+        "adapter": null,
+        "evidence": []
+      }
+    },
+    {
+      "surface": {
         "id": "frontend:frontend/features/ai/components/test-landscape-assets.ts:decodeLandscapeGeometry",
         "kind": "frontend_callable",
         "source": "frontend/features/ai/components/test-landscape-assets.ts",
