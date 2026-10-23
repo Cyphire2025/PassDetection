@@ -52,8 +52,11 @@ for (const mobile of [false, true]) test.describe(mobile ? "phone" : "desktop", 
 });
 
 test("voice holds rotation, retains gentle motion, and changes playback color", async ({ page }, info) => {
+  test.setTimeout(120_000);
   await workspace(page); await syntheticMicrophone(page);
-  const rate = 16000, samples = rate * 12, wav = Buffer.alloc(44 + samples * 2);
+  // Keep the fixture playing until the real Stop control is exercised, even
+  // when software GPU capture and actionability checks take several seconds.
+  const rate = 16000, samples = rate * 120, wav = Buffer.alloc(44 + samples * 2);
   wav.write("RIFF"); wav.writeUInt32LE(wav.length - 8, 4); wav.write("WAVEfmt ", 8); wav.writeUInt32LE(16, 16);
   wav.writeUInt16LE(1, 20); wav.writeUInt16LE(1, 22); wav.writeUInt32LE(rate, 24); wav.writeUInt32LE(rate * 2, 28);
   wav.writeUInt16LE(2, 32); wav.writeUInt16LE(16, 34); wav.write("data", 36); wav.writeUInt32LE(samples * 2, 40);

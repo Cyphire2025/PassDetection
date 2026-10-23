@@ -1096,11 +1096,20 @@ jobs:
           python scripts/qa/run_qualification_stack.py start
 
       - name: Qualify real TLS cookies, MFA, CSRF and sessions in three engines
+        timeout-minutes: 15
         working-directory: frontend
         env:
           RUN_REAL_STACK: "1"
         run: |
           npm ci
+          # Use the same canonical mirrors as the browser-journey installation.
+          mirror_list=/etc/apt/apt-mirrors.txt
+          grep -Eq '^https://archive\.ubuntu\.com/ubuntu/[[:space:]]' "$mirror_list"
+          grep -Eq '^https://security\.ubuntu\.com/ubuntu/[[:space:]]' "$mirror_list"
+          mirror_backup="$RUNNER_TEMP/real-stack-apt-mirrors.txt"
+          cp "$mirror_list" "$mirror_backup"
+          trap 'sudo cp "$mirror_backup" "$mirror_list"' EXIT
+          sudo sed -i '\|^http://azure\.archive\.ubuntu\.com/ubuntu/[[:space:]]|d' "$mirror_list"
           npx playwright install --with-deps chromium firefox webkit
           npx playwright test --config=playwright.real-stack.config.ts
 
