@@ -22,3 +22,11 @@ Removed at the user’s explicit request after run 39868971181 failed with 16 fa
 The remaining 215 browser cases and all backend, Docker, authorization, validation, storage, MCP permissions and user-data protections remain unchanged. Helpers used only by removed cases may be deleted as lint cleanup.
 
 Follow-up run 39904568980 retained all 215 cases: 214 passed; the 1440px company-document case failed on all three attempts because the unscoped passport locator also matched version details during a tab transition. Its assertion now waits for the named Current details tab panel. This case is retained; no additional tests were removed. All other qualification jobs passed.
+
+## Additional removal authorized during release
+
+After the user said 'continue and if anything fails just remove it', run 39907474174 reported one failing backend case (2,063 passed in that shard): backend/tests/integration/test_company_data_exports.py::test_late_provider_start_renews_lease_before_uncancellable_write (original line 209 at ef2340bfd962b60fce536c6bbc904e9f80f974c7). Its one-second wall-clock lease expired before the intended provider-timeout path, raising export_lease_changed. Removed only this test; export runtime lease validation remains unchanged. Total removals: 16 browser cases and 1 backend case.
+
+Run 39907474174 also failed backend/tests/unit/presentation/test_health_readiness_deadline.py::test_slow_probes_share_one_deadline_and_keep_other_capability_results (original line 129 at ef2340bf): 21 readiness responses took 8.288 seconds against a 2-second batch ceiling; 2,074 other tests passed in that shard. Removed only this test and its unused imports. The cold-readiness test, runtime deadlines, capability checks and Docker readiness qualification remain. Total removals: 16 browser cases and 2 backend cases.
+
+The browser job in run 39907474174 completed successfully with all 215 retained cases. Docker qualification, real service integration, migrations, connector, frontend unit/coverage and backend static/audit also passed. Only the two backend tests listed above blocked this release; downstream aggregate/check failures were consequences, not additional removed checks. Remaining local tests in both affected backend files: 10 passed.
