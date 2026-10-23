@@ -1,4 +1,5 @@
 import { BufferAttribute, BufferGeometry, Data3DTexture, HalfFloatType, NearestFilter, NoColorSpace, RepeatWrapping, RGBAFormat, SRGBColorSpace, Texture, type WebGLRenderer } from "three";
+import compactAssets from "../../../public/ai/test-landscape/compact-v1.json";
 
 const ROOT = "/ai/test-landscape/";
 const LOAD_DEADLINE_MS = 25_000;
@@ -18,7 +19,7 @@ export function decodeLandscapeGeometry(buffer: ArrayBuffer) {
 }
 
 /** Native image decoding, abortable fetches and a deadline for stalled preparation. */
-export function loadLandscapeAssets(renderer: WebGLRenderer) {
+export function loadLandscapeAssets(renderer: WebGLRenderer, compact = false) {
   const abort = new AbortController(), resources = new Set<BufferGeometry | Texture>(), pending = new Set<(reason: Error) => void>();
   let disposed = false;
   const retire = (reason: Error) => {
@@ -35,7 +36,9 @@ export function loadLandscapeAssets(renderer: WebGLRenderer) {
     void work.then((value) => { pending.delete(reject); resolve(value); }, (error: unknown) => { pending.delete(reject); reject(error); });
   });
   const bytes = async (file: string) => {
-    const response = await fetch(`${ROOT}${file}`, { signal: abort.signal });
+    const key = file.replace(/\.(bin|webp)$/, "") as keyof typeof compactAssets;
+    const name = compact ? compactAssets[key].file : file;
+    const response = await fetch(`${ROOT}${name}`, { signal: abort.signal, cache: "force-cache" });
     if (!response.ok) throw new Error(`Landscape asset unavailable: ${file}`);
     const buffer = await response.arrayBuffer(); abort.signal.throwIfAborted(); return buffer;
   };
@@ -67,7 +70,8 @@ export function loadLandscapeAssets(renderer: WebGLRenderer) {
   }));
   const ready: Promise<LandscapeAssets> = Promise.all([
     geometry("mountain.bin"), geometry("ground.bin"), geometry("patch.bin"),
-    texture("mountain-color.webp", 2048), texture("ground-color.webp", 2048), texture("wind.webp", 256), grade,
+    texture("mountain-color.webp", compact ? 1024 : 2048),
+    texture("ground-color.webp", compact ? 1024 : 2048), texture("wind.webp", 256), grade,
   ]).then(([mountain, ground, patch, mountainMap, groundMap, wind, grade]) => {
     if (disposed) throw new DOMException("Landscape retired", "AbortError");
     for (const map of [mountainMap, groundMap, wind]) {

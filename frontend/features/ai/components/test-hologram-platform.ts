@@ -13,7 +13,7 @@ export const PEDESTAL = [
 export const PEDESTAL_BAND = { radius: .885, height: .025, y: -1.1725 } as const;
 
 /** Fine irregular cells share vertices across a closed, short-edge cylinder. */
-export function containmentCylinderGeometry() {
+export function containmentCylinderGeometry(wallsOnly = false) {
   const columns = 80, rows = 44, capRings = 10, positions: number[] = [], indices: number[] = [];
   let seed = 41821;
   const jitter = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return (seed / 4294967296 - .5) * .48; };
@@ -29,7 +29,7 @@ export function containmentCylinderGeometry() {
     if (squaredDistance(a, d) < squaredDistance(b, c)) indices.push(a, b, d, a, d, c);
     else indices.push(a, b, c, b, d, c);
   }
-  for (const top of [false, true]) {
+  for (const top of wallsOnly ? [] : [false, true]) {
     const y = top ? CONTAINMENT.top : CONTAINMENT.bottom;
     let outer = top ? rows * columns : 0;
     const triangle = (a: number, b: number, c: number) => { if (top) indices.push(a, b, c); else indices.push(a, c, b); };
@@ -85,7 +85,7 @@ export function createPortraitPlatform() {
   });
   const band = new Mesh(bandGeometry, bandMaterial); band.name = "Pedestal recessed glow band";
   band.position.y = PEDESTAL_BAND.y; group.add(band);
-  const closed = containmentCylinderGeometry(), wire = new WireframeGeometry(closed);
+  const closed = containmentCylinderGeometry(true), wire = new WireframeGeometry(closed);
   const nodeGeometry = new BufferGeometry().setAttribute("position", closed.getAttribute("position").clone()); closed.dispose();
   const rimGeometry = containmentRimsGeometry();
   const enclosure = new ShaderMaterial({ name: "Cylindrical interaction scan", vertexShader: CYLINDER_VERTEX, fragmentShader: CYLINDER_FRAGMENT, uniforms: { time, strength, heightBounds: { value: new Vector2(CONTAINMENT.bottom, CONTAINMENT.top) } }, transparent: true, depthWrite: false, toneMapped: false });

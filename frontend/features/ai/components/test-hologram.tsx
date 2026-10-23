@@ -5,8 +5,10 @@ import { gsap } from "gsap";
 import { forwardRef, useEffect, useId, useImperativeHandle, useRef, useState, type RefObject } from "react";
 import type { SculptureHandle, SculpturePresentation } from "@/components/ui/liquid-sculpture/types";
 import type { SpeechFrame } from "../speech-frame";
-import { loadHumanHead, type HumanHeadGeometry } from "./human-head-geometry";
-import { TestHologramEngine, type HeadView } from "./test-hologram-engine";
+import { loadParticleHead } from "./test-hologram-packed";
+import type { TestHologramEngine, HeadView } from "./test-hologram-engine";
+import particleManifest from "../../../public/ai/human-head/particles-v1.json";
+import { loadHologramEngine } from "./test-hologram-loader";
 import { HologramTransitions } from "./test-hologram-transitions";
 import { LANDSCAPE_ORBIT_PITCH_MAX, LANDSCAPE_ORBIT_PITCH_MIN } from "./test-landscape-layout";
 import styles from "./test-hologram.module.css";
@@ -29,7 +31,8 @@ export const TestHologram = forwardRef<SculptureHandle, Props>(function TestHolo
     const element = canvas.current, container = root.current;
     if (!element || !container) return;
     const abort = new AbortController(), reduced = matchMedia("(prefers-reduced-motion: reduce)");
-    let engine: TestHologramEngine | null = null, head: HumanHeadGeometry | null = null;
+    let engine: TestHologramEngine | null = null, head: Float32Array[] | null = null;
+    let Engine: typeof import("./test-hologram-engine").TestHologramEngine | null = null;
     let running = false, ready = false, visible = true, disposed = false, lastTime = 0, clock = 0;
     let keyboardHoldUntil = 0;
     let returningHome = false;
@@ -60,12 +63,14 @@ export const TestHologram = forwardRef<SculptureHandle, Props>(function TestHolo
       const atmosphereEase = animate ? 1 - Math.exp(-elapsed * 2.4) : 1;
       view.atmosphereX = (view.atmosphereX ?? 0) + ((target.atmosphereX ?? 0) - (view.atmosphereX ?? 0)) * atmosphereEase;
       view.atmosphereY = (view.atmosphereY ?? 0) + ((target.atmosphereY ?? 0) - (view.atmosphereY ?? 0)) * atmosphereEase;
-      view.x += (target.x - view.x) * ease; view.y += (target.y - view.y) * ease;
+      view.x = target.x; view.y = target.y;
       view.influence += (target.influence - view.influence) * (1 - Math.exp(-elapsed * 6));
       const interacting = animate && (target.influence > 0 || drag?.control === "face");
       view.barrier += ((interacting ? 1 : 0) - view.barrier) * (1 - Math.exp(-elapsed * (interacting ? 5 : 2.5)));
       const reveal = presentationRef.current.reveal;
       view.manipulating = drag?.control === "face" || now < keyboardHoldUntil || returningHome;
+      view.listening = presentationRef.current.phase === "listening";
+      view.responding = presentationRef.current.phase === "speaking";
       if (returningHome && !transitions.resetting && Math.abs(view.yaw - target.yaw) + Math.abs(view.pitch - target.pitch)
         + Math.abs(view.zoom - target.zoom) + Math.abs(view.landscapeYaw - target.landscapeYaw) + Math.abs(view.landscapePitch - target.landscapePitch) < .001) returningHome = false;
       try { engine.draw(clock, view, speechFrameRef.current, current.current.dark, animate, (1 - reveal * .94) * transitions.opacity, levelRef.current); }
@@ -91,22 +96,26 @@ export const TestHologram = forwardRef<SculptureHandle, Props>(function TestHolo
     };
     const fail = () => { ready = false; stop(); engine?.destroy(true); engine = null; if (!disposed) setRendered({ appearance, state: "fallback" }); };
     const initialize = () => {
-      if (disposed || !head) return;
+      if (disposed || !head || !Engine) return;
       try {
         ready = false; engine?.destroy();
-        const candidate = new TestHologramEngine(element, head, appearance); engine = candidate;
+        const candidate = new Engine(element, head); engine = candidate;
         resizeScene();
         void candidate.prepare().then(() => {
           if (disposed || engine !== candidate) return;
           ready = true;
-          if (current.current.motion && !reduced.matches) transitions.enter();
-          else transitions.advance(performance.now(), false);
+          transitions.advance(performance.now(), false);
+          container.dataset.readyMs = String(Math.round(performance.now() - startedAt));
+          container.dataset.readyAt = String(Math.round(performance.now()));
           setRendered({ appearance, state: "webgl" }); wake();
         }).catch(() => { if (!disposed && engine === candidate) fail(); });
       }
       catch { fail(); }
     };
-    void loadHumanHead(appearance, abort.signal).then((value) => { if (!disposed) { head = value; initialize(); } }).catch(() => { if (!disposed) fail(); });
+    const startedAt = performance.now();
+    void Promise.all([loadParticleHead(appearance, abort.signal), loadHologramEngine()])
+      .then(([value, module]) => { if (!disposed) { head = value; Engine = module.TestHologramEngine; initialize(); } })
+      .catch(() => { if (!disposed) fail(); });
     const move = (event: PointerEvent) => {
       if (event.pointerType === "touch" && !touches.has(event.pointerId)) return;
       if (touches.has(event.pointerId)) touches.set(event.pointerId, { x: event.clientX, y: event.clientY });
@@ -214,7 +223,8 @@ export const TestHologram = forwardRef<SculptureHandle, Props>(function TestHolo
     };
   }, [appearance, levelRef, presentationRef, speechFrameRef]);
   return <div ref={root} className={styles.root} aria-busy={renderer === "loading"} data-testid="particle-face-test" data-renderer={renderer} data-appearance={appearance} data-motion={motion} data-theme={dark ? "dark" : "light"}>
-    {renderer !== "webgl" ? <div className={styles.fallback}><Image src={`/ai/human-head/${appearance}-still.png`} fill unoptimized alt={`${appearance === "male" ? "Male" : "Female"} 3D hologram still view`} sizes="(max-width: 639px) 80vw, 480px" /></div> : null}
+    <link rel="preload" href={`/ai/human-head/${particleManifest.assets[appearance].file}`} as="fetch" crossOrigin="anonymous" />
+    {renderer !== "webgl" ? <div className={styles.fallback}><Image src={`/ai/human-head/${appearance}-preview.webp`} fill unoptimized preload alt={`${appearance === "male" ? "Male" : "Female"} 3D hologram still view`} sizes="(max-width: 639px) 80vw, 480px" /></div> : null}
     <canvas key={appearance} ref={canvas} className={styles.canvas} tabIndex={renderer === "webgl" ? 0 : -1} aria-hidden={renderer !== "webgl"} role="img" aria-label={`${appearance === "male" ? "Male" : "Female"} interactive 3D particle face`} aria-describedby={instructions} />
     <span id={instructions} className={styles.screenReader}>Move to stir the snow. The face rotates at rest and pauses while you or the assistant speaks. Drag to rotate the face. Shift-drag, two-finger drag, or Shift with arrow keys explores the 360 degree landscape. Arrow keys rotate the face; plus and minus zoom. Home or double-click restores the original view.</span>
   </div>;

@@ -5,7 +5,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { LiquidSculptureHero } from "@/components/ui/liquid-sculpture-hero";
 import { DEFAULT_APPEARANCE, type SculptureHandle } from "@/components/ui/liquid-sculpture/types";
 import { useAssistant } from "../hooks/use-assistant";
 import { useAssistantAudio } from "../hooks/use-assistant-audio";
@@ -17,15 +16,19 @@ import { AssistantComposer } from "./assistant-composer";
 import { ConversationThread } from "./conversation-thread";
 import { ImageReveal } from "./image-reveal";
 import { WorkspaceDrawer } from "./workspace-drawer";
-import { HumanHologram } from "./human-hologram";
+import { TestHologram } from "./test-hologram";
+import { HologramResourceHints } from "./test-hologram-resource-hints";
+import { loadHologramEngine } from "./test-hologram-loader";
 import { SculptureAppearanceControl } from "./sculpture-appearance";
 import { WorkspaceAccessNotice, WorkspaceConnectionIndicator } from "./workspace-mcp-status";
 import styles from "./workspace.module.css";
 
-const TestHologram = dynamic(() => import("./test-hologram").then((module) => module.TestHologram), { ssr: false });
+const HumanHologram = dynamic(() => import("./human-hologram").then((module) => module.HumanHologram), { ssr: false });
+const LiquidSculptureHero = dynamic(() => import("@/components/ui/liquid-sculpture-hero").then((module) => module.LiquidSculptureHero), { ssr: false });
 const MOTES = Array.from({ length: 54 }, (_, index) => ({ left: `${(index * 61.803 + 9) % 100}%`, top: `${(index * 37.179 + 7) % 100}%`, delay: `${index * -2.7}s`, duration: `${24 + index % 9 * 4}s`, size: `${index % 11 === 0 ? 5 : index % 4 === 0 ? 3.5 : 1.5 + index % 3 * .5}px` }));
 
 export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
+  useEffect(() => { void loadHologramEngine().catch(() => undefined); }, []);
   const router = useRouter();
   const { dark, toggle: toggleTheme } = useAssistantTheme();
   const [drawer, setDrawer] = useState<"library" | "history" | null>(null);
@@ -83,6 +86,7 @@ export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
   useEffect(() => {
     presentation.current.phase = phase;
     presentation.current.reply = phase === "speaking" || audio.preparing || (assistant.busy && assistant.messages.some((message) => message.streaming && message.text.length > 0));
+    testHologram.current?.invalidate();
   }, [phase, audio.preparing, assistant.busy, assistant.messages]);
   useEffect(() => {
     if (!signedIn) { Object.assign(speechFrame.current, neutralSpeechFrame()); return; }
@@ -137,6 +141,7 @@ export function AssistantWorkspace({ onBack }: { onBack?: () => void } = {}) {
 
   const panelOpen = assistant.messages.length > 0 && conversationOpen;
   return <main className={styles.page} aria-label="Global Connects AI workspace" data-theme={dark ? "dark" : "light"} data-appearance={appearance.mode} data-phase={phase} data-has-conversation={assistant.messages.length > 0} data-conversation-open={panelOpen} data-image-open={Boolean(activeImage)}>
+    <HologramResourceHints />
     <div className={styles.atmosphere} aria-hidden="true" data-testid="assistant-atmosphere">{MOTES.map((mote, index) => <i key={index} className={index % 13 === 0 ? styles.doubleMote : undefined} style={{ left: mote.left, top: mote.top, animationDelay: mote.delay, animationDuration: mote.duration, width: mote.size, height: mote.size }} />)}</div>
     <header className={styles.header}>
       <div className={styles.brandGroup}><button type="button" onClick={back} className={styles.backButton} aria-label="Back to workspace"><ArrowLeft size={19} /></button><div className={styles.brand} aria-label="Global Connects"><span className={styles.monogram}>gc<ArrowUpRight size={16} strokeWidth={2.5} /></span><span>Global Connects<small>YOUR TRAVEL WORKSPACE</small></span></div></div>

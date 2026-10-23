@@ -24,7 +24,8 @@ export async function observeRenderedHead(page: Page) {
       if (!pending || mode !== gl.POINTS || !program) return;
       let head = heads.get(program);
       if (head === undefined) {
-        head = gl.getUniformLocation(program, "displacement") !== null && gl.getUniformLocation(program, "articulation") !== null;
+        head = gl.getUniformLocation(program, "articulation") !== null
+          && (gl.getUniformLocation(program, "displacement") !== null || gl.getUniformLocation(program, "pointerStrokes[0]") !== null);
         heads.set(program, head);
       }
       if (!head) return;

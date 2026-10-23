@@ -10,7 +10,7 @@ const expectedParticleBudget = (page: Page) => page.getByTestId("particle-face-t
   const canvas = element as HTMLCanvasElement, gl = canvas.getContext("webgl2")!;
   const debug = gl.getExtension("WEBGL_debug_renderer_info");
   const software = debug && /swiftshader|llvmpipe|software/i.test(String(gl.getParameter(debug.UNMASKED_RENDERER_WEBGL)));
-  return software ? 30976 : canvas.clientWidth < 640 || navigator.hardwareConcurrency <= 4 ? 43264 : 78400;
+  return software ? 25600 : canvas.clientWidth < 640 || navigator.hardwareConcurrency <= 4 ? 30976 : 43264;
 });
 
 test.afterEach(async ({ page }, testInfo) => {

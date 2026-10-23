@@ -4,9 +4,9 @@ import { createSnowCollar } from "./test-hologram-snow-collar";
 import type { HologramSpillUniforms } from "./test-hologram-spill";
 
 /** The source igloo ground is untransformed around the world origin. */
-export function groundContactGeometry(ground: BufferGeometry) {
+export function groundContactGeometry(ground: BufferGeometry, segments = 32) {
   const width = LANDSCAPE_GROUND_FOOTPRINT * 1.22;
-  const geometry = new PlaneGeometry(width, width, 32, 32).rotateX(-Math.PI / 2);
+  const geometry = new PlaneGeometry(width, width, segments, segments).rotateX(-Math.PI / 2);
   const temporary = new MeshBasicMaterial(), terrain = new Mesh(ground, temporary);
   const ray = new Raycaster(new Vector3(), new Vector3(0, -1, 0)), position = geometry.getAttribute("position");
   try {
@@ -22,8 +22,8 @@ export function groundContactGeometry(ground: BufferGeometry) {
 }
 
 /** A small draped shadow remains in world space when the portrait turns. */
-export function createPedestalGroundContact(ground: BufferGeometry, snow?: Texture, wind?: Texture, spill?: HologramSpillUniforms) {
-  const geometry = groundContactGeometry(ground), opacity = { value: 0 };
+export function createPedestalGroundContact(ground: BufferGeometry, snow?: Texture, wind?: Texture, spill?: HologramSpillUniforms, compact = false) {
+  const geometry = groundContactGeometry(ground, compact ? 12 : 32), opacity = { value: 0 };
   const material = new ShaderMaterial({
     name: "Terrain-conforming pedestal contact", uniforms: { opacity }, transparent: true, depthWrite: false, toneMapped: false,
     polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1,
@@ -32,7 +32,7 @@ export function createPedestalGroundContact(ground: BufferGeometry, snow?: Textu
   });
   const mesh = new Mesh(geometry, material); mesh.name = "Pedestal grounded contact"; mesh.renderOrder = 3;
   let collar: ReturnType<typeof createSnowCollar>;
-  try { collar = createSnowCollar(ground, snow, wind, spill); }
+  try { collar = createSnowCollar(ground, snow, wind, spill, compact); }
   catch (error) { geometry.dispose(); material.dispose(); throw error; }
   mesh.add(collar.mesh);
   let disposed = false;

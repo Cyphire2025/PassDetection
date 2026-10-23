@@ -15,7 +15,7 @@ vi.mock("gsap", () => ({ gsap: { ticker: {
   remove: (callback: () => void) => observed.callbacks.delete(callback),
 } } }));
 vi.mock("next/image", () => ({ default: () => null }));
-vi.mock("./human-head-geometry", () => ({ loadHumanHead: async () => ({}) }));
+vi.mock("./test-hologram-packed", () => ({ loadParticleHead: async () => [] }));
 vi.mock("./test-hologram-engine", () => ({ TestHologramEngine: class {
   async prepare() {}
   resize() {}
@@ -45,25 +45,35 @@ async function mount() {
   const presentationRef = { current: { phase: "idle", reply: false, reveal: 0, revealWidth: 0, revealHeight: 0 } as SculpturePresentation };
   const result = render(<TestHologram appearance="female" dark motion levelRef={levelRef}
     presentationRef={presentationRef} speechFrameRef={speechFrameRef} />);
-  await act(async () => { await Promise.resolve(); });
+  await act(async () => { await vi.dynamicImportSettled(); });
   expect(screen.getByTestId("particle-face-test")).toHaveAttribute("data-renderer", "webgl");
-  return { ...result, levelRef, speechFrameRef };
+  return { ...result, levelRef, speechFrameRef, presentationRef };
 }
 
 describe("hologram transition integration", () => {
-  it("uses actual slow frame time and excludes time spent in a hidden tab", async () => {
+  it("shows the completed scene immediately and suspends work in a hidden tab", async () => {
     const view = await mount();
     tick(0); tick(600);
-    expect(observed.frames.at(-1)!.opacity).toBeCloseTo(.875);
+    expect(observed.frames.at(-1)!.opacity).toBe(1);
     act(() => { hidden = true; document.dispatchEvent(new Event("visibilitychange")); });
     expect(observed.callbacks.size).toBe(0);
     now = 60600;
     act(() => { hidden = false; document.dispatchEvent(new Event("visibilitychange")); });
     tick(60600);
-    expect(observed.frames.at(-1)!.opacity).toBeCloseTo(.875);
+    expect(observed.frames.at(-1)!.opacity).toBe(1);
     tick(61200); expect(observed.frames.at(-1)!.opacity).toBe(1);
     view.unmount(); expect(observed.callbacks.size).toBe(0);
     expect(observed.destroy).toHaveBeenCalledOnce();
+  });
+
+  it("holds conversation rotation through quiet input and output without relying on volume", async () => {
+    const { presentationRef } = await mount();
+    presentationRef.current.phase = "listening"; tick(100);
+    expect(observed.frames.at(-1)!.view).toMatchObject({ listening: true, responding: false });
+    presentationRef.current.phase = "speaking"; tick(200);
+    expect(observed.frames.at(-1)!.view).toMatchObject({ listening: false, responding: true });
+    presentationRef.current.phase = "idle"; tick(300);
+    expect(observed.frames.at(-1)!.view).toMatchObject({ listening: false, responding: false });
   });
 
   it("holds Home until the rendered pose converges and forwards live speech unchanged", async () => {

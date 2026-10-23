@@ -24,7 +24,7 @@ function snowfallGeometry() {
 }
 
 /** Original integration of the provenance-recorded Igloo terrain assets. */
-export function createHologramStage(renderer: WebGLRenderer) {
+export function createHologramStage(renderer: WebGLRenderer, compact = false) {
   const platform = createPortraitPlatform(), group = platform.group, landscape = new Group();
   landscape.name = "Original Igloo alpine landscape";
   const camera = new PerspectiveCamera(LANDSCAPE_FOV, 1, .1, 2000);
@@ -50,7 +50,7 @@ export function createHologramStage(renderer: WebGLRenderer) {
   const snow = new Points(snowGeometry, snowMaterial); snow.name = "Alpine snowfall"; snow.frustumCulled = false; snow.renderOrder = 5;
   snow.position.copy(camera.position);
   landscape.add(snow); geometries.push(snowGeometry);
-  const assets = loadLandscapeAssets(renderer);
+  const assets = loadLandscapeAssets(renderer, compact);
   let groundContact: ReturnType<typeof createPedestalGroundContact> | undefined;
   let disposed = false;
   const place = (name: string, geometry: BufferGeometry, surface: ShaderMaterial, placements: Placement[]) => placements.forEach((placement, index) => {
@@ -61,7 +61,7 @@ export function createHologramStage(renderer: WebGLRenderer) {
     if (disposed) return;
     skyMaterial.uniforms.tWind.value = loaded.wind;
     platform.setSnowTexture(loaded.groundMap);
-    groundContact = createPedestalGroundContact(loaded.ground, loaded.groundMap, loaded.wind, spill.uniforms); landscape.add(groundContact.mesh);
+    groundContact = createPedestalGroundContact(loaded.ground, loaded.groundMap, loaded.wind, spill.uniforms, compact); landscape.add(groundContact.mesh);
     const terrain = (name: string, map: typeof loaded.groundMap, mountain: number, edge: Vector2, radiusScale: number, worldSnow = 0) => {
       const uniforms = { tMap: { value: map }, tWind: { value: loaded.wind }, mountain: { value: mountain }, edge: { value: edge }, radiusScale: { value: radiusScale }, worldSnow: { value: worldSnow }, snowIsland: { value: new Vector4(...SNOW_ISLAND) } };
       const core = material(name, TERRAIN_FRAGMENT, { ...uniforms, edgePass: { value: 0 } });

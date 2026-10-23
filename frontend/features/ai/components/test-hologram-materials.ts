@@ -1,9 +1,11 @@
-import { Matrix4, NormalBlending, ShaderMaterial, Vector3, Vector4, type IUniform, type Texture } from "three";
+import { Matrix4, NormalBlending, ShaderMaterial, Vector3, Vector4, type IUniform } from "three";
+import { HologramInteraction } from "./test-hologram-interaction";
 import { HEAD_FRAGMENT, HEAD_VERTEX } from "./test-hologram-shaders";
 
 export type HeadUniforms = {
-  displacement: IUniform<Texture | null>;
-  velocity: IUniform<Texture | null>;
+  pointerStrokes: IUniform<Vector4[]>; pointerEnergies: IUniform<Vector4[]>;
+  pointerRight: IUniform<Vector3>; pointerUp: IUniform<Vector3>;
+  ambientMotion: IUniform<number>; responseGlow: IUniform<number>;
   articulation: IUniform<Vector4>;
   headToEnclosure: IUniform<Matrix4>; enclosureToHead: IUniform<Matrix4>;
   cursor: IUniform<Vector3>;
@@ -13,9 +15,11 @@ export type HeadUniforms = {
 };
 
 /** All visible anatomy, articulation and lighting belongs to the particle volume. */
-export function createHeadMaterials() {
+export function createHeadMaterials(interaction = new HologramInteraction()) {
   const uniforms: HeadUniforms = {
-    displacement: { value: null }, velocity: { value: null },
+    pointerStrokes: { value: interaction.strokes }, pointerEnergies: { value: interaction.energies },
+    pointerRight: { value: new Vector3(1,0,0) }, pointerUp: { value: new Vector3(0,1,0) },
+    ambientMotion: { value: 1 }, responseGlow: { value: 0 },
     articulation: { value: new Vector4() }, cursor: { value: new Vector3() },
     headToEnclosure: { value: new Matrix4() }, enclosureToHead: { value: new Matrix4() },
     closure: { value: 0 }, blink: { value: 0 }, time: { value: 0 }, motion: { value: 1 },

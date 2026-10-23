@@ -4,6 +4,18 @@ import { CONTAINMENT, containmentCylinderGeometry, createPortraitPlatform, PEDES
 import { LANDSCAPE_GROUND_FOOTPRINT, PLATFORM_HORIZONTAL_SCALE, PORTRAIT_HEAD_SCALE, WORLD_SCULPTURE_SCALE } from "./test-landscape-layout";
 
 describe("anchored portrait pedestal", () => {
+  it("renders only cylinder walls with a transparent roof and floor", () => {
+    const geometry = containmentCylinderGeometry(true), material = new MeshBasicMaterial();
+    try {
+      const mesh = new Mesh(geometry, material), ray = new Raycaster();
+      ray.set(new Vector3(.2, 2, .1), new Vector3(0, -1, 0));
+      expect(ray.intersectObject(mesh, false)).toHaveLength(0);
+      ray.set(new Vector3(2, 0, 0), new Vector3(-1, 0, 0));
+      expect(ray.intersectObject(mesh, false)[0].distance).toBeCloseTo(2 - CONTAINMENT.radius, 2);
+      const points = geometry.getAttribute("position");
+      for (let i = 0; i < points.count; i++) expect(Math.hypot(points.getX(i), points.getZ(i))).toBeCloseTo(CONTAINMENT.radius, 6);
+    } finally { geometry.dispose(); material.dispose(); }
+  });
   it("encloses the portrait with a closed outward-facing cylinder, including both caps", () => {
     const geometry = containmentCylinderGeometry(), material = new MeshBasicMaterial();
     try {

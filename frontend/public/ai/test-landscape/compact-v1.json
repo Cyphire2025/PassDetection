@@ -1,0 +1,37 @@
+{
+  "mountain-color": {
+    "file": "mountain-color-022c21eb5e31.webp",
+    "bytes": 82018,
+    "sha256": "022c21eb5e3101f5159c51a5a2fdb3843d07936cdd6a21b9159554d5ccf812f0"
+  },
+  "ground-color": {
+    "file": "ground-color-f4ae40cd4189.webp",
+    "bytes": 154958,
+    "sha256": "f4ae40cd418970ee7d3e5f9badfb958a2df0f9bfe0a2176c396fde1332183dfb"
+  },
+  "mountain": {
+    "file": "mountain-56a853ebae6e.bin",
+    "bytes": 71816,
+    "sha256": "56a853ebae6e850744ccbaa3664a6ac78b03b51ce0919b8bcdb453390394d062"
+  },
+  "ground": {
+    "file": "ground-1bc29662c548.bin",
+    "bytes": 118730,
+    "sha256": "1bc29662c548d7db189754cb0858ef6b5c3973995b2f64dd50ffe430f8542b85"
+  },
+  "patch": {
+    "file": "patch-1c40141aa589.bin",
+    "bytes": 156,
+    "sha256": "1c40141aa58946d8f7a0e6e6f7694d96432102f486e2949ec751d7d66ebf4f1d"
+  },
+  "grade-rgba16f": {
+    "file": "grade-rgba16f-38a11918266b.bin",
+    "bytes": 262144,
+    "sha256": "38a11918266bd9fa0ca96ab73187586e39be86fd81374a317bd48968d4fb9186"
+  },
+  "wind": {
+    "file": "wind-a1fb5996c408.webp",
+    "bytes": 17828,
+    "sha256": "a1fb5996c4082053ac9b73daee58fa0ccac5be985b5dda0399b022d3e44acb33"
+  }
+}

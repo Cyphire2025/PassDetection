@@ -1,37 +1,58 @@
 import { CORNEA_APERTURE, IRIS_EXPANSION } from "./test-hologram-eyes";
 import { PARTICLE_CONTAINMENT } from "./test-hologram-containment";
-import { HEAD_FIELD_GLSL } from "./test-hologram-field-glsl";
+import { MAX_PARTICLE_OFFSET, POINTER_RETURN_SECONDS, POINTER_TRAIL_LENGTH } from "./test-hologram-interaction";
 
-/** Anatomy is sampled where each grain is now, never from its initial vertex. */
+/** Authored anatomy stays attached to every grain, including during displacement. */
 export const HEAD_VERTEX = `
 ${PARTICLE_CONTAINMENT}
-${HEAD_FIELD_GLSL}
 uniform vec4 articulation;
-uniform float closure, blink, time, motion, pixelRatio, viewportHeight, pointScale, speechEnergy;
+uniform float closure, blink, time, motion, pixelRatio, viewportHeight, pointScale, speechEnergy, ambientMotion, responseGlow;
 uniform vec3 cursor;
-attribute vec2 lookup;
-uniform sampler2D displacement, velocity;
+uniform vec4 pointerStrokes[${POINTER_TRAIL_LENGTH}], pointerEnergies[${POINTER_TRAIL_LENGTH}];
+uniform vec3 pointerRight, pointerUp;
+attribute vec3 jawShape, roundShape, wideShape, closureShape, fricativeShape, blinkShape, eyeRegion, surfaceDetail;
 varying vec3 vHeadNormal, vViewPosition, vEyeRegion, vSurfaceDetail;
 varying float vFade, vSpeed, vHover, vSeed, vPointCoverage, vGrainRadius, vDisturbance;
 void main() {
-  vec4 state = texture2D(displacement, lookup);
-  vec3 canonical = motion > .5 ? (enclosureToHead*vec4(state.xyz,1.0)).xyz : position;
-  vec4 shape = headField(canonical);
-  vec3 eye = headEyeRegion(canonical);
-  vec3 detail = headSurfaceDetail(canonical);
-  vec3 surfaceNormal = headSurfaceNormal(canonical);
-  vec3 p = canonical + headMorph(canonical, articulation.x, articulation.y, articulation.z, closure, articulation.w, blink);
+  vec3 canonical = position;
+  vec3 eye = eyeRegion;
+  vec3 p = position + jawShape*articulation.x + roundShape*articulation.y + wideShape*articulation.z
+    + closureShape*closure + fricativeShape*articulation.w + blinkShape*blink;
+  vec4 restView = modelViewMatrix*vec4(p,1.0), restClip = projectionMatrix*restView;
+  vec2 screen = restClip.xy/max(restClip.w,.01);
+  float aspect = projectionMatrix[1][1]/projectionMatrix[0][0];
+  float ndcScale = projectionMatrix[1][1]*length(modelViewMatrix[0].xyz)/max(-restView.z,.2);
+  vec3 offset = vec3(0.0);
+  float wake = 0.0;
+  for (int i=0;i<${POINTER_TRAIL_LENGTH};i++) {
+    vec4 stroke = pointerStrokes[i], energy = pointerEnergies[i];
+    float age = max(0.0,time-energy.x);
+    float release = 1.0-smoothstep(0.0,${POINTER_RETURN_SECONDS},age);
+    vec2 a = (screen-stroke.xy)*vec2(aspect,1.0), b = (stroke.zw-stroke.xy)*vec2(aspect,1.0);
+    vec2 delta = (a-b*clamp(dot(a,b)/max(dot(b,b),.000001),0.0,1.0))/max(ndcScale,.001);
+    float local = exp(-dot(delta,delta)/.025)*energy.y*release*motion;
+    wake = max(wake,local);
+    offset += (pointerRight*energy.z+pointerUp*energy.w+normal*.18)*local*.075;
+  }
+  offset *= min(1.0,${MAX_PARTICLE_OFFSET}/max(length(offset),.00001));
+  // Small bounded breathing never changes the anatomical silhouette or accumulates drift.
+  vec3 drift = sin(position.yzx*19.0+vec3(time*.8,time*.65,time*.73))* .006*ambientMotion*motion;
+  p += offset + drift;
   if (eye.z > .5 && eye.z < 1.5) p.xy += eye.xy * ${IRIS_EXPANSION};
   vEyeRegion = eye;
-  vSurfaceDetail = vec3(detail.xy,clamp(-shape.a*5.0,0.0,1.0));
-  vDisturbance = state.w*motion;
-  vSpeed = min(length(texture2D(velocity,lookup).xyz)*3.8,1.5)*motion;
-  vSeed = fract(sin(dot(lookup,vec2(17.13,93.71)))*43758.54);
+  vSurfaceDetail = surfaceDetail;
+  vDisturbance = wake;
+  vSpeed = wake*1.5;
+  vSeed = fract(sin(dot(position,vec3(17.13,93.71,41.19)))*43758.54);
   float faceDetail = smoothstep(.10,.30,canonical.z)*(1.0-smoothstep(.36,.52,abs(canonical.x)))
     *(1.0-smoothstep(.45,.65,canonical.y))*smoothstep(-.70,-.45,canonical.y);
   vec4 view = modelViewMatrix*vec4(p,1.0);
   gl_Position = projectionMatrix*view;
-  vHeadNormal = normalize(normalMatrix*surfaceNormal);
+  // Hair locks keep their geometry, but a broad scalp normal avoids tiny dark
+  // recesses dominating the small-screen silhouette after quantization/LOD.
+  vec3 scalpNormal = normalize(vec3(canonical.x,(canonical.y-.25)*.7,canonical.z));
+  vec3 shadingNormal = normalize(mix(normal,scalpNormal,smoothstep(.62,.80,canonical.y)*.65));
+  vHeadNormal = normalize(normalMatrix*shadingNormal);
   vViewPosition = -view.xyz;
   vFade = smoothstep(-.92,-.74,canonical.y);
   vec2 separation = gl_Position.xy/max(gl_Position.w,.01)-cursor.xy;
@@ -39,7 +60,7 @@ void main() {
   vHover = exp(-dot(separation,separation)*22.0)*cursor.z*motion;
   float modelScale = length(modelViewMatrix[0].xyz);
   float size = pointScale*modelScale*viewportHeight*pixelRatio*projectionMatrix[1][1]/max(-view.z,.2);
-  float detached = smoothstep(.025,.12,shape.a)*smoothstep(.03,.40,vDisturbance);
+  float detached = smoothstep(.02,.12,length(offset));
   size *= mix(mix(.88,.65,faceDetail),mix(1.18,.80,faceDetail),detached);
   size *= eye.z > .5 ? .4 : 1.0;
   float shimmer = 1.0+sin(time*.7+vSeed*19.0)*.018*motion;
@@ -57,7 +78,7 @@ void main() {
 `;
 
 const FACE_LIGHT = `
-uniform float dark, opacity, speechEnergy, time, motion;
+uniform float dark, opacity, speechEnergy, time, motion, responseGlow;
 varying vec3 vHeadNormal, vViewPosition;
 varying vec3 vEyeRegion;
 varying vec3 vSurfaceDetail;
@@ -115,16 +136,18 @@ void main() {
   // reveals volume through surface gaps without turning the fill into haze.
   // A grain in a facial recess cannot receive the same bright fill as a grain
   // facing the key light. Couple its rounded relief to the anatomical lighting.
-  float illumination = clamp(form * (.32 + diffuse * .68) + diffuse * .045 + specular * .015 - vSurfaceDetail.x * .04 - vSurfaceDetail.y * .24 - vSurfaceDetail.z * .10, 0.0, 1.0);
+  float illumination = clamp(form * (.54 + diffuse * .46) + diffuse * .045 + specular * .010 - vSurfaceDetail.x * .04 - vSurfaceDetail.y * .24 - vSurfaceDetail.z * .06, 0.0, 1.0);
   vec3 frost = mix(vec3(.33, .368, .475), vec3(.60613, .65034, .81581), illumination);
   frost *= .99 + vSeed * .02;
   // Idle reassembly keeps diffuse form. Only a local pointer wake or speech
   // disturbance promotes moving grains into the luminous plume range.
-  float excitation = clamp(.04 + smoothstep(.08, .65, vDisturbance) * .88 + speechEnergy * .25, 0.0, 1.0);
-  float moving = smoothstep(.18, 1.3, vSpeed) * excitation;
-  vec3 luminous = mix(vec3(.64, .73, .83), vec3(.87, .94, 1.0), diffuse);
-  frost = mix(frost, luminous, moving * .92);
-  frost += vec3(vHover * .008 + speechEnergy * .02 * anatomy);
+  float moving = smoothstep(.005, .50, vDisturbance);
+  vec3 luminous = mix(vec3(.48,.56,.70), vec3(.72,.86,1.02), illumination);
+  frost = mix(frost, luminous, moving * .68);
+  frost += vec3(.18,.32,.46)*moving*(.20+vSpeed*.18);
+  // A sustained pearl/cyan response distinguishes playback, including quiet syllables.
+  frost = mix(frost,vec3(.63,.82,1.06)*(.42+illumination*.70),responseGlow*.72);
+  frost += vec3(.08,.15,.24)*responseGlow*(.25+speechEnergy*.45);
   frost = eyeColor(frost, illumination);
   gl_FragColor = vec4(frost, alpha);
   #include <tonemapping_fragment>

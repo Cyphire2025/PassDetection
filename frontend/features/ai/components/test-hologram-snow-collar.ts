@@ -10,8 +10,8 @@ function powderProfile(x: number, z: number, radius: number) {
 }
 
 /** Subdivide authored triangles independently, preserving every UV-chart seam. */
-export function snowCollarGeometry(ground: BufferGeometry) {
-  const steps = 8, radius = LANDSCAPE_GROUND_FOOTPRINT / 2;
+export function snowCollarGeometry(ground: BufferGeometry, steps = 8) {
+  const radius = LANDSCAPE_GROUND_FOOTPRINT / 2;
   const positions: number[] = [], normals: number[] = [], uvs: number[] = [], sourceY: number[] = [], across: number[] = [], indices: number[] = [];
   const source = ground.getAttribute("position"), normal = ground.getAttribute("normal"), uv = ground.getAttribute("uv"), triangles = ground.getIndex();
   if (!triangles || !normal || !uv) throw new Error("Powder collar requires textured terrain triangles");
@@ -94,8 +94,8 @@ void main() {
 `;
 
 /** Owns only its powder geometry/material; shared landscape maps stay borrowed. */
-export function createSnowCollar(ground: BufferGeometry, snow?: Texture, wind?: Texture, spill: HologramSpillUniforms = createHologramSpill().uniforms) {
-  const geometry = snowCollarGeometry(ground);
+export function createSnowCollar(ground: BufferGeometry, snow?: Texture, wind?: Texture, spill: HologramSpillUniforms = createHologramSpill().uniforms, compact = false) {
+  const geometry = snowCollarGeometry(ground, compact ? 4 : 8);
   const uniforms = { ...spill, opacity: { value: 0 }, time: { value: 0 }, tSnow: { value: snow ?? null }, tWind: { value: wind ?? null }, hasSnow: { value: Number(Boolean(snow)) }, hasWind: { value: Number(Boolean(wind)) } };
   const material = new ShaderMaterial({ name: "Terrain-integrated powder mound", uniforms, vertexShader: VERTEX, fragmentShader: FRAGMENT, transparent: true, depthWrite: true, toneMapped: false });
   const mesh = new Mesh(geometry, material); mesh.name = "Irregular pedestal powder collar"; mesh.renderOrder = 3;

@@ -3,6 +3,14 @@ import nextConfig from "./next.config";
 import { VISA_FACE_DETECTION_ASSET_VERSION, visaFaceDetectionAssetUrl } from "./config/visa-face-detection-assets";
 
 describe("Next response policy", () => {
+  it("caches immutable public scene files without making assistant pages or APIs cacheable", async () => {
+    const entries = await nextConfig.headers?.();
+    const scenes = entries!.filter((entry) => entry.source.startsWith("/ai/") && entry.headers.some((header) => header.value.includes("immutable")));
+    expect(scenes).toHaveLength(9);
+    expect(scenes.filter((scene) => scene.headers.some((header) => header.key === "Content-Encoding" && header.value === "gzip"))).toHaveLength(2);
+    for (const scene of scenes) expect(scene.source).toMatch(/^\/ai\/(human-head|test-landscape)\/[a-z0-9-]+-[a-f0-9]{12}\.(bin(\.gz)?|webp)$/);
+    expect(entries!.some((entry) => ["/ai", "/api/:path*"].includes(entry.source) && entry.headers.some((header) => header.value.includes("public")))).toBe(false);
+  });
   it("caches only explicitly versioned face assets while unversioned assets revalidate", async () => {
     const headers = await nextConfig.headers?.();
     const versioned = headers?.find((entry) => entry.source === "/mediapipe/face_detection/:path*");

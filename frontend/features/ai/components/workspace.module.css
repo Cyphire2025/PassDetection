@@ -11,19 +11,14 @@
 .page[data-appearance="test"] .voiceStatus p { color: #344154; height: 14px; line-height: 14px; margin-top: 2px; }
 .page[data-appearance="test"] .voiceButton {
   background-color: #afb9c6;
-  background-image: linear-gradient(145deg, #f7faff70, #91a0b52e), url("/ai/test-landscape/ground-color.webp");
-  /* Sample the snow atlas's interior island, keeping its black padding outside the button. */
-  background-size: auto, 600px 600px;
-  background-position: center, 15% 50%;
+  background-image: linear-gradient(145deg, #f7faff70, #91a0b52e);
   color: #273344; border-color: #e8eff6a6;
   box-shadow: inset 0 1px 2px #ffffff99, inset 0 -2px 4px #25395125, 0 5px 14px #24334928, 0 0 16px #e9f5ff24;
 }
 .page[data-appearance="test"] .voiceButton:hover { color: #172c44; box-shadow: inset 0 1px 3px #ffffffbb, 0 5px 16px #24334930, 0 0 20px #e9f5ff40; }
 .page[data-appearance="test"] .voiceButton[aria-pressed="true"], .page[data-appearance="test"][data-phase="speaking"] .voiceButton {
   background-color: #334257;
-  background-image: linear-gradient(145deg, #33425788, #24364ecc), url("/ai/test-landscape/ground-color.webp");
-  background-size: auto, 600px 600px;
-  background-position: center, 15% 50%;
+  background-image: linear-gradient(145deg, #33425788, #24364ecc);
   color: #f3f6fa;
   box-shadow: inset 0 1px 3px #ffffff44, 0 0 0 calc(3px + var(--voice-level,0) * 9px) #d8ecff18, 0 0 20px #e9f5ff35;
 }
