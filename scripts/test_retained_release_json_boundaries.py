@@ -28,6 +28,45 @@ class RetainedJsonBoundaries(unittest.TestCase):
             self.assertEqual(release.rows(), [])
         command.assert_called_once_with("docker", "ps", "-q", "--no-trunc")
 
+    def test_large_retained_inventory_is_complete_without_an_unbounded_inspect(self):
+        identifiers = [f"{index:064x}" for index in range(529)]
+        inspected = []
+
+        def command(*args, **kwargs):
+            if args[:2] == ("docker", "ps"):
+                return "\n".join(identifiers)
+            batch = list(args[2:])
+            self.assertLessEqual(len(batch), 16)
+            self.assertGreater(kwargs["timeout"], 0)
+            self.assertLessEqual(kwargs["timeout"], 120)
+            inspected.extend(batch)
+            return json.dumps([{"Id": identifier} for identifier in batch])
+
+        release = object.__new__(facade.RetainedUpdate)
+        with patch.object(host, "command", side_effect=command):
+            rows = release.rows(all=True)
+        self.assertEqual(inspected, identifiers)
+        self.assertEqual([row["Id"] for row in rows], identifiers)
+
+    def test_inspection_batches_share_the_original_deadline(self):
+        release = object.__new__(facade.RetainedUpdate)
+        with (
+            patch.object(host, "command", side_effect=[" ".join(str(i) for i in range(17)), "[]"]) as command,
+            patch.object(host.time, "monotonic", side_effect=[100, 100, 221]),
+            self.assertRaisesRegex(ValueError, "^docker_inventory_deadline_exceeded$"),
+        ):
+            release.rows(all=True)
+        self.assertEqual(command.call_count, 2)
+        self.assertEqual(command.call_args.kwargs["timeout"], 120)
+
+    def test_malformed_later_batch_does_not_return_a_partial_inventory(self):
+        release = object.__new__(facade.RetainedUpdate)
+        with (
+            patch.object(host, "command", side_effect=[" ".join(str(i) for i in range(17)), "[]", "{}"]),
+            self.assertRaisesRegex(ValueError, "^invalid_docker_inventory$"),
+        ):
+            release.rows(all=True)
+
     def test_non_string_service_identity_uses_existing_bounded_rejection(self):
         for name in (None, ["synthetic-private"]):
             with self.subTest(name=name):

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 import os
 import shutil
 import subprocess
@@ -54,9 +55,17 @@ class _RetainedHost:
         ids = command("docker", "ps", "-aq" if all else "-q", "--no-trunc").split()
         if not ids:
             return []
-        rows = json.loads(command("docker", "inspect", *ids, timeout=120))
-        if not isinstance(rows, list) or any(not isinstance(row, dict) for row in rows):
-            raise ValueError("invalid_docker_inventory")
+        # Retained release history can exceed a single command's output cap.
+        # Keep every container while bounding each capture and the total wait.
+        deadline = time.monotonic() + 120
+        rows: list[dict[str, Any]] = []
+        for offset in range(0, len(ids), 16):
+            remaining = math.ceil(deadline - time.monotonic())
+            require(remaining > 0, "docker_inventory_deadline_exceeded")
+            batch = json.loads(command("docker", "inspect", *ids[offset:offset + 16], timeout=remaining))
+            if not isinstance(batch, list) or any(not isinstance(row, dict) for row in batch):
+                raise ValueError("invalid_docker_inventory")
+            rows.extend(batch)
         return rows
 
     def paused_services(self) -> frozenset[str]:
