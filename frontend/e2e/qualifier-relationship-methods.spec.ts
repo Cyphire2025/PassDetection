@@ -35,12 +35,8 @@ async function prepareLink(page: Page, methods: Methods) {
         agent_employee_code_label: "Agent/Employee Code", agency_dealership_name_label: "Agency/Dealership Name",
         qualifier_relation_list_enabled: methods.list, qualifier_relation_other_enabled: methods.other,
       },
-  };
-  const state = await mockFreshFlow(page, token, { group, route: async (route) => {
-    const request = route.request();
-    if (!new URL(request.url()).pathname.endsWith("/qualifier-selection")) return false;
-    const session = request.headers()["x-upload-session-id"];
-    expect(session).toBeTruthy();
+    });
+    if (pathname.endsWith("/qualifier-selection")) {
       if (request.method() === "POST") {
         const body = request.postDataJSON();
         saves.push(body);
@@ -136,7 +132,7 @@ for (const viewport of [{ width: 1440, height: 1100 }, { width: 390, height: 950
       expect(fixture.saves[0]).toEqual(methods.other
         ? { is_self: false, relation_code: "other", other_relation: "Cousin" }
         : { is_self: false, relation_code: "spouse" });
-      expect(fixture.pageErrors).toEqual([]);
+      expect(fixture.errors).toEqual([]);
       expect(fixture.unexpected).toEqual([]);
     });
   }

@@ -99,6 +99,8 @@ describe("current Fresh contact verification obligations", () => {
   it("allows a corrected code on the same challenge only after authoritative revision refresh", async () => {
     api.verifyCode.mockRejectedValueOnce({ code: "OTP_INVALID", message: "Incorrect verification code." });
     await request();
+    expect(api.read).toHaveBeenCalledOnce();
+    api.read.mockClear();
     fireEvent.change(screen.getByLabelText("Verification code"), { target: { value: "111111" } });
     fireEvent.click(screen.getByRole("button", { name: "Confirm code" }));
     expect(await screen.findByRole("alert")).toHaveTextContent("Incorrect verification code");

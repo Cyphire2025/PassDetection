@@ -70,6 +70,8 @@ class RetainedHealthAssetTests(unittest.TestCase):
 
     def test_retained_update_frontend_probe_preserves_success_and_failure_gates(self):
         release = object.__new__(retained.RetainedUpdate)
+        release.revision = REVISION
+        release.verify_assistant_transport = Mock()
         release.wait_health = Mock()
         release.retention = Mock()
         rows = {

@@ -10,10 +10,8 @@ from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.mcp.credentials import utc
-from app.core.config.settings import Settings
 from app.domain.assistant_identity import ASSISTANT_CLIENT_ID
 from app.domain.entities.entities import User
-from app.domain.mcp_section_permissions import WRITE_CAPABILITIES
 from app.infrastructure.database.mcp_models import MCPGrantModel
 from app.infrastructure.database.session import get_db_session
 from app.infrastructure.repositories.audit_log_repository import AuditLogRepository
@@ -23,45 +21,8 @@ from app.presentation.api.v1.schemas.mcp_schemas import (
 )
 from app.presentation.dependencies.mcp import require_mcp_management
 
+from .mcp_admin_connection_payload import connection_payload as connection_payload
 from .mcp_admin_context import _settings
-
-
-def connection_payload(grant: MCPGrantModel, settings: Settings | None = None) -> dict[str, object]:
-    effective = (
-        set(grant.capabilities) & set(settings.mcp.effective_capabilities)
-        if settings
-        else set(grant.capabilities)
-    )
-    if grant.read_enabled is not True:
-        effective.discard("mcp:read")
-    if grant.write_enabled is not True:
-        effective.difference_update(WRITE_CAPABILITIES)
-    return {
-        "id": str(grant.id),
-        "user_id": str(grant.user_id),
-        "client_id": grant.client_id,
-        "name": grant.name,
-        "enabled": grant.enabled,
-        "read_enabled": grant.read_enabled,
-        "write_enabled": grant.write_enabled,
-        "allowed_read_sections": grant.allowed_read_sections,
-        "allowed_write_sections": grant.allowed_write_sections,
-        "permission_revision": grant.permission_revision,
-        "device_platform": grant.device_platform,
-        "capabilities": grant.capabilities,
-        "effective_capabilities": sorted(effective),
-        "created_at": grant.created_at,
-        "expires_at": grant.expires_at,
-        "last_used_at": grant.last_used_at,
-        "revoked_at": grant.revoked_at,
-        "status": "revoked"
-        if grant.revoked_at
-        else "expired"
-        if utc(grant.expires_at) <= datetime.now(UTC)
-        else "disabled"
-        if not grant.enabled
-        else "active",
-    }
 
 
 async def connections(

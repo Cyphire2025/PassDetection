@@ -3,15 +3,8 @@
 import { WorkspacePageHeader } from "@/components/shared/workspace-ui";
 import { AccountSecurityPanel } from "@/features/auth/components/account-security-panel";
 import { selectUser, useAuthStore } from "@/stores/auth.store";
-import {
-  Database,
-  MessageSquare,
-  Monitor,
-  Settings2,
-  ShieldCheck,
-  SlidersHorizontal,
-  Sparkles,
-} from "lucide-react";
+import { Settings2 } from "lucide-react";
+import { visibleSections, type Section } from "./dashboard-settings-sections";
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { AppearanceSettings } from "./appearance-settings";
@@ -39,49 +32,6 @@ const WhatsAppTemplateSettingsPanel = dynamic(
     ),
   },
 );
-
-const SECTIONS = [
-  { id: "ai", title: "AI assistant", description: "Models, connection and access", icon: Sparkles },
-  {
-    id: "appearance",
-    title: "Appearance & navigation",
-    description: "Display and sidebar preferences",
-    icon: Monitor,
-  },
-  {
-    id: "policies",
-    title: "Platform policies",
-    description: "Intake, review and retention",
-    icon: SlidersHorizontal,
-  },
-  {
-    id: "whatsapp",
-    title: "WhatsApp templates",
-    description: "Approved message template names",
-    icon: MessageSquare,
-  },
-  {
-    id: "security",
-    title: "Account & security",
-    description: "Your identity and active sessions",
-    icon: ShieldCheck,
-  },
-  {
-    id: "data",
-    title: "Data administration",
-    description: "Manage retained operational data",
-    icon: Database,
-  },
-] as const;
-type Section = (typeof SECTIONS)[number]["id"];
-
-function visibleSections(role: string | undefined) {
-  return SECTIONS.filter(({ id }) => {
-    if (id === "ai") return role === "super_admin";
-    if (id === "whatsapp") return role === "super_admin" || role === "agency_admin";
-    return true;
-  });
-}
 
 export function DashboardSettingsPage() {
   const [section, setSection] = useState<Section>("appearance");

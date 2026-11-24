@@ -39,7 +39,7 @@ export function TravellerPortal({ token }: { token: string }) {
       <button type="button" onClick={() => setPath("start")} className="mb-4 inline-flex min-h-11 items-center gap-2 text-sm font-medium text-slate-600 hover:text-blue-700"><ArrowLeft className="h-4 w-4" />Back</button>
       <ReturningTravellerOffer key={token} token={token} onSelect={(method, capabilities) => setSelection({ method, capabilities })} onFresh={fresh} />
     </> : <section className={`${styles.card} rounded-3xl border border-white bg-white/95 shadow-[0_12px_48px_-24px_rgba(15,45,90,0.28)]`} aria-labelledby="traveller-welcome">
-      <h2 id="traveller-welcome" className="text-xl font-semibold tracking-tight text-slate-950">Letâ€™s get you ready.</h2>
+      <h2 id="traveller-welcome" className="text-xl font-semibold tracking-tight text-slate-950">Let’s get you ready.</h2>
       <div className={styles.choices}>
         <TravellerEntryChoice icon={<FolderCheck className="h-6 w-6" />} title="Travelled with us before" description="Find and review your saved passport." onClick={() => setPath("returning")} />
         <TravellerEntryChoice icon={<FilePlus2 className="h-6 w-6" />} title="New traveller" description="Upload your documents for this trip." onClick={fresh} />

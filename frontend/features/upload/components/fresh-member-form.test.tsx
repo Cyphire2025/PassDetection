@@ -110,7 +110,7 @@ describe("fresh contact proof authority", () => {
     await screen.findByRole("button", { name: "Verify WhatsApp number" });
     expect(screen.getByRole("button", { name: "Confirm details and submit" })).toBeDisabled();
     await confirmCode();
-    expect(api.read).toHaveBeenCalledOnce();
+    expect(api.read).toHaveBeenCalledTimes(2);
     fireEvent.click(screen.getByRole("button", { name: "Confirm details and submit" }));
     await waitFor(() => expect(onComplete).toHaveBeenCalledOnce());
     expect(api.complete.mock.calls[0].slice(0, 3)).toEqual([2, "verified-proof", "stable-final-key"]);
@@ -137,7 +137,7 @@ describe("fresh contact proof authority", () => {
 
   it("keeps submission blocked if the authoritative post-verification read fails", async () => {
     server.phone_verification_id = null; server.phone_verification_expires_at = null;
-    api.read.mockRejectedValueOnce(new Error("Private draft could not be refreshed."));
+    api.read.mockImplementationOnce(async () => snapshot()).mockRejectedValueOnce(new Error("Private draft could not be refreshed."));
     render(<FreshMemberForm token="trip" group={group} member={member} initial={collection} onStarted={vi.fn()} onComplete={vi.fn()} onBack={vi.fn()} />);
     fireEvent.click(await screen.findByRole("button", { name: "Verify WhatsApp number" }));
     fireEvent.change(await screen.findByLabelText("Verification code"), { target: { value: "123456" } });

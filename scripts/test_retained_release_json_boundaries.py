@@ -45,9 +45,13 @@ class RetainedJsonBoundaries(unittest.TestCase):
 
     def proof(self, asset):
         release = object.__new__(facade.RetainedUpdate)
+        release.revision = REVISION
+        release.verify_assistant_proxy = Mock()
+        release.verify_assistant_transport = Mock()
         release.wait_health = Mock()
         release.retention = Mock()
         rows = {
+            "nginx": {"Id": "synthetic-nginx"},
             "backend": {"Id": "synthetic-backend"},
             "frontend": {
                 "Id": "synthetic-frontend",

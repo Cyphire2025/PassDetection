@@ -748,20 +748,20 @@
     {
       "path": "backend/requirements-dev.lock",
       "before_0140": "558e52f32ca3b6225d39b7ee86a036f79c13225baf4a78f051925bef511e146c",
-      "before_0141": "558e52f32ca3b6225d39b7ee86a036f79c13225baf4a78f051925bef511e146c",
-      "after": "fa496ac3b66cb786678e2d68d5dd105b06e1f111c909334848a93f29c17c7e1f"
+      "before_0141": "924fd6694f64d1cb22313f4b6e2f0ed2d3af2bd06e3f0c49549183106e9229f4",
+      "after": "924fd6694f64d1cb22313f4b6e2f0ed2d3af2bd06e3f0c49549183106e9229f4"
     },
     {
       "path": "backend/requirements.lock",
       "before_0140": "1504909b310b33fcfbdd6a45d90f41dc6df8b743ec97f77e3ed918013fa43c75",
-      "before_0141": "1504909b310b33fcfbdd6a45d90f41dc6df8b743ec97f77e3ed918013fa43c75",
-      "after": "1fe14679cfb5a5dce7043966982e4b348c5861d9d952dfc32183eea7ce1e2bd0"
+      "before_0141": "fc81449783a1f09fbff8e326b2384ad544c90ec1eaa6b6a111783edba839ab06",
+      "after": "fc81449783a1f09fbff8e326b2384ad544c90ec1eaa6b6a111783edba839ab06"
     },
     {
       "path": "backend/requirements.txt",
       "before_0140": "85806e4acd976cfb1d86437cb6af229505ec9c86ef714e015c91e19883344282",
-      "before_0141": "85806e4acd976cfb1d86437cb6af229505ec9c86ef714e015c91e19883344282",
-      "after": "ba9cbd3b577b316b1262c2f5ce6cd14f8d2cf5c9347df152f75bc252a42ad31c"
+      "before_0141": "34aa06311f4717af703961fa3fad3ca6753db20cf0726f22385a9a872056bad2",
+      "after": "34aa06311f4717af703961fa3fad3ca6753db20cf0726f22385a9a872056bad2"
     },
     {
       "path": "docker-compose.audit.yml",
@@ -770,22 +770,40 @@
       "after": "b356f5c9044d77cab626d4cba704c9f6b8d17ae290b8d7d563e402b8e105c38c"
     },
     {
+      "path": "docker-compose.qualification.yml",
+      "before_0140": "b8accc96de16ffc5bb29ad9cee53e936bca49b71af4f39840901259bcfb4f90d",
+      "before_0141": "2fade194da9e5ab385a5ba8c4aac1e54fcfa0083cfcad9a82c6fdc37467a0b11",
+      "after": "2fade194da9e5ab385a5ba8c4aac1e54fcfa0083cfcad9a82c6fdc37467a0b11"
+    },
+    {
       "path": "docker-compose.yml",
       "before_0140": "e7e44f8ad4aa6fd39c6fbbdd1befec7750470d4c64c4eac623cf308cfc861e45",
       "before_0141": "37a1d21f0e313c9e0e0c3d9fde4a662743317751aae059965d01ab6eb53ea8a8",
       "after": "918eb4fc3eccecb7c68ad56ab66b36a976754b3f0b1f0ce7a04081c8e309a357"
     },
     {
+      "path": "frontend/next.config.ts",
+      "before_0140": "84cd117e0abccd6c238880a9a1c2d1fcc0e650ca0ace08a3d86354d7fbc955a0",
+      "before_0141": "cea11340f2be7f60a05d73b87c2646e965748708b3b8e16c37518cce72c10c1e",
+      "after": "cea11340f2be7f60a05d73b87c2646e965748708b3b8e16c37518cce72c10c1e"
+    },
+    {
       "path": "frontend/package-lock.json",
       "before_0140": "8fad36f5d051e3d3b57c4db03d042d152c4dc8ddfaccf43e1df385d06681b0a8",
-      "before_0141": "8fad36f5d051e3d3b57c4db03d042d152c4dc8ddfaccf43e1df385d06681b0a8",
-      "after": "aa4adc3d5ff8e8fba20dc8454d60c953011da383a74fba26dda48c36f96ff029"
+      "before_0141": "12c93d5ceaa589a8ab836c53ceb75cdf127de0bab0ebdce21cc0f4841553f721",
+      "after": "d784ca918f04abb042a6b8b2d152e2535973691e2dde98dcde7d1d141bd52630"
     },
     {
       "path": "frontend/package.json",
       "before_0140": "2af0aef08b986e7ea44ad5ab6039716c695f63d1a8d2564b216d9310131ec754",
-      "before_0141": "2af0aef08b986e7ea44ad5ab6039716c695f63d1a8d2564b216d9310131ec754",
-      "after": "408dad065be30f21a2344af398a32238ac72250a778e363977fab10ba247ff81"
+      "before_0141": "bc48e8ffbe93c8e757d97057fb87fb2ccf78a2e59ae00862a954182340b60a81",
+      "after": "14da4cd14c0081e609c6e052bd5fd37197fc73cf2bd37c363a11372e77abad14"
+    },
+    {
+      "path": "frontend/scripts/bake-test-head-fields.py",
+      "before_0140": null,
+      "before_0141": "420fc92e7aa2ac47ef2eb7dbb75ece65549601f7f3200b9752b3e90873817a8d",
+      "after": "420fc92e7aa2ac47ef2eb7dbb75ece65549601f7f3200b9752b3e90873817a8d"
     },
     {
       "path": "frontend/scripts/browser-verification-local-fixture.mjs",
@@ -806,10 +824,46 @@
       "after": "ba8cc40f6376db7d57f4cfbc02dcab585b443bdc59dbdb81d4931c5d91c4d304"
     },
     {
+      "path": "frontend/scripts/build-human-head.py",
+      "before_0140": null,
+      "before_0141": "f95e87ea97696713023e651c973c5ec5a27962204674a7ca61395f4dce2a8620",
+      "after": "f95e87ea97696713023e651c973c5ec5a27962204674a7ca61395f4dce2a8620"
+    },
+    {
       "path": "frontend/scripts/build-offline-scanner.mjs",
       "before_0140": null,
       "before_0141": null,
       "after": "43f6ea6db77140818253850dc9a4501e98bfeb27d41c000cd1a4382e2db690cc"
+    },
+    {
+      "path": "frontend/scripts/build-test-head-fields.mjs",
+      "before_0140": null,
+      "before_0141": "0c18aeb99b892f8213a4a3761b723971b07eae748bb7df9063e0b942a19d89c4",
+      "after": "0c18aeb99b892f8213a4a3761b723971b07eae748bb7df9063e0b942a19d89c4"
+    },
+    {
+      "path": "frontend/scripts/build-test-hologram-assets.mjs",
+      "before_0140": null,
+      "before_0141": "8aa78c582038056dc5ad1cf1e46cf4ff6ec18d063509eeae611491e92dd1760c",
+      "after": "8aa78c582038056dc5ad1cf1e46cf4ff6ec18d063509eeae611491e92dd1760c"
+    },
+    {
+      "path": "frontend/scripts/decode-test-landscape.mjs",
+      "before_0140": null,
+      "before_0141": "899013afde833f99982febe2bf552a846fda36c7ccfd08097b87195176481fed",
+      "after": "899013afde833f99982febe2bf552a846fda36c7ccfd08097b87195176481fed"
+    },
+    {
+      "path": "frontend/scripts/render-human-head-stills.py",
+      "before_0140": null,
+      "before_0141": "c4ec69ad70ef5514912c5c41f856390ccfa7a6d15e6bf27a2f2c83b92ff04fb8",
+      "after": "c4ec69ad70ef5514912c5c41f856390ccfa7a6d15e6bf27a2f2c83b92ff04fb8"
+    },
+    {
+      "path": "frontend/scripts/test_bake_head_fields.py",
+      "before_0140": null,
+      "before_0141": "cdbb0459b01211d8be64933f9f304306a085472016e09c797f4c112f9046d05a",
+      "after": "cdbb0459b01211d8be64933f9f304306a085472016e09c797f4c112f9046d05a"
     },
     {
       "path": "frontend/scripts/verify-access-level-browser.mjs",
@@ -856,8 +910,8 @@
     {
       "path": "nginx/conf.d/default.conf",
       "before_0140": "b023517acaf89fdc07bcef11d72be7cf43f20b48507bab55e96ab18c4e06cd42",
-      "before_0141": "b023517acaf89fdc07bcef11d72be7cf43f20b48507bab55e96ab18c4e06cd42",
-      "after": "d4785794a3bf927c59dab74d4c1c99ed6b5919c26ffa0df06842821b3470f183"
+      "before_0141": "979be7ed0087362f3cd29b755d17c6fd1fd54dab0526632e17f38a2fbae684ef",
+      "after": "99c59d2f68db68edca55e4761ef960b88d6bb08899d2041d75b3d424e93c854d"
     },
     {
       "path": "nginx/nginx.conf",

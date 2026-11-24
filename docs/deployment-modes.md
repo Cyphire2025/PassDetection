@@ -224,6 +224,15 @@ it never restarts 0140 writers against the partially advanced schema. A live
 commits. A running migration helper blocks recovery. No automatic downgrade is
 performed, and all prior resources and recovery receipts are retained.
 
+The 24 November 2026 operator release binds the observed 0141 source to
+`35a2c97e561b9658227ce65fce0b5c46312dc6cc`. Its source inventory retains the
+newer main fixes while admitting the pending refactor and background column.
+Backend runtime dependency locks remain identical to that running release;
+the frontend is rebuilt with Next.js/eslint-config-next 16.4.6 and
+follow-redirects 1.16.2. The exact-image rehearsal, fenced database archive,
+original row/catalog/ACL digest and forward-only recovery are still required.
+This operator Fast release does not claim full CI qualification.
+
 Once 0142 is installed, subsequent releases use ordinary same-schema rules.
 Local unit tests do not establish PostgreSQL locking, Docker image qualification
 or the actual VPS's current state. The protected release process still requires

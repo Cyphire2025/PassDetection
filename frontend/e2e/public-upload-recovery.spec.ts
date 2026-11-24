@@ -71,7 +71,7 @@ test("a temporary private draft read failure retains the accepted image and retr
   await page.getByRole("button", { name: "Retry", exact: true }).click();
   await expect(page.getByRole("alert").filter({ hasText: "Private draft is temporarily unavailable" })).toHaveCount(0);
   await verifyFreshContact(page); await page.getByRole("button", { name: "Confirm details and submit" }).click();
-  await expect(page.getByRole("heading", { name: "Youâ€™re all set" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "You’re all set" })).toBeVisible();
   expect(state.uploads).toHaveLength(1); expect(state.acceptedUploadKeys.size).toBe(1);
   expect(state.completions).toHaveLength(1); expectFreshFixtureClean(state);
 });
@@ -80,17 +80,17 @@ test("failed AI reading allows manual corrections but requires verified replacem
   const state = await mockFreshPublicUpload(page, { passport: true });
   state.faults.extractionFailed = true; state.faults.resultStatus = "needs_review";
   await enterFresh(page); await fillFreshDetails(page); await uploadFreshPassport(page);
-  await expect(page.getByRole("alert").filter({ hasText: "couldnâ€™t read this passport" })).toBeVisible();
+  await expect(page.getByRole("alert").filter({ hasText: "couldn’t read this passport" })).toBeVisible();
   await page.getByLabel("Passport Number", { exact: true }).fill("MANUAL123");
   await verifyFreshContact(page); await page.getByRole("button", { name: "Confirm details and submit" }).click();
   await expect(page.getByRole("alert").filter({ hasText: "passport check to finish" })).toBeVisible();
   expect(state.completionAttempts).toEqual([]);
   state.faults.extractionFailed = false;
   await uploadFreshPassport(page, "clearer-synthetic-passport.jpg");
-  await expect(page.getByRole("alert").filter({ hasText: "couldnâ€™t read this passport" })).toHaveCount(0);
+  await expect(page.getByRole("alert").filter({ hasText: "couldn’t read this passport" })).toHaveCount(0);
   await expect(page.getByLabel("Passport Number", { exact: true })).toHaveValue("TEST1234");
   await page.getByRole("button", { name: "Confirm details and submit" }).click();
-  await expect(page.getByRole("heading", { name: "Youâ€™re all set" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "You’re all set" })).toBeVisible();
   await expect(page.getByText("Your travel team will review them.", { exact: false })).toBeVisible();
   expect([...state.drafts.values()][0].result_status).toBe("needs_review");
   expect(state.completionAttempts).toHaveLength(1);
@@ -110,7 +110,7 @@ test("a lost document-upload response reconciles the accepted private image with
   await page.getByRole("button", { name: "Retry", exact: true }).click();
   await expect(page.getByLabel("Passport Number", { exact: true })).toHaveValue("TEST1234");
   await verifyFreshContact(page); await page.getByRole("button", { name: "Confirm details and submit" }).click();
-  await expect(page.getByRole("heading", { name: "Youâ€™re all set" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "You’re all set" })).toBeVisible();
   expect(state.uploads).toHaveLength(1); expect(state.acceptedUploadKeys.size).toBe(1);
   expect(state.reads.length).toBeGreaterThan(0); expect(state.completions).toHaveLength(1);
   expectFreshFixtureClean(state);

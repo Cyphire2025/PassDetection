@@ -10,7 +10,7 @@ import { useDraftDocumentUpload } from "../hooks/use-draft-document-upload";
 import { DraftDocumentCard } from "./draft-document-card";
 import { InstructionLanguageSelector } from "./instruction-language-selector";
 import { VisaPhotoGuidelines } from "./visa-photo-guidelines";
-import { PassportPageSample } from "./passport-upload-page";
+import { PassportPageSample } from "./passport-page-sample";
 import { useInstructionLanguage } from "../hooks/use-instruction-language";
 import { UPLOAD_INSTRUCTIONS } from "../config/instruction-translations";
 

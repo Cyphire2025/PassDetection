@@ -52,11 +52,11 @@ class Contracts(unittest.TestCase):
             release = object.__new__(RetainedUpdate)
             release.source = source
             backend = {'Id': 'candidate-exact-backend'}
-            with patch('release_retained_update.command', return_value='{"status":"passed"}') as run:
+            with patch('retained_release_runtime.command', return_value='{"status":"passed"}') as run:
                 release.verify_assistant_transport(backend)
                 self.assertEqual(run.call_args.args, ('docker', 'exec', backend['Id'], 'python',
                                                       'scripts/verify_assistant_transport.py'))
-            with patch('release_retained_update.command', return_value='{"status":"failed"}'), self.assertRaises(ValueError):
+            with patch('retained_release_runtime.command', return_value='{"status":"failed"}'), self.assertRaises(ValueError):
                 release.verify_assistant_transport(backend)
 
     def test_public_release_proof_rejects_missing_or_changed_running_voice_route(self):
@@ -72,11 +72,11 @@ class Contracts(unittest.TestCase):
             release = object.__new__(RetainedUpdate)
             release.source = source
             proxy = {'Id': 'retained-exact-proxy'}
-            with patch('release_retained_update.command', side_effect=['syntax ok', current]) as run:
+            with patch('retained_release_runtime.command', side_effect=['syntax ok', current]) as run:
                 release.verify_assistant_proxy(proxy)
                 self.assertEqual(run.call_args_list[0].args, ('docker', 'exec', proxy['Id'], 'nginx', '-t'))
             for runtime in (old, current.replace('proxy_set_header Cookie $http_cookie;', '')):
-                with patch('release_retained_update.command', side_effect=['syntax ok', runtime]), self.assertRaises(ValueError):
+                with patch('retained_release_runtime.command', side_effect=['syntax ok', runtime]), self.assertRaises(ValueError):
                     release.verify_assistant_proxy(proxy)
 
     def test_stage_installs_voice_route_only_in_retained_candidate_copy(self):
@@ -106,7 +106,7 @@ class Contracts(unittest.TestCase):
             release.create_candidate = Mock(side_effect=lambda old, options: old['Id'])
             release.client = SimpleNamespace(inspect=Mock(return_value={'Id': 'synthetic'}))
             release.event = Mock()
-            with patch('release_retained_update.ROOT', root), patch('release_retained_update.clone_payload'):
+            with patch('retained_release_runtime.ROOT', root), patch('retained_release_runtime.clone_payload'):
                 release.stage({'backend': 'synthetic-backend', 'frontend': 'synthetic-frontend'})
             staged = release.directory / 'runtime-nginx/candidate/conf.d/default.conf'
             self.assertEqual(staged.read_text().replace(VOICE_LOCATION, '', 1), previous)

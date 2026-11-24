@@ -18,10 +18,10 @@ from release_workspace_branding_bindings import load_bindings
 from release_workspace_branding_contract import SOURCE, TARGET, source_contract
 
 BASE = '98f4fb4f7ba982fc46f917d24db63d59993a74a8'
-BASE_0141 = '875d17b25da2687b5673148fabe9d10346ae0e4a'
+BASE_0141 = '35a2c97e561b9658227ce65fce0b5c46312dc6cc'
 # Exact reviewed data remains digest-pinned; new source paths require explicit review.
-BINDINGS_SHA256 = 'b98d6e57df317ad83f602a529634ac01410eaa5c7689b26b51102778bd944f48'
-BINDINGS_COUNT = 144
+BINDINGS_SHA256 = 'd948aaaaae7c1ce48f1fda139ce4cf0e8af87aceca439e408d09573e1c5b9c56'
+BINDINGS_COUNT = 153
 REVIEWED_FILES, BASELINE_0141_FILES = load_bindings(
     Path(__file__).with_name('release_workspace_branding_bindings.json'),
     BINDINGS_SHA256,
