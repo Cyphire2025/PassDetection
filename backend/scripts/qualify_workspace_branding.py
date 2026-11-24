@@ -62,6 +62,27 @@ def qualify(source_schema: str = SOURCE) -> dict:
         assert value['automatic_downgrade'] is False
         return value
 
+    def reject_mutation(statements):
+        # Exercise committed invalid writes in an isolated copy. Reversing an
+        # UPDATE does not undo roster-revision triggers, so it cannot restore
+        # the original row digest used by the remaining preservation checks.
+        probe_name = 'passdetection_ci_branding_negative_' + uuid.uuid4().hex[:12]
+        probe_engine = create_engine(url.set(database=probe_name), poolclass=NullPool)
+        probe_created = False
+        try:
+            with admin.connect() as connection:
+                connection.execute(text(f'CREATE DATABASE "{probe_name}" TEMPLATE "{name}"'))
+            probe_created = True
+            with probe_engine.begin() as connection:
+                for statement, parameters in statements:
+                    connection.execute(text(statement), parameters)
+            invoke(success=False, overrides={'POSTGRES_DB': probe_name})
+        finally:
+            probe_engine.dispose()
+            if probe_created:
+                with admin.connect() as connection:
+                    connection.execute(text(f'DROP DATABASE "{probe_name}"'))
+
     try:
         with admin.connect() as connection:
             connection.execute(text(f'CREATE DATABASE "{name}"'))
@@ -104,18 +125,16 @@ def qualify(source_schema: str = SOURCE) -> dict:
             assert connection.scalar(text('SELECT logo_image_key FROM client_organizations WHERE id=:id'), {'id': company}) == ('synthetic/existing-logo' if source_schema == CHAIN[0] else None)
             assert connection.scalar(text('SELECT banner_image_key FROM client_groups WHERE id=:id'), {'id': group}) == ('synthetic/existing-banner' if source_schema == CHAIN[0] else None)
             assert connection.scalar(text('SELECT background_image_key FROM client_groups WHERE id=:id'), {'id': group}) is None
-            connection.execute(text("UPDATE client_groups SET background_image_key='synthetic/temporary' WHERE id=:id"), {'id': group})
-        invoke(success=False)
-        with engine.begin() as connection:
-            connection.execute(text('UPDATE client_groups SET background_image_key=NULL WHERE id=:id'), {'id': group})
-            connection.execute(text("UPDATE client_organizations SET name='Unexpected mutation' WHERE id=:id"), {'id': company})
-        invoke(success=False)
-        with engine.begin() as connection:
-            connection.execute(text("UPDATE client_organizations SET name='Synthetic company' WHERE id=:id"), {'id': company})
-            connection.execute(text('CREATE INDEX unexpected_branding_idx ON client_groups(name)'))
-        invoke(success=False)
-        with engine.begin() as connection:
-            connection.execute(text('DROP INDEX unexpected_branding_idx'))
+        reject_mutation([
+            ('SET LOCAL ROLE branding_runtime', {}),
+            ("UPDATE client_groups SET background_image_key='synthetic/temporary' WHERE id=:id", {'id': group}),
+        ])
+        reject_mutation([
+            ("UPDATE client_organizations SET name='Unexpected mutation' WHERE id=:id", {'id': company}),
+        ])
+        reject_mutation([
+            ('CREATE INDEX unexpected_branding_idx ON client_groups(name)', {}),
+        ])
         assert invoke()['status'] == 'already_at_target'
         # Downgrade is exercised only in this disposable synthetic database.
         migrate('downgrade', source_schema)
@@ -124,9 +143,9 @@ def qualify(source_schema: str = SOURCE) -> dict:
             migrate('upgrade', CHAIN[0])
         resumed = invoke()
         assert resumed['status'] == 'upgraded' and resumed['executed_revisions'] == [TARGET]
-        with engine.begin() as connection:
-            connection.execute(text('GRANT SELECT(background_image_key) ON client_groups TO branding_runtime'))
-        invoke(success=False)
+        reject_mutation([
+            ('GRANT SELECT(background_image_key) ON client_groups TO branding_runtime', {}),
+        ])
         return {'source': source_schema, 'target': TARGET, 'checks': {key: True for key in CHECKS},
                 'synthetic_only': True, 'messages_sent': 0, 'automatic_downgrade': False}
     finally:
